@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Employee Training Center</title>
+<style>
+:root{
+  --blue:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --white:#FFFFFF;--lb:#E8EEF7;--lg:#E8F5EE;--lr:#FDECEA;--lgo:#FDF6E3;
+  --border:#E5E7EB;--gray:#6B7280;--bg:#F3F4F6;--dark:#111827;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
+body{background:var(--bg);color:var(--dark);min-height:100vh;}
+
+/* HEADER */
+.header{background:var(--blue);padding:16px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.header h1{color:white;font-size:18px;font-weight:800;}
+.header p{color:var(--gold);font-size:12px;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 56px);}
+.sidebar{background:white;border-right:2px solid var(--border);padding:20px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;}
+.main{padding:28px 24px 64px;}
+
+/* SIDEBAR */
+.sidebar-section{padding:12px 20px 6px;font-size:10px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:all .2s;border-left:3px solid transparent;font-size:13px;color:var(--gray);}
+.sidebar-item:hover{background:var(--lb);color:var(--blue);}
+.sidebar-item.active{background:var(--lb);color:var(--blue);border-left-color:var(--gold);font-weight:700;}
+.sidebar-item .icon{font-size:18px;width:24px;text-align:center;}
+.sidebar-item .check{margin-left:auto;font-size:12px;color:var(--green);}
+.progress-bar-wrap{padding:12px 20px;}
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .4s;}
+.progress-label{font-size:11px;color:var(--gray);margin-top:4px;}
+
+/* CARDS */
+.card{background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px;}
+.card-title{font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px;}
+.card-sub{font-size:13px;color:var(--gray);margin-bottom:20px;line-height:1.6;}
+.section-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:12px;}
+
+/* VIDEO PLACEHOLDER */
+.video-slot{background:var(--dark);border-radius:12px;aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:20px;cursor:pointer;border:2px dashed #374151;position:relative;overflow:hidden;}
+.video-slot iframe{position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:10px;}
+.video-slot .placeholder-content{text-align:center;padding:24px;}
+.video-slot .play-icon{font-size:56px;margin-bottom:12px;opacity:.6;}
+.video-slot .video-title{color:white;font-size:15px;font-weight:700;margin-bottom:6px;}
+.video-slot .video-hint{color:#9CA3AF;font-size:12px;margin-bottom:16px;}
+.video-slot .add-video-btn{padding:8px 20px;background:var(--gold);color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+
+/* SCRIPT BOX */
+.script-box{background:#111827;border-radius:10px;padding:20px;margin-bottom:16px;}
+.script-label{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;}
+.script-text{font-size:13px;color:#E5E7EB;line-height:1.8;white-space:pre-wrap;}
+.copy-script-btn{margin-top:12px;padding:6px 14px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;}
+.copy-script-btn:hover{background:var(--gold);color:white;}
+
+/* CONTENT SECTIONS */
+.content-section{margin-bottom:24px;}
+.content-section h3{font-size:15px;font-weight:800;color:var(--blue);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border);}
+.content-block{font-size:13px;line-height:1.8;color:#374151;margin-bottom:12px;}
+.key-points{list-style:none;margin-bottom:12px;}
+.key-points li{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-radius:6px;margin-bottom:6px;font-size:13px;background:var(--lb);}
+.key-points li::before{content:"✅";flex-shrink:0;}
+.warning-box{background:var(--lr);border-left:4px solid var(--red);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--red);}
+.gold-box{background:var(--lgo);border-left:4px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#92710A;}
+
+/* QUIZ */
+.quiz-container{background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px;}
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.quiz-title{font-size:16px;font-weight:800;color:var(--blue);}
+.quiz-score{font-size:13px;color:var(--gray);}
+.question-block{margin-bottom:24px;padding:16px;border:2px solid var(--border);border-radius:10px;transition:border-color .2s;}
+.question-block.correct{border-color:var(--green);background:var(--lg);}
+.question-block.incorrect{border-color:var(--red);background:var(--lr);}
+.question-text{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:12px;}
+.q-num{display:inline-flex;width:24px;height:24px;background:var(--blue);color:white;border-radius:50%;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin-right:8px;flex-shrink:0;}
+.option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:2px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all .2s;font-size:13px;}
+.option:hover{border-color:var(--blue);background:var(--lb);}
+.option.selected{border-color:var(--blue);background:var(--lb);}
+.option.correct-answer{border-color:var(--green);background:var(--lg);color:var(--green);font-weight:700;}
+.option.wrong-answer{border-color:var(--red);background:var(--lr);color:var(--red);}
+.option input{accent-color:var(--blue);}
+.feedback{font-size:12px;margin-top:8px;padding:8px 12px;border-radius:6px;display:none;}
+.feedback.show{display:block;}
+.feedback.correct{background:var(--lg);color:var(--green);}
+.feedback.incorrect{background:var(--lr);color:var(--red);}
+.quiz-submit{width:100%;padding:12px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
+.quiz-submit:hover{background:#142d55;}
+.quiz-result{text-align:center;padding:24px;border-radius:10px;margin-top:16px;display:none;}
+.quiz-result.show{display:block;}
+.quiz-result.pass{background:var(--lg);color:var(--green);}
+.quiz-result.fail{background:var(--lr);color:var(--red);}
+.quiz-result .big-score{font-size:48px;font-weight:800;margin-bottom:8px;}
+.quiz-result .result-label{font-size:16px;font-weight:700;margin-bottom:8px;}
+.quiz-result .result-sub{font-size:13px;opacity:.8;}
+
+/* MODULE PAGE */
+.module-page{display:none;}
+.module-page.active{display:block;}
+
+/* COMPLETION BADGE */
+.completion-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--lg);color:var(--green);border-radius:20px;font-size:12px;font-weight:700;border:2px solid var(--green);}
+
+/* TABS */
+.module-tabs{display:flex;gap:4px;background:white;border-radius:10px;padding:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px;flex-wrap:wrap;}
+.module-tab{padding:8px 16px;border-radius:7px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;transition:all .2s;}
+.module-tab.active{background:var(--blue);color:white;}
+
+/* WELCOME */
+.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+.module-card{background:white;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;transition:all .2s;border:2px solid transparent;text-align:center;}
+.module-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12);}
+.module-card.completed{border-color:var(--green);background:var(--lg);}
+.module-card .mod-icon{font-size:40px;margin-bottom:10px;}
+.module-card .mod-title{font-size:14px;font-weight:800;color:var(--blue);margin-bottom:4px;}
+.module-card .mod-desc{font-size:11px;color:var(--gray);margin-bottom:10px;}
+.module-card .mod-status{font-size:11px;font-weight:700;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:relative;top:0;height:auto;}
+  .module-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:480px){
+  .module-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>🎓 CP Restoration — Employee Training Center</h1>
+    <p>Complete all 6 modules to be certified for your role</p>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+    <div style="font-size:12px;color:var(--gold);">Progress: <span id="overall-progress">0</span>/6 modules</div>
+    <a href="https://claude.ai/artifact/XUAgfzAYgDfF66a8ispnw4" target="_blank" style="color:var(--gold);font-size:12px;text-decoration:none;">← Back to System</a>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="progress-bar-wrap">
+      <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;">Overall Completion</div>
+      <div class="progress-bar"><div class="progress-fill" id="sidebar-progress" style="width:0%"></div></div>
+      <div class="progress-label"><span id="progress-pct">0%</span> complete</div>
+    </div>
+
+    <div class="sidebar-section">Training Modules</div>
+    <div class="sidebar-item active" onclick="showModule('welcome')" id="nav-welcome">
+      <span class="icon">🏠</span> Welcome & Overview
+      <span class="check" id="check-welcome"></span>
+    </div>
+    <div class="sidebar-item" onclick="showModule('sales')" id="nav-sales">
+      <span class="icon">💼</span> Sales Training
+      <span class="check" id="check-sales"></span>
+    </div>
+    <div class="sidebar-item" onclick="showModule('bureau')" id="nav-bureau">
+      <span class="icon">📞</span> Bureau Calling
+      <span class="check" id="check-bureau"></span>
+    </div>
+    <div class="sidebar-item" onclick="showModule('dispute')" id="nav-dispute">
+      <span class="icon">⚖️</span> Dispute Operations
+      <span class="check" id="check-dispute"></span>
+    </div>
+    <div class="sidebar-item" onclick="showModule('compliance')" id="nav-compliance">
+      <span class="icon">📋</span> Compliance
+      <span class="check" id="check-compliance"></span>
+    </div>
+    <div class="sidebar-item" onclick="showModule('cs')" id="nav-cs">
+      <span class="icon">🎧</span> Customer Service
+      <span class="check" id="check-cs"></span>
+    </div>
+    <div class="sidebar-item" onclick="showModule('ops')" id="nav-ops">
+      <span class="icon">⚙️</span> Operations
+      <span class="check" id="check-ops"></span>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:16px;">Resources</div>
+    <div class="sidebar-item" onclick="showModule('scripts')">
+      <span class="icon">📄</span> Video Scripts
+    </div>
+    <div class="sidebar-item" onclick="showModule('glossary')">
+      <span class="icon">📖</span> Glossary
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- WELCOME -->
+    <div class="module-page active" id="module-welcome">
+      <div style="margin-bottom:6px;"><span class="section-badge" style="background:var(--lb);color:var(--blue);">🏠 Welcome</span></div>
+      <div class="card-title">Welcome to CP Restoration Services</div>
+      <div class="card-sub">Complete all 6 training modules below to become certified in your role. Each module includes written content, a video lesson, and a quiz. You must score 80% or higher on each quiz to pass.</div>
+
+      <div class="module-grid">
+        <div class="module-card" onclick="showModule('sales')" id="card-sales">
+          <div class="mod-icon">💼</div>
+          <div class="mod-title">Sales Training</div>
+          <div class="mod-desc">Packages, compensation, scripts, objections, closing</div>
+          <div class="mod-status" id="status-sales" style="color:var(--gray);">Not started</div>
+        </div>
+        <div class="module-card" onclick="showModule('bureau')" id="card-bureau">
+          <div class="mod-icon">📞</div>
+          <div class="mod-title">Bureau Calling</div>
+          <div class="mod-desc">Calling the bureaus, verbal disputes, fraud alerts, points system</div>
+          <div class="mod-status" id="status-bureau" style="color:var(--gray);">Not started</div>
+        </div>
+        <div class="module-card" onclick="showModule('dispute')" id="card-dispute">
+          <div class="mod-icon">⚖️</div>
+          <div class="mod-title">Dispute Operations</div>
+          <div class="mod-desc">Cover letters, FTC reports, bureau portals, follow-up schedule</div>
+          <div class="mod-status" id="status-dispute" style="color:var(--gray);">Not started</div>
+        </div>
+        <div class="module-card" onclick="showModule('compliance')" id="card-compliance">
+          <div class="mod-icon">📋</div>
+          <div class="mod-title">Compliance</div>
+          <div class="mod-desc">Contracts, CROA, client rights, refunds, data security</div>
+          <div class="mod-status" id="status-compliance" style="color:var(--gray);">Not started</div>
+        </div>
+        <div class="module-card" onclick="showModule('cs')" id="card-cs">
+          <div class="mod-icon">🎧</div>
+          <div class="mod-title">Customer Service</div>
+          <div class="mod-desc">Client communication, status updates, escalations, tone</div>
+          <div class="mod-status" id="status-cs" style="color:var(--gray);">Not started</div>
+        </div>
+        <div class="module-card" onclick="showModule('ops')" id="card-ops">
+          <div class="mod-icon">⚙️</div>
+          <div class="mod-title">Operations</div>
+          <div class="mod-desc">Time tracking, system access, tools, daily workflow</div>
+          <div class="mod-status" id="status-ops" style="color:var(--gray);">Not started</div>
+        </div>
+      </div>
+
+      <div class="card" style="background:var(--lb);border:none;">
+        <div class="card-title" style="font-size:15px;">Before You Begin</div>
+        <ul class="key-points" style="margin-top:12px;">
+          <li>CP Restoration Services has been restoring credit since 2014. We have helped 7,000+ clients improve their credit scores.</li>
+          <li>All client information is strictly confidential. You signed a Non-Compete and Confidentiality Agreement — violating it results in immediate termination and legal action.</li>
+          <li>You are engaged as an independent contractor. You are responsible for your own taxes.</li>
+          <li>All work hours must be logged in the CP Restoration time tracker. Screenshots are taken every 10 minutes. Time theft results in immediate termination.</li>
+          <li>Payments are released every Friday via PayPal or Wise. You must have your payment details on file before your first Friday.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MODULE TEMPLATE FUNCTION handled by JS below -->
+    <div class="module-page" id="module-sales"></div>
+    <div class="module-page" id="module-bureau"></div>
+    <div class="module-page" id="module-dispute"></div>
+    <div class="module-page" id="module-compliance"></div>
+    <div class="module-page" id="module-cs"></div>
+    <div class="module-page" id="module-ops"></div>
+    <div class="module-page" id="module-scripts"></div>
+    <div class="module-page" id="module-glossary"></div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const completed = {};
+const quizScores = {};
+
+// ============================================================
+// MODULE DATA
+// ============================================================
+const MODULES = {
+
+  sales: {
+    icon: '💼',
+    title: 'Sales Training',
+    color: '#C9A84C',
+    badge: 'Sales Representative',
+    intro: 'This module covers everything you need to know to enroll clients into CP Restoration Services. Study the packages, compensation structure, and the sales script carefully. You must know these numbers by heart before your first call.',
+    sections: [
+      {
+        title: '1. Our Packages & Pricing',
+        content: `CP Restoration Services offers six service options. Know every package — you need to recommend the right one based on the client's situation.
+
+<b>&#9889; Express Package — $3,999</b>
+All 3 bureaus. 60 business days or less. Always lead with this.
+
+<b>&#128203; Standard Package — $2,499</b>
+All 3 bureaus. 120 business days or less.
+
+<b>&#128179; In-House Financing — $750 down + $292/month x 6</b>
+All 3 bureaus. Total $2,499. FILE PAUSES if a monthly payment is missed.
+
+<b>&#127974; Single Bureau — $1,000</b>
+One bureau only — client picks which one. 120 business days. Rush available: +$500 = $1,500 total. Use this when the client only has issues on one bureau.
+
+<b>&#128269; Inquiries Only — $45 per inquiry per bureau</b>
+Hard inquiries only. Charge $45 per inquiry per bureau. 120 business days. Rush: +$500 flat fee. ALWAYS calculate the total first — if they have many inquiries, Standard may be cheaper.
+
+<b>&#9889; Rush Add-On — +$500</b>
+Only available on Single Bureau and Inquiries Only.
+
+<b>Inquiry Math Example</b>
+8 inquiries on EQ + 6 on EX + 5 on TU = 19 inquiries x $45 = $855. Still cheaper than Standard at $2,499. But 30 inquiries x $45 = $1,350 — compare to Standard and let the client decide.`,
+        points: [
+          'Express = $3,999 | All 3 bureaus | 60 business days | Lead with this always',
+          'Standard = $2,499 | All 3 bureaus | 120 business days',
+          'Financing = $750 down + $292 x 6 | File pauses if payment missed',
+          'Single Bureau = $1,000 | One bureau only | 120 days | +$500 rush = $1,500',
+          'Inquiries Only = $45 per inquiry per bureau | 120 days | +$500 rush',
+          'Always calculate Inquiries Only total first — Standard may be cheaper',
+          'Rush add-on only available on Single Bureau and Inquiries Only'
+        ]      },
+      {
+        title: '2. Your Compensation',
+        content: `Your compensation is 10% commission per enrolled client. Commission REPLACES your base pay — you receive one or the other, never both.
+
+<b>Commission (10% of final price):</b>
+Express close at $3,999 = $399.90 commission
+Standard close at $2,499 = $249.90 commission
+Financing close at $750 down = $75 commission (on down payment received)
+
+<b>Base Pay ($100/week — 30-Day Probationary Rate):</b>
+All new hires start at $100/week base pay. After 30 days and a satisfactory performance review, base pay may be increased based on results. You receive the $100 base ONLY in weeks where you hit 100 verified dials every single day AND close zero sales. If you make even one sale, you receive commission — not the base.
+
+<b>Dial Requirement:</b>
+100 dials per day, Monday through Friday. Missing even one day below 100 forfeits the entire week's base pay. Dials are tracked automatically through RingCentral — you cannot manually enter your own dial count.`,
+        warning: 'Commission REPLACES the base — never both. If you close a sale you receive commission. If you do not close but hit 100 dials every day, you receive the $100 base. There is no scenario where you receive both.',
+        points: [
+          '10% of final sale price — uncapped',
+          'Must hit 100 dials EVERY day to qualify for base pay',
+          'Commission replaces base — never added together',
+          'RingCentral tracks all dials automatically',
+          'Payments every Friday via PayPal or Wise'
+        ]
+      },
+      {
+        title: '3. The Sales Script',
+        content: `Follow this script on every call. Do not go off-script until you are confident and have at least 10 closed sales under your belt.
+
+<b>Opening:</b>
+"Hi, is this [name]? Great! This is [your name] calling from CP Restoration Services. You recently expressed interest in improving your credit — I'm reaching out to see how we can help you today. Do you have just a few minutes?"
+
+<b>Qualification:</b>
+"Before I tell you about our services, I would love to learn a little about your situation. What's your biggest challenge with your credit right now? How long has this been an issue? Have you tried disputing anything on your own before?"
+
+<b>Presentation:</b>
+"Based on what you are telling me, I think our [Express/Standard] program would be a perfect fit for you. Here's how it works — we go directly to Equifax, Experian, and TransUnion on your behalf. We file formal dispute letters, make bureau calls, and fight to remove every negative item that is inaccurate, outdated, or unverifiable. Our clients see an average deletion rate of 80%."
+
+<b>Price Presentation:</b>
+"Our [Express/Standard] program is a one-time investment of $[price]. That's it — no monthly fees, no surprises. For that, you get our full team working on your file for up to [60/120] business days. Most clients see their first removals within 30 days."
+
+<b>Objection — Too Expensive:</b>
+"I completely understand. Let me ask you this — how much is bad credit costing you right now in higher interest rates, denied loans, and missed opportunities? Our service pays for itself the first time you qualify for a lower rate. We also have a financing option — $750 today and $292 a month for 6 months."
+
+<b>Close:</b>
+"I would love to get you started today. All I need is a few minutes to collect your information and we can have your file open by end of day. Are you ready to take the first step toward better credit?"`,
+        gold: 'The fastest path to a close is empathy. The client is embarrassed about their credit. Acknowledge it, normalize it, then give them hope. "You are not alone — we help people in your exact situation every single day."'
+      },
+      {
+        title: '4. Common Objections',
+        content: `<b>"I need to think about it."</b>
+"Absolutely, I respect that. Can I ask what specifically you need to think through? Is it the price, the process, or something else? I want to make sure I have answered all your questions before we hang up."
+
+<b>"I have tried credit repair before and it did not work."</b>
+"I hear that a lot and it makes complete sense. A lot of companies send generic letters that the bureaus just ignore. What we do differently is we make live bureau calls, we file FTC reports alongside every dispute, and we follow up every 10 business days. We have a money-back guarantee if we do not deliver."
+
+<b>"Is this legal?"</b>
+"100% legal and protected by federal law. The Fair Credit Reporting Act gives every American the right to dispute inaccurate information on their credit report. That's all we do — we exercise your legal rights on your behalf. We are CROA compliant."
+
+<b>"I can do this myself."</b>
+"You can — and we would encourage you to try. But most people find the process very time-consuming, confusing, and frustrating. The bureaus are not easy to deal with. We handle every letter, every call, every follow-up so you do not have to. Most of our clients tried on their own first."
+
+<b>"I do not have the money right now."</b>
+"That's exactly why we created our financing option. $750 today gets your file open and our team working for you immediately. That's less than you might spend on a car payment or a utility bill this month — and the return on investment is enormous when your credit improves."`,
+        points: [
+          'Never argue with an objection — acknowledge it first',
+          'Every objection is a question in disguise — answer the real question',
+          'The financing option is your best tool for price objections',
+          'The money-back guarantee is your best tool for trust objections',
+          'If they say no twice, ask permission to follow up next week'
+        ]
+      },
+      {
+        title: '5. Onboarding — Dispute Items',
+        content: 'When you close a sale, you must complete the 6-step client onboarding in the management system. Step 2 is your responsibility as the sales rep.<br><br><b>Step 2 — Dispute Items</b><br>List every negative item the client wants disputed before moving to documents. The system will not let you advance to Step 3 without at least one item added.<br><br><b>For each item enter:</b><br>1. Creditor or account name (e.g. Capital One, Midland Credit, IRS)<br>2. Item type (Late Payment, Charge-Off, Collection, Repossession, Bankruptcy, Hard Inquiry, Student Loan, Medical Collection, Eviction, Tax Lien, Judgment, High Utilization)<br>3. Balance or amount owed (or N/A)<br>4. Which bureaus the item appears on — Equifax, Experian, TransUnion<br><br><b>Where Items Flow Automatically</b><br>1. The service agreement in Step 5 — the client signs off on exactly what will be disputed<br>2. The dispute operations queue — bureau callers use your list as their starting point<br>3. The refund calculator — pro-rata refund is based on total items listed<br><br><b>Refund Formula</b><br>Package Price &#247; Total Items Listed = Value Per Item. Unremoved items &#215; Value Per Item = Refund Amount.<br><br>Example: $2,499 Standard, 10 items. Value per item = $249.90. 3 unremoved = $749.70 refund.<br><br><b>Rules</b><br>Do NOT pad the item count. List every legitimate negative item and nothing more. Accuracy protects the client and limits refund liability.',
+        points: [
+          'You must complete Step 2 — Dispute Items — before the file can advance',
+          'Use Quick Add buttons for common types — saves time on every onboarding',
+          'Always select which bureau the item appears on — EQ, EX, TU',
+          'Items auto-populate the service agreement the client signs in Step 5',
+          'Items drive the refund calculation — Package Price divided by total items = value per item',
+          'Never list items just to pad the count — it increases refund liability',
+          'Bureau callers use your items list as their starting point — be accurate'
+        ]
+      },
+      {
+        title: '6. Sending the Client Onboarding Form',
+        content: 'After you close a sale, your next action is to send the client the CP Restoration online onboarding form. This is a secure link where the client enters all of their information, uploads their documents, and e-signs the service agreement — all in one place.<br><br><b>The Client Onboarding Form Link:</b><br>https://claude.ai/artifact/WeXs2JbAcqWAKAUW2zB7ty<br><br><b>Where to find it in the system:</b><br>Go to Sales in the management system. You will see a green card at the top labeled Client Onboarding Form with the link and a Copy Link button. Click Copy Link and paste it into a text or email to the client.<br><br>You can also click Copy Client Form next to the + Record Sale button, or Send Client Form inside the Record Sale modal after logging the sale.<br><br><b>What the client fills out:</b><br>Step 1 — Personal info: name, email, phone, date of birth, address, last 4 of SSN, referral source<br>Step 2 — Package selection: they confirm the package you discussed<br>Step 3 — Dispute items: they list every negative item they want disputed (creditor, type, bureau)<br>Step 4 — Documents: Government ID, SSN card, proof of address, and optional credit report<br>Step 5 — Service agreement: full agreement with their items listed inside, typed signature, drawn signature, and checkbox confirmation<br>Step 6 — Review and submit: they review everything and submit. A client ID is generated automatically.<br><br><b>When to send it:</b><br>Send the form immediately after the sale is closed — before the client hangs up if possible. Walk them through Step 1 on the call so they do not lose momentum. Tell them to complete all 6 steps and their file cannot open until documents are received.',
+        points: [
+          'Send the client onboarding form link immediately after closing every sale',
+          'Link is in the Sales page — click Copy Client Form or Copy Link on the green card',
+          'Tell the client to complete all 6 steps: info, package, dispute items, documents, agreement, submit',
+          'Clients upload their own documents — you do not need to collect them manually',
+          'The service agreement is built into the form — client e-signs before submitting',
+          'A client ID is generated on submission — compliance will use it to open the file',
+          'Walk the client through Step 1 on the call so they start immediately'
+        ]
+      }
+    ],
+    videoTitle: 'Sales Training — Packages, Compensation & Script Walkthrough',
+    videoScript: `[INTRO — 0:00]
+Hi, I'm Jason Crown, founder of CP Restoration Services. Welcome to your sales training. In this video I'm going to walk you through everything you need to know to start enrolling clients — our packages, how you get paid, and the exact script I want you to use on every call.
+
+[PACKAGES — 0:30]
+We offer three packages. Express at $3,999 — that is our premium offer, 60 business days or less, full service. Standard at $2,499 — 120 business days, same great service at a lower price. And Financing — $750 down plus $292 a month for 6 months, same Standard service with flexible payments.
+
+Always present Express first. Present Standard second. Only bring up financing if the client has a price objection.
+
+[COMPENSATION — 1:30]
+You earn 10% commission on every sale. Express close = $400 in your pocket. Standard close = $250. Commission REPLACES your $100 weekly base — never both. You only get the $100 base in weeks where you hit 100 dials every single day and close zero sales.
+
+[SCRIPT — 2:30]
+Let me walk you through the script I want you to use. Open with their name, introduce yourself, and ask if they have a few minutes. Then qualify — find out their biggest credit challenge. Present the right package based on what you learn. Then present the price with confidence — no hesitating, no apologizing for the price.
+
+[CLOSE — 4:00]
+The close is simple: "Are you ready to take the first step?" If they hesitate, use your objection handlers. If they say they need to think about it, ask what specifically they need to think through. Never let a call end without a follow-up scheduled.
+
+[OUTRO — 5:00]
+Study this script. Practice it out loud before your first call. And remember — empathy closes more deals than any script. Good luck.`,
+    quiz: {"title": "Sales Training Quiz", "questions": [{"q": "What is the price of the Express package?", "options": ["$2,499", "$3,999", "$750 + $292/month", "$4,500"], "answer": 1, "explanation": "Express = $3,999 one-time, 60 business days or less."}, {"q": "A rep closes one Standard sale and hit 100 dials every day this week. What do they receive?", "options": ["$100 base + $249.90 commission", "$249.90 commission only", "$100 base only", "$349.90 total"], "answer": 1, "explanation": "Commission REPLACES the base — never both. One sale = $249.90 commission only."}, {"q": "A rep hits 100 dials every day for 5 days and closes ZERO sales. What do they receive?", "options": ["$0 — no commission, no base", "$100 base pay", "$100 base plus bonus", "Commission on leads generated"], "answer": 1, "explanation": "The $100 base is paid ONLY when 100 dials are hit every single day AND zero sales are closed."}, {"q": "A rep hits 100 dials Monday through Thursday but only 80 on Friday and closes zero sales. What do they receive?", "options": ["$100 base — close enough", "$160 prorated base", "$0 — missed one day voids the entire week", "$200 minus a penalty"], "answer": 2, "explanation": "Missing even ONE day below 100 dials forfeits the ENTIRE week of base pay. Every day must hit 100."}, {"q": "What is the correct order to present packages?", "options": ["Standard first, then Express if they can afford it", "Financing first to lower resistance", "Express first, Standard second, Financing only if price objection arises", "Whichever the client asks about first"], "answer": 2, "explanation": "Always lead with Express. Work down. Financing is a last resort for price objections only."}, {"q": "What is the monthly payment for the Financing package?", "options": ["$200/month", "$250/month", "$292/month", "$375/month"], "answer": 2, "explanation": "$750 down + $292/month x 6 months. Total = $2,502."}, {"q": "A client says they tried credit repair before and it did not work. What is the best response?", "options": ["Sorry to hear that — our results vary too.", "I understand. What we do differently is live bureau calls, FTC reports, and 10-day follow-ups. We have a money-back guarantee.", "Maybe this is not the right time for you then.", "Let me offer you a discount to try us."], "answer": 1, "explanation": "Acknowledge, differentiate, and reassure. Never dismiss or offer unsanctioned discounts."}, {"q": "A financing client misses their second monthly payment. What happens to their file?", "options": ["Nothing — we keep working", "They get one more warning", "The file pauses until payment is received", "The file closes permanently and no refund is issued"], "answer": 2, "explanation": "File PAUSES when any financing payment is missed. Work resumes only when payment is received."}, {"q": "Is credit repair legal? What is the correct answer to give a client?", "options": ["It is a gray area legally", "Yes — protected under the Fair Credit Reporting Act. We exercise your legal rights on your behalf.", "It depends on your state.", "Only if you have a legitimate dispute."], "answer": 1, "explanation": "Credit repair is 100% legal under the FCRA. We dispute inaccurate, outdated, and unverifiable items on the client&#39;s behalf."}, {"q": "A client demands a discount or they will hang up. You are not authorized to offer one. What do you do?", "options": ["Offer 10% off to save the deal", "Tell them discounts are not available and end the call", "Tell them you cannot offer discounts without manager approval and ask to conference Jason in", "Promise a discount and sort it out later"], "answer": 2, "explanation": "Never offer discounts without Jason&#39;s approval. Offer to loop in management immediately rather than making promises you cannot keep."}, {"q": "After closing a sale, what must YOU as the sales rep complete in Step 2 of the onboarding form?", "options": ["The client&#39;s payment info only", "Every negative item to dispute — creditor name, type, balance, and which bureau(s) it appears on", "Just the total number of negative accounts", "Nothing — dispute ops fills this in later"], "answer": 1, "explanation": "The sales rep must complete Step 2 — Dispute Items. List every item with creditor name, type, balance, and bureaus. This auto-populates the service agreement and drives the refund calculator."}, {"q": "A Standard package client has 8 items listed for dispute. What is the refund value per item if any go unremoved?", "options": ["$312.38", "$249.90", "$399.90", "$100.00"], "answer": 0, "explanation": "$2,499 divided by 8 items = $312.38 per item. If any item is not removed at contract end, the client is owed $312.38 per unremoved item."}, {"q": "A client has 6 inquiries on Equifax, 5 on Experian, 4 on TransUnion. What should you quote?", "options": ["Standard — $2,499", "Inquiries Only — 15 inquiries x $45 = $675", "Single Bureau — $1,000", "Express — $3,999"], "answer": 1, "explanation": "15 total inquiries x $45 = $675. Inquiries Only is cheaper than Standard ($2,499). Always calculate the total first and compare to full packages."}, {"q": "A client only has issues on Experian — no problems on EQ or TU. Best package?", "options": ["Standard — $2,499 for all 3 bureaus", "Single Bureau — $1,000 for Experian only", "Express — $3,999", "Financing — $750 down"], "answer": 1, "explanation": "Single Bureau at $1,000 is correct when the client only has issues on one bureau. Selling a full 3-bureau package wastes money and damages trust."}, {"q": "A client on Inquiries Only wants results faster. What do you offer?", "options": ["Upgrade to Express — $3,999", "Rush add-on — +$500 on top of their inquiry total", "Nothing — rush is not available", "Reduce inquiry count"], "answer": 1, "explanation": "The Rush add-on costs $500 and is only available on Single Bureau and Inquiries Only. Not available on Express or Standard packages."}, {"q": "After closing a sale, what is the very next thing you should send the client?", "options": ["Their receipt via PayPal", "The client onboarding form link so they can enter their info, upload documents, and e-sign the agreement", "A welcome email from Jason", "Their client ID number"], "answer": 1, "explanation": "Send the client onboarding form link immediately after the sale. The link is in the Sales page — click Copy Client Form. Walk the client through Step 1 on the call so they start right away. The file cannot open until all 6 steps are complete."}]}
+  },
+
+  bureau: {
+    icon: '📞',
+    title: 'Bureau Calling',
+    color: '#1B3A6B',
+    badge: 'Bureau Caller',
+    intro: 'Bureau callers are the front line of our dispute process. You will be calling Equifax, Experian, and TransUnion directly on behalf of our clients to verbally dispute items, place fraud alerts, and follow up on pending disputes. This module covers exactly how to do that.',
+    sections: [
+      {
+        title: '1. The Three Credit Bureaus',
+        content: `You will work with three credit bureaus. Know their phone numbers and dispute portals by heart.
+
+<b>Equifax</b>
+Phone: 1-888-378-4329
+Dispute Portal: my.equifax.com
+Reference Number Called: Confirmation #
+
+<b>Experian</b>
+Phone: 1-888-397-3742
+Dispute Portal: experian.com/disputes
+Reference Number Called: Report #
+
+<b>TransUnion</b>
+Phone: 1-800-916-8800
+Dispute Portal: service.transunion.com
+Reference Number Called: File #
+
+Always ask for a reference number at the end of every call. Record it in the system immediately. This is proof the call happened.`,
+        points: [
+          'Equifax = Confirmation # | Experian = Report # | TransUnion = File #',
+          'Always get a reference number — no exceptions',
+          'Log every call in the Dispute Center immediately after hanging up',
+          'If transferred or disconnected, call back and note it as "Transferred/Disconnected"',
+          'Speak calmly and professionally at all times — bureaus record calls'
+        ]
+      },
+      {
+        title: '2. Bureau Call Script',
+        content: `Use this script on every bureau call. Have the client's information in front of you before you dial.
+
+<b>Opening:</b>
+"Good morning/afternoon. I am calling on behalf of [Client Full Name], date of birth [DOB], Social Security Number [last 4 digits]. I am calling to formally dispute several items on this consumer's credit report that we believe are inaccurate and unverifiable under the Fair Credit Reporting Act."
+
+<b>When asked for authorization:</b>
+"I have written authorization from the consumer to act on their behalf. The consumer is available to provide verbal authorization if needed." [If they ask to speak to the client — conference them in or call back with the client on the line.]
+
+<b>Disputing an item:</b>
+"I would like to dispute the following account: [Account Name], account number ending in [last 4], currently reporting as [status]. The basis for this dispute is [reason — not mine / incorrect balance / outdated / identity theft]. Can you please open a formal investigation under FCRA Section 611?"
+
+<b>Requesting removal:</b>
+"If this item cannot be verified within 30 days as required by law, we are requesting its immediate deletion from the consumer's credit report."
+
+<b>Closing:</b>
+"Can I please have a reference number for this dispute? And what is the expected timeline for the investigation? Thank you."`,
+        warning: 'Never provide the client\'s full Social Security Number over the phone unless specifically required and you are on a secure call. Always use last 4 digits first. Protect client data at all times.'
+      },
+      {
+        title: '3. Points System',
+        content: `Your weekly quota is 45 points per week. Points are calculated automatically by the system based on what you log — you cannot manually enter your own points.
+
+<b>Point Values:</b>
+Verbal Dispute = 1 point
+Status Update Call = 1 point
+Bureau Call — No Result = 1 point
+Fraud Alert Placed = 2 points
+Security Freeze Lift = 2 points
+CFPB Complaint Filed = 3 points
+Item Removed — Verbally Confirmed = 3 points
+
+<b>To receive your weekly base pay you must:</b>
+Complete 45+ verified points by end of Friday. Points are logged by action type — the system assigns the point value automatically when you submit a bureau call log.`,
+        points: [
+          '45 points per week minimum to receive base pay',
+          'Points auto-calculated — cannot be manually edited',
+          'Item removed = 3 points — the highest value action',
+          'Log every call in the Dispute Center the same day',
+          'Jason reviews point logs every Friday before releasing pay'
+        ]
+      },
+      {
+        title: '4. Fraud Alerts & Security Freezes',
+        content: `Fraud alerts and security freezes are powerful tools for clients who have been victims of identity theft.
+
+<b>Fraud Alert:</b>
+A 1-year alert placed on the credit file that requires lenders to verify the consumer's identity before opening new credit. Free to place. Call any one bureau — they are required to notify the other two.
+
+<b>Extended Fraud Alert:</b>
+7-year alert for confirmed identity theft victims. Requires a police report or FTC Identity Theft Report. Removes the consumer from pre-screened credit offer lists for 5 years.
+
+<b>Security Freeze (Credit Freeze):</b>
+Blocks access to the credit report entirely. No new credit can be opened. Free to place and lift. Must be placed separately at each bureau. Client must lift the freeze before applying for any new credit.
+
+<b>When to recommend:</b>
+Fraud alert — when client has accounts they did not open
+Security freeze — when client has active identity theft or wants maximum protection`,
+        gold: 'Placing a fraud alert while disputes are active can strengthen the dispute — it signals to the bureau that the consumer is a potential identity theft victim, which can accelerate removal of fraudulent accounts.'
+      }
+    ],
+    videoTitle: 'Bureau Calling — Scripts, Reference Numbers & Points System',
+    videoScript: `[INTRO — 0:00]
+Welcome to Bureau Calling training. I'm going to teach you exactly how to call Equifax, Experian, and TransUnion on behalf of our clients — what to say, what to ask for, and how to log it.
+
+[THE BUREAUS — 0:30]
+There are three bureaus. Equifax at 1-888-378-4329 — when you dispute there you get a Confirmation number. Experian at 1-888-397-3742 — you get a Report number. TransUnion at 1-800-916-8800 — you get a File number. Know these three numbers by heart. And always — always — get the reference number before you hang up.
+
+[THE SCRIPT — 1:30]
+Before you dial, have the client's file open. You need their full name, date of birth, and last 4 of their SSN. Open by identifying yourself as calling on behalf of the client. State you are disputing under the Fair Credit Reporting Act. Name each account you are disputing, give the reason, and request a formal investigation under FCRA Section 611.
+
+[POINTS — 3:30]
+Your weekly quota is 45 points. A basic bureau call is 1 point. Getting an item removed is 3 points. You cannot change your own point values — the system sets them automatically based on what action type you log.
+
+[FRAUD ALERTS — 4:30]
+If a client has accounts they did not open, place a fraud alert. Call any one bureau — they notify the other two. This costs nothing and strengthens your dispute case.
+
+[OUTRO — 5:30]
+Log every single call the same day in the Dispute Center. Include the reference number. This is how you get paid and how we protect our clients. Let's get to work.`,
+    quiz: {"title": "Bureau Calling Quiz", "questions": [{"q": "What reference number does Experian give after a dispute call?", "options": ["Confirmation Number", "File Number", "Report Number", "Case Number"], "answer": 2, "explanation": "Experian = Report Number. Equifax = Confirmation Number. TransUnion = File Number."}, {"q": "What is the minimum weekly point quota for bureau callers?", "options": ["30 points", "40 points", "45 points", "50 points"], "answer": 2, "explanation": "45 verified points per week minimum to receive base pay."}, {"q": "How many points is a CFPB complaint worth?", "options": ["1 point", "2 points", "3 points", "5 points"], "answer": 2, "explanation": "CFPB Complaint = 3 points. Same as Item Removed — highest value actions."}, {"q": "A client has 6 accounts they did not open. What is the first step?", "options": ["Dispute all 6 accounts first", "Place a Fraud Alert — one call notifies all three bureaus", "Place a Security Freeze at all three bureaus", "File a police report before calling bureaus"], "answer": 1, "explanation": "Fraud Alert is the first step for suspected identity theft. Call any one bureau — they notify the other two automatically."}, {"q": "You call TransUnion and get disconnected mid-dispute. What do you do?", "options": ["Mark it completed and log 1 point", "Call back immediately and start over — log as Transferred/Disconnected", "Wait until tomorrow to try again", "Send a letter instead"], "answer": 1, "explanation": "Call back immediately. Log the first call as Transferred/Disconnected (1 point). Complete the dispute on the second call and log that separately."}, {"q": "What FCRA section do you cite when requesting a formal investigation?", "options": ["Section 605", "Section 609", "Section 611", "Section 623"], "answer": 2, "explanation": "FCRA Section 611 requires bureaus to investigate within 30 days and delete anything unverifiable."}, {"q": "A bureau says the item has been verified and will remain. What do you log and what happens next?", "options": ["Log as Resolved — the bureau&#39;s word is final", "Log as Item Verified by Bureau (1 point). Dispute ops will escalate to next round with stronger evidence.", "Log as No Result (1 point). Nothing else needed.", "File a CFPB complaint immediately without logging anything else."], "answer": 1, "explanation": "Bureau verification = Item Verified, 1 point. Dispute ops escalates to a new round. The fight is not over."}, {"q": "What information should you provide last when calling a bureau on a client&#39;s behalf?", "options": ["The client&#39;s full name", "The client&#39;s date of birth", "The client&#39;s full 9-digit SSN — use last 4 only first", "The client&#39;s address"], "answer": 2, "explanation": "Always use last 4 digits of SSN first. Never provide the full 9-digit SSN unless specifically required and you are on a verified secure call."}, {"q": "A Security Freeze must be placed at how many bureaus separately?", "options": ["Just one — they notify the others", "Two — the two the client uses most", "All three separately — one call does NOT cover all three", "Just Equifax as the primary bureau"], "answer": 2, "explanation": "Unlike a Fraud Alert, a Security Freeze must be placed separately at each bureau. One call does not cover all three."}, {"q": "You have logged 44 points by Thursday end of day. It is Friday morning. What do you do?", "options": ["44 is close enough — acceptable", "You have already missed quota — nothing you can do", "Make one more bureau call before end of day Friday to hit 45 or more", "Ask Jason for a one-point exception"], "answer": 2, "explanation": "Make one more bureau call Friday. Even a No Result call (1 point) gets you to 45. Never accept a near-miss — make the call."}]}
+  },
+
+  dispute: {
+    icon: '⚖️',
+    title: 'Dispute Operations',
+    color: '#1A5C38',
+    badge: 'Dispute Operations Specialist',
+    intro: 'The Dispute Operations team is responsible for generating dispute letters, creating FTC reports, uploading documents to bureau portals, and following up every 10 business days. This module covers the full process.',
+    sections: [
+      {
+        title: '1. The Dispute Process Overview',
+        content: `Every client file follows the same process from enrollment to resolution. Know every step.
+
+<b>Step 1 — Enrollment</b>
+Client signs up and pays. Compliance collects signed agreements, government ID, SSN card, and bureau login credentials.
+
+<b>Step 2 — Credit Score Baseline</b>
+Record the client's starting scores for all three bureaus in the Dispute Center. This is the "Before" snapshot.
+
+<b>Step 3 — Review Credit Report</b>
+Pull the client's credit report using their bureau login credentials. Identify all negative items — late payments, collections, charge-offs, inquiries, bankruptcies.
+
+<b>Step 4 — Generate Dispute Letters</b>
+Use the Dispute Center to generate a unique cover letter for each bureau. Every client gets a different font, font size, and format so letters look personal and individual — not mass-produced.
+
+<b>Step 5 — FTC Report</b>
+Every dispute includes an FTC Identity Theft Report. This is generated automatically alongside the cover letters.
+
+<b>Step 6 — Submit to Bureaus</b>
+Upload the cover letter + FTC report to each bureau's online portal using the client's login. Also mail certified copies via USPS with return receipt.
+
+<b>Step 7 — Follow Up Every 10 Business Days</b>
+The Dispute Center tracks follow-up dates automatically. Check the Follow-Ups tab daily. Never let a client go past 10 business days without an action.`,
+        points: [
+          'Every dispute includes a cover letter AND FTC report — no exceptions',
+          'Each client gets a unique letter style — fonts and format vary',
+          'Submit online AND mail certified copies for every dispute',
+          'Follow up every 10 business days — the system tracks this automatically',
+          'Log every action in the Dispute Center immediately'
+        ]
+      },
+      {
+        title: '2. The Cover Letter',
+        content: `The dispute cover letter is the most important document we send. It must be professional, assertive, and legally grounded under the FCRA.
+
+<b>What every letter must include:</b>
+— Client's full name, address, and date of birth
+— Specific accounts being disputed with account numbers
+— Reason for each dispute (not mine / incorrect balance / outdated / identity theft)
+— Citation of FCRA Section 611 and the bureau's obligation to investigate within 30 days
+— Request for deletion of unverifiable items
+— List of supporting documents enclosed
+
+<b>What makes our letters different:</b>
+Every client gets a unique combination of font, font size, and format (formal, semi-formal, assertive, or detailed). This ensures letters do not look like mass template disputes, which bureaus flag and deprioritize.
+
+<b>To generate a letter:</b>
+1. Go to Dispute Center → New Dispute
+2. Enter client info and select bureaus
+3. Add each dispute item with the reason
+4. Upload supporting documents
+5. Select font/size/format or use Random
+6. Click Generate — AI creates unique letters for each bureau`,
+        gold: 'Always use the "Random" style option unless you have a specific reason to choose a format. This ensures maximum variety across your client letters.'
+      },
+      {
+        title: '3. Bureau Portals',
+        content: `After generating letters, upload them directly to each bureau's online dispute portal using the CLIENT\'S login credentials — not a CP Restoration account.
+
+<b>Equifax:</b> my.equifax.com → Dispute an Error → Upload letter + FTC report → Get Confirmation #
+
+<b>Experian:</b> experian.com/disputes → Start a New Dispute → Upload letter + FTC report → Get Report #
+
+<b>TransUnion:</b> service.transunion.com → Disputes → Start a Dispute → Upload letter + FTC report → Get File #
+
+After uploading, also mail printed copies via USPS Certified Mail with Return Receipt. Record the USPS tracking number in the Certified Mail Log in the Dispute Center. This creates a legal paper trail that is valuable if disputes need to be escalated.`,
+        warning: 'You must use the CLIENT\'S bureau login credentials — not any CP Restoration account. Using the wrong credentials is a serious compliance violation. If you do not have the client\'s login, contact compliance immediately.'
+      },
+      {
+        title: '4. The Follow-Up Schedule',
+        content: `Every client must be followed up every 10 business days after their last action. The Dispute Center tracks this automatically.
+
+<b>How to use the Follow-Up tab:</b>
+Click 🔔 Follow-Ups in the Dispute Center navigation. The table shows every active client color-coded by urgency — red for overdue, yellow for due today, orange for due this week, green for on track.
+
+<b>What counts as a follow-up action:</b>
+— Filing a new dispute round
+— Making a bureau call
+— Submitting a CFPB complaint
+— Any logged action in the Dispute Center
+
+<b>What to do at follow-up:</b>
+1. Check if the bureau has responded to previous disputes
+2. If items were removed — update the client timeline and notify the client
+3. If items were verified by the bureau — escalate to next round with updated strategy
+4. If no response — make a bureau call and note it
+5. Log all actions immediately
+
+<b>Employee notifications:</b>
+Jason can send you a daily reminder via SMS listing your clients who need follow-up action today. Make sure your phone number is on file in your employee profile.`,
+        points: [
+          '10 business days maximum between dispute actions — no exceptions',
+          'The Follow-Up tab shows your clients by urgency — check it every morning',
+          'Every bureau response must be logged and the client notified',
+          'Items verified by bureau = file a new round with stronger evidence',
+          'Items removed = update timeline, notify client, update credit scores'
+        ]
+      },
+      {
+        title: '5. The Client Work Panel',
+        content: 'The Dispute File Queue in the main system is a full interactive workspace. Click any client row to open the Client Work Panel.<br><br><b>Work Panel summary strip:</b> Client ID, Package, Start Date, and Status shown at a glance at the top.<br><br><b>Quick Action buttons inside the panel:</b><br><br>Open in Dispute Center: closes the work panel and shows a blue Client Reference Card in the bottom-right corner of the screen. The card displays the Client ID (highlighted in gold), Client Name, Package, and Start Date. Click the Open Dispute Center button on the card to open the Dispute Center in a new tab. Use the Client ID and Name from the card to fill in the New Dispute form. Dismiss the card with the X button when done.<br><br>Log Bureau Call: an inline form drops down inside the panel. Select bureau, enter reference number, select call result, assign specialist, add notes. Click Save Bureau Call — logs instantly to the client Dispute History.<br><br>Log Dispute Action: inline form for bureau, round number, action type, status, and notes. Saves to client Dispute History immediately.<br><br>Start Next Round: opens the Log Dispute Action form and auto-advances the round number based on existing history.<br><br><b>Three row buttons on every queue row (no need to open the full panel):</b><br>Open: full Work Panel. Call: Work Panel opens directly to the bureau call form. Dispute: shows the Client Reference Card with the Open Dispute Center button.<br><br><b>Important — why the Dispute Center opens this way:</b> Browsers block automatic new tabs when a button is more than one click away from the original action. The Client Reference Card solves this — it shows the client info and gives the employee a direct one-click button to open the Dispute Center safely.<br><br><b>Dispute History table:</b> Every logged action appears in real time with date, type, bureau, round, status, and notes. The queue table also updates to show the last action and current round.',
+        points: [
+          'Click any row in the Dispute File Queue to open the Client Work Panel',
+          'Work Panel shows Client ID, Package, Start Date, and Status at the top',
+          'Open in Dispute Center — closes panel, shows Client Reference Card with one-click open button',
+          'The Reference Card shows Client ID in gold — use it to fill in the Dispute Center New Dispute form',
+          'Log Bureau Call — inline form drops down, pre-loaded for that client',
+          'Log Dispute Action — logs instantly to the client Dispute History table',
+          'Start Next Round — auto-advances round number based on existing history',
+          'The row Dispute button shows the Reference Card directly without opening the Work Panel'
+        ]
+      },
+      {
+        title: '6. Dispute Items List — Your Starting Point',
+        content: 'Every client file in the system has a dispute items list created by the sales rep during onboarding. This is your primary working document for bureau calls and dispute filings.<br><br><b>What the List Contains</b><br>Each item shows: creditor name, item type, balance, and which bureaus it appears on (EQ, EX, TU). These are the exact items the client has paid to have disputed and signed off on in the service agreement.<br><br><b>How to Use the List</b><br>When you start working a client file, open the Work Panel and review the dispute items list. Call the bureau(s) for each item. Log every call action — Verbal Dispute, Status Update, Item Removed, etc. Work through each bureau for each item systematically.<br><br><b>Marking Items Removed</b><br>When a bureau confirms an item has been removed, log a Dispute Action with result "Item Removed." This updates the client&#39;s file and the refund calculator automatically. Items still showing after all rounds are complete trigger the refund calculation.<br><br><b>Refund Trigger</b><br>If a client&#39;s contract ends and any listed item was NOT removed, the compliance team calculates the refund: Package Price ÷ Total Items = Value Per Item × Unremoved Items = Refund Amount. The items list is the source of truth for this calculation — do not dispute items not on the list, and log every removal.',
+        points: [
+          'The dispute items list is set by the sales rep during onboarding — review it before starting any bureau calls',
+          'Each item shows creditor, type, balance, and which bureau(s) — this drives your call priority',
+          'Work through each item per bureau — log every call action in the Work Panel',
+          'When an item is removed by a bureau, log it as Item Removed immediately',
+          'Items not removed at contract end trigger the pro-rata refund calculation',
+          'Never dispute items not on the list without written approval from compliance',
+          'The items list is what the client signed — it is the legal record of what was agreed to dispute'
+        ]
+      }
+    ],
+    videoTitle: 'Dispute Operations — Cover Letters, FTC Reports & Follow-Up Schedule',
+    videoScript: `[INTRO — 0:00]
+This is your Dispute Operations training. You are the engine that drives results for our clients. Every letter you file, every call logged, every follow-up completed — that is what removes items from their credit reports.
+
+[THE PROCESS — 0:30]
+Here is the full process. Client enrolls. We record their starting credit scores. We review their credit report and identify every negative item. We generate a unique dispute letter for each bureau plus an FTC report. We upload to the bureau portals and mail certified copies. Then we follow up every 10 business days — no exceptions.
+
+[THE LETTERS — 2:00]
+Our letters are AI-generated and unique for every client. Different font, different format, different tone. This matters because bureaus flag mass template letters. Every letter cites FCRA Section 611, identifies each disputed item, gives the reason, and demands deletion of anything unverifiable.
+
+[BUREAU PORTALS — 3:00]
+Use the client's own login credentials to upload to each bureau portal. Equifax is my.equifax.com. Experian is experian.com/disputes. TransUnion is service.transunion.com. Get the reference number before you close the browser. Then mail printed copies certified mail and log the tracking number.
+
+[FOLLOW-UP — 4:00]
+10 business days. Not 11, not 12. 10. The Follow-Ups tab in the Dispute Center tells you every single morning which clients need action today. Overdue clients are in red. Act on those first. Log everything the same day.
+
+[OUTRO — 5:00]
+You are changing people's financial lives. Every negative item you get removed opens doors for that client — better interest rates, approved loans, new opportunities. Take this work seriously.`,
+    quiz: {"title": "Dispute Operations Quiz", "questions": [{"q": "Every dispute package must include which two documents?", "options": ["Cover letter and credit report", "Cover letter and FTC Identity Theft Report", "FTC report and police report", "Cover letter and payment receipt"], "answer": 1, "explanation": "Cover letter + FTC Identity Theft Report. Both. Every time. No exceptions."}, {"q": "How often must every active client file receive a dispute action?", "options": ["Every 30 days", "Every 21 days", "Every 10 business days", "Once per month"], "answer": 2, "explanation": "10 business days — not calendar days. The Follow-Ups tab tracks this automatically."}, {"q": "When uploading to bureau portals, whose login credentials do you use?", "options": ["Your CP Restoration login", "Jason Crown&#39;s admin account", "The client&#39;s own bureau login credentials", "A shared CP Restoration bureau account"], "answer": 2, "explanation": "Always the CLIENT&#39;s own bureau credentials. Using any other login is a serious compliance violation."}, {"q": "Why does every client get a different font and format for their dispute letters?", "options": ["It looks more professional", "Bureaus flag mass template letters and deprioritize them — unique letters get more attention", "It is a legal requirement under FCRA", "To make it harder for bureaus to process them"], "answer": 1, "explanation": "Bureaus identify and flag template mass disputes. Unique formatting makes each letter look individually written."}, {"q": "After uploading to bureau portals, what else must you do?", "options": ["Email a copy to the client", "File an FTC report separately", "Mail certified copies via USPS with return receipt and log the tracking number", "Call the bureau to confirm receipt"], "answer": 2, "explanation": "Online upload + certified mail + USPS tracking number logged in the system. The paper trail is critical."}, {"q": "A client&#39;s Follow-Up tab shows RED. What does that mean?", "options": ["Their file is closed", "Their credit score improved", "They are OVERDUE — a follow-up action is past due and must be handled immediately", "They have a new bureau response waiting"], "answer": 2, "explanation": "Red = overdue. These clients must be addressed before anything else every single morning."}, {"q": "A bureau verifies a disputed item and says it is accurate. What do you do?", "options": ["Accept the result and close the item", "Notify the client and do nothing further", "File a new dispute round with stronger evidence — escalate to CFPB if needed", "Wait 30 more days and check again"], "answer": 2, "explanation": "Bureau verification is the start of the next round, not the end. File again with more documentation or escalate to CFPB."}, {"q": "What is the purpose of recording the client&#39;s credit scores at enrollment?", "options": ["It is required by FCRA law", "It creates the Before snapshot so clients can see score improvement over time", "It determines which package they qualify for", "It is used to calculate their refund if they cancel"], "answer": 1, "explanation": "Baseline scores at Beginning, Mid-Dispute, and End create the Before and After proof of results for the client."}, {"q": "Which bureau portal gives you a File Number after uploading a dispute?", "options": ["Equifax", "Experian", "TransUnion", "All three give File Numbers"], "answer": 2, "explanation": "TransUnion = File Number. Equifax = Confirmation Number. Experian = Report Number."}, {"q": "You generated letters for a client and the style selector was left on Formal. What should you do?", "options": ["Send them — formal is always appropriate", "Regenerate using Random style to ensure uniqueness across client letters", "Ask Jason which style to use", "Change to Assertive for better results"], "answer": 1, "explanation": "Use Random unless you have a specific reason. Random style ensures maximum variety and reduces the chance letters look templated."}, {"q": "How do you log a bureau call for a client directly from the Dispute File Queue without re-entering their information?", "options": ["Go to the Dispute Center and retype all client details manually", "Click the Call button on the client row — the Work Panel opens with the bureau call form pre-loaded for that client", "Email the dispute specialist and ask them to log it", "Use the Bureau Caller section instead"], "answer": 1, "explanation": "The Call button on every queue row opens the Work Panel with the bureau call form pre-loaded. Select the result, add the reference number, save — it logs to that client Dispute History instantly."}, {"q": "You click the Dispute button on a client row. A blue card appears in the bottom-right corner. What is it and what do you do next?", "options": ["It is an error — refresh the page", "It is the Client Reference Card showing the client ID and name — click Open Dispute Center on the card to open the Dispute Center in a new tab, then use the client ID shown to fill in the New Dispute form", "It means the Dispute Center is already open for this client", "Click anywhere on it to dismiss and try again"], "answer": 1, "explanation": "The Client Reference Card is the correct behavior. It shows the Client ID (in gold), Name, Package, and Start Date. Click Open Dispute Center on the card — that opens the Dispute Center. Use the Client ID and Name from the card to fill in the New Dispute form."}, {"q": "When filing an FTC report, the website sends a verification code via SMS. Where does this code go?", "options": ["To the client&#39;s personal phone — you must call them to get it", "To the CP Restoration virtual number — it appears automatically in the SMS Inbox in the management system", "To Jason&#39;s personal phone", "It is emailed to cprestorationsvcs@gmail.com"], "answer": 1, "explanation": "The CP Restoration virtual number (+1 754-266-0042) is registered on all client FTC and bureau accounts during onboarding. All SMS codes go directly to the SMS Inbox in the management system — no need to call the client."}, {"q": "You receive a verification code in the SMS Inbox but it is showing in red. What does this mean?", "options": ["The code was entered successfully", "The code has expired — it is more than 10 minutes old. Request a new code from the bureau portal.", "The code is for a different client", "You need to refresh the page"], "answer": 1, "explanation": "Red means the code has expired (over 10 minutes old). Request a new verification code from the FTC or bureau portal and a fresh code will arrive in the SMS Inbox within seconds."}, {"q": "After successfully entering a verification code from the SMS Inbox, what must you do?", "options": ["Nothing — the system handles it automatically", "Click Mark Used so teammates know the code has been entered and will not try to use the same expired code", "Delete the message", "Call the client to confirm"], "answer": 1, "explanation": "Always click Mark Used after entering a code. This prevents teammates from attempting to use the same code, which is now expired, and keeps the inbox clean for active codes."}]}
+  },
+
+  compliance: {
+    icon: '📋',
+    title: 'Compliance',
+    color: '#8B1A1A',
+    badge: 'Compliance Specialist',
+    intro: 'Compliance protects CP Restoration Services, our clients, and our team. This module covers the legal framework we operate under, the agreements clients sign, how to process refunds, and data security requirements.',
+    sections: [
+      {
+        title: '1. CROA — The Credit Repair Organizations Act',
+        content: `The Credit Repair Organizations Act (CROA) is the federal law that governs credit repair companies. Every CP Restoration team member must understand and comply with it.
+
+<b>Key CROA Requirements:</b>
+
+1. We cannot charge fees before services are performed. Clients pay upfront for a service period, not per item removed.
+
+2. We must provide clients with a written contract before work begins.
+
+3. Clients have a 3-business-day right of cancellation after signing. During this period they can cancel for a full refund.
+
+4. We cannot make false or misleading claims about our services. We cannot guarantee specific results.
+
+5. We must provide clients with a copy of their CROA consumer rights disclosure before they sign anything.
+
+<b>What this means for you:</b>
+Never promise a client their score will reach a specific number. Never guarantee all items will be removed. Always say "We fight to remove every inaccurate, outdated, or unverifiable item" — not "We will remove everything."`,
+        warning: 'Never guarantee a specific credit score or promise that all items will be removed. This violates CROA and exposes CP Restoration to legal liability. Always say we will fight for removal — not that we guarantee it.',
+        points: [
+          'No fees before services are performed — clients pay for a service period',
+          '3-day right of cancellation after signing — this is federal law',
+          'Always provide the CROA disclosure before signing',
+          'Never guarantee specific credit scores or item removal numbers',
+          'All marketing and representations must be truthful and verifiable'
+        ]
+      },
+      {
+        title: '2. Client Agreements',
+        content: `Every client must sign three documents before their file is opened. Compliance is responsible for ensuring all three are signed and stored.
+
+<b>Document 1 — Service Agreement</b>
+Covers the scope of services, fee schedule (Express $3,999 / Standard $2,499 / Financing $750+$292x6), CROA disclosure, and right of cancellation. Must be signed before any work begins.
+
+<b>Document 2 — Notice & Security</b>
+Covers client obligations — they must not contact the bureaus directly while we are working on their file, they must keep their login credentials active, and they must report any bureau responses to us immediately.
+
+<b>Document 3 — Refund Policy</b>
+Covers the pro-rata money-back guarantee. Express clients: refund if items not removed within 60 business days (extended to 90 if verified). Standard clients: 120 business days (extended to 150 if verified). $200 non-refundable admin fee. Financing clients: 50% max refund.
+
+<b>How to issue contracts:</b>
+Go to Compliance → Contracts → + Issue Contract to Client. Select the client, choose their package, enter the amounts, and have the client e-sign all three documents electronically in the system.`,
+        gold: 'The three-day cancellation window starts the moment the client signs. Mark the cancellation deadline in the client\'s file immediately after signing. If a client cancels within 3 days, process a full refund with no questions asked — this is federal law.'
+      },
+      {
+        title: '3. Refund Policy & Processing',
+        content: `Refunds are calculated pro-rata based on work not completed.
+
+<b>The Formula:</b>
+(Amount Paid — $200 Admin Fee) × (Items Not Removed ÷ Total Items) = Refund Due
+
+<b>Example:</b>
+Client paid $2,499 for Standard service.
+Started with 10 dispute items.
+5 items were successfully removed.
+Work not completed = 50%.
+
+Eligible amount = $2,499 — $200 = $2,299
+Refund = $2,299 × 50% = $1,149.50
+
+<b>Refund Process:</b>
+1. Go to Compliance → Refunds → Process Refund
+2. Enter client details, amount paid, total items, and items removed
+3. System calculates the refund automatically
+4. Client must e-sign the Refund Settlement Agreement and Release
+5. The agreement permanently closes the client's file and releases CP Restoration from all further claims
+6. Process refund via agreed payment method
+
+<b>Important:</b>
+The refund is not released until the client e-signs the settlement agreement. The settlement agreement is legally binding — it closes the file and releases all future claims.`,
+        points: [
+          '$200 admin fee is non-refundable in all cases',
+          'Refund = eligible amount × percentage of work not completed',
+          'Client must e-sign the Settlement Agreement before refund is released',
+          'Settlement Agreement permanently closes the file',
+          'Financing clients: maximum 50% refund regardless of items removed'
+        ]
+      },
+      {
+        title: '4. Data Security',
+        content: `Client data is extremely sensitive. You are handling Social Security Numbers, dates of birth, credit account numbers, and financial information. A data breach is a federal crime and will result in immediate termination and legal action.
+
+<b>Rules you must follow:</b>
+— Never share client information outside of the CP Restoration system
+— Never save client data to personal devices or personal cloud storage
+— Never screenshot client files for personal records
+— Never discuss client information in unsecured communications (personal social media, personal email, text messages)
+— Use only the CP Restoration management system to access and update client files
+— Log out of all systems when you are done working
+— If you lose access to your work device, notify Jason Crown immediately
+
+<b>If you suspect a data breach:</b>
+Notify Jason Crown immediately — same day, same hour. Do not try to handle it yourself. Do not delete anything. Document what happened.`,
+        warning: 'You signed a Non-Compete and Confidentiality Agreement. Sharing client information — even with a family member — is a breach of that agreement and grounds for immediate termination and legal action under Florida law.'
+      },
+      {
+        title: '5. Daily and Weekly Quota Enforcement',
+        content: 'Compliance monitors ALL departments daily and weekly. Go to Compliance then Quota Monitor tab. Four panels: Sales, Bureau Callers, Dispute Ops, Customer Service.<br><br>Sales (100 dials/day): Enter rep name and daily dial count. System flags below 100. Review by 6PM EST. Flag fires a Violation Log entry automatically.<br><br>Bureau Callers (45 points/week): Enter weekly points for Julius, Lyslejane, and Queen. Green = 45 or more, Yellow = 35 to 44, Red = under 35. Check Thursday EOD and warn anyone below 35 immediately.<br><br>Dispute Ops (10-day follow-up): Log each client follow-up check with status. Overdue entries auto-flag. Use the direct link to the Dispute Center Follow-Ups tab for real-time view.<br><br>Customer Service (24-hour response): Log agent and client with response status. Overdue entries flag the agent automatically.<br><br>Compliance Violation Log: Every flag creates a permanent entry at the bottom of the Quota Monitor tab showing date, employee, department, violation, action taken, and who logged it. Jason Crown reviews this log. Log everything same-day and accurately. To add a violation manually: fill in the fields at the bottom and click Log Violation.',
+        points: ['Review RingCentral dial logs daily by 6PM — flag reps below 100','Review bureau caller points every Thursday — flag below 35 with one day left','Check Follow-Ups tab every morning — RED clients overdue by noon get flagged','Check CS response log daily — messages over 24 hours get flagged','All violations logged in Compliance with employee name and date']
+      },
+      {
+        title: '6. New Client Application Checklist',
+        content: 'Every new client file requires ALL 6 items before the file opens. (1) Government-Issued Photo ID front and back — current, not expired. (2) Social Security Card — clear photo, full name visible. (3) Proof of Address under 60 days old. (4) All three signed agreements — all e-signed, no partials. (5) Payment confirmed in system. (6) Bureau login credentials for all three bureaus — logged and verified working. If any item is missing: send written notice, 5-business-day deadline. File does not open until all 6 are received.',
+        warning: 'Opening a file without all 6 items is a compliance violation. Sales does not override compliance. Escalate to Jason Crown if pressured.',
+        points: ['All 6 documents required — no exceptions','Government ID must be current — check expiration date','All three agreements must be fully e-signed','Payment confirmed in the system — verbal is not accepted','Bureau logins must be tested and verified working before file opens']
+      },
+      {
+        title: '7. Bureau Login Verification',
+        content: 'Bureau credentials must be verified at enrollment AND before each new dispute round. Log into each bureau portal using client credentials. If a code is required, check the dedicated client email inbox. Confirm access to the credit report. Log the verification date in the client file under Compliance Login Verification. Common issues: Password expired — reset via Forgot Password and update in client file. Account locked — call bureau consumer line, unlock, log the call. 2FA required — use dedicated client email to receive codes. If login cannot be verified within 48 hours: pause work, flag the file, notify Jason Crown.',
+        gold: 'The number one cause of dispute delays is an expired or locked bureau login discovered mid-round. Catch it at enrollment.'
+      },
+      {
+        title: '8. Client Email Setup for Bureau Codes',
+        content: 'To avoid contacting clients every time a bureau sends a verification code, compliance creates a dedicated Gmail for each client at enrollment. Steps: (1) Create firstname.lastname.cpr@gmail.com — if taken add 2 at the end. (2) Password = CPR + ClientID + Year, example CPR001252026. Log both in client file under Bureau Access. (3) Log into each bureau portal, go to Account Settings, change account email to the new dedicated address. Confirm via verification code sent to new inbox. (4) Turn off marketing emails on each portal. (5) Test: log out and back in, confirm codes arrive in the dedicated inbox. Record setup date in client file. After setup, all bureau codes come to an inbox CP Restoration controls — no client contact needed.',
+        warning: 'Never use a shared inbox for multiple clients. Each client gets their own unique email address. Mixing credentials is a serious security violation.',
+        points: ['Create firstname.lastname.cpr@gmail.com for every client at enrollment','Password: CPR + ClientID + Year — log both in client file under Bureau Access','Update all three bureau portal accounts to the dedicated email','Test login and confirm verification codes reach the dedicated inbox','Never share one email inbox across multiple clients']
+      }
+    ],
+    videoTitle: 'Compliance — CROA, Client Agreements, Refunds & Data Security',
+    videoScript: `[INTRO — 0:00]
+This is your compliance training. Compliance is what protects our clients, our company, and you personally. Pay close attention to this module.
+
+[CROA — 0:30]
+We operate under the Credit Repair Organizations Act. The most important rules: we never charge before services are performed, clients have a 3-day cancellation right after signing, and we never guarantee specific results. You can say we fight to remove negative items. You cannot say we guarantee their score reaches 700.
+
+[THE THREE AGREEMENTS — 2:00]
+Every client signs three documents. The Service Agreement covers what we do and what they pay. The Notice and Security covers their obligations — they cannot contact the bureaus directly while we are working. The Refund Policy covers our money-back guarantee.
+
+[REFUNDS — 3:30]
+Refunds are pro-rata. If a client paid $2,499 and we removed 5 of their 10 items, they get back 50% of the eligible amount — that is $1,149.50 after the $200 admin fee. The client must e-sign a Settlement Agreement before we release the money. That agreement closes their file permanently and releases us from any further claims.
+
+[DATA SECURITY — 5:00]
+You are handling the most sensitive personal information that exists. SSNs, dates of birth, credit data. Never save it to personal devices. Never share it outside the system. A breach is a federal crime. If you suspect anything — call Jason immediately.
+
+[OUTRO — 6:00]
+Compliance protects everyone. Take it seriously.`,
+    quiz: {"title": "Compliance Quiz", "questions": [{"q": "Under CROA, how many business days does a client have to cancel after signing?", "options": ["1 business day", "3 business days", "5 business days", "7 business days"], "answer": 1, "explanation": "3-business-day right of cancellation — federal law. Full refund, no questions asked."}, {"q": "Which statement is CROA-compliant?", "options": ["We guarantee your score will reach 720.", "We will remove all negative items.", "We fight to remove every inaccurate, outdated, or unverifiable item.", "You will qualify for a mortgage after our service."], "answer": 2, "explanation": "Never guarantee specific scores or promise all removals. Fight for removal — that is the only compliant claim."}, {"q": "A client paid $3,999, had 8 dispute items, and 4 were removed. What is the refund due?", "options": ["$1,899.50", "$1,999.50", "$1,799.50", "$2,000"], "answer": 0, "explanation": "Eligible = $3,999 - $200 = $3,799. Not completed = 4/8 = 50%. Refund = $3,799 x 50% = $1,899.50."}, {"q": "Before a refund is released the client must:", "options": ["Call Jason personally", "E-sign the Refund Settlement Agreement and Release", "Wait 30 days for processing", "Submit a CFPB complaint"], "answer": 1, "explanation": "E-sign the Settlement Agreement first. It closes the file permanently and releases CP Restoration from all further claims."}, {"q": "A sales rep tells a client they guarantee 50 points added in 30 days. You hear this. What do you do?", "options": ["Say nothing — results do sometimes happen that fast", "Report it to Jason Crown immediately — this is a CROA violation", "Warn the rep privately after the call", "Add a disclaimer to the contract for that client"], "answer": 1, "explanation": "Any guarantee of specific outcomes is a CROA violation. Report immediately to Jason. This must be corrected before the client signs."}, {"q": "A complete new client application must include how many required items?", "options": ["3 items — ID, contract, and payment", "4 items — ID, SSN card, contract, and payment", "6 items — ID, SSN card, proof of address, all 3 signed agreements, payment, and bureau logins", "5 items — all agreements, payment, and bureau logins"], "answer": 2, "explanation": "All 6 required: government ID, SSN card, proof of address, all 3 signed agreements, payment confirmed, and bureau logins verified."}, {"q": "Compliance must verify bureau logins are working at which two points?", "options": ["Once at enrollment only", "At enrollment and before each dispute round begins", "Only when the client reports a problem", "Once per quarter"], "answer": 1, "explanation": "Bureau logins must be verified at enrollment AND before each dispute round. An expired login halts all dispute work."}, {"q": "Why does compliance create a dedicated Gmail for each client at enrollment?", "options": ["To keep client data organized", "So bureau verification codes go to an inbox CP Restoration controls — no need to contact the client for every code", "To comply with FCRA requirements", "To replace the client&#39;s personal email entirely"], "answer": 1, "explanation": "Bureau portals send verification codes when logging in or filing disputes. The dedicated inbox lets the team access codes without contacting the client every time."}, {"q": "A bureau caller has 20 points by Thursday end of day. You are in compliance. What do you do?", "options": ["Nothing — that is their manager&#39;s job", "Alert the bureau caller and notify Jason Crown — Friday is their last chance to recover", "Mark them as non-compliant and dock their pay", "Wait until Friday to see if they recover"], "answer": 1, "explanation": "Compliance monitors all department quotas daily. Catching a shortfall Thursday gives the caller Friday to recover. Alert immediately."}, {"q": "A new client application is missing the SSN card photo. What do you do?", "options": ["Open the file anyway — the SSN number is on the enrollment form", "Hold the file — do not open until ALL documents are received", "Ask dispute team to proceed without it", "Accept verbal confirmation of the SSN"], "answer": 1, "explanation": "The file does not open until ALL 6 required documents are received and verified. No exceptions. Incomplete files expose the company to fraud."}, {"q": "Where does every compliance flag and quota violation get permanently recorded?", "options": ["In a private spreadsheet emailed to Jason Crown", "In the Compliance Violation Log at the bottom of the Quota Monitor tab", "In the employee time tracker notes field", "In the Bureau Audits tab"], "answer": 1, "explanation": "Every flag from any department creates a permanent entry in the Compliance Violation Log in the Quota Monitor tab. Jason Crown reviews this log. Log everything accurately and same-day."}, {"q": "A bureau caller has 38 points by Thursday end of day. What does compliance do?", "options": ["Nothing — 38 is close enough to 45", "Wait until Friday to see if they recover on their own", "Send the caller a same-day warning — one more day of calls Friday can still reach 45", "Log a full violation immediately and notify Jason to withhold pay"], "answer": 2, "explanation": "Compliance acts Thursday when a shortfall is spotted. 38 points with one day left is still recoverable. A same-day warning gives the caller Friday to push for the additional 7 points needed."}]}
+  },
+
+  cs: {
+    icon: '🎧',
+    title: 'Customer Service',
+    color: '#1B3A6B',
+    badge: 'Customer Service Agent',
+    intro: 'Customer Service agents are the voice of CP Restoration to our existing clients. You handle status inquiries, concerns, and keep clients informed and confident that we are working hard for them. This module covers how to communicate professionally, handle difficult situations, and turn frustrated clients into loyal advocates.',
+    sections: [
+      {
+        title: '1. Client Communication Standards',
+        content: `Every interaction with a client represents CP Restoration Services. These are our non-negotiable communication standards.
+
+<b>Response Time:</b>
+All client emails and messages must be responded to within 24 hours — same business day whenever possible. If you cannot resolve an issue, acknowledge it within 24 hours and give a timeline for resolution.
+
+<b>Tone:</b>
+Warm, professional, and confident. Clients are stressed about their credit — your job is to calm them down and make them feel like they made the right decision signing up with us. Never sound annoyed, dismissive, or unsure.
+
+<b>Phone Calls:</b>
+Answer within 3 rings when possible. If you miss a call, return it within 2 hours. Open every call: "Thank you for calling CP Restoration Services, this is [name], how can I help you today?"
+
+<b>What you can and cannot tell clients:</b>
+CAN: Status of their dispute, which items have been filed, the timeline, and next steps.
+CANNOT: Guarantee when items will be removed, promise specific score outcomes, or share information about other clients.`,
+        points: [
+          'Respond to all messages within 24 hours — same day preferred',
+          'Warm, professional, confident tone at all times',
+          'Return missed calls within 2 hours',
+          'Keep clients informed — uncertainty breeds anxiety',
+          'When in doubt about any information — check before you answer'
+        ]
+      },
+      {
+        title: '2. Handling Client Status Inquiries',
+        content: `The most common client inquiry is "What is happening with my file?" Here is exactly how to handle it.
+
+<b>Step 1 — Pull their file:</b>
+Open the CP Restoration management system, go to Client Management, search by their client ID or name. Pull up their file before responding.
+
+<b>Step 2 — Check the timeline:</b>
+Review the dispute timeline in their file. What was the last action? When was it? What is the next follow-up date?
+
+<b>Step 3 — Give a clear status update:</b>
+"Hi [name], thank you for reaching out. I pulled up your file and here is where things stand — we filed your first round of disputes with Equifax, Experian, and TransUnion on [date]. Bureaus have up to 30 days to investigate. Your next follow-up is scheduled for [date]. We will contact you as soon as we have bureau responses."
+
+<b>Step 4 — Set expectations:</b>
+"Credit restoration is a process — the bureaus have legal timelines they must follow. We are following up every 10 business days to push things forward. Rest assured our team is actively working on your file."
+
+<b>Step 5 — Log the interaction:</b>
+Note the call or message in the client's file. Date, what they asked, what you told them.`,
+        gold: 'The single biggest reason clients ask for refunds is not slow results — it is feeling ignored. A client who hears from you regularly stays patient. A client who feels forgotten gets upset. Proactive communication is the best retention tool we have.'
+      },
+      {
+        title: '3. Handling Difficult Clients',
+        content: `Some clients will be frustrated, angry, or threatening. Here is how to handle those situations professionally.
+
+<b>Frustrated Client:</b>
+"I completely understand your frustration. Waiting for results is genuinely hard, especially when your credit is affecting your life. Here is exactly where your file stands right now — [update]. Here is what we are doing next — [action]. I want to make sure you feel supported through this process."
+
+<b>Threatening to Cancel:</b>
+"I hear you and I want to make this right. Before we discuss cancellation, can I give you a full update on your file? I think there are things happening you may not be aware of. If after that you still want to cancel, I will connect you with our team to discuss your options."
+
+<b>Asking for a Refund:</b>
+Do not process refunds in the CS department. Say: "I understand. Let me connect you with our compliance team who handles our refund policy. They will walk you through the process and make sure you are taken care of." Then transfer or escalate to the compliance team.
+
+<b>Threatening Legal Action:</b>
+Do not argue or get defensive. Say: "I hear you and I want to make sure we resolve this for you. Let me escalate this to our management team right now." Then notify Jason Crown immediately.
+
+<b>What to NEVER do:</b>
+— Never argue with a client
+— Never promise things outside your authority
+— Never process a refund without compliance approval
+— Never tell a client something is impossible — say "Let me find out what we can do"`,
+        warning: 'If a client threatens legal action or files a complaint with the CFPB or state attorney general — stop the conversation and notify Jason Crown immediately. Do not respond further until Jason has reviewed the situation.'
+      },
+      {
+        title: '4. Automated Notifications',
+        content: `CP Restoration sends automated SMS and email updates to clients every time a dispute action is taken. As a CS agent, you should be aware of what clients receive so you can reference it on calls.
+
+<b>Dispute Filed:</b>
+Clients receive an SMS and email confirming disputes were filed, which bureaus received letters, how many items were disputed, and what happens next.
+
+<b>Bureau Call Made:</b>
+Clients receive an SMS and email with the bureau name, call result, and a note that we will follow up.
+
+<b>Item Removed:</b>
+Clients receive a congratulatory SMS and email with the item name and which bureau removed it.
+
+<b>Monthly Update:</b>
+Clients receive a monthly SMS with their removal count and pending dispute count.
+
+<b>If a client says they did not receive a notification:</b>
+Check their email and phone number on file. Make sure there are no typos. Ask them to check their spam folder. If the information is wrong, update it immediately and resend.`,
+        points: [
+          'Know what automated messages clients receive so you can reference them',
+          'If client did not receive messages — verify their contact info immediately',
+          'All notifications are logged in the Dispute Center → Notifications tab',
+          'You can manually send a status update from the notification templates',
+          'CS agents do not send bulk notifications — those come from the dispute team'
+        ]
+      }
+    ],
+    videoTitle: 'Customer Service — Communication Standards, Status Updates & Difficult Clients',
+    videoScript: `[INTRO — 0:00]
+Welcome to Customer Service training. You are the voice that our clients hear most often. You are the reason they stay — or leave. Take this seriously.
+
+[COMMUNICATION STANDARDS — 0:30]
+24-hour response time on everything. Return missed calls within 2 hours. Warm, professional, confident tone — always. Clients are stressed. Your job is to make them feel like they made the right call signing up with us.
+
+[STATUS UPDATES — 1:30]
+When a client calls asking about their file — pull it up before you say a word. Look at the timeline. What was the last action? When? What is coming next? Give them a specific, detailed update. Not "we are working on it" — tell them what was done and what is next.
+
+[DIFFICULT CLIENTS — 3:00]
+When a client is frustrated — acknowledge it. Don't get defensive. "I completely understand your frustration" goes a long way. If they threaten to cancel, ask for a chance to give them a full update first. If they ask for a refund — that is not your department. Hand it off to compliance immediately.
+
+[GOLDEN RULE — 4:30]
+Clients do not cancel because results are slow. They cancel because they feel ignored. If you call a client once a week with an update — even if nothing has changed — they stay patient. Proactive communication is everything.
+
+[OUTRO — 5:30]
+You are the relationship. The letters and the bureau calls get results, but you are what makes the client feel like they have a team fighting for them. Show up for them every day.`,
+    quiz: {"title": "Customer Service Quiz", "questions": [{"q": "What is the maximum response time for client emails and messages?", "options": ["48 hours", "24 hours", "12 hours", "72 hours"], "answer": 1, "explanation": "24-hour maximum — same day preferred. Ignored clients become refund requests."}, {"q": "A client threatens to cancel. What is your first move?", "options": ["Process cancellation immediately", "Offer a discount", "Ask for the chance to give a full file update before discussing cancellation", "Transfer to Jason immediately"], "answer": 2, "explanation": "Most clients who threaten to cancel are feeling ignored. A detailed update often resolves it."}, {"q": "A client demands a refund. What do you do?", "options": ["Calculate it and process it", "Tell them refunds are not available", "Escalate to compliance immediately — CS does not process refunds", "Tell them to email Jason directly"], "answer": 2, "explanation": "CS does not process refunds. Compliance handles all refunds. Transfer or escalate immediately."}, {"q": "According to training, the main reason clients ask for refunds is:", "options": ["Slow bureau results", "The price being too high", "Feeling ignored and uninformed", "Not understanding the process"], "answer": 2, "explanation": "Clients who feel ignored cancel. Clients who hear from you regularly stay patient even when results take time."}, {"q": "A client says they never received automated notifications. What do you do first?", "options": ["Tell them to check spam and hang up", "Resend everything immediately", "Verify their email and phone number on file for typos", "Escalate to tech support"], "answer": 2, "explanation": "Verify contact info first. A single typo in the email or phone number blocks all notifications."}, {"q": "A client threatens legal action on your call. What do you do?", "options": ["Defend CP Restoration and explain why they have no case", "Offer a full refund to make it go away", "Stop the conversation, say you will escalate to management, and immediately notify Jason Crown", "Suggest they speak to a lawyer and end the call"], "answer": 2, "explanation": "Never argue with a legal threat. Stop, escalate to Jason immediately. Do not respond further until management has reviewed."}, {"q": "Which of these can you NOT tell a client?", "options": ["The date their disputes were filed", "Which bureaus received letters", "Exactly when their items will be removed", "What round of disputes they are on"], "answer": 2, "explanation": "Never promise timelines or guarantee when items will be removed. Tell them what was done and when the next follow-up is scheduled."}, {"q": "It is Wednesday and a client has not received an update in 12 days. What do you do?", "options": ["Wait for the dispute team to contact them", "Send a proactive update with their current file status", "Only reach out if they contact you first", "Escalate to compliance"], "answer": 1, "explanation": "Proactive communication is the number one retention tool. Do not wait for clients to reach out."}, {"q": "A client asks why nothing has been removed after 45 days. What is the best response?", "options": ["Bureaus can take up to 90 days — be patient.", "I am sorry — I will escalate this immediately.", "Let me pull your file right now and walk you through exactly what has been done and what is coming next.", "Our average is 80% removal — yours might just take longer."], "answer": 2, "explanation": "Never give a generic answer. Pull the file, give a specific update, and tell them exactly what is happening next. Specifics build trust."}, {"q": "A client is very upset and raises their voice at you. What do you do?", "options": ["Raise your voice back to match their energy", "Hang up and note they were abusive", "Stay calm, acknowledge their frustration, pull their file, and give a specific update to de-escalate", "Transfer to Jason immediately for all upset clients"], "answer": 2, "explanation": "Stay calm. Acknowledge. Pull the file. Give specifics. An angry client who gets a detailed, calm, specific response almost always de-escalates."}]}
+  },
+
+  ops: {
+    icon: '⚙️',
+    title: 'Operations',
+    color: '#374151',
+    badge: 'Operations',
+    intro: 'This module covers the daily operational workflow at CP Restoration Services — how to use our management system, time tracking requirements, tool access, and what a standard work day looks like for each role.',
+    sections: [
+      {
+        title: '1. The Management System',
+        content: `Everything you do at CP Restoration runs through our management system. Learn it thoroughly.
+
+<b>Main System URL:</b> https://claude.ai/artifact/XUAgfzAYgDfF66a8ispnw4
+
+<b>Key Sections:</b>
+Dashboard — Revenue overview, client stats, backlog alerts, team activity
+Sales — Lead tracker, dial log, sales log, commission tracking
+Client Management — All 1,324+ active clients, searchable by name or ID
+Dispute Operations — File queue with clickable rows. Click any client to open the Work Panel — log bureau calls, dispute actions, and start new rounds directly without leaving the page
+Bureau Caller — Log bureau actions, weekly points tracker
+Compliance — Contracts, refunds, login verification, bureau audits
+Payments — Log and track all client payments
+Time Tracker — Clock in/out, weekly hours, payroll
+RingCentral — Live call activity, dial quotas (sales only)
+Applications — Review new employee applications (admin only)
+
+<b>Dispute Center (separate system):</b>
+https://claude.ai/artifact/4Gexs231JRANjs2cCjWkYT
+Used by dispute operations and bureau callers for generating letters, logging calls, and tracking follow-ups.`,
+        points: [
+          'Log into the main system every day when you start work',
+          'Clock in through the Time Tracker before doing any work',
+          'Your role determines which sections you can see',
+          'All client data is confidential — never screenshot the system',
+          'If you find a bug or error — report to Jason Crown same day'
+        ]
+      },
+      {
+        title: '2. Time Tracking Requirements',
+        content: `All CP Restoration staff must track their time through the built-in time tracker. This is how your pay is calculated.
+
+<b>How to clock in:</b>
+Go to Time Tracker → Select your name → Select your task/department → Click Clock In. The timer starts immediately.
+
+<b>Auto clock-out:</b>
+If you step away from your computer for 5 minutes without any activity, the system automatically clocks you out and flags the session. A warning appears at 4 minutes — click "I am Still Here" if you are working. Genuine inactivity results in auto clock-out with the session noted.
+
+<b>Screenshots:</b>
+The system takes a screenshot of your screen every 10 minutes while you are clocked in. Screenshots are reviewed by management. If you deny a screenshot request, it is automatically flagged as suspicious activity.
+
+<b>If you forget to clock in:</b>
+Notify your manager immediately. They can add a manual time entry with a reason. Do not try to fudge your hours — all entries are logged and audited.
+
+<b>Payroll:</b>
+Hours are reviewed every Friday. Pay is released same day if everything is in order. Missing clock-ins, suspicious activity flags, or denied screenshots may delay payment pending review.`,
+        warning: 'Time theft — clocking in without working, manipulating clock entries, or leaving the system clocked in while away — results in immediate termination. All sessions are monitored through screenshots and activity tracking.'
+      },
+      {
+        title: '3. Daily Workflow by Role',
+        content: `<b>Sales Representative (9AM–5PM EST):</b>
+9:00 — Clock in, review lead list, check RingCentral
+9:30 — Begin outbound dial session (target 20 dials before first break)
+All day — 100 dials minimum, log all calls in RingCentral
+Sales closed — log immediately in the Sales section, notify compliance for contract
+5:00 — Clock out, review next day's lead list
+
+<b>Bureau Caller (9AM–5PM EST):</b>
+9:00 — Clock in, pull the day's client list from the Dispute Center follow-up tab
+9:15 — Begin bureau calls — start with overdue clients (red) then due today (yellow)
+Each call — log in Dispute Center immediately after hanging up
+All day — target 45+ points per week minimum
+5:00 — Clock out, confirm all calls are logged
+
+<b>Dispute Operations (9AM–5PM EST):</b>
+9:00 — Clock in, check Follow-Up tab for clients due today
+9:30 — Generate dispute letters for new clients
+All day — upload to bureau portals, mail certified copies, log actions
+3:00 — Review any bureau responses received
+5:00 — Clock out
+
+<b>Customer Service (9AM–5PM EST):</b>
+9:00 — Clock in, check all unread client messages
+9:30 — Return all calls missed since previous day
+All day — respond to all messages within same business day
+2:00 — Proactive check-in calls to clients with no recent update
+5:00 — Clock out`,
+        gold: 'The Follow-Up tab in the Dispute Center is the single most important tool for bureau callers and dispute operations specialists. Check it first thing every morning. Red clients are overdue and must be handled before anything else.'
+      },
+      {
+        title: '4. Tools & Software',
+        content: `<b>Tools you use at CP Restoration:</b>
+
+CP Restoration Management System — Daily work hub for all roles
+CP Restoration Dispute Center — Dispute letters, bureau calls, follow-ups, FTC reports
+RingCentral — Phone system for all calls (sales and bureau calling)
+HubSpot — CRM for lead management (sales team)
+Google Workspace (@mycprteam.com) — Email and document sharing
+PayPal / Wise — Payment receipt (you receive pay here)
+Zoom — Team meetings: https://us06web.zoom.us/j/84831238642
+
+<b>Tools you do NOT use for work:</b>
+Personal email (never send client info to personal email)
+Personal cloud storage (Google Drive, Dropbox, iCloud — for personal accounts)
+Personal messaging apps (WhatsApp, Facebook Messenger — for client data)
+Any AI tool that logs conversations (do not paste client data into ChatGPT, etc.)
+
+<b>Meeting schedule:</b>
+Team meetings are held on Zoom as scheduled by Jason Crown. Attendance is mandatory. Missing a meeting without advance notice is a performance issue.`,
+        points: [
+          'RingCentral is the only approved phone system for client and bureau calls',
+          'All documents stay inside the CP Restoration management system',
+          'Never paste client data into any external AI or software tool',
+          'Team Zoom meetings are mandatory — notify Jason in advance if you cannot attend',
+          'Your @mycprteam.com email is for work only — use it professionally'
+        ]
+      },
+      {
+        title: '5. New Tools — SMS Inbox, SendGrid & Client Form',
+        content: 'Three tools were added to the management system. Every team member should know what each does.<br><br><b>&#128241; SMS Inbox (nav bar)</b><br>When filing FTC reports or accessing bureau portals, a verification code is sent by SMS to the CP Restoration virtual number (+1 754-266-0042). All codes appear automatically in the SMS Inbox. Click Copy Code to copy it, paste it into the FTC or bureau site. Click Mark Used after. Codes expire in 5-10 minutes.<br><br><b>&#128231; SendGrid (admin / compliance)</b><br>Handles all automated client emails — welcome emails, monthly status updates, dispute alerts, payment receipts, and compliance notices. Email templates are pre-written in the SendGrid tab.<br><br><b>&#128203; Client Onboarding Form</b><br>A secure online form sent to clients after a sale. Clients fill out 6 steps: personal info, package selection, dispute items, document upload, e-signature, and submit. Sales reps send the link from the Sales page — click Copy Client Form. Link: https://claude.ai/artifact/WeXs2JbAcqWAKAUW2zB7ty',
+        points: [
+          'SMS Inbox: FTC and bureau codes arrive here automatically — copy and paste, never ask the client',
+          'Codes expire in 5-10 minutes — request a new one from the portal if expired',
+          'Mark Used after entering every code so teammates do not try to reuse it',
+          'SendGrid sends automated client emails — templates are ready in the SendGrid tab',
+          'Client Onboarding Form: sales reps send this link to clients after every closed sale',
+          'Client form link is in the Sales page — green card at the top, click Copy Client Form',
+          'Client fills out all 6 steps including documents and e-signature before the file can open'
+        ]
+      }
+    ],
+    videoTitle: 'Operations — Management System, Time Tracking & Daily Workflow',
+    videoScript: `[INTRO — 0:00]
+This is your Operations training — the daily nuts and bolts of how we work at CP Restoration. Know this inside and out before your first day.
+
+[THE MANAGEMENT SYSTEM — 0:30]
+Everything runs through our management system. Your client files, your time tracking, your call logs, your commissions — all in one place. Bookmark it. Open it first thing every morning. The Dispute Center is a separate link for dispute and bureau calling work.
+
+[TIME TRACKING — 2:00]
+Clock in before you do any work — no exceptions. The system tracks screenshots every 10 minutes. If you step away for 5 minutes without activity the system clocks you out automatically. Forgot to clock in? Tell your manager immediately. Do not try to fake entries — everything is logged.
+
+[DAILY WORKFLOW — 3:30]
+Sales reps: 100 dials minimum every day. Check your lead list first thing. Log all calls through RingCentral. Bureau callers: Start with the Follow-Ups tab. Overdue clients in red — handle those first. 45 points per week minimum. Dispute ops: New letters for new clients, then follow up on existing files. CS: Clear your inbox first, then return missed calls.
+
+[TOOLS — 5:00]
+RingCentral for all calls. HubSpot for leads. The management system for everything else. Never use personal email or personal cloud storage for anything work-related. Client data stays inside our system — no exceptions.
+
+[OUTRO — 6:00]
+Run the checklist every morning. Clock in. Check your priority list. Do the work. Log everything. Clock out. That is the job. Welcome to the team.`,
+    quiz: {"title": "Operations Quiz", "questions": [{"q": "What happens at 5 minutes of inactivity while clocked in?", "options": ["Nothing — the system waits for you", "A warning appears at 4 minutes and you are auto-clocked-out at 5 minutes", "The system sends you an email", "You are logged out of the management system"], "answer": 1, "explanation": "Warning at 4 minutes. Auto clock-out at 5 minutes. Click I&#39;m Still Here at the warning to reset."}, {"q": "What is the first thing bureau callers should check every morning?", "options": ["Their email inbox", "The Sales dashboard", "The Follow-Ups tab in the Dispute Center", "The Client Management section"], "answer": 2, "explanation": "Follow-Ups tab first — overdue clients in red must be handled before anything else."}, {"q": "A client sends their credit report via WhatsApp. What do you do?", "options": ["Download and save to your phone", "Forward to your personal email for easy access", "Do not download — direct them to upload via the system or send to your work email only", "Print it and file it"], "answer": 2, "explanation": "Client data must only exist inside the CP Restoration management system. Personal devices and personal email are never acceptable."}, {"q": "You deny a screenshot request while clocked in. What happens?", "options": ["Nothing — screenshots are optional", "You receive a warning after 3 denials", "It is automatically flagged as suspicious activity", "Your clock-in session ends"], "answer": 2, "explanation": "Denying a screenshot = immediate suspicious activity flag reviewed by management."}, {"q": "What is the minimum daily dial requirement for sales representatives?", "options": ["50 dials", "75 dials", "100 dials", "150 dials"], "answer": 2, "explanation": "100 dials per day, every day Monday through Friday. One day below 100 = entire week of base pay forfeited."}, {"q": "You forgot to clock in before starting work. What do you do?", "options": ["Clock in now and say nothing", "Add the missing time yourself in the system", "Notify your manager immediately so they can add a manual entry with a reason", "Skip it — one missed clock-in will not matter"], "answer": 2, "explanation": "Notify your manager immediately. They add a manual entry with a reason. All manual entries are audited."}, {"q": "Which tool do sales reps use for all outbound and inbound calls?", "options": ["Personal cell phone", "Google Voice", "RingCentral only", "Zoom phone"], "answer": 2, "explanation": "RingCentral is the ONLY approved phone system. Dials tracked there count toward quota. Personal phone dials do not count."}, {"q": "A team Zoom meeting is scheduled and you have a personal conflict. What do you do?", "options": ["Just miss it — it happens sometimes", "Notify Jason Crown in advance and ask how to get the recap", "Attend late without notifying anyone", "Send a message in group chat the morning of the meeting"], "answer": 1, "explanation": "Notify Jason in advance. Unannounced absences are a performance issue. Team meetings are mandatory."}, {"q": "You find a bug in the management system that causes client data to display incorrectly. What do you do?", "options": ["Fix it yourself if you can", "Tell a coworker to see if they noticed it too", "Report it to Jason Crown same day with a description of what you saw", "Wait to see if it fixes itself"], "answer": 2, "explanation": "All system errors go to Jason Crown same day. Never attempt to fix system issues yourself and never ignore them."}, {"q": "Which of these is NOT an approved tool for sharing client documents?", "options": ["The CP Restoration management system", "Your mycprteam.com work email", "Google Drive under your personal account", "The Dispute Center"], "answer": 2, "explanation": "Personal Google Drive is never acceptable for client documents. Use only the management system and your work email."}]}
+  },
+
+  scripts: {
+    title: 'Video Scripts — Higgsfield AI',
+    isScriptPage: true
+  },
+
+  glossary: {
+    title: 'Glossary',
+    isGlossaryPage: true
+  }
+};
+
+// ============================================================
+// RENDER MODULE
+// ============================================================
+function buildModule(key) {
+  const m = MODULES[key];
+  if(!m || m.isScriptPage || m.isGlossaryPage) return;
+
+  const el = document.getElementById('module-' + key);
+  if(!el || el.innerHTML.trim()) return; // already built
+
+  const badgeColor = m.color || 'var(--blue)';
+  const passed = quizScores[key] >= 80;
+
+  let html = `
+    <div style="margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span class="section-badge" style="background:${badgeColor}20;color:${badgeColor};border:1px solid ${badgeColor}40;">
+        ${m.icon} ${m.badge || m.title}
+      </span>
+      ${passed ? '<span class="completion-badge">✅ Module Complete</span>' : ''}
+    </div>
+    <div class="card-title">${m.title}</div>
+    <div class="card-sub">${m.intro}</div>
+
+    <div class="module-tabs">
+      <button class="module-tab active" onclick="switchModuleTab('${key}','lesson')">📚 Lesson</button>
+      <button class="module-tab" onclick="switchModuleTab('${key}','video')">🎬 Video</button>
+      <button class="module-tab" onclick="switchModuleTab('${key}','script')">📄 Video Script</button>
+      <button class="module-tab" onclick="switchModuleTab('${key}','quiz')">✏️ Quiz</button>
+    </div>
+
+    <!-- LESSON TAB -->
+    <div id="${key}-lesson" class="module-content">`;
+
+  m.sections.forEach(sec => {
+    html += `<div class="card">
+      <div class="content-section">
+        <h3>${sec.title}</h3>
+        <div class="content-block">${sec.content.replace(/\n/g,'<br>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/<b>([^<]+)<\/b>/g,'<strong>$1</strong>')}</div>`;
+    if(sec.points) {
+      html += `<ul class="key-points">`;
+      sec.points.forEach(p => { html += `<li>${p}</li>`; });
+      html += `</ul>`;
+    }
+    if(sec.warning) html += `<div class="warning-box">⚠️ <strong>Important:</strong> ${sec.warning}</div>`;
+    if(sec.gold) html += `<div class="gold-box">💡 <strong>Pro Tip:</strong> ${sec.gold}</div>`;
+    html += `</div></div>`;
+  });
+
+  html += `</div><!-- /lesson -->
+
+    <!-- VIDEO TAB -->
+    <div id="${key}-video" class="module-content" style="display:none;">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px;">🎬 ${m.videoTitle}</div>
+        <div class="video-slot" id="video-slot-${key}">
+          <div class="placeholder-content">
+            <div class="play-icon">▶</div>
+            <div class="video-title">${m.videoTitle}</div>
+            <div class="video-hint">Video coming soon — paste a YouTube or Vimeo URL below to embed it</div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+              <input type="text" id="video-url-${key}" placeholder="https://www.youtube.com/embed/..." style="padding:8px 12px;border:1px solid #374151;border-radius:6px;background:#1F2937;color:white;font-size:12px;width:280px;">
+              <button class="add-video-btn" onclick="embedVideo('${key}')">Embed Video</button>
+            </div>
+          </div>
+        </div>
+        <div class="gold-box">
+          <strong>To generate this video with Higgsfield AI:</strong><br>
+          1. Go to higgsfield.ai and create an account<br>
+          2. Click "Create Video" and paste the script from the Video Script tab<br>
+          3. Select your avatar/presenter and voice<br>
+          4. Generate and download or get the share link<br>
+          5. Upload to YouTube or Vimeo and paste the embed URL above
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPT TAB -->
+    <div id="${key}-script" class="module-content" style="display:none;">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:6px;">📄 Video Script — ${m.title}</div>
+        <div class="card-sub">Copy this script and paste it into Higgsfield AI to generate your training video. The script is formatted with timestamps and scene directions.</div>
+        <div class="script-box">
+          <div class="script-label">Higgsfield AI Script</div>
+          <div class="script-text" id="script-text-${key}">${m.videoScript}</div>
+          <button class="copy-script-btn" onclick="copyScript('${key}')">📋 Copy Script</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ TAB -->
+    <div id="${key}-quiz" class="module-content" style="display:none;">
+      ${buildQuiz(key, m.quiz)}
+    </div>`;
+
+  el.innerHTML = html;
+}
+
+function buildQuiz(key, quiz) {
+  const passed = quizScores[key] >= 80;
+  let html = `
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <div class="quiz-title">✏️ ${quiz.title}</div>
+        <div class="quiz-score">Pass mark: 80% | ${quiz.questions.length} questions</div>
+      </div>
+      <div style="margin-bottom:16px;font-size:13px;color:var(--gray);">Answer all questions then click Submit Quiz. You need 80% or higher to complete this module.</div>`;
+
+  quiz.questions.forEach((q, qi) => {
+    html += `
+      <div class="question-block" id="qblock-${key}-${qi}">
+        <div class="question-text"><span class="q-num">${qi+1}</span>${q.q}</div>`;
+    q.options.forEach((opt, oi) => {
+      html += `
+        <div class="option" id="opt-${key}-${qi}-${oi}" onclick="selectOption('${key}',${qi},${oi})">
+          <input type="radio" name="q-${key}-${qi}" value="${oi}"> ${opt}
+        </div>`;
+    });
+    html += `
+        <div class="feedback" id="feedback-${key}-${qi}"></div>
+      </div>`;
+  });
+
+  html += `
+      <button class="quiz-submit" onclick="submitQuiz('${key}')">Submit Quiz</button>
+      <div class="quiz-result" id="quiz-result-${key}">
+        <div class="big-score" id="quiz-score-${key}">0%</div>
+        <div class="result-label" id="quiz-result-label-${key}"></div>
+        <div class="result-sub" id="quiz-result-sub-${key}"></div>
+        <button onclick="retakeQuiz('${key}')" style="margin-top:16px;padding:10px 24px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">Retake Quiz</button>
+      </div>
+    </div>`;
+  return html;
+}
+
+// ============================================================
+// QUIZ LOGIC
+// ============================================================
+const quizAnswers = {};
+
+function selectOption(key, qi, oi) {
+  // Clear previous selection for this question
+  const q = MODULES[key].quiz.questions[qi];
+  q.options.forEach((_, idx) => {
+    const opt = document.getElementById(`opt-${key}-${qi}-${idx}`);
+    if(opt) opt.classList.remove('selected');
+  });
+  const selected = document.getElementById(`opt-${key}-${qi}-${oi}`);
+  if(selected) selected.classList.add('selected');
+  if(!quizAnswers[key]) quizAnswers[key] = {};
+  quizAnswers[key][qi] = oi;
+}
+
+function submitQuiz(key) {
+  const quiz = MODULES[key].quiz;
+  const answers = quizAnswers[key] || {};
+  let correct = 0;
+
+  quiz.questions.forEach((q, qi) => {
+    const userAnswer = answers[qi];
+    const block = document.getElementById(`qblock-${key}-${qi}`);
+    const feedback = document.getElementById(`feedback-${key}-${qi}`);
+
+    // Reset classes
+    q.options.forEach((_, oi) => {
+      const opt = document.getElementById(`opt-${key}-${qi}-${oi}`);
+      if(opt) { opt.classList.remove('selected','correct-answer','wrong-answer'); }
+    });
+    if(block) block.classList.remove('correct','incorrect');
+
+    // Mark correct answer
+    const correctOpt = document.getElementById(`opt-${key}-${qi}-${q.answer}`);
+    if(correctOpt) correctOpt.classList.add('correct-answer');
+
+    if(userAnswer === q.answer) {
+      correct++;
+      if(block) block.classList.add('correct');
+      if(feedback) { feedback.textContent = '✅ Correct! ' + q.explanation; feedback.className = 'feedback correct show'; }
+    } else {
+      if(block) block.classList.add('incorrect');
+      const wrongOpt = userAnswer !== undefined ? document.getElementById(`opt-${key}-${qi}-${userAnswer}`) : null;
+      if(wrongOpt) wrongOpt.classList.add('wrong-answer');
+      if(feedback) { feedback.textContent = '❌ ' + q.explanation; feedback.className = 'feedback incorrect show'; }
+    }
+  });
+
+  const pct = Math.round((correct / quiz.questions.length) * 100);
+  quizScores[key] = pct;
+  const pass = pct >= 80;
+
+  const resultEl = document.getElementById(`quiz-result-${key}`);
+  const scoreEl = document.getElementById(`quiz-score-${key}`);
+  const labelEl = document.getElementById(`quiz-result-label-${key}`);
+  const subEl = document.getElementById(`quiz-result-sub-${key}`);
+
+  if(resultEl) { resultEl.className = `quiz-result show ${pass?'pass':'fail'}`; }
+  if(scoreEl) scoreEl.textContent = pct + '%';
+  if(labelEl) labelEl.textContent = pass ? '🎉 Module Passed!' : '❌ Not quite — try again';
+  if(subEl) subEl.textContent = pass
+    ? `You scored ${correct}/${quiz.questions.length} correct. This module is now complete.`
+    : `You scored ${correct}/${quiz.questions.length} correct. You need 80% to pass. Review the lesson and try again.`;
+
+  if(pass) markCompleted(key);
+  resultEl?.scrollIntoView({behavior:'smooth'});
+}
+
+function retakeQuiz(key) {
+  const quiz = MODULES[key].quiz;
+  if(quizAnswers[key]) delete quizAnswers[key];
+  quiz.questions.forEach((q, qi) => {
+    q.options.forEach((_, oi) => {
+      const opt = document.getElementById(`opt-${key}-${qi}-${oi}`);
+      if(opt) opt.classList.remove('selected','correct-answer','wrong-answer');
+      const radio = opt?.querySelector('input[type="radio"]');
+      if(radio) radio.checked = false;
+    });
+    const block = document.getElementById(`qblock-${key}-${qi}`);
+    if(block) block.classList.remove('correct','incorrect');
+    const feedback = document.getElementById(`feedback-${key}-${qi}`);
+    if(feedback) feedback.className = 'feedback';
+  });
+  const resultEl = document.getElementById(`quiz-result-${key}`);
+  if(resultEl) resultEl.className = 'quiz-result';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showModule(key) {
+  document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  const page = document.getElementById('module-' + key);
+  if(page) page.classList.add('active');
+  const nav = document.getElementById('nav-' + key);
+  if(nav) nav.classList.add('active');
+  if(key !== 'welcome' && MODULES[key] && !MODULES[key].isScriptPage && !MODULES[key].isGlossaryPage) {
+    buildModule(key);
+  }
+  if(key === 'scripts') buildScriptsPage();
+  if(key === 'glossary') buildGlossaryPage();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function switchModuleTab(key, tab) {
+  ['lesson','video','script','quiz'].forEach(t => {
+    const el = document.getElementById(`${key}-${t}`);
+    if(el) el.style.display = t===tab?'block':'none';
+  });
+  const btns = document.querySelectorAll(`#module-${key} .module-tab`);
+  btns.forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes(`'${tab}'`));
+  });
+}
+
+// ============================================================
+// VIDEO EMBED
+// ============================================================
+function embedVideo(key) {
+  const url = document.getElementById(`video-url-${key}`)?.value.trim();
+  if(!url) return;
+  const slot = document.getElementById(`video-slot-${key}`);
+  if(!slot) return;
+  // Convert youtube watch URL to embed
+  let embedUrl = url;
+  if(url.includes('youtube.com/watch')) {
+    const id = url.split('v=')[1]?.split('&')[0];
+    if(id) embedUrl = `https://www.youtube.com/embed/${id}`;
+  } else if(url.includes('youtu.be/')) {
+    const id = url.split('youtu.be/')[1]?.split('?')[0];
+    if(id) embedUrl = `https://www.youtube.com/embed/${id}`;
+  }
+  slot.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+}
+
+// ============================================================
+// COPY SCRIPT
+// ============================================================
+function copyScript(key) {
+  const el = document.getElementById(`script-text-${key}`);
+  if(!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    alert('Script copied to clipboard! Paste it into Higgsfield AI to generate your training video.');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = el.textContent;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('Script copied!');
+  });
+}
+
+// ============================================================
+// COMPLETION TRACKING
+// ============================================================
+function markCompleted(key) {
+  completed[key] = true;
+  const check = document.getElementById(`check-${key}`);
+  if(check) check.textContent = '✅';
+  const card = document.getElementById(`card-${key}`);
+  if(card) { card.classList.add('completed'); document.getElementById(`status-${key}`).textContent = '✅ Completed'; document.getElementById(`status-${key}`).style.color='var(--green)'; }
+  updateProgress();
+}
+
+function updateProgress() {
+  const keys = ['sales','bureau','dispute','compliance','cs','ops'];
+  const count = keys.filter(k => completed[k]).length;
+  document.getElementById('overall-progress').textContent = count;
+  const pct = Math.round((count/6)*100);
+  document.getElementById('sidebar-progress').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+// ============================================================
+// SCRIPTS PAGE
+// ============================================================
+function buildScriptsPage() {
+  const el = document.getElementById('module-scripts');
+  if(el.innerHTML.trim()) return;
+  const keys = ['sales','bureau','dispute','compliance','cs','ops'];
+  let html = `<div class="card-title" style="margin-bottom:16px;">📄 All Video Scripts — Higgsfield AI</div>
+  <div class="card-sub">Copy any script below and paste into Higgsfield AI to generate your training video. Once generated, copy the embed URL and paste it into the Video tab of the matching training module.</div>`;
+  keys.forEach(k => {
+    const m = MODULES[k];
+    html += `<div class="card" style="margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:800;color:var(--blue);margin-bottom:4px;">${m.icon} ${m.title}</div>
+      <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">${m.videoTitle}</div>
+      <div class="script-box">
+        <div class="script-label">Higgsfield AI Script</div>
+        <div class="script-text">${m.videoScript}</div>
+        <button class="copy-script-btn" onclick="copyScript('${k}')">📋 Copy Script</button>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ============================================================
+// GLOSSARY PAGE
+// ============================================================
+function buildGlossaryPage() {
+  const el = document.getElementById('module-glossary');
+  if(el.innerHTML.trim()) return;
+  const terms = [
+    ['FCRA','Fair Credit Reporting Act — federal law governing credit bureaus and your right to dispute inaccurate information.'],
+    ['CROA','Credit Repair Organizations Act — federal law governing credit repair companies. We operate fully under CROA.'],
+    ['CFPB','Consumer Financial Protection Bureau — federal agency that handles consumer complaints about financial services.'],
+    ['FTC','Federal Trade Commission — federal agency that oversees consumer protection and identity theft reporting.'],
+    ['Dispute','A formal request to a credit bureau to investigate and correct or remove inaccurate information.'],
+    ['Bureau','One of the three major credit reporting agencies: Equifax, Experian, or TransUnion.'],
+    ['Confirmation #','The reference number Equifax gives after a dispute call — always record this.'],
+    ['Report #','The reference number Experian gives after a dispute call — always record this.'],
+    ['File #','The reference number TransUnion gives after a dispute call — always record this.'],
+    ['Fraud Alert','A 1-year notice on a credit file requiring lenders to verify identity before opening new credit.'],
+    ['Security Freeze','A block on a credit file preventing any new credit from being opened — must be placed at each bureau separately.'],
+    ['CROA Disclosure','A document we must give clients before they sign any agreement, outlining their rights as consumers.'],
+    ['Pro-Rata Refund','Refund calculated based on the percentage of work not completed at the time of the refund request.'],
+    ['Admin Fee','$200 non-refundable processing fee deducted from all refunds.'],
+    ['Express Package','$3,999 one-time — 60 business days or less turnaround — our premium service.'],
+    ['Standard Package','$2,499 one-time — 120 business days or less turnaround.'],
+    ['Financing Package','$750 down + $292/month x 6 months — same Standard service with flexible payments.'],
+    ['10-Day Follow-Up','CP Restoration\'s standard — every active client file must have an action logged every 10 business days.'],
+    ['Client ID','The unique identifier for each CP Restoration client — format: CPR-00001 through CPR-99999.'],
+    ['RingCentral','Our phone system — all sales and bureau calls go through RingCentral. Dials are tracked automatically.'],
+    ['Base Pay','$100/week for sales reps — paid ONLY in weeks with 100 dials every day and zero sales.'],
+    ['Commission','10% of the final sale price — replaces base pay, never combined with it.'],
+    ['Points System','Bureau callers earn points per action (1-3 points) — minimum 45 per week to receive base pay.'],
+  ];
+
+  let html = `<div class="card-title" style="margin-bottom:16px;">📖 Glossary of Terms</div>
+  <div class="card">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr><th style="background:var(--blue);color:white;padding:10px 14px;text-align:left;border-radius:8px 0 0 0;">Term</th><th style="background:var(--blue);color:white;padding:10px 14px;text-align:left;border-radius:0 8px 0 0;">Definition</th></tr></thead>
+      <tbody>`;
+  terms.forEach((t,i) => {
+    html += `<tr style="${i%2===0?'background:#F9FAFB;':''}"><td style="padding:10px 14px;font-weight:700;color:var(--blue);vertical-align:top;white-space:nowrap;">${t[0]}</td><td style="padding:10px 14px;color:#374151;">${t[1]}</td></tr>`;
+  });
+  html += `</tbody></table></div>`;
+  el.innerHTML = html;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', () => {
+  updateProgress();
+});
+</script>
+</body>
+</html>
