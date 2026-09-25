@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Client Resource Center</title>
+<style>
+:root{
+  --blue:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --white:#FFFFFF;--lb:#E8EEF7;--lg:#E8F5EE;--lr:#FDECEA;--lgo:#FDF6E3;
+  --border:#E5E7EB;--gray:#6B7280;--bg:#F3F4F6;--dark:#111827;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
+body{background:var(--bg);color:var(--dark);min-height:100vh;}
+
+.header{background:var(--blue);padding:18px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.header-logo{font-size:28px;}
+.header h1{color:white;font-size:20px;font-weight:800;line-height:1.2;}
+.header p{color:var(--gold);font-size:12px;margin-top:2px;}
+
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 62px);}
+.sidebar{background:white;border-right:2px solid var(--border);padding:20px 0;position:sticky;top:62px;height:calc(100vh - 62px);overflow-y:auto;}
+.main{padding:32px 28px 80px;}
+
+.sidebar-section{padding:12px 20px 6px;font-size:10px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;transition:all .2s;border-left:3px solid transparent;font-size:13px;color:#374151;line-height:1.3;}
+.sidebar-item:hover{background:#F9FAFB;color:var(--blue);}
+.sidebar-item.active{background:var(--lb);color:var(--blue);border-left-color:var(--gold);font-weight:700;}
+.sidebar-item .s-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0;}
+.sidebar-item .s-check{margin-left:auto;font-size:14px;color:var(--green);flex-shrink:0;}
+.sidebar-item .s-label{flex:1;}
+
+.progress-wrap{padding:16px 20px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.progress-title{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px;}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:4px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),#E8C060);border-radius:4px;transition:width .5s;}
+.progress-label{font-size:11px;color:var(--gray);}
+
+.welcome-hero{background:linear-gradient(135deg,var(--blue) 0%,#2a5298 100%);border-radius:16px;padding:36px 32px;margin-bottom:28px;color:white;position:relative;overflow:hidden;}
+.welcome-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:rgba(201,168,76,.15);border-radius:50%;}
+.welcome-hero::after{content:'';position:absolute;bottom:-60px;right:60px;width:150px;height:150px;background:rgba(201,168,76,.1);border-radius:50%;}
+.welcome-hero h2{font-size:26px;font-weight:800;margin-bottom:8px;position:relative;}
+.welcome-hero p{font-size:14px;opacity:.9;line-height:1.7;position:relative;max-width:600px;}
+.welcome-hero .gold-tag{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:white;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:16px;}
+
+.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
+.module-card{background:white;border-radius:14px;padding:22px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;transition:all .25s;border:2px solid transparent;text-align:center;}
+.module-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.12);}
+.module-card.done{border-color:var(--green);background:var(--lg);}
+.module-card .mc-icon{font-size:44px;margin-bottom:10px;}
+.module-card .mc-num{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+.module-card .mc-title{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:6px;line-height:1.3;}
+.module-card .mc-status{font-size:11px;font-weight:700;}
+
+.card{background:white;border-radius:14px;padding:26px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:20px;}
+.card-title{font-size:20px;font-weight:800;color:var(--blue);margin-bottom:6px;}
+.card-sub{font-size:13px;color:var(--gray);line-height:1.7;margin-bottom:20px;}
+
+.module-tabs{display:flex;gap:4px;background:white;border-radius:12px;padding:6px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:22px;flex-wrap:wrap;}
+.mtab{padding:9px 18px;border-radius:8px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;transition:all .2s;}
+.mtab.active{background:var(--blue);color:white;}
+
+.section-block{margin-bottom:24px;}
+.section-block h3{font-size:15px;font-weight:800;color:var(--blue);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px;}
+.content-text{font-size:14px;line-height:1.9;color:#374151;margin-bottom:14px;}
+.tip-list{list-style:none;margin-bottom:14px;}
+.tip-list li{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:13px;line-height:1.5;}
+.tip-list li.green-tip{background:var(--lg);}
+.tip-list li.green-tip::before{content:"✅";flex-shrink:0;}
+.tip-list li.red-tip{background:var(--lr);}
+.tip-list li.red-tip::before{content:"❌";flex-shrink:0;}
+.tip-list li.gold-tip{background:var(--lgo);}
+.tip-list li.gold-tip::before{content:"💡";flex-shrink:0;}
+.tip-list li.blue-tip{background:var(--lb);}
+.tip-list li.blue-tip::before{content:"ℹ️";flex-shrink:0;}
+
+.info-box{border-radius:10px;padding:14px 18px;margin-bottom:14px;font-size:13px;line-height:1.7;}
+.info-box.gold{background:var(--lgo);border-left:4px solid var(--gold);color:#7A5F00;}
+.info-box.green{background:var(--lg);border-left:4px solid var(--green);color:var(--green);}
+.info-box.red{background:var(--lr);border-left:4px solid var(--red);color:var(--red);}
+.info-box.blue{background:var(--lb);border-left:4px solid var(--blue);color:var(--blue);}
+
+.timeline{position:relative;padding-left:32px;margin-bottom:16px;}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--border);}
+.timeline-item{position:relative;margin-bottom:20px;}
+.timeline-item::before{content:attr(data-num);position:absolute;left:-32px;top:0;width:22px;height:22px;background:var(--gold);color:white;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.timeline-item h4{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:4px;}
+.timeline-item p{font-size:13px;color:#374151;line-height:1.6;}
+
+.video-slot{background:var(--dark);border-radius:14px;aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:20px;border:2px dashed #374151;position:relative;overflow:hidden;}
+.video-slot iframe{position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:12px;}
+.video-placeholder{text-align:center;padding:28px;}
+.video-placeholder .vp-icon{font-size:64px;margin-bottom:14px;opacity:.5;}
+.video-placeholder .vp-title{color:white;font-size:16px;font-weight:700;margin-bottom:6px;}
+.video-placeholder .vp-hint{color:#9CA3AF;font-size:12px;margin-bottom:18px;}
+.vp-embed-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.vp-embed-row input{padding:9px 14px;border:1px solid #374151;border-radius:8px;background:#1F2937;color:white;font-size:12px;width:260px;}
+.vp-embed-row button{padding:9px 18px;background:var(--gold);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;}
+
+.script-box{background:#0F172A;border-radius:12px;padding:22px;margin-bottom:16px;}
+.script-label{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;}
+.script-text{font-size:13px;color:#E2E8F0;line-height:1.9;white-space:pre-wrap;}
+.copy-btn{margin-top:14px;padding:7px 16px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;}
+.copy-btn:hover{background:var(--gold);color:white;}
+
+.quiz-wrap{background:white;border-radius:14px;padding:26px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.quiz-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.quiz-title{font-size:16px;font-weight:800;color:var(--blue);}
+.quiz-meta{font-size:12px;color:var(--gray);}
+.quiz-intro{font-size:13px;color:var(--gray);margin-bottom:20px;line-height:1.6;}
+.q-block{margin-bottom:22px;padding:18px;border:2px solid var(--border);border-radius:12px;transition:border-color .2s;}
+.q-block.correct{border-color:var(--green);background:var(--lg);}
+.q-block.incorrect{border-color:var(--red);background:var(--lr);}
+.q-text{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:12px;line-height:1.5;}
+.q-num{display:inline-flex;width:26px;height:26px;background:var(--blue);color:white;border-radius:50%;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin-right:8px;flex-shrink:0;}
+.opt{display:flex;align-items:center;gap:10px;padding:11px 14px;border:2px solid var(--border);border-radius:9px;margin-bottom:8px;cursor:pointer;transition:all .2s;font-size:13px;line-height:1.4;}
+.opt:hover{border-color:var(--blue);background:var(--lb);}
+.opt.selected{border-color:var(--blue);background:var(--lb);}
+.opt.correct-opt{border-color:var(--green);background:var(--lg);font-weight:700;}
+.opt.wrong-opt{border-color:var(--red);background:var(--lr);}
+.opt input{accent-color:var(--blue);}
+.q-feedback{font-size:12px;margin-top:10px;padding:10px 14px;border-radius:8px;display:none;line-height:1.6;}
+.q-feedback.show{display:block;}
+.q-feedback.fb-correct{background:var(--lg);color:var(--green);}
+.q-feedback.fb-wrong{background:var(--lr);color:var(--red);}
+.quiz-submit{width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;transition:background .2s;}
+.quiz-submit:hover{background:#142d55;}
+.quiz-result{text-align:center;padding:28px;border-radius:12px;margin-top:18px;display:none;}
+.quiz-result.show{display:block;}
+.quiz-result.r-pass{background:var(--lg);color:var(--green);}
+.quiz-result.r-fail{background:var(--lr);color:var(--red);}
+.result-score{font-size:56px;font-weight:800;margin-bottom:10px;}
+.result-label{font-size:17px;font-weight:700;margin-bottom:8px;}
+.result-sub{font-size:13px;opacity:.8;margin-bottom:16px;}
+.retake-btn{padding:11px 28px;background:var(--blue);color:white;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;}
+
+.module-page{display:none;}
+.module-page.active{display:block;}
+.complete-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:var(--lg);color:var(--green);border-radius:20px;font-size:12px;font-weight:700;border:2px solid var(--green);margin-left:12px;}
+
+.contact-card{background:linear-gradient(135deg,var(--blue),#2a5298);border-radius:14px;padding:24px;color:white;text-align:center;margin-top:20px;}
+.contact-card h3{font-size:16px;font-weight:800;margin-bottom:8px;}
+.contact-card p{font-size:13px;opacity:.9;margin-bottom:16px;}
+.contact-card a{color:var(--gold);font-weight:700;text-decoration:none;}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr;}.sidebar{position:relative;top:0;height:auto;}.module-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.module-grid{grid-template-columns:1fr;}.main{padding:20px 16px 60px;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">🏆</div>
+  <div>
+    <h1>CP Restoration — Client Resource Center</h1>
+    <p>Your guide to understanding the credit restoration process</p>
+  </div>
+</div>
+
+<div class="layout">
+
+  <div class="sidebar">
+    <div class="progress-wrap">
+      <div class="progress-title">Your Progress</div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="progress-label"><span id="prog-label">0 of 6</span> modules completed</div>
+    </div>
+
+    <div class="sidebar-section">Client Modules</div>
+    <div class="sidebar-item active" onclick="showMod('welcome')" id="nav-welcome">
+      <span class="s-icon">🏠</span><span class="s-label">Welcome</span><span class="s-check" id="chk-welcome"></span>
+    </div>
+    <div class="sidebar-item" onclick="showMod('process')" id="nav-process">
+      <span class="s-icon">🔄</span><span class="s-label">How the Process Works</span><span class="s-check" id="chk-process"></span>
+    </div>
+    <div class="sidebar-item" onclick="showMod('first30')" id="nav-first30">
+      <span class="s-icon">📅</span><span class="s-label">What to Expect — First 30 Days</span><span class="s-check" id="chk-first30"></span>
+    </div>
+    <div class="sidebar-item" onclick="showMod('report')" id="nav-report">
+      <span class="s-icon">📊</span><span class="s-label">Your Credit Report Explained</span><span class="s-check" id="chk-report"></span>
+    </div>
+    <div class="sidebar-item" onclick="showMod('dos')" id="nav-dos">
+      <span class="s-icon">✅</span><span class="s-label">Do's and Don'ts While We Work</span><span class="s-check" id="chk-dos"></span>
+    </div>
+    <div class="sidebar-item" onclick="showMod('responses')" id="nav-responses">
+      <span class="s-icon">📬</span><span class="s-label">Understanding Bureau Responses</span><span class="s-check" id="chk-responses"></span>
+    </div>
+    <div class="sidebar-item" onclick="showMod('refund')" id="nav-refund">
+      <span class="s-icon">💰</span><span class="s-label">The Refund Policy</span><span class="s-check" id="chk-refund"></span>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:12px;">Support</div>
+    <div class="sidebar-item" onclick="showMod('faq')">
+      <span class="s-icon">❓</span><span class="s-label">Frequently Asked Questions</span>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- WELCOME PAGE -->
+    <div class="module-page active" id="mod-welcome">
+      <div class="welcome-hero">
+        <div class="gold-tag">🌟 Welcome to CP Restoration Services</div>
+        <h2>You Made the Right Decision</h2>
+        <p>Since 2014 we have helped over 7,000 clients take back control of their financial future. Our team is now working on your behalf — disputing inaccurate items, calling the bureaus directly, and fighting to clean up your credit report. This resource center will walk you through exactly what is happening, what to expect, and what you can do to help us get the best results for you.</p>
+      </div>
+
+      <div class="module-grid">
+        <div class="module-card" onclick="showMod('process')" id="card-process">
+          <div class="mc-icon">🔄</div>
+          <div class="mc-num">Module 1</div>
+          <div class="mc-title">How the Process Works</div>
+          <div class="mc-status" id="st-process" style="color:var(--gray);">Start here →</div>
+        </div>
+        <div class="module-card" onclick="showMod('first30')" id="card-first30">
+          <div class="mc-icon">📅</div>
+          <div class="mc-num">Module 2</div>
+          <div class="mc-title">What to Expect — First 30 Days</div>
+          <div class="mc-status" id="st-first30" style="color:var(--gray);">Not started</div>
+        </div>
+        <div class="module-card" onclick="showMod('report')" id="card-report">
+          <div class="mc-icon">📊</div>
+          <div class="mc-num">Module 3</div>
+          <div class="mc-title">Your Credit Report Explained</div>
+          <div class="mc-status" id="st-report" style="color:var(--gray);">Not started</div>
+        </div>
+        <div class="module-card" onclick="showMod('dos')" id="card-dos">
+          <div class="mc-icon">✅</div>
+          <div class="mc-num">Module 4</div>
+          <div class="mc-title">Do's and Don'ts While We Work</div>
+          <div class="mc-status" id="st-dos" style="color:var(--gray);">Not started</div>
+        </div>
+        <div class="module-card" onclick="showMod('responses')" id="card-responses">
+          <div class="mc-icon">📬</div>
+          <div class="mc-num">Module 5</div>
+          <div class="mc-title">Understanding Bureau Responses</div>
+          <div class="mc-status" id="st-responses" style="color:var(--gray);">Not started</div>
+        </div>
+        <div class="module-card" onclick="showMod('refund')" id="card-refund">
+          <div class="mc-icon">💰</div>
+          <div class="mc-num">Module 6</div>
+          <div class="mc-title">The Refund Policy</div>
+          <div class="mc-status" id="st-refund" style="color:var(--gray);">Not started</div>
+        </div>
+      </div>
+
+      <div class="card" style="background:var(--lb);border:none;">
+        <div class="card-title" style="font-size:16px;">Before You Begin — 3 Things to Know</div>
+        <ul class="tip-list" style="margin-top:14px;">
+          <li class="gold-tip"><strong>This takes time and that is normal.</strong> Credit restoration is a legal process. The bureaus have 30 days to respond to each dispute. Real, lasting results take months — not days. Clients who stay patient and follow our guidance get the best outcomes.</li>
+          <li class="gold-tip"><strong>Your actions matter.</strong> There are things you must do and things you must avoid while we are working on your file. Module 4 covers this in detail. Following the rules protects your results.</li>
+          <li class="gold-tip"><strong>We keep you informed.</strong> You will receive SMS and email updates every time an action is taken on your file. You can also reach our customer service team anytime during business hours.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MODULE PAGES (built by JS) -->
+    <div class="module-page" id="mod-process"></div>
+    <div class="module-page" id="mod-first30"></div>
+    <div class="module-page" id="mod-report"></div>
+    <div class="module-page" id="mod-dos"></div>
+    <div class="module-page" id="mod-responses"></div>
+    <div class="module-page" id="mod-refund"></div>
+    <div class="module-page" id="mod-faq"></div>
+
+  </div>
+</div>
+
+<script>
+const done = {};
+const scores = {};
+const answers = {};
+
+const MODS = {
+  process: {
+    num: 1, icon: "🔄", title: "How the Process Works",
+    intro: "Understanding exactly what our team does on your behalf will help you stay confident and patient throughout the process. Here is a clear, step-by-step breakdown of everything that happens from the moment your file opens to the day your results are complete.",
+    sections: [
+      { heading: "🗂️ Step 1 — Your File Is Opened", text: "Once you have signed all three agreements and your payment is confirmed, your file is officially opened. Our compliance team verifies your identity documents, collects your bureau login credentials, and records your starting credit scores at all three bureaus — Equifax, Experian, and TransUnion. This is your \"Before\" snapshot. We will compare it to your scores at the end to show you exactly how far you have come.", type: "timeline" },
+      { heading: "🔍 Step 2 — We Review Your Credit Report", text: "Using your bureau login credentials, our dispute team pulls your full credit report from all three bureaus. We go through every single item — late payments, collections, charge-offs, medical bills, old judgments, hard inquiries, bankruptcies — and identify everything that is inaccurate, outdated, or legally unverifiable. Each item is categorized and added to your dispute file.", type: "timeline" },
+      { heading: "✉️ Step 3 — Dispute Letters Are Generated", text: "For each negative item we identify, our team generates a formal dispute letter addressed to the appropriate bureau. Every letter is unique — different font, format, and style — so it does not look like a mass template. Each letter cites your rights under the Fair Credit Reporting Act, names the specific account being disputed, gives the reason for the dispute, and demands an investigation within 30 days as required by law. An FTC Identity Theft Report is attached to every dispute package.", type: "timeline" },
+      { heading: "📮 Step 4 — Letters Are Submitted to the Bureaus", text: "Every dispute letter is submitted two ways — uploaded directly to each bureau's online portal using your account credentials, AND mailed via USPS Certified Mail with return receipt requested. The certified mail creates a legal paper trail that is valuable if disputes need to be escalated later.", type: "timeline" },
+      { heading: "📞 Step 5 — We Call the Bureaus Directly", text: "Our bureau calling team calls Equifax, Experian, and TransUnion on your behalf. We verbally dispute items, follow up on pending investigations, and push for faster resolutions. Every call is logged with a reference number. Bureau calls are one of the most powerful tools in our process — most credit repair companies only send letters. We do both.", type: "timeline" },
+      { heading: "🔔 Step 6 — Follow-Up Every 10 Business Days", text: "Every active client file is followed up every 10 business days — no exceptions. We check bureau responses, make additional calls, file new rounds of disputes if needed, and update your timeline. You will receive notifications every time an action is taken. The 10-day follow-up is what keeps your file moving.", type: "timeline" },
+      { heading: "🏆 Step 7 — Results and Completion", text: "As items are removed, your customer service agent updates your timeline and you receive a notification. At the end of your service period, we record your final credit scores and prepare your results summary showing everything that was removed and your score improvement. If all eligible items have been addressed and we have fulfilled our obligations, your file is marked complete." }
+    ],
+    video: { title: "How the CP Restoration Process Works — Full Overview", script: `[INTRO — 0:00]
+Welcome to CP Restoration Services. If you are watching this, you have already taken one of the most important steps you can take for your financial future — you hired a team to fight for your credit. My name is Jason Crown and I founded CP Restoration in 2014. In this video I am going to walk you through exactly what our team does from the day your file opens to the day your results are complete.
+
+[STEP 1 — FILE OPENS — 0:30]
+The moment your payment is confirmed and your agreements are signed, your file is officially open. Our compliance team verifies your identity, collects your bureau login credentials, and records your starting credit scores at all three bureaus. This is your Before snapshot — we will compare it to your scores at the end to show you exactly how much we improved them.
+
+[STEP 2 — CREDIT REPORT REVIEW — 1:15]
+Our dispute team logs into your bureau accounts and pulls your full credit reports. We go through every single item — every late payment, every collection, every hard inquiry — and identify anything that is inaccurate, outdated, or that the bureau cannot legally verify. Those are the items we fight to remove.
+
+[STEP 3 — DISPUTE LETTERS — 2:00]
+For each item we identify, we write a formal dispute letter. Every letter is unique — not a template — and cites your rights under the Fair Credit Reporting Act. We include an FTC Identity Theft Report with every package. The bureaus have 30 days to investigate by law.
+
+[STEP 4 — SUBMIT AND MAIL — 2:45]
+We submit every dispute online through your bureau accounts AND mail certified copies via USPS with return receipt. That paper trail is important if we ever need to escalate.
+
+[STEP 5 — BUREAU CALLS — 3:15]
+This is what sets us apart. Our bureau calling team calls Equifax, Experian, and TransUnion directly on your behalf. We verbally dispute items, follow up on investigations, and push for faster results. Most companies only send letters. We make the calls too.
+
+[STEP 6 — FOLLOW-UP — 4:00]
+Every client file is followed up every 10 business days. No exceptions. We check responses, make calls, file new rounds if needed. You get a notification every time something happens on your file.
+
+[OUTRO — 4:45]
+This is the process that has helped over 7,000 clients improve their credit since 2014. Trust the process, follow the guidelines we send you, and let us do the work. You are in good hands.` },
+    quiz: { title: "Module 1 Quiz — How the Process Works", questions: [
+      { q: "How does CP Restoration submit dispute letters to the bureaus?", options: ["Online only — mailing is not necessary","Mailed only via USPS","Both online through your bureau accounts AND mailed via USPS Certified Mail","By fax"], answer: 2, exp: "Every dispute is submitted two ways — online AND certified mail. The certified mail creates a legal paper trail." },
+      { q: "How often does CP Restoration follow up on every active client file?", options: ["Once a month","Every 30 days","Every 10 business days","Whenever the client calls to ask"], answer: 2, exp: "Every active file is followed up every 10 business days — no exceptions. This is what keeps your file moving forward." },
+      { q: "What makes CP Restoration different from most credit repair companies?", options: ["We only send letters","We also make direct phone calls to Equifax, Experian, and TransUnion on your behalf","We negotiate directly with your creditors","We guarantee specific score increases"], answer: 1, exp: "Most companies only send dispute letters. CP Restoration also makes direct bureau calls — one of the most powerful tools in the process." },
+      { q: "What is attached to every dispute letter CP Restoration sends?", options: ["A copy of your credit report","A signed statement from you","An FTC Identity Theft Report","Your payment confirmation"], answer: 2, exp: "An FTC Identity Theft Report is attached to every dispute package. This strengthens the legal basis for every dispute." },
+      { q: "What does the team record before any dispute work begins?", options: ["Your payment history","Your starting credit scores at all three bureaus — the Before snapshot","Your monthly income","Your full Social Security Number"], answer: 1, exp: "Your starting scores at Equifax, Experian, and TransUnion are recorded before any work begins. This is the Before snapshot used to show your results at the end." }
+    ]}
+  },
+
+  first30: {
+    num: 2, icon: "📅", title: "What to Expect — Your First 30 Days",
+    intro: "The first 30 days can feel like nothing is happening — but that is not true. A lot is happening behind the scenes. This module walks you through exactly what our team is doing in those first 30 days and what you should expect to see and hear from us.",
+    sections: [
+      { heading: "📋 Days 1–5: File Setup", text: "In the first 5 business days your file is set up, your identity documents are verified, your bureau logins are confirmed as working, and your starting credit scores are recorded at all three bureaus. If any documents are missing or a bureau login is not working, our compliance team will reach out to you immediately. Please respond to any requests within 24 hours — delays in this phase delay everything else.", tips: [{ type: "green", text: "Check your email and phone for any document requests from our team in the first 5 days." }, { type: "green", text: "Make sure your phone is on and you can receive texts and emails from us." }, { type: "red", text: "Do not ignore requests for missing documents — your file cannot open until we have everything." }] },
+      { heading: "✉️ Days 5–15: First Round of Disputes Filed", text: "By day 10–15, your first round of dispute letters has been generated and submitted to all three bureaus. You will receive an SMS and email notification confirming exactly which items were disputed and at which bureaus. Keep this notification — it is your record of what was filed. After filing, the bureaus have 30 days by law to investigate each dispute.", tips: [{ type: "blue", text: "You will receive a notification when your first disputes are filed. It will list every item disputed and every bureau that received a letter." }, { type: "gold", text: "The 30-day investigation clock starts the day the bureau receives your dispute. Results from this round typically arrive between days 35 and 45." }] },
+      { heading: "📞 Days 10–30: Bureau Calls Begin", text: "Starting around day 10, our bureau calling team begins making live calls to Equifax, Experian, and TransUnion on your behalf. These calls reinforce the written disputes and put additional pressure on the bureaus to act. Every call is logged with a reference number. You will receive a notification after each call with the result.", tips: [{ type: "blue", text: "You do not need to do anything during this phase. Do not call the bureaus yourself — let our team handle all bureau communication." }, { type: "red", text: "Contacting the bureaus yourself while we are actively disputing can interrupt our work and potentially harm your case." }] },
+      { heading: "⏳ What You Will NOT See in the First 30 Days", text: "Here is the honest truth: most clients do not see items removed in the first 30 days. The bureaus need time to investigate. What you WILL see in the first 30 days is regular updates from our team, confirmation that your disputes were filed, and bureau call notifications. Results — actual item removals — typically begin appearing between days 30 and 60 for most clients.", tips: [{ type: "gold", text: "No removals in the first 30 days is completely normal. The investigation is still happening. Stay patient." }, { type: "gold", text: "If you have questions at any point, contact our customer service team. We are here to update you anytime." }] }
+    ],
+    video: { title: "What to Expect in Your First 30 Days", script: `[INTRO — 0:00]
+One of the most common calls we get in the first month is clients asking why nothing has happened yet. I completely understand that feeling. You signed up, you paid, and you want to see results. In this video I want to walk you through exactly what is happening in those first 30 days — because a lot IS happening, even if you cannot see it yet.
+
+[DAYS 1 TO 5 — 0:45]
+In the first 5 business days, our compliance team is verifying your identity documents, testing your bureau logins, and recording your starting credit scores. This is the foundation. If we ask you for anything during this phase — a missing document, a bureau password — please respond within 24 hours. Delays here push everything back.
+
+[DAYS 5 TO 15 — 1:30]
+Between days 5 and 15 your first round of dispute letters is generated and submitted to all three bureaus — both online and via certified mail. You will receive a text and email confirming exactly what was filed. After that, the bureaus have 30 days by law to investigate. That clock starts the day they receive your dispute.
+
+[DAYS 10 TO 30 — 2:15]
+Starting around day 10, our bureau callers start making live calls to Equifax, Experian, and TransUnion on your behalf. These calls reinforce the written disputes and push for faster action. You will get a notification after every call.
+
+[WHAT NOT TO EXPECT — 3:00]
+Here is the honest part: most clients do not see items removed in the first 30 days. That is completely normal. The investigation is ongoing. Results — actual removals — typically start appearing between days 30 and 60. What you WILL see is regular updates, call notifications, and confirmation that everything is moving.
+
+[OUTRO — 3:45]
+The worst thing you can do in the first 30 days is panic and call the bureaus yourself. Let us do that. Trust the process. If you have any questions at all, call or email our customer service team — we will give you a full update on your file anytime.` },
+    quiz: { title: "Module 2 Quiz — Your First 30 Days", questions: [
+      { q: "When do most clients typically start seeing items removed from their credit reports?", options: ["Within the first 7 days","Within the first 15 days","Between days 30 and 60","After 90 days minimum"], answer: 2, exp: "Most clients begin seeing removals between days 30 and 60. The first 30 days involve filing disputes and waiting for the bureaus' 30-day investigation window." },
+      { q: "How long do the bureaus have by law to investigate a dispute after receiving it?", options: ["7 days","14 days","30 days","60 days"], answer: 2, exp: "Under the Fair Credit Reporting Act, bureaus have 30 days to investigate a dispute from the day they receive it." },
+      { q: "You receive a request for a missing document in your first 5 days. How quickly should you respond?", options: ["Within 24 hours","Within a week","Whenever you have time","Only if they ask twice"], answer: 0, exp: "Respond within 24 hours. Delays in document collection delay the opening of your file and push back all subsequent dispute work." },
+      { q: "What will you definitely receive in your first 30 days even if no items are removed yet?", options: ["A refund offer","Nothing — no news is good news","Regular updates, dispute filing confirmations, and bureau call notifications","Your final results report"], answer: 2, exp: "You will receive regular updates, a notification when your first disputes are filed, and notifications after every bureau call — even before any items are removed." },
+      { q: "Why should you NOT contact the bureaus yourself during the first 30 days?", options: ["It is against the law","Contacting the bureaus yourself while we are actively disputing can interrupt our work and potentially harm your case","The bureaus will not speak to you","It costs extra fees"], answer: 1, exp: "Our team is actively working with the bureaus on your behalf. You contacting the bureaus directly can confuse the process and interrupt active disputes." }
+    ]}
+  },
+
+  report: {
+    num: 3, icon: "📊", title: "Your Credit Report Explained",
+    intro: "Your credit report can look overwhelming if you have never had it explained to you. This module breaks down what each section means, which negative items hurt your score the most, and exactly what we look for when we review your file.",
+    sections: [
+      { heading: "📄 What Is a Credit Report?", text: "Your credit report is a detailed record of your credit history maintained by three independent companies — Equifax, Experian, and TransUnion. Lenders, landlords, employers, and insurance companies use it to evaluate your financial reliability. Each bureau maintains its own version of your report, and they are not always identical — one bureau may show an account that another does not.", tips: [{ type: "blue", text: "You have three separate credit reports — one at Equifax, one at Experian, and one at TransUnion. CP Restoration reviews and disputes with all three." }] },
+      { heading: "📋 The Sections of Your Report", text: "<strong>Personal Information</strong> — Your name, address history, date of birth, Social Security Number, and employer history. Errors here (wrong name, old address) do not directly affect your score but can cause identity mix-ups.<br><br><strong>Account History (Tradelines)</strong> — Every credit account you have ever had: credit cards, auto loans, mortgages, student loans, personal loans. Shows the account open date, credit limit, balance, payment history, and current status.<br><br><strong>Public Records</strong> — Bankruptcies. Judgments and tax liens were removed from credit reports in 2017–2018 but may still appear incorrectly on older reports.<br><br><strong>Collections</strong> — Accounts sent to collection agencies. Even small collections can significantly damage your score.<br><br><strong>Hard Inquiries</strong> — When a lender pulls your credit to evaluate you for a loan or credit card. Each hard inquiry stays on your report for 2 years and can lower your score slightly." },
+      { heading: "⚠️ Which Items Hurt Your Score the Most?", text: "Not all negative items are equal. Here is the damage ranking from most to least harmful:", tips: [{ type: "red", text: "Bankruptcies — Chapters 7 and 13. Chapter 7 stays for 10 years. Chapter 13 stays for 7 years. Among the most damaging items possible." }, { type: "red", text: "Collections and Charge-Offs — Accounts sent to collections or written off by the creditor. Even one collection can drop your score 100+ points." }, { type: "red", text: "Late Payments — Payments 30, 60, or 90+ days late. Recency matters — a late payment from last month hurts more than one from 5 years ago." }, { type: "red", text: "Hard Inquiries — Each one can lower your score 5–10 points. Multiple inquiries in a short period compound the damage." }, { type: "gold", text: "Items older than 7 years (10 for bankruptcy) must be removed by law. If yours are still showing — that is one of the first things we dispute." }] },
+      { heading: "🎯 What We Look For When We Review Your File", text: "When our dispute team reviews your credit report we look for four categories of removable items:", tips: [{ type: "green", text: "<strong>Inaccurate Information</strong> — Wrong account numbers, incorrect balances, accounts that do not belong to you, wrong dates, wrong status." }, { type: "green", text: "<strong>Unverifiable Information</strong> — If the bureau cannot verify that an item is 100% accurate with the original creditor, it must be removed under FCRA Section 611." }, { type: "green", text: "<strong>Outdated Information</strong> — Items that have exceeded the legal reporting period (7 years for most negatives, 10 years for Chapter 7 bankruptcy)." }, { type: "green", text: "<strong>Identity Theft Items</strong> — Accounts opened fraudulently in your name without your knowledge or consent." }] }
+    ],
+    video: { title: "Your Credit Report Explained — What Everything Means", script: `[INTRO — 0:00]
+Your credit report can look like a wall of confusing numbers and codes. In this video I am going to walk you through exactly what everything means — what each section does, which items hurt you the most, and what our team looks for when we review your file.
+
+[WHAT IS A CREDIT REPORT — 0:30]
+A credit report is a detailed record of your credit history. Three companies maintain them independently — Equifax, Experian, and TransUnion. They are not always identical. A late payment might show on Equifax but not on TransUnion. That is why we dispute with all three.
+
+[THE SECTIONS — 1:15]
+Your report has five main sections. Personal information — your name, addresses, date of birth. Account history — every credit account you have ever had, with payment history. Public records — bankruptcies. Collections — accounts sent to collection agencies. And hard inquiries — every time a lender pulled your credit to evaluate you.
+
+[WHAT HURTS THE MOST — 2:30]
+Not all negative items are equal. Bankruptcies are the most damaging — a Chapter 7 stays for 10 years. Collections and charge-offs can drop your score 100 points or more. Late payments hurt too — the more recent, the worse. Hard inquiries are smaller but compound if you have many.
+
+[WHAT WE LOOK FOR — 3:30]
+When our team reviews your file we are looking for four things. Items that are inaccurate — wrong account number, wrong balance. Items that are unverifiable — the bureau cannot confirm the debt with the original creditor. Items that are outdated — past the 7 or 10 year legal limit. And identity theft items — accounts you never opened.
+
+[OUTRO — 4:15]
+Every item we find in any of those four categories we fight to remove. Some come off in the first round. Others take multiple rounds. But every item we remove improves your score and your financial opportunities. Let us do the work.` },
+    quiz: { title: "Module 3 Quiz — Your Credit Report", questions: [
+      { q: "How many credit bureaus maintain separate credit reports on you?", options: ["1 — they all share the same database","2 — Equifax and Experian","3 — Equifax, Experian, and TransUnion","4 — including FICO"], answer: 2, exp: "There are three major credit bureaus — Equifax, Experian, and TransUnion. Each maintains its own separate report. CP Restoration disputes with all three." },
+      { q: "How long does a Chapter 7 bankruptcy stay on your credit report?", options: ["3 years","5 years","7 years","10 years"], answer: 3, exp: "Chapter 7 bankruptcy stays on your credit report for 10 years. Chapter 13 stays for 7 years." },
+      { q: "Under what FCRA section must bureaus remove information they cannot verify?", options: ["Section 605","Section 609","Section 611","Section 623"], answer: 2, exp: "FCRA Section 611 requires bureaus to investigate disputes within 30 days and remove any information they cannot verify." },
+      { q: "Which of the following is a reason CP Restoration can dispute and potentially remove an item?", options: ["The account balance is higher than you want","The item is inaccurate, outdated, unverifiable, or related to identity theft","You simply do not like the account on your report","The creditor is no longer in business"], answer: 1, exp: "We dispute items that are inaccurate, outdated (past the legal reporting period), unverifiable, or the result of identity theft. Not all negative items qualify for removal." },
+      { q: "A late payment from 8 years ago is still showing on your credit report. What applies?", options: ["This is legal — late payments never expire","This is normal — bureaus can keep negative items forever","Most negative items must be removed after 7 years by law — this may be disputable","Only bankruptcies have a time limit"], answer: 2, exp: "Most negative items — including late payments — must be removed after 7 years under the FCRA. An 8-year-old late payment is past the legal reporting period and is a strong dispute candidate." }
+    ]}
+  },
+
+  dos: {
+    num: 4, icon: "✅", title: "Do's and Don'ts While We Work",
+    intro: "This is one of the most important modules in this resource center. What you do — and do not do — during your credit restoration process has a direct impact on your results. Please read every rule carefully.",
+    sections: [
+      { heading: "✅ WHAT YOU MUST DO", text: "", tips: [
+        { type: "green", text: "<strong>Keep your bureau login credentials active.</strong> We use your Equifax, Experian, and TransUnion login to access your reports and upload disputes. If your password changes or your account gets locked, our work stops immediately. Notify us the moment anything changes." },
+        { type: "green", text: "<strong>Check the dedicated email we created for you.</strong> We created a dedicated email address (firstname.lastname.cpr@gmail.com) linked to your bureau accounts. Important notifications from the bureaus go there. You do not need to check it daily — our team monitors it for you — but be aware it exists." },
+        { type: "green", text: "<strong>Forward any mail from the bureaus to us immediately.</strong> If Equifax, Experian, or TransUnion sends you anything by post mail — open it and take a photo. Send it to our customer service team the same day. Bureau responses are time-sensitive. Missing a response deadline can hurt your case." },
+        { type: "green", text: "<strong>Keep your contact information current.</strong> If your phone number, email address, or mailing address changes, notify us immediately. All updates go to your customer service agent." },
+        { type: "green", text: "<strong>Respond to our requests promptly.</strong> Occasionally we will ask you to confirm information, provide an updated document, or verify something by phone. Please respond within 24 hours." }
+      ]},
+      { heading: "❌ WHAT YOU MUST NOT DO", text: "", tips: [
+        { type: "red", text: "<strong>Do NOT contact the bureaus directly.</strong> This is the most important rule. While CP Restoration is actively disputing on your behalf, you must not call, write, or log into the bureau portals to make changes. Contacting the bureaus yourself can override our active disputes, reset investigation timelines, or flag your file in ways that damage your case." },
+        { type: "red", text: "<strong>Do NOT open new credit accounts during the first 60 days.</strong> New credit inquiries lower your score and can complicate active disputes. If you absolutely must apply for something, let us know first." },
+        { type: "red", text: "<strong>Do NOT miss payments on current accounts.</strong> New late payments on existing accounts will hurt your score and can add new negative items we then have to dispute. Pay everything on time." },
+        { type: "red", text: "<strong>Do NOT apply for financing, mortgages, or auto loans while your disputes are active.</strong> Lenders pulling your credit during active disputes can sometimes see updated dispute notes that complicate approvals. Wait until we give you the clear." },
+        { type: "red", text: "<strong>Do NOT share your bureau login credentials with anyone except CP Restoration.</strong> Your Equifax, Experian, and TransUnion credentials give access to your most sensitive personal and financial information. Never share them with any other company or person." }
+      ]},
+      { heading: "📬 What to Do When You Receive Bureau Mail", text: "The bureaus sometimes mail investigation results directly to you. This is important information that our team needs to see. Here is exactly what to do:", tips: [{ type: "green", text: "Open the envelope immediately — do not set it aside." }, { type: "green", text: "Take a clear photo of every page inside." }, { type: "green", text: "Email or text the photos to your CP Restoration customer service agent the same day." }, { type: "gold", text: "Bureau responses are time-sensitive. We have a limited window to respond to certain outcomes. Same-day forwarding is critical." }] }
+    ],
+    video: { title: "Do's and Don'ts While We Work on Your Credit", script: `[INTRO — 0:00]
+This video covers the most important rules to follow while our team is working on your credit. What you do during this process directly affects your results. Please watch this carefully.
+
+[WHAT YOU MUST DO — 0:30]
+Keep your bureau login credentials active and unchanged. If your Equifax, Experian, or TransUnion password changes or your account gets locked — our work stops. Tell us immediately if anything changes with your bureau accounts.
+
+Forward any mail from the bureaus to us the same day you receive it. Take a photo of every page and send it to your customer service agent. Bureau responses have deadlines. Missing them can hurt your case.
+
+Keep your contact information current. If your phone number or email changes, tell us right away. And respond to any requests from our team within 24 hours.
+
+[WHAT YOU MUST NOT DO — 2:00]
+Do not contact the bureaus directly. This is the most important rule. While we are actively disputing on your behalf, any contact you make with the bureaus — a call, an online login, a letter — can override our active disputes and reset investigation timelines. Let us handle all bureau communication.
+
+Do not open new credit accounts in the first 60 days. New inquiries lower your score and can complicate disputes. Do not apply for mortgages, auto loans, or financing while disputes are active. Do not miss any payments on existing accounts — new late payments undo our work.
+
+[BUREAU MAIL — 3:30]
+If you receive anything in the mail from Equifax, Experian, or TransUnion — open it immediately, photograph every page, and send it to us the same day. Do not throw it away. Do not wait until later. Bureau responses are time-sensitive.
+
+[OUTRO — 4:15]
+Following these rules is one of the most valuable things you can do to support your own results. Our team is fighting for you every day. Help us help you.` },
+    quiz: { title: "Module 4 Quiz — Do's and Don'ts", questions: [
+      { q: "What is the most important rule to follow while CP Restoration is working on your file?", options: ["Check your credit score daily","Do not contact the bureaus directly — let CP Restoration handle all bureau communication","Apply for new credit to show positive activity","Pay off all your debts immediately"], answer: 1, exp: "Contacting the bureaus yourself while we are actively disputing can override our work and reset investigation timelines. All bureau communication goes through CP Restoration." },
+      { q: "You receive a letter from Equifax in the mail. What do you do?", options: ["File it away for your records","Throw it away — the bureau will send a copy to CP Restoration too","Open it, photograph every page, and send it to your CP Restoration agent the same day","Call Equifax to ask what it is about"], answer: 2, exp: "Bureau mail must reach our team the same day. Open it, photograph every page, and send it immediately. Bureau responses are time-sensitive." },
+      { q: "Why should you not open new credit accounts in the first 60 days?", options: ["It is against the terms of your service agreement","New credit inquiries lower your score and can complicate active disputes","The bureaus will notify CP Restoration and it could affect your refund","There is no reason — opening new credit is fine at any time"], answer: 1, exp: "Hard inquiries from new credit applications lower your score and can interact with active dispute investigations in ways that complicate results." },
+      { q: "Your Equifax password was reset automatically. What do you do?", options: ["Update it yourself and log in to check your disputes","Say nothing and wait for CP Restoration to figure it out","Notify your CP Restoration customer service agent immediately with the new password","Create a new Equifax account with a different email"], answer: 2, exp: "Your bureau login credentials are how we access and upload your disputes. A changed password stops our work immediately. Notify us right away with the updated credentials." },
+      { q: "Which of the following is acceptable while disputes are active?", options: ["Applying for a mortgage","Calling TransUnion to follow up on your disputes","Paying all your existing accounts on time","Opening a new credit card to build positive history"], answer: 2, exp: "Paying existing accounts on time is not only acceptable — it is encouraged. Timely payments on existing accounts help your score and add positive history." }
+    ]}
+  },
+
+  responses: {
+    num: 5, icon: "📬", title: "Understanding Bureau Responses",
+    intro: "After disputes are filed, the bureaus investigate and send back responses. Understanding what those responses mean — and what happens next — is key to staying informed and confident throughout the process.",
+    sections: [
+      { heading: "📬 How Bureau Responses Work", text: "After CP Restoration files a dispute, the bureau opens an investigation and has 30 days to respond. The bureau contacts the original creditor and asks them to verify the information. If the creditor verifies it, the bureau may keep the item. If the creditor cannot verify it or does not respond in time, the bureau must delete the item. Responses come to our dedicated client email address and sometimes also by physical mail to your home address.", tips: [{ type: "blue", text: "You do not need to do anything when a bureau is investigating your dispute. Our team monitors every open investigation and follows up every 10 business days." }] },
+      { heading: "✅ Response Type 1 — Item Removed / Deleted", text: "This is the best possible outcome. The bureau investigated, the creditor could not verify the information, and the item has been permanently deleted from your credit report. Once an item is removed it should not reappear — and if it does, that is called re-aging and is a separate FCRA violation we can dispute immediately.", tips: [{ type: "green", text: "When an item is removed, you will receive a notification from our team with the item name and bureau. Your credit score typically improves within 30–60 days of the removal." }, { type: "green", text: "Keep all removal notifications. They are your proof of what was accomplished." }] },
+      { heading: "⚠️ Response Type 2 — Item Verified / Will Remain", text: "The bureau investigated and the creditor confirmed the item is accurate. This does not mean the dispute is over. A verified item is the start of the next round — not the end. Our team files a new dispute in the next round with a different angle, more evidence, or a CFPB complaint if needed.", tips: [{ type: "gold", text: "Bureau verification does not mean the item is correct. It means the creditor responded in time saying it is correct. Creditors are not always right — and they do not always respond. Our job is to keep pushing." }, { type: "blue", text: "You will receive a notification when an item is verified by a bureau. Our team will automatically begin preparing the next round of disputes for that item." }] },
+      { heading: "🔁 Response Type 3 — Dispute Escalation", text: "For items that have been verified multiple times or that involve complex situations, our team escalates using additional tools:", tips: [{ type: "blue", text: "<strong>CFPB Complaint:</strong> We file a formal complaint with the Consumer Financial Protection Bureau. This creates federal oversight of the dispute and often prompts faster bureau action." }, { type: "blue", text: "<strong>Demand Letter:</strong> A formal legal demand sent to the creditor citing FCRA violations and demanding removal." }, { type: "blue", text: "<strong>Additional Rounds:</strong> We can file up to 5 rounds of disputes per item with progressively stronger evidence and legal arguments." }] },
+      { heading: "📊 Tracking Your Score Through the Process", text: "Your credit score is recorded at three points — Beginning (when you enroll), Mid-Dispute (around the midpoint of your service), and End (at the completion of your service). This three-point comparison shows exactly how much your score improved and what was removed to cause that improvement. Most clients see score improvements beginning between days 30 and 90 as items are removed.", tips: [{ type: "gold", text: "Do not obsessively check your credit score during the process. Small fluctuations are normal. Judge your results by items removed, not daily score changes." }] }
+    ],
+    video: { title: "Understanding Bureau Responses — What Each Outcome Means", script: `[INTRO — 0:00]
+After CP Restoration files your disputes, the bureaus have 30 days to investigate and respond. In this video I am going to explain exactly what each type of response means and what happens next depending on the outcome.
+
+[HOW IT WORKS — 0:30]
+When we file a dispute, the bureau contacts the original creditor and asks them to verify the information. If the creditor verifies it — the bureau may keep the item. If the creditor cannot verify it or does not respond in time — the bureau must delete the item by law. Responses come to our team's monitoring inbox and sometimes also to your home by mail.
+
+[ITEM REMOVED — 1:15]
+The best possible outcome. The bureau investigated, the creditor could not verify the information, and the item is permanently deleted from your report. When this happens you will receive a notification from us. Your score typically improves within 30 to 60 days of the removal.
+
+[ITEM VERIFIED — 2:00]
+The bureau investigated and the creditor said the item is accurate. This is NOT the end. This is the beginning of round two. Our team files new disputes with a different angle, more documentation, or a CFPB complaint. Bureau verification just means the creditor responded — it does not mean the item is correct.
+
+[ESCALATION — 2:45]
+For stubborn items, we escalate. We file CFPB complaints which create federal oversight of the dispute. We send formal demand letters to the original creditor. We file up to 5 rounds of disputes with progressively stronger legal arguments. We do not give up.
+
+[YOUR SCORE — 3:30]
+We track your credit scores at three points — when you enroll, at the midpoint, and at the end. Most clients start seeing score improvements between 30 and 90 days as items are removed. Do not obsess over daily score changes. Judge your results by items removed.
+
+[OUTRO — 4:00]
+Every response — even a verification — moves us forward. Trust the process and let our team handle the strategy. We know what to do next.` },
+    quiz: { title: "Module 5 Quiz — Bureau Responses", questions: [
+      { q: "A bureau says an item has been verified and will remain. What does CP Restoration do next?", options: ["Accept the result — the bureau's decision is final","File a new round of disputes with a different approach and stronger evidence","Request a refund since the item could not be removed","Contact the original creditor directly on your behalf to negotiate"], answer: 1, exp: "Bureau verification is not final. Our team files a new dispute round with different reasoning, more documentation, or escalates to the CFPB. We do not stop at the first verification." },
+      { q: "When does a bureau HAVE to delete a disputed item?", options: ["Whenever the client requests it","When the creditor does not respond to the bureau's verification request in time","After 3 rounds of disputes","When the item is more than 5 years old"], answer: 1, exp: "If the original creditor cannot verify the information or does not respond in time during the bureau's investigation, the bureau must delete the item under FCRA Section 611." },
+      { q: "How many rounds of disputes can CP Restoration file for a stubborn item?", options: ["1 — if it does not work on the first try it stays","2 rounds maximum","3 rounds","Up to 5 rounds with progressively stronger arguments"], answer: 3, exp: "Our team can file up to 5 rounds of disputes per item, using different angles, more evidence, CFPB complaints, and formal demand letters." },
+      { q: "At how many points during your service does CP Restoration record your credit scores?", options: ["Once — only at the end","Twice — beginning and end","Three times — beginning, mid-dispute, and end","Every month"], answer: 2, exp: "Scores are recorded at three points — Beginning (enrollment), Mid-Dispute (midpoint), and End (completion). This creates the before and after comparison showing your results." },
+      { q: "What is re-aging and why is it important to know about?", options: ["When a collection account grows older and hurts less","When a removed item reappears on your credit report — which is itself an FCRA violation","When you add a new positive account to build history","When a bureau updates your score after a dispute"], answer: 1, exp: "Re-aging is when a deleted item reappears on your report. This is an FCRA violation that CP Restoration can dispute immediately when it occurs." }
+    ]}
+  },
+
+  refund: {
+    num: 6, icon: "💰", title: "The Refund Policy",
+    intro: "CP Restoration Services stands behind its work with a pro-rata money-back guarantee. This module explains exactly how the refund policy works, how refunds are calculated, and what the process looks like if you ever need to request one.",
+    sections: [
+      { heading: "🛡️ Our Money-Back Guarantee", text: "We stand behind our results. If CP Restoration does not fulfill our obligations within the service period outlined in your agreement, you are entitled to a pro-rata refund based on the work not completed. This is not a vague promise — it is a calculated, documented refund tied to exactly what was accomplished on your file.", tips: [{ type: "blue", text: "Express Package: Service period is 60 business days. If obligations are not met within 60 days, the period may be extended to 90 days at CP Restoration's discretion before a refund is issued." }, { type: "blue", text: "Standard Package: Service period is 120 business days, extendable to 150." }, { type: "red", text: "Financing Package: Maximum refund is 50% of the total amount paid, regardless of items removed." }] },
+      { heading: "🧮 How Refunds Are Calculated", text: "Refunds are calculated using a pro-rata formula based on the percentage of work not completed on your file.", tips: [{ type: "gold", text: "<strong>The Formula:</strong> (Amount Paid — $200 Admin Fee) × (Items Not Removed ÷ Total Items Disputed) = Refund Due" }, { type: "gold", text: "<strong>Example:</strong> You paid $2,499 for Standard service. We disputed 10 items. We removed 6. Work not completed = 4 out of 10 = 40%. Eligible amount = $2,499 - $200 = $2,299. Refund = $2,299 × 40% = $919.60." }, { type: "blue", text: "The $200 administrative fee is non-refundable in all cases. This covers the cost of compliance review, document processing, bureau account setup, and the client email setup." }] },
+      { heading: "📝 The Refund Process", text: "If you request a refund, here is exactly what happens:", tips: [{ type: "green", text: "Step 1 — You contact our customer service team and request a refund review." }, { type: "green", text: "Step 2 — Our compliance team reviews your file and calculates the refund amount based on items disputed vs. items removed." }, { type: "green", text: "Step 3 — We send you the refund amount in writing for your review." }, { type: "green", text: "Step 4 — You e-sign a Refund Settlement Agreement and Release. This document confirms the refund amount, permanently closes your file, and releases CP Restoration from all further obligations and claims." }, { type: "green", text: "Step 5 — The refund is processed to your original payment method or via the method agreed upon." }, { type: "red", text: "Important: The refund is NOT released until the Settlement Agreement is signed. This protects both parties." }] },
+      { heading: "⚠️ What the Settlement Agreement Means", text: "When you sign the Refund Settlement Agreement and Release you are confirming three things:", tips: [{ type: "blue", text: "You accept the calculated refund amount as full and final settlement of any claims against CP Restoration Services." }, { type: "blue", text: "Your file is permanently closed. No further dispute work will be performed." }, { type: "blue", text: "You release CP Restoration Services from any further legal, regulatory, or other claims related to your service." }] }
+    ],
+    video: { title: "The CP Restoration Refund Policy — How It Works", script: `[INTRO — 0:00]
+We stand behind our work at CP Restoration Services. In this video I want to walk you through our refund policy — how it works, how refunds are calculated, and what the process looks like if you ever need to request one.
+
+[THE GUARANTEE — 0:30]
+Our money-back guarantee is pro-rata. That means if we do not complete the work outlined in your agreement within your service period, you receive a refund calculated based on exactly how much work was not completed. This is not vague. It is a documented calculation tied to your specific file.
+
+[THE FORMULA — 1:15]
+Here is the formula. Take the amount you paid. Subtract the $200 non-refundable admin fee. Multiply the result by the percentage of disputed items we did not remove. That is your refund.
+
+For example — you paid $2,499. We disputed 10 items. We removed 6. Four items were not resolved — that is 40% of the work. Eligible amount is $2,299. Your refund is $2,299 times 40% which equals $919.60.
+
+[THE PROCESS — 2:15]
+If you request a refund, contact our customer service team. Our compliance team reviews your file and calculates the amount. We send it to you in writing. Then you e-sign a Refund Settlement Agreement and Release. That document confirms the amount, closes your file, and releases CP Restoration from further obligations. The refund is processed after signing.
+
+[THE SETTLEMENT AGREEMENT — 3:15]
+When you sign the Settlement Agreement you are confirming three things: you accept the refund amount as final settlement, your file is permanently closed, and you release CP Restoration from any further claims. This protects both of us.
+
+[OUTRO — 3:45]
+Our goal is to never need this conversation — because we intend to deliver results. But if a refund is ever needed, you will find the process transparent, fair, and documented every step of the way. That is the CP Restoration promise.` },
+    quiz: { title: "Module 6 Quiz — The Refund Policy", questions: [
+      { q: "What is the non-refundable administrative fee deducted from all refunds?", options: ["$100","$150","$200","$250"], answer: 2, exp: "The $200 administrative fee is non-refundable in all cases. It covers compliance review, document processing, bureau setup, and client email setup." },
+      { q: "A client paid $3,999 for Express service. 8 items were disputed. 4 were removed. What is the refund due?", options: ["$1,899.50","$1,799.50","$2,000","$1,599.50"], answer: 0, exp: "Eligible = $3,999 - $200 = $3,799. Not completed = 4/8 = 50%. Refund = $3,799 x 50% = $1,899.50." },
+      { q: "When is the refund actually released to the client?", options: ["Immediately when they request it","After 30 days of processing","After the client e-signs the Refund Settlement Agreement and Release","After a manager reviews and approves it"], answer: 2, exp: "The refund is not released until the client e-signs the Refund Settlement Agreement and Release. This protects both parties." },
+      { q: "What does signing the Refund Settlement Agreement mean for your file?", options: ["You can still request additional dispute work","Your file is permanently closed and CP Restoration is released from further obligations","You can reopen the file later if items come back","You can still file a complaint with the CFPB about CP Restoration"], answer: 1, exp: "Signing the Settlement Agreement permanently closes your file and releases CP Restoration from any further obligations or claims. This is a final resolution." },
+      { q: "What is the maximum refund available for Financing package clients?", options: ["Full pro-rata refund same as other packages","75% of amount paid","50% of total amount paid regardless of items removed","No refund available for financing clients"], answer: 2, exp: "Financing package clients are eligible for a maximum refund of 50% of the total amount paid, regardless of how many items were removed." }
+    ]}
+  }
+};
+
+// ── NAV ──────────────────────────────────────────────────────────────
+function showMod(key) {
+  document.querySelectorAll('.module-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  const pg = document.getElementById('mod-' + key);
+  if(pg) pg.classList.add('active');
+  const nav = document.getElementById('nav-' + key);
+  if(nav) nav.classList.add('active');
+  if(MODS[key] && !pg.innerHTML.trim()) buildMod(key);
+  if(key === 'faq') buildFaq();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── BUILD MODULE ─────────────────────────────────────────────────────
+function buildMod(key) {
+  const m = MODS[key];
+  const el = document.getElementById('mod-' + key);
+  const passed = (scores[key] || 0) >= 80;
+
+  let html = `
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <span style="font-size:12px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;">Module ${m.num}</span>
+      ${passed ? '<span class="complete-badge">✅ Complete</span>' : ''}
+    </div>
+    <div class="card-title">${m.icon} ${m.title}</div>
+    <div class="card-sub">${m.intro}</div>
+
+    <div class="module-tabs">
+      <button class="mtab active" onclick="switchTab('${key}','lesson')">📖 Overview</button>
+      <button class="mtab" onclick="switchTab('${key}','video')">🎬 Video</button>
+      <button class="mtab" onclick="switchTab('${key}','script')">📄 Script</button>
+      <button class="mtab" onclick="switchTab('${key}','quiz')">✏️ Knowledge Check</button>
+    </div>
+
+    <div id="${key}-lesson">`;
+
+  m.sections.forEach(sec => {
+    html += `<div class="card"><div class="section-block"><h3>${sec.heading}</h3>`;
+    if(sec.text) html += `<div class="content-text">${sec.text.replace(/\n/g,'<br>')}</div>`;
+    if(sec.tips) {
+      html += `<ul class="tip-list">`;
+      sec.tips.forEach(t => { html += `<li class="${t.type}-tip">${t.text}</li>`; });
+      html += `</ul>`;
+    }
+    html += `</div></div>`;
+  });
+
+  html += `</div>
+
+    <div id="${key}-video" style="display:none;">
+      <div class="card">
+        <div class="card-title" style="font-size:16px;margin-bottom:16px;">🎬 ${m.video.title}</div>
+        <div class="video-slot" id="vslot-${key}">
+          <div class="video-placeholder">
+            <div class="vp-icon">▶</div>
+            <div class="vp-title">${m.video.title}</div>
+            <div class="vp-hint">Video coming soon — paste a YouTube embed URL below</div>
+            <div class="vp-embed-row">
+              <input type="text" id="vurl-${key}" placeholder="https://www.youtube.com/embed/...">
+              <button onclick="embedVid('${key}')">Embed Video</button>
+            </div>
+          </div>
+        </div>
+        <div class="info-box gold"><strong>How to generate this video with Higgsfield AI:</strong><br>1. Go to higgsfield.ai and sign in<br>2. Paste the script from the Script tab<br>3. Choose your presenter and voice<br>4. Generate, upload to YouTube, paste the embed URL above</div>
+      </div>
+    </div>
+
+    <div id="${key}-script" style="display:none;">
+      <div class="card">
+        <div class="card-title" style="font-size:16px;margin-bottom:6px;">📄 Video Script — ${m.title}</div>
+        <div class="card-sub">Copy this script and paste it into Higgsfield AI to generate the client tutorial video.</div>
+        <div class="script-box">
+          <div class="script-label">Higgsfield AI Script</div>
+          <div class="script-text" id="stext-${key}">${m.video.script}</div>
+          <button class="copy-btn" onclick="copyScript('${key}')">📋 Copy Script</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="${key}-quiz" style="display:none;">
+      ${buildQuiz(key, m.quiz)}
+    </div>
+
+    <div class="contact-card" style="margin-top:24px;">
+      <h3>Questions? We Are Here.</h3>
+      <p>Your customer service agent is available Monday–Friday 9AM–5PM EST.<br>Email: <a href="mailto:cprestorationsvcs@gmail.com">cprestorationsvcs@gmail.com</a></p>
+    </div>`;
+
+  el.innerHTML = html;
+}
+
+// ── BUILD QUIZ ───────────────────────────────────────────────────────
+function buildQuiz(key, quiz) {
+  let html = `<div class="quiz-wrap">
+    <div class="quiz-top">
+      <div class="quiz-title">✏️ ${quiz.title}</div>
+      <div class="quiz-meta">${quiz.questions.length} questions · 80% to pass</div>
+    </div>
+    <div class="quiz-intro">Answer all questions to confirm you understand this module. You need 80% or higher to complete it.</div>`;
+
+  quiz.questions.forEach((q, qi) => {
+    html += `<div class="q-block" id="qb-${key}-${qi}">
+      <div class="q-text"><span class="q-num">${qi+1}</span>${q.q}</div>`;
+    q.options.forEach((opt, oi) => {
+      html += `<div class="opt" id="opt-${key}-${qi}-${oi}" onclick="pickOpt('${key}',${qi},${oi})">
+        <input type="radio" name="q-${key}-${qi}"> ${opt}</div>`;
+    });
+    html += `<div class="q-feedback" id="fb-${key}-${qi}"></div></div>`;
+  });
+
+  html += `<button class="quiz-submit" onclick="submitQuiz('${key}')">Submit Answers</button>
+    <div class="quiz-result" id="qr-${key}">
+      <div class="result-score" id="rs-${key}"></div>
+      <div class="result-label" id="rl-${key}"></div>
+      <div class="result-sub" id="rsub-${key}"></div>
+      <button class="retake-btn" onclick="retakeQuiz('${key}')">Try Again</button>
+    </div></div>`;
+  return html;
+}
+
+// ── QUIZ LOGIC ───────────────────────────────────────────────────────
+function pickOpt(key, qi, oi) {
+  MODS[key].quiz.questions[qi].options.forEach((_, idx) => {
+    document.getElementById(`opt-${key}-${qi}-${idx}`)?.classList.remove('selected');
+  });
+  document.getElementById(`opt-${key}-${qi}-${oi}`)?.classList.add('selected');
+  if(!answers[key]) answers[key] = {};
+  answers[key][qi] = oi;
+}
+
+function submitQuiz(key) {
+  const quiz = MODS[key].quiz;
+  const ans = answers[key] || {};
+  let correct = 0;
+  quiz.questions.forEach((q, qi) => {
+    const user = ans[qi];
+    const block = document.getElementById(`qb-${key}-${qi}`);
+    const fb = document.getElementById(`fb-${key}-${qi}`);
+    q.options.forEach((_, oi) => {
+      const el = document.getElementById(`opt-${key}-${qi}-${oi}`);
+      if(el) el.classList.remove('selected','correct-opt','wrong-opt');
+    });
+    if(block) block.classList.remove('correct','incorrect');
+    const cEl = document.getElementById(`opt-${key}-${qi}-${q.answer}`);
+    if(cEl) cEl.classList.add('correct-opt');
+    if(user === q.answer) {
+      correct++;
+      if(block) block.classList.add('correct');
+      if(fb) { fb.textContent = '✅ Correct! ' + q.exp; fb.className = 'q-feedback fb-correct show'; }
+    } else {
+      if(block) block.classList.add('incorrect');
+      if(user !== undefined) document.getElementById(`opt-${key}-${qi}-${user}`)?.classList.add('wrong-opt');
+      if(fb) { fb.textContent = '❌ ' + q.exp; fb.className = 'q-feedback fb-wrong show'; }
+    }
+  });
+  const pct = Math.round(correct / quiz.questions.length * 100);
+  scores[key] = pct;
+  const pass = pct >= 80;
+  const rEl = document.getElementById(`qr-${key}`);
+  if(rEl) rEl.className = `quiz-result show ${pass?'r-pass':'r-fail'}`;
+  const rsEl = document.getElementById(`rs-${key}`);
+  if(rsEl) rsEl.textContent = pct + '%';
+  const rlEl = document.getElementById(`rl-${key}`);
+  if(rlEl) rlEl.textContent = pass ? '🎉 Module Complete!' : 'Not quite — try again';
+  const rsubEl = document.getElementById(`rsub-${key}`);
+  if(rsubEl) rsubEl.textContent = pass
+    ? `You answered ${correct} of ${quiz.questions.length} correctly. This module is now complete.`
+    : `You answered ${correct} of ${quiz.questions.length} correctly. Review the Overview and try again.`;
+  if(pass) markDone(key);
+  rEl?.scrollIntoView({behavior:'smooth'});
+}
+
+function retakeQuiz(key) {
+  if(answers[key]) delete answers[key];
+  const quiz = MODS[key].quiz;
+  quiz.questions.forEach((q, qi) => {
+    q.options.forEach((_, oi) => {
+      const el = document.getElementById(`opt-${key}-${qi}-${oi}`);
+      if(el) el.classList.remove('selected','correct-opt','wrong-opt');
+    });
+    const b = document.getElementById(`qb-${key}-${qi}`);
+    if(b) b.classList.remove('correct','incorrect');
+    const fb = document.getElementById(`fb-${key}-${qi}`);
+    if(fb) fb.className = 'q-feedback';
+  });
+  const rEl = document.getElementById(`qr-${key}`);
+  if(rEl) rEl.className = 'quiz-result';
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────
+function switchTab(key, tab) {
+  ['lesson','video','script','quiz'].forEach(t => {
+    const el = document.getElementById(`${key}-${t}`);
+    if(el) el.style.display = t===tab?'block':'none';
+  });
+  const tabs = document.querySelectorAll(`#mod-${key} .mtab`);
+  tabs.forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes(`'${tab}'`));
+  });
+}
+
+// ── VIDEO EMBED ───────────────────────────────────────────────────────
+function embedVid(key) {
+  let url = document.getElementById(`vurl-${key}`)?.value.trim() || '';
+  if(url.includes('youtube.com/watch')) {
+    const id = url.split('v=')[1]?.split('&')[0];
+    if(id) url = `https://www.youtube.com/embed/${id}`;
+  } else if(url.includes('youtu.be/')) {
+    const id = url.split('youtu.be/')[1]?.split('?')[0];
+    if(id) url = `https://www.youtube.com/embed/${id}`;
+  }
+  const slot = document.getElementById(`vslot-${key}`);
+  if(slot && url) slot.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+}
+
+// ── COPY SCRIPT ───────────────────────────────────────────────────────
+function copyScript(key) {
+  const el = document.getElementById(`stext-${key}`);
+  if(!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    alert('Script copied! Paste it into Higgsfield AI to generate the video.');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = el.textContent;
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    alert('Script copied!');
+  });
+}
+
+// ── COMPLETION ─────────────────────────────────────────────────────────
+function markDone(key) {
+  done[key] = true;
+  const chk = document.getElementById(`chk-${key}`);
+  if(chk) chk.textContent = '✅';
+  const card = document.getElementById(`card-${key}`);
+  if(card) { card.classList.add('done'); const st = document.getElementById(`st-${key}`); if(st){st.textContent='✅ Complete';st.style.color='var(--green)';} }
+  updateProgress();
+}
+
+function updateProgress() {
+  const keys = ['process','first30','report','dos','responses','refund'];
+  const n = keys.filter(k => done[k]).length;
+  const pct = Math.round(n/6*100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `${n} of 6`;
+}
+
+// ── FAQ ────────────────────────────────────────────────────────────────
+function buildFaq() {
+  const el = document.getElementById('mod-faq');
+  if(el.innerHTML.trim()) return;
+  const faqs = [
+    ["How long will the process take?","Express clients: 60 business days or less. Standard clients: 120 business days or less. Financing clients receive Standard service timelines. Complex files with many items or difficult creditors may take longer."],
+    ["When will I start seeing results?","Most clients begin seeing their first item removals between days 30 and 60. Score improvements typically follow removals within 30–60 days."],
+    ["Why do I need to give you my bureau login credentials?","We use your login credentials to access your credit reports and upload dispute letters directly to the bureau portals. This is the fastest and most effective way to file disputes."],
+    ["What if my bureau password changes?","Notify your customer service agent immediately with the new password. A changed or expired login stops our work on your file."],
+    ["Will disputing items hurt my credit score?","No. Disputing items does not hurt your credit score. In fact, successfully removing negative items improves your score."],
+    ["Can you guarantee my credit score will reach a specific number?","No — and any credit repair company that guarantees a specific score is violating federal law (CROA). We fight to remove every inaccurate, outdated, or unverifiable item. Your score improvement depends on which items are removed and your overall credit profile."],
+    ["What is the dedicated email address you created for me?","We created firstname.lastname.cpr@gmail.com linked to your bureau accounts. Bureau verification codes and notifications go there. Our team monitors it — you do not need to check it, but it exists and should not be deleted."],
+    ["Can I apply for credit while you are working on my file?","We recommend against applying for new credit during the first 60 days. New hard inquiries lower your score and can complicate active disputes."],
+    ["What happens if a removed item comes back on my report?","This is called re-aging and it is an FCRA violation. Notify us immediately. We will dispute it again at no additional charge."],
+    ["How do I reach my customer service agent?","Email cprestorationsvcs@gmail.com or call during business hours Monday–Friday 9AM–5PM EST. Your agent will give you a full file update anytime you ask."],
+    ["What if I want to cancel my service?","Under the Credit Repair Organizations Act you have the right to cancel within 3 business days of signing for a full refund. After that, refunds are calculated on a pro-rata basis. Contact customer service to start a refund review."],
+    ["How do I know what has been removed from my report?","You will receive a notification every time an item is removed. Your customer service agent can also give you a full update at any time. At the end of your service period, we provide a complete results summary."]
+  ];
+  let html = `<div class="card-title" style="margin-bottom:6px;">❓ Frequently Asked Questions</div>
+  <div class="card-sub">Answers to the most common questions from CP Restoration clients.</div>`;
+  faqs.forEach(([q,a],i) => {
+    html += `<div class="card" style="margin-bottom:14px;">
+      <div style="font-size:14px;font-weight:700;color:var(--blue);margin-bottom:8px;">Q: ${q}</div>
+      <div style="font-size:13px;color:#374151;line-height:1.8;">${a}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+window.addEventListener('load', updateProgress);
+</script>
+</body>
+</html>
