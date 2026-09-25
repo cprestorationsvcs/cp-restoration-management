@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration Services — Client Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#1B3A6B; --gold:#C9A84C; --green:#1A5C38;
+  --red:#8B1A1A; --gray:#6B7280; --border:#E2E8F0;
+  --bg:#F8FAFC; --white:#FFFFFF; --text:#1E293B;
+  --lblue:#EFF4FF; --lgold:#FDF8EE;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HERO */
+.hero{background:var(--navy);padding:48px 24px 56px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(201,168,76,.12) 0%,transparent 60%);}
+.hero-logo{font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,32px);color:var(--white);font-weight:700;letter-spacing:-.5px;margin-bottom:4px;position:relative;}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.5);letter-spacing:.5px;margin-bottom:32px;position:relative;}
+.hero h1{font-size:clamp(28px,5vw,44px);font-weight:800;color:var(--white);line-height:1.15;margin-bottom:14px;position:relative;}
+.hero h1 span{color:var(--gold);}
+.hero p{font-size:15px;color:rgba(255,255,255,.7);max-width:520px;margin:0 auto 32px;line-height:1.7;position:relative;}
+.hero-badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;}
+.badge{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.3px;}
+.badge-outline{border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);}
+.badge-gold{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.3);}
+
+/* PROGRESS */
+.progress-wrap{background:var(--navy);padding:0 24px 32px;position:sticky;top:0;z-index:50;box-shadow:0 4px 24px rgba(0,0,0,.2);}
+.progress-bar{display:flex;max-width:640px;margin:0 auto;gap:0;}
+.progress-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:8px 4px;opacity:.45;transition:opacity .2s;}
+.progress-step.active{opacity:1;}
+.progress-step.done{opacity:.75;}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--white);transition:all .3s;position:relative;}
+.progress-step.active .step-dot{border-color:var(--gold);background:var(--gold);color:var(--navy);}
+.progress-step.done .step-dot{border-color:var(--green);background:var(--green);color:var(--white);}
+.step-dot::after{content:'';position:absolute;right:-100%;top:50%;width:200%;height:2px;background:rgba(255,255,255,.15);z-index:-1;}
+.progress-step:last-child .step-dot::after{display:none;}
+.step-label{font-size:10px;color:rgba(255,255,255,.6);text-align:center;line-height:1.3;font-weight:500;}
+.progress-step.active .step-label{color:var(--gold);font-weight:700;}
+
+/* FORM CONTAINER */
+.container{max-width:680px;margin:0 auto;padding:32px 20px 80px;}
+
+/* STEP CARDS */
+.step-card{display:none;animation:fadeIn .3s ease;}
+.step-card.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.card{background:var(--white);border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;}
+.card-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);}
+.card-head h2{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:3px;}
+.card-head p{font-size:13px;color:var(--gray);line-height:1.5;}
+.card-body{padding:24px;}
+
+/* FORM FIELDS */
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text);letter-spacing:.3px;margin-bottom:6px;}
+.field label .req{color:var(--gold);}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:'Inter',sans-serif;color:var(--text);background:var(--white);transition:border-color .2s,box-shadow .2s;outline:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,107,.08);}
+.field input.error,.field select.error,.field textarea.error{border-color:var(--red);}
+.field .hint{font-size:11px;color:var(--gray);margin-top:5px;line-height:1.4;}
+.field .err-msg{font-size:11px;color:var(--red);margin-top:5px;display:none;font-weight:600;}
+.field .err-msg.show{display:block;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:500px){.grid-2{grid-template-columns:1fr;}}
+
+/* CHECKBOXES & RADIOS */
+.check-group{display:flex;flex-direction:column;gap:8px;}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;}
+.check-item:hover{border-color:var(--navy);background:var(--lblue);}
+.check-item.checked{border-color:var(--navy);background:var(--lblue);}
+.check-item input{width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:var(--navy);}
+.check-item span{font-size:13px;color:var(--text);line-height:1.5;}
+.check-item strong{display:block;font-weight:700;color:var(--navy);}
+
+/* PACKAGES */
+.pkg-grid{display:grid;grid-template-columns:1fr;gap:10px;}
+.pkg-card{border:2px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;}
+.pkg-card:hover{border-color:var(--navy);}
+.pkg-card.selected{border-color:var(--navy);background:var(--lblue);}
+.pkg-card.selected::after{content:'✓';position:absolute;top:12px;right:14px;width:22px;height:22px;background:var(--navy);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
+.pkg-name{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:2px;}
+.pkg-price{font-size:20px;font-weight:800;color:var(--gold);}
+.pkg-desc{font-size:12px;color:var(--gray);margin-top:4px;line-height:1.5;}
+.pkg-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-bottom:6px;}
+.best{background:rgba(201,168,76,.15);color:#92710A;}
+.popular{background:rgba(27,58,107,.1);color:var(--navy);}
+
+/* UPLOAD ZONES */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--navy);background:var(--lblue);}
+.upload-icon{font-size:32px;margin-bottom:8px;}
+.upload-zone p{font-size:13px;color:var(--gray);}
+.upload-zone strong{color:var(--navy);}
+.file-list{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+.file-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--lgold);border-radius:7px;font-size:12px;}
+.file-item span{flex:1;color:var(--text);font-weight:500;}
+.file-item button{background:none;border:none;cursor:pointer;color:var(--gray);font-size:16px;line-height:1;}
+
+/* BUREAU ITEMS */
+.item-builder{display:flex;flex-direction:column;gap:8px;}
+.item-row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--lblue);border:1px solid rgba(27,58,107,.12);border-radius:8px;}
+.item-num{font-size:12px;font-weight:800;color:var(--navy);min-width:20px;}
+.item-text{flex:1;font-size:13px;color:var(--text);}
+.item-bureaus{display:flex;gap:4px;}
+.bu-tag{padding:2px 6px;border-radius:4px;font-size:10px;font-weight:800;color:white;}
+.bu-eq{background:#1B3A6B;}.bu-ex{background:#8B1A1A;}.bu-tu{background:#1A5C38;}
+.item-remove{background:none;border:none;cursor:pointer;color:var(--gray);font-size:16px;padding:2px;}
+.add-item-form{padding:14px;background:var(--bg);border-radius:8px;border:1px solid var(--border);}
+.quick-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.qtag{padding:5px 10px;background:var(--white);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;color:var(--text);transition:all .15s;}
+.qtag:hover{background:var(--navy);color:white;border-color:var(--navy);}
+
+/* SIGNATURE */
+.sig-box{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;background:white;}
+.sig-label{padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:var(--gray);display:flex;justify-content:space-between;align-items:center;}
+canvas#sig-canvas{display:block;touch-action:none;cursor:crosshair;width:100%;height:160px;}
+
+/* BUTTONS */
+.btn-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px;}
+.btn-back{padding:12px 22px;background:transparent;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-weight:600;color:var(--gray);cursor:pointer;transition:all .2s;}
+.btn-back:hover{border-color:var(--navy);color:var(--navy);}
+.btn-next{padding:13px 28px;background:var(--navy);border:none;border-radius:10px;font-size:14px;font-weight:700;color:white;cursor:pointer;transition:all .2s;flex:1;max-width:240px;}
+.btn-next:hover{background:#142d55;}
+.btn-submit{padding:14px 32px;background:var(--green);border:none;border-radius:10px;font-size:15px;font-weight:800;color:white;cursor:pointer;transition:all .2s;width:100%;}
+.btn-submit:hover{background:#14472c;}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.5;margin-bottom:18px;}
+.alert-gold{background:var(--lgold);border-left:3px solid var(--gold);color:#7A5F00;}
+.alert-blue{background:var(--lblue);border-left:3px solid var(--navy);color:var(--navy);}
+
+/* SUCCESS */
+.success-card{background:white;border-radius:20px;padding:48px 32px;text-align:center;box-shadow:0 4px 32px rgba(0,0,0,.08);}
+.success-icon{font-size:64px;margin-bottom:20px;}
+.success-card h2{font-size:26px;font-weight:800;color:var(--navy);margin-bottom:10px;}
+.success-card p{font-size:14px;color:var(--gray);line-height:1.7;margin-bottom:6px;}
+.success-id{font-size:32px;font-weight:800;color:var(--gold);letter-spacing:2px;margin:20px 0;font-family:'Playfair Display',serif;}
+.next-steps{text-align:left;margin-top:28px;display:flex;flex-direction:column;gap:10px;}
+.next-step{display:flex;gap:12px;padding:12px 14px;background:var(--lblue);border-radius:8px;font-size:13px;align-items:flex-start;}
+.next-step-num{font-weight:800;color:var(--navy);flex-shrink:0;}
+
+/* REVIEW */
+.review-section{margin-bottom:16px;}
+.review-section h4{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.review-row{display:flex;gap:12px;padding:6px 0;font-size:13px;}
+.review-label{color:var(--gray);min-width:140px;flex-shrink:0;}
+.review-value{color:var(--text);font-weight:600;}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-logo">CP Restoration Services</div>
+  <div class="hero-sub">35daycreditrepair.com</div>
+  <h1>Let's start building your <span>stronger credit.</span></h1>
+  <p>Fill out the form below to enroll. It takes about 5 minutes. Your information is confidential and protected.</p>
+  <div class="hero-badges">
+    <span class="badge badge-outline">🔒 Secure & Confidential</span>
+    <span class="badge badge-gold">⭐ Since 2014</span>
+    <span class="badge badge-outline">📋 CROA Compliant</span>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-bar">
+    <div class="progress-step active" id="prog-1" onclick="jumpStep(1)">
+      <div class="step-dot">1</div>
+      <div class="step-label">Your Info</div>
+    </div>
+    <div class="progress-step" id="prog-2" onclick="jumpStep(2)">
+      <div class="step-dot">2</div>
+      <div class="step-label">Package</div>
+    </div>
+    <div class="progress-step" id="prog-3" onclick="jumpStep(3)">
+      <div class="step-dot">3</div>
+      <div class="step-label">Credit Items</div>
+    </div>
+    <div class="progress-step" id="prog-4" onclick="jumpStep(4)">
+      <div class="step-dot">4</div>
+      <div class="step-label">Documents</div>
+    </div>
+    <div class="progress-step" id="prog-5" onclick="jumpStep(5)">
+      <div class="step-dot">5</div>
+      <div class="step-label">Agreement</div>
+    </div>
+    <div class="progress-step" id="prog-6" onclick="jumpStep(6)">
+      <div class="step-dot">6</div>
+      <div class="step-label">Review</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STEP 1: PERSONAL INFO -->
+  <div class="step-card active" id="step-1">
+    <div class="card">
+      <div class="card-head">
+        <h2>Personal Information</h2>
+        <p>We need this to locate your credit file and open your account.</p>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="field">
+            <label>First Name <span class="req">*</span></label>
+            <input type="text" id="f-first" placeholder="John" autocomplete="given-name">
+            <div class="err-msg" id="e-first">First name is required.</div>
+          </div>
+          <div class="field">
+            <label>Last Name <span class="req">*</span></label>
+            <input type="text" id="f-last" placeholder="Smith" autocomplete="family-name">
+            <div class="err-msg" id="e-last">Last name is required.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Email Address <span class="req">*</span></label>
+          <input type="email" id="f-email" placeholder="you@email.com" autocomplete="email">
+          <div class="err-msg" id="e-email">A valid email is required.</div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" id="f-phone" placeholder="(555) 000-0000" autocomplete="tel">
+            <div class="err-msg" id="e-phone">Phone number is required.</div>
+          </div>
+          <div class="field">
+            <label>Date of Birth <span class="req">*</span></label>
+            <input type="date" id="f-dob">
+            <div class="err-msg" id="e-dob">Date of birth is required.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Home Address <span class="req">*</span></label>
+          <input type="text" id="f-address" placeholder="123 Main Street" autocomplete="street-address">
+          <div class="err-msg" id="e-address">Address is required.</div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>City <span class="req">*</span></label>
+            <input type="text" id="f-city" placeholder="Miami" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label>State / Zip <span class="req">*</span></label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="f-state" placeholder="FL" maxlength="2" style="width:70px;flex-shrink:0;" autocomplete="address-level1">
+              <input type="text" id="f-zip" placeholder="33066" maxlength="10" autocomplete="postal-code">
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Last 4 Digits of Social Security Number <span class="req">*</span></label>
+          <input type="password" id="f-ssn" placeholder="••••" maxlength="4" style="max-width:120px;" autocomplete="off">
+          <div class="hint">Used to verify your identity with the credit bureaus. We never store your full SSN.</div>
+          <div class="err-msg" id="e-ssn">Last 4 digits of SSN are required.</div>
+        </div>
+        <div class="field">
+          <label>How did you hear about us?</label>
+          <select id="f-referral">
+            <option value="">Select one...</option>
+            <option>Facebook Ad</option>
+            <option>Instagram</option>
+            <option>TikTok</option>
+            <option>Google Search</option>
+            <option>Friend or Family Referral</option>
+            <option>Existing Client Referral</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <div></div>
+      <button class="btn-next" onclick="goToStep(2)">Next: Choose Package →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: PACKAGE -->
+  <div class="step-card" id="step-2">
+    <div class="card">
+      <div class="card-head">
+        <h2>Choose Your Package</h2>
+        <p>Select the service that fits your goals and budget. You can ask questions before committing.</p>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-gold">💡 Not sure which to choose? Most clients with multiple negative items across all three bureaus start with Standard or Express. If you only have inquiries or one bureau, scroll down for those options.</div>
+        <div class="pkg-grid" id="pkg-grid">
+
+          <div class="pkg-card" onclick="selectPkg(this,'express','3999')">
+            <span class="pkg-badge best">⚡ Best Results</span>
+            <div class="pkg-name">Express Package</div>
+            <div class="pkg-price">$3,999</div>
+            <div class="pkg-desc">All 3 bureaus — Equifax, Experian & TransUnion. 60 business days or less. Full dispute service, FTC reports, bureau calls, and follow-ups. One-time payment.</div>
+          </div>
+
+          <div class="pkg-card" onclick="selectPkg(this,'standard','2499')">
+            <span class="pkg-badge popular">📋 Most Popular</span>
+            <div class="pkg-name">Standard Package</div>
+            <div class="pkg-price">$2,499</div>
+            <div class="pkg-desc">All 3 bureaus. 120 business days or less. Full dispute service with bureau calls and follow-ups. One-time payment.</div>
+          </div>
+
+          <div class="pkg-card" onclick="selectPkg(this,'financing','750+292x6')">
+            <span class="pkg-badge popular">💳 Easy Payments</span>
+            <div class="pkg-name">In-House Financing</div>
+            <div class="pkg-price">$750 <span style="font-size:14px;font-weight:500;color:var(--gray);">+ $292/mo × 6</span></div>
+            <div class="pkg-desc">All 3 bureaus. Same Standard service split into payments. $750 down today, then $292/month for 6 months. File pauses if a payment is missed.</div>
+          </div>
+
+          <div class="pkg-card" onclick="selectPkg(this,'bureau1','1000')">
+            <div class="pkg-name">Single Bureau</div>
+            <div class="pkg-price">$1,000</div>
+            <div class="pkg-desc">One bureau only — you choose which. 120 business days. Best when your issue is isolated to one bureau. Rush available (+$500).</div>
+          </div>
+
+          <div class="pkg-card" onclick="selectPkg(this,'bureau1rush','1500')">
+            <div class="pkg-name">Single Bureau + Rush</div>
+            <div class="pkg-price">$1,500</div>
+            <div class="pkg-desc">One bureau, expedited processing. Same great service, moved to the front of the queue.</div>
+          </div>
+
+          <div class="pkg-card" onclick="selectPkg(this,'inquiries','45each')">
+            <div class="pkg-name">Inquiries Only</div>
+            <div class="pkg-price">$45 <span style="font-size:14px;font-weight:500;color:var(--gray);">per inquiry per bureau</span></div>
+            <div class="pkg-desc">Hard inquiries only — no other negative items. 120 business days. You will list your inquiries in the next step and we will calculate the total.</div>
+          </div>
+
+          <div class="pkg-card" onclick="selectPkg(this,'inquiriesrush','45each+500')">
+            <div class="pkg-name">Inquiries Only + Rush</div>
+            <div class="pkg-price">$45/inquiry <span style="font-size:14px;font-weight:500;color:var(--gray);">+ $500 rush</span></div>
+            <div class="pkg-desc">Same as Inquiries Only but expedited. Rush fee is flat $500 added to your inquiry total.</div>
+          </div>
+
+        </div>
+        <div id="pkg-error" style="color:var(--red);font-size:13px;font-weight:700;display:none;margin-top:12px;">Please select a package to continue.</div>
+
+        <!-- Inquiry count (shows for inquiry packages) -->
+        <div id="inq-fields" style="display:none;margin-top:16px;padding:16px;background:var(--lblue);border-radius:10px;">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;">🔍 How many hard inquiries do you have on each bureau?</div>
+          <div class="grid-2">
+            <div class="field" style="margin:0;">
+              <label>Equifax Inquiries</label>
+              <input type="number" id="inq-eq" min="0" value="0" oninput="calcInquiryTotal()">
+            </div>
+            <div class="field" style="margin:0;">
+              <label>Experian Inquiries</label>
+              <input type="number" id="inq-ex" min="0" value="0" oninput="calcInquiryTotal()">
+            </div>
+            <div class="field" style="margin:0;">
+              <label>TransUnion Inquiries</label>
+              <input type="number" id="inq-tu" min="0" value="0" oninput="calcInquiryTotal()">
+            </div>
+          </div>
+          <div id="inq-total" style="margin-top:10px;font-size:14px;font-weight:700;color:var(--navy);"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-back" onclick="goToStep(1)">← Back</button>
+      <button class="btn-next" onclick="goToStep(3)">Next: Credit Items →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: DISPUTE ITEMS -->
+  <div class="step-card" id="step-3">
+    <div class="card">
+      <div class="card-head">
+        <h2>Items You Want Disputed</h2>
+        <p>List every negative item on your credit report that you want us to work on. Be as specific as possible — creditor name, type, and which bureau(s) it appears on.</p>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-blue">These are the exact items we will dispute on your behalf. They will appear in your service agreement. Your refund — if any — is calculated based on the items listed here.</div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:8px;">Quick Add</div>
+          <div class="quick-tags">
+            <button class="qtag" onclick="quickItem('Late Payment')">Late Payment</button>
+            <button class="qtag" onclick="quickItem('Charge-Off')">Charge-Off</button>
+            <button class="qtag" onclick="quickItem('Collection Account')">Collection</button>
+            <button class="qtag" onclick="quickItem('Repossession')">Repossession</button>
+            <button class="qtag" onclick="quickItem('Bankruptcy')">Bankruptcy</button>
+            <button class="qtag" onclick="quickItem('Hard Inquiry')">Hard Inquiry</button>
+            <button class="qtag" onclick="quickItem('Student Loan')">Student Loan</button>
+            <button class="qtag" onclick="quickItem('Medical Collection')">Medical Collection</button>
+            <button class="qtag" onclick="quickItem('Eviction')">Eviction</button>
+            <button class="qtag" onclick="quickItem('Tax Lien')">Tax Lien</button>
+            <button class="qtag" onclick="quickItem('Judgment')">Judgment</button>
+          </div>
+        </div>
+
+        <div class="add-item-form">
+          <div class="grid-2">
+            <div class="field" style="margin-bottom:10px;">
+              <label>Creditor / Account Name</label>
+              <input type="text" id="di-cred" placeholder="e.g. Capital One, Midland Credit">
+            </div>
+            <div class="field" style="margin-bottom:10px;">
+              <label>Type</label>
+              <select id="di-type">
+                <option value="">Select type...</option>
+                <option>Late Payment</option><option>Charge-Off</option>
+                <option>Collection Account</option><option>Repossession</option>
+                <option>Bankruptcy</option><option>Hard Inquiry</option>
+                <option>Student Loan</option><option>Medical Collection</option>
+                <option>Eviction</option><option>Tax Lien</option>
+                <option>Judgment</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:10px;">
+            <label>Balance / Amount (optional)</label>
+            <input type="text" id="di-bal" placeholder="$0.00 or N/A">
+          </div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;">Which bureau(s) does this appear on?</div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" id="di-eq" style="accent-color:var(--navy);"> Equifax</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" id="di-ex" style="accent-color:var(--navy);"> Experian</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" id="di-tu" style="accent-color:var(--navy);"> TransUnion</label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="checkbox" id="di-all" onchange="checkAll(this)"> All 3</label>
+          </div>
+          <button onclick="addItem()" style="padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">+ Add to List</button>
+        </div>
+
+        <div id="di-list" style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+          <div style="text-align:center;padding:24px;color:var(--gray);font-size:13px;background:var(--bg);border-radius:8px;" id="di-empty">No items added yet. Use Quick Add or the form above.</div>
+        </div>
+        <div id="di-count-label" style="margin-top:10px;font-size:12px;color:var(--gray);display:none;"></div>
+        <div id="e-items" class="err-msg">Please add at least one item to dispute before continuing.</div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-back" onclick="goToStep(2)">← Back</button>
+      <button class="btn-next" onclick="goToStep(4)">Next: Documents →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: DOCUMENTS -->
+  <div class="step-card" id="step-4">
+    <div class="card">
+      <div class="card-head">
+        <h2>Required Documents</h2>
+        <p>Upload clear photos or scans. All 6 are required before we can open your file.</p>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-gold">📱 Taking photos on your phone works fine. Make sure the full document is visible and the text is readable.</div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div id="doc-govid" class="field">
+            <label>1. Government-Issued Photo ID <span class="req">*</span></label>
+            <div class="upload-zone" onclick="triggerUpload('up-govid')" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,'up-govid','doc-govid-files')">
+              <div class="upload-icon">🪪</div>
+              <p><strong>Click to upload</strong> or drag & drop</p>
+              <p style="margin-top:4px;">Driver's license, passport, or state ID</p>
+            </div>
+            <div class="file-list" id="doc-govid-files"></div>
+            <input type="file" id="up-govid" accept="image/*,.pdf" style="display:none" onchange="handleUpload(this,'doc-govid-files')">
+          </div>
+
+          <div class="field">
+            <label>2. Social Security Card <span class="req">*</span></label>
+            <div class="upload-zone" onclick="triggerUpload('up-ssn')" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,'up-ssn','doc-ssn-files')">
+              <div class="upload-icon">🔐</div>
+              <p><strong>Click to upload</strong> or drag & drop</p>
+              <p style="margin-top:4px;">Front of SSN card — you may cover the full number, last 4 only needed</p>
+            </div>
+            <div class="file-list" id="doc-ssn-files"></div>
+            <input type="file" id="up-ssn" accept="image/*,.pdf" style="display:none" onchange="handleUpload(this,'doc-ssn-files')">
+          </div>
+
+          <div class="field">
+            <label>3. Proof of Address <span class="req">*</span></label>
+            <div class="upload-zone" onclick="triggerUpload('up-addr')" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,'up-addr','doc-addr-files')">
+              <div class="upload-icon">🏠</div>
+              <p><strong>Click to upload</strong> or drag & drop</p>
+              <p style="margin-top:4px;">Utility bill, bank statement, or lease — dated within 90 days</p>
+            </div>
+            <div class="file-list" id="doc-addr-files"></div>
+            <input type="file" id="up-addr" accept="image/*,.pdf" style="display:none" onchange="handleUpload(this,'doc-addr-files')">
+          </div>
+
+          <div class="field">
+            <label>4. Credit Report (optional but helpful)</label>
+            <div class="upload-zone" onclick="triggerUpload('up-cr')" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,'up-cr','doc-cr-files')">
+              <div class="upload-icon">📊</div>
+              <p><strong>Click to upload</strong> or drag & drop</p>
+              <p style="margin-top:4px;">From annualcreditreport.com or any bureau — helps us start faster</p>
+            </div>
+            <div class="file-list" id="doc-cr-files"></div>
+            <input type="file" id="up-cr" accept="image/*,.pdf" style="display:none" onchange="handleUpload(this,'doc-cr-files')">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-back" onclick="goToStep(3)">← Back</button>
+      <button class="btn-next" onclick="goToStep(5)">Next: Agreement →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: AGREEMENT -->
+  <div class="step-card" id="step-5">
+    <div class="card">
+      <div class="card-head">
+        <h2>Service Agreement</h2>
+        <p>Read the agreement fully. By signing below you confirm you have read, understood, and agreed to all terms.</p>
+      </div>
+      <div class="card-body">
+        <div style="background:var(--bg);border-radius:10px;padding:20px;max-height:340px;overflow-y:auto;font-size:13px;line-height:1.8;color:var(--text);margin-bottom:20px;border:1px solid var(--border);">
+          <div style="font-weight:800;font-size:15px;color:var(--navy);margin-bottom:12px;">CP RESTORATION SERVICES — CLIENT SERVICE AGREEMENT</div>
+          <p style="margin-bottom:10px;"><strong>Parties.</strong> This agreement is between CP Restoration Services ("Company") and the client identified in this enrollment form ("Client").</p>
+          <p style="margin-bottom:10px;"><strong>Services.</strong> The Company agrees to dispute negative items on the Client's credit report with Equifax, Experian, and/or TransUnion as selected by the Client. Disputes are conducted via bureau calls, FTC reports, and written dispute letters in accordance with the Fair Credit Reporting Act (FCRA) and the Credit Repair Organizations Act (CROA).</p>
+          <p style="margin-bottom:10px;"><strong>Items to Be Disputed.</strong> The following specific negative items have been identified by the Client and will be disputed on their behalf:</p>
+          <div id="agreement-items" style="background:var(--lblue);border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px;"><em style="color:var(--gray);">Complete Step 3 to populate this section.</em></div>
+          <p style="margin-bottom:10px;"><strong>Timeline.</strong> Express Package: 60 business days or less. All other packages: 120 business days or less. Timelines begin from the date all required documents are received and verified.</p>
+          <p style="margin-bottom:10px;"><strong>Payment.</strong> Payment is due in full upon enrollment (or per the financing schedule for financing clients). No work begins until payment is confirmed.</p>
+          <p style="margin-bottom:10px;"><strong>Refund Policy.</strong> Refunds are calculated on a pro-rata basis per item. Formula: Package Price ÷ Total Items Disputed = Value Per Item. If any listed item is not removed by the end of the service period, the Client is entitled to a refund of Value Per Item × Number of Unremoved Items. No refund is issued for items removed prior to the service period or items not on the agreed list above.</p>
+          <p style="margin-bottom:10px;"><strong>Client Obligations.</strong> The Client agrees to: (1) not contact creditors or bureaus directly during the service period without notifying the Company; (2) not apply for new credit, close accounts, or change passwords without prior approval; (3) promptly provide any documents or information requested by the Company; (4) make all financing payments on time (financing clients only).</p>
+          <p style="margin-bottom:10px;"><strong>No Guarantee.</strong> The Company does not guarantee specific outcomes or score increases. Credit repair results vary by individual. The Company guarantees that all services will be performed in good faith using legal dispute methods.</p>
+          <p style="margin-bottom:10px;"><strong>CROA Disclosure.</strong> Under the Credit Repair Organizations Act, you have the right to cancel this contract within 3 business days without penalty. You may dispute inaccurate information on your credit report yourself at no cost. You have the right to sue a credit repair organization that violates the CROA.</p>
+          <p><strong>Governing Law.</strong> This agreement is governed by the laws of the State of Florida.</p>
+        </div>
+
+        <div class="field">
+          <label>Full Legal Name (typed signature) <span class="req">*</span></label>
+          <input type="text" id="sig-name" placeholder="Type your full legal name to sign" id="sig-name">
+          <div class="err-msg" id="e-sig">Please type your full legal name to sign the agreement.</div>
+        </div>
+
+        <div class="field">
+          <label>Draw Your Signature <span class="req">*</span></label>
+          <div class="sig-box">
+            <div class="sig-label">
+              <span>Sign in the box below</span>
+              <button type="button" onclick="clearSig()" style="background:none;border:1px solid var(--border);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer;color:var(--gray);">Clear</button>
+            </div>
+            <canvas id="sig-canvas"></canvas>
+          </div>
+          <div class="err-msg" id="e-canvas">Please draw your signature above.</div>
+        </div>
+
+        <div class="field">
+          <label>Today's Date</label>
+          <input type="text" id="sig-date" readonly style="background:var(--bg);max-width:200px;">
+        </div>
+
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;line-height:1.6;padding:12px;background:var(--lblue);border-radius:8px;margin-top:4px;">
+          <input type="checkbox" id="agree-check" style="margin-top:2px;accent-color:var(--navy);flex-shrink:0;">
+          <span>I have read and agree to the CP Restoration Services Client Service Agreement. I understand the refund policy, my obligations as a client, and my CROA rights.</span>
+        </label>
+        <div class="err-msg" id="e-agree">You must agree to the terms to continue.</div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-back" onclick="goToStep(4)">← Back</button>
+      <button class="btn-next" onclick="goToStep(6)">Review & Submit →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: REVIEW -->
+  <div class="step-card" id="step-6">
+    <div class="card">
+      <div class="card-head">
+        <h2>Review Your Enrollment</h2>
+        <p>Everything looks right? Submit when you are ready. We will follow up within 24 hours.</p>
+      </div>
+      <div class="card-body" id="review-body">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+    <div class="btn-nav" style="flex-direction:column;gap:12px;">
+      <button class="btn-back" onclick="goToStep(5)" style="align-self:flex-start;">← Edit</button>
+      <button class="btn-submit" onclick="submitEnrollment()">✅ Submit Enrollment →</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="step-card" id="step-success">
+    <div class="success-card">
+      <div class="success-icon">🎉</div>
+      <h2>You're enrolled!</h2>
+      <p>Welcome to CP Restoration Services. Your file has been received and is being reviewed by our team.</p>
+      <div class="success-id" id="success-id">CPR-XXXXX</div>
+      <p style="font-size:13px;color:var(--gray);">This is your Client ID. Save it — you will need it for any questions or updates.</p>
+      <div class="next-steps">
+        <div class="next-step"><div class="next-step-num">1</div><div>You will receive a confirmation email at the address you provided within the next few minutes.</div></div>
+        <div class="next-step"><div class="next-step-num">2</div><div>Our compliance team will verify your documents within 1 business day. You may be contacted if anything is missing.</div></div>
+        <div class="next-step"><div class="next-step-num">3</div><div>Once your file is cleared, our bureau callers begin disputing your items immediately.</div></div>
+        <div class="next-step"><div class="next-step-num">4</div><div>You will receive a monthly status update by email with your dispute progress.</div></div>
+      </div>
+      <div style="margin-top:24px;padding:16px;background:var(--lblue);border-radius:10px;font-size:13px;color:var(--navy);">
+        <strong>Questions?</strong> Email us at <a href="mailto:cprestorationsvcs@gmail.com" style="color:var(--navy);">cprestorationsvcs@gmail.com</a> or visit <a href="https://35daycreditrepair.com" style="color:var(--navy);">35daycreditrepair.com</a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────
+var currentStep = 1;
+var selectedPkg = null;
+var selectedPkgPrice = null;
+var disputeItems = [];
+var sigDrawing = false;
+var sigHasStrokes = false;
+
+var PKG_LABELS = {
+  express:'Express Package — $3,999',
+  standard:'Standard Package — $2,499',
+  financing:'In-House Financing — $750 + $292×6',
+  bureau1:'Single Bureau — $1,000',
+  bureau1rush:'Single Bureau + Rush — $1,500',
+  inquiries:'Inquiries Only — $45/inquiry/bureau',
+  inquiriesrush:'Inquiries Only + Rush — $45/inquiry + $500'
+};
+
+// ── STEP NAVIGATION ──────────────────────────────────────────────
+function goToStep(n) {
+  if (n > currentStep && !validateStep(currentStep)) return;
+  currentStep = n;
+  document.querySelectorAll('.step-card').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById('step-' + n);
+  if (el) { el.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  updateProgress(n);
+  if (n === 5) { populateAgreement(); initSig(); document.getElementById('sig-date').value = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}); }
+  if (n === 6) buildReview();
+}
+
+function jumpStep(n) { if (n <= currentStep) goToStep(n); }
+
+function updateProgress(n) {
+  for (var i = 1; i <= 6; i++) {
+    var el = document.getElementById('prog-' + i);
+    if (!el) continue;
+    el.classList.remove('active','done');
+    if (i === n) el.classList.add('active');
+    else if (i < n) el.classList.add('done');
+    var dot = el.querySelector('.step-dot');
+    if (dot) dot.textContent = i < n ? '✓' : i;
+  }
+}
+
+// ── VALIDATION ───────────────────────────────────────────────────
+function validateStep(n) {
+  var ok = true;
+  function req(id, errId) {
+    var el = document.getElementById(id);
+    var err = document.getElementById(errId);
+    var val = el ? el.value.trim() : '';
+    if (!val) {
+      if (el) el.classList.add('error');
+      if (err) err.classList.add('show');
+      ok = false;
+    } else {
+      if (el) el.classList.remove('error');
+      if (err) err.classList.remove('show');
+    }
+  }
+  if (n === 1) {
+    req('f-first','e-first'); req('f-last','e-last');
+    req('f-email','e-email'); req('f-phone','e-phone');
+    req('f-dob','e-dob'); req('f-address','e-address');
+    req('f-ssn','e-ssn');
+  }
+  if (n === 2) {
+    if (!selectedPkg) {
+      document.getElementById('pkg-error').style.display = 'block';
+      ok = false;
+    } else {
+      document.getElementById('pkg-error').style.display = 'none';
+    }
+  }
+  if (n === 3) {
+    var err = document.getElementById('e-items');
+    if (!disputeItems.length) {
+      err.classList.add('show'); ok = false;
+    } else { err.classList.remove('show'); }
+  }
+  if (n === 5) {
+    var sigName = (document.getElementById('sig-name')||{}).value||'';
+    var agreeCheck = (document.getElementById('agree-check')||{}).checked;
+    var sigErr = document.getElementById('e-sig');
+    var agreeErr = document.getElementById('e-agree');
+    var canvasErr = document.getElementById('e-canvas');
+    if (!sigName.trim()) { if (sigErr) sigErr.classList.add('show'); ok = false; }
+    else { if (sigErr) sigErr.classList.remove('show'); }
+    if (!agreeCheck) { if (agreeErr) agreeErr.classList.add('show'); ok = false; }
+    else { if (agreeErr) agreeErr.classList.remove('show'); }
+    if (!sigHasStrokes) { if (canvasErr) canvasErr.classList.add('show'); ok = false; }
+    else { if (canvasErr) canvasErr.classList.remove('show'); }
+  }
+  return ok;
+}
+
+// ── PACKAGE SELECTION ────────────────────────────────────────────
+function selectPkg(el, pkg, price) {
+  document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedPkg = pkg;
+  selectedPkgPrice = price;
+  document.getElementById('pkg-error').style.display = 'none';
+  var inqFields = document.getElementById('inq-fields');
+  if (inqFields) inqFields.style.display = (pkg === 'inquiries' || pkg === 'inquiriesrush') ? 'block' : 'none';
+}
+
+function calcInquiryTotal() {
+  var eq = parseInt(document.getElementById('inq-eq').value)||0;
+  var ex = parseInt(document.getElementById('inq-ex').value)||0;
+  var tu = parseInt(document.getElementById('inq-tu').value)||0;
+  var total = eq+ex+tu;
+  var rush = selectedPkg === 'inquiriesrush' ? 500 : 0;
+  var amt = (total*45) + rush;
+  document.getElementById('inq-total').textContent = total + ' inquiries × $45 = $' + (total*45).toFixed(2) + (rush ? ' + $500 rush fee = $' + amt.toFixed(2) : '') + ' estimated total';
+}
+
+// ── DISPUTE ITEMS ────────────────────────────────────────────────
+function quickItem(type) {
+  var cred = prompt('Creditor or account name for this ' + type + ' (or press OK to skip):', type);
+  if (cred === null) return;
+  var bureaus = [];
+  if (confirm('Does this appear on Equifax?')) bureaus.push('EQ');
+  if (confirm('Does this appear on Experian?')) bureaus.push('EX');
+  if (confirm('Does this appear on TransUnion?')) bureaus.push('TU');
+  if (!bureaus.length) { alert('Please select at least one bureau.'); return; }
+  pushItem(cred.trim() || type, type, 'N/A', bureaus);
+}
+
+function checkAll(cb) {
+  ['di-eq','di-ex','di-tu'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.checked = cb.checked;
+  });
+}
+
+function addItem() {
+  var cred = (document.getElementById('di-cred')||{}).value||'';
+  var type = (document.getElementById('di-type')||{}).value||'';
+  var bal  = (document.getElementById('di-bal')||{}).value||'N/A';
+  var eq = !!(document.getElementById('di-eq')||{}).checked;
+  var ex = !!(document.getElementById('di-ex')||{}).checked;
+  var tu = !!(document.getElementById('di-tu')||{}).checked;
+  if (!cred.trim()) { alert('Please enter the creditor or account name.'); return; }
+  if (!type) { alert('Please select an item type.'); return; }
+  if (!eq && !ex && !tu) { alert('Please select at least one bureau.'); return; }
+  var bureaus = [];
+  if (eq) bureaus.push('EQ');
+  if (ex) bureaus.push('EX');
+  if (tu) bureaus.push('TU');
+  pushItem(cred.trim(), type, bal||'N/A', bureaus);
+  ['di-cred','di-bal'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  ['di-eq','di-ex','di-tu','di-all'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=false; });
+  var t = document.getElementById('di-type'); if(t) t.value='';
+}
+
+function pushItem(cred, type, bal, bureaus) {
+  disputeItems.push({ id: Date.now(), cred: cred, type: type, bal: bal, bureaus: bureaus });
+  renderItems();
+}
+
+function removeItem(id) {
+  disputeItems = disputeItems.filter(function(i){ return i.id !== id; });
+  renderItems();
+}
+
+function renderItems() {
+  var list = document.getElementById('di-list');
+  var empty = document.getElementById('di-empty');
+  var countLabel = document.getElementById('di-count-label');
+  if (!list) return;
+  if (!disputeItems.length) {
+    if (empty) { empty.style.display = 'block'; }
+    if (countLabel) countLabel.style.display = 'none';
+    list.innerHTML = '';
+    list.appendChild(empty);
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  if (countLabel) { countLabel.style.display = 'block'; countLabel.textContent = disputeItems.length + ' item' + (disputeItems.length===1?'':'s') + ' added'; }
+  var buColors = { EQ:'#1B3A6B', EX:'#8B1A1A', TU:'#1A5C38' };
+  list.innerHTML = disputeItems.map(function(item, i) {
+    return '<div class="item-row">' +
+      '<div class="item-num">' + (i+1) + '.</div>' +
+      '<div class="item-text"><strong style="color:var(--navy);">' + item.cred + '</strong><br><span style="font-size:11px;color:var(--gray);">' + item.type + (item.bal&&item.bal!=='N/A'?' • '+item.bal:'') + '</span></div>' +
+      '<div class="item-bureaus">' + item.bureaus.map(function(b){ return '<span class="bu-tag bu-'+b.toLowerCase()+'" style="background:'+buColors[b]+';">'+b+'</span>'; }).join('') + '</div>' +
+      '<button class="item-remove" onclick="removeItem(' + item.id + ')">×</button>' +
+    '</div>';
+  }).join('');
+  document.getElementById('e-items').classList.remove('show');
+}
+
+// ── FILE UPLOAD ──────────────────────────────────────────────────
+function triggerUpload(id) { var el = document.getElementById(id); if (el) el.click(); }
+function dragOver(e, zone) { e.preventDefault(); zone.classList.add('dragover'); }
+function dragLeave(zone) { zone.classList.remove('dragover'); }
+function dropFile(e, inputId, listId) {
+  e.preventDefault();
+  var zone = e.currentTarget; zone.classList.remove('dragover');
+  var files = e.dataTransfer.files;
+  if (files && files.length) { showFiles(listId, files); }
+}
+function handleUpload(input, listId) { if (input.files && input.files.length) showFiles(listId, input.files); }
+function showFiles(listId, files) {
+  var list = document.getElementById(listId);
+  if (!list) return;
+  Array.from(files).forEach(function(f) {
+    var item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = '<span>📄 ' + f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)</span>' +
+      '<button onclick="this.parentNode.remove()" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:16px;">×</button>';
+    list.appendChild(item);
+  });
+}
+
+// ── SIGNATURE ────────────────────────────────────────────────────
+function initSig() {
+  var canvas = document.getElementById('sig-canvas');
+  if (!canvas || canvas._init) return;
+  canvas._init = true;
+  var ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
+  canvas.height = 160 * (window.devicePixelRatio || 1);
+  ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+  ctx.strokeStyle = '#1B3A6B'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  function getPos(e) {
+    var r = canvas.getBoundingClientRect();
+    var src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left), y: (src.clientY - r.top) };
+  }
+  function start(e) { e.preventDefault(); sigDrawing = true; var p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+  function draw(e) { e.preventDefault(); if (!sigDrawing) return; sigHasStrokes = true; var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }
+  function end() { sigDrawing = false; }
+  canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start); canvas.addEventListener('touchmove', draw); canvas.addEventListener('touchend', end);
+}
+function clearSig() {
+  var canvas = document.getElementById('sig-canvas');
+  if (!canvas) return;
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  sigHasStrokes = false; canvas._init = false;
+  initSig();
+}
+
+// ── AGREEMENT POPULATION ─────────────────────────────────────────
+function populateAgreement() {
+  var el = document.getElementById('agreement-items');
+  if (!el) return;
+  if (!disputeItems.length) {
+    el.innerHTML = '<em style="color:var(--gray);">No items listed. Go back to Step 3 to add items.</em>';
+    return;
+  }
+  el.innerHTML = '<ol style="margin:0;padding-left:18px;">' +
+    disputeItems.map(function(item) {
+      return '<li style="margin-bottom:4px;"><strong>' + item.cred + '</strong> — ' + item.type +
+        (item.bal&&item.bal!=='N/A'?' (Balance: '+item.bal+')':'') +
+        ' | Bureaus: ' + item.bureaus.join(', ') + '</li>';
+    }).join('') + '</ol>';
+}
+
+// ── REVIEW ───────────────────────────────────────────────────────
+function buildReview() {
+  var first = (document.getElementById('f-first')||{}).value||'';
+  var last  = (document.getElementById('f-last')||{}).value||'';
+  var email = (document.getElementById('f-email')||{}).value||'';
+  var phone = (document.getElementById('f-phone')||{}).value||'';
+  var addr  = (document.getElementById('f-address')||{}).value||'';
+  var city  = (document.getElementById('f-city')||{}).value||'';
+  var state = (document.getElementById('f-state')||{}).value||'';
+  var zip   = (document.getElementById('f-zip')||{}).value||'';
+  var pkg   = PKG_LABELS[selectedPkg] || '—';
+  var sigName = (document.getElementById('sig-name')||{}).value||'';
+
+  var body = document.getElementById('review-body');
+  if (!body) return;
+
+  var itemsHtml = disputeItems.map(function(item, i) {
+    return '<div class="review-row"><div class="review-label">' + (i+1) + '. ' + item.cred + '</div><div class="review-value">' + item.type + ' | ' + item.bureaus.join(', ') + '</div></div>';
+  }).join('') || '<div class="review-row"><div style="color:var(--gray);font-size:12px;">No items listed</div></div>';
+
+  body.innerHTML =
+    '<div class="review-section"><h4>Personal Information</h4>' +
+    '<div class="review-row"><div class="review-label">Full Name</div><div class="review-value">' + first + ' ' + last + '</div></div>' +
+    '<div class="review-row"><div class="review-label">Email</div><div class="review-value">' + email + '</div></div>' +
+    '<div class="review-row"><div class="review-label">Phone</div><div class="review-value">' + phone + '</div></div>' +
+    '<div class="review-row"><div class="review-label">Address</div><div class="review-value">' + addr + ', ' + city + ', ' + state + ' ' + zip + '</div></div>' +
+    '</div>' +
+    '<div class="review-section"><h4>Package Selected</h4>' +
+    '<div class="review-row"><div class="review-label">Package</div><div class="review-value" style="color:var(--navy);">' + pkg + '</div></div>' +
+    '</div>' +
+    '<div class="review-section"><h4>Items to Be Disputed (' + disputeItems.length + ')</h4>' + itemsHtml + '</div>' +
+    '<div class="review-section"><h4>Agreement</h4>' +
+    '<div class="review-row"><div class="review-label">Signed By</div><div class="review-value">' + sigName + '</div></div>' +
+    '<div class="review-row"><div class="review-label">Date</div><div class="review-value">' + new Date().toLocaleDateString() + '</div></div>' +
+    '<div class="review-row"><div class="review-label">Status</div><div class="review-value" style="color:var(--green);">✅ Agreed to all terms</div></div>' +
+    '</div>';
+}
+
+// ── SUBMIT ───────────────────────────────────────────────────────
+function submitEnrollment() {
+  var btn = document.querySelector('.btn-submit');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+
+  // Generate client ID
+  var clientId = 'CPR-' + String(Math.floor(10000 + Math.random() * 89999));
+
+  setTimeout(function() {
+    document.querySelectorAll('.step-card').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('step-success').classList.add('active');
+    document.getElementById('success-id').textContent = clientId;
+    updateProgress(7);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 1500);
+}
+</script>
+</body>
+</html>
