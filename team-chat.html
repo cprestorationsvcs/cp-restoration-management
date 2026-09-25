@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Team Chat</title>
+<style>
+:root{
+  --blue:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --border:#E5E7EB;--gray:#6B7280;--bg:#F3F4F6;--dark:#111827;
+  --lb:#E8EEF7;--lg:#E8F5EE;--msg-bg:#F0F4FF;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
+body{background:var(--bg);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+/* HEADER */
+.header{background:var(--blue);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.header h1{color:white;font-size:16px;font-weight:800;}
+.header p{color:var(--gold);font-size:11px;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.online-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:#86efac;}
+.online-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:260px;background:white;border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.sidebar-top{padding:14px 16px;border-bottom:1px solid var(--border);}
+.sidebar-search{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#F9FAFB;}
+.sidebar-section{padding:8px 16px 4px;font-size:10px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.7px;}
+.channel{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:13px;color:#374151;}
+.channel:hover{background:#F9FAFB;color:var(--blue);}
+.channel.active{background:var(--lb);color:var(--blue);border-left-color:var(--gold);font-weight:700;}
+.channel .ch-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+.channel .ch-name{flex:1;}
+.channel .ch-badge{background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:800;min-width:18px;text-align:center;}
+
+/* DM LIST */
+.dm-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;transition:all .15s;}
+.dm-item:hover{background:#F9FAFB;}
+.dm-item.active{background:var(--lb);}
+.dm-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;flex-shrink:0;position:relative;}
+.dm-avatar .online-indicator{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;border:2px solid white;}
+.dm-avatar .online-indicator.online{background:#22c55e;}
+.dm-avatar .online-indicator.offline{background:var(--gray);}
+.dm-name{font-size:12px;font-weight:600;color:#374151;flex:1;}
+.dm-role{font-size:10px;color:var(--gray);}
+.dm-unread{background:var(--blue);color:white;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:800;}
+
+.new-dm-btn{margin:10px 16px;padding:8px;background:var(--lb);border:1px dashed var(--blue);border-radius:8px;font-size:12px;color:var(--blue);font-weight:700;cursor:pointer;text-align:center;transition:all .2s;}
+.new-dm-btn:hover{background:var(--blue);color:white;}
+
+/* MAIN CHAT AREA */
+.chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.chat-header{padding:14px 20px;background:white;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.chat-header-icon{font-size:20px;}
+.chat-header-name{font-size:15px;font-weight:800;color:var(--blue);}
+.chat-header-desc{font-size:11px;color:var(--gray);margin-top:1px;}
+.chat-header-actions{margin-left:auto;display:flex;gap:8px;}
+.ch-action-btn{padding:6px 12px;background:var(--lb);border:none;border-radius:7px;font-size:11px;font-weight:700;color:var(--blue);cursor:pointer;transition:all .2s;}
+.ch-action-btn:hover{background:var(--blue);color:white;}
+
+/* MESSAGES */
+.messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:2px;}
+.msg-date-divider{text-align:center;font-size:11px;color:var(--gray);padding:12px 0;display:flex;align-items:center;gap:10px;}
+.msg-date-divider::before,.msg-date-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.msg-group{margin-top:12px;}
+.msg-row{display:flex;gap:12px;padding:2px 0;position:relative;}
+.msg-row:hover{background:rgba(0,0,0,.02);border-radius:8px;}
+.msg-row:hover .msg-actions{opacity:1;}
+.msg-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:white;flex-shrink:0;margin-top:2px;}
+.msg-avatar.ghost{visibility:hidden;}
+.msg-body{flex:1;min-width:0;}
+.msg-meta{display:flex;align-items:baseline;gap:8px;margin-bottom:3px;}
+.msg-name{font-size:13px;font-weight:800;color:var(--blue);}
+.msg-time{font-size:11px;color:var(--gray);}
+.msg-role-tag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;color:white;}
+.msg-text{font-size:13px;color:#374151;line-height:1.6;word-break:break-word;}
+.msg-text strong{color:var(--dark);}
+.msg-actions{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:white;border:1px solid var(--border);border-radius:8px;padding:3px 6px;display:flex;gap:4px;opacity:0;transition:opacity .15s;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.msg-action-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:2px 4px;border-radius:4px;transition:background .15s;}
+.msg-action-btn:hover{background:var(--lb);}
+.msg-img{max-width:320px;border-radius:10px;margin-top:6px;border:1px solid var(--border);}
+.msg-file{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;background:var(--lb);border-radius:8px;margin-top:6px;font-size:12px;color:var(--blue);font-weight:600;}
+.msg-reply{background:#F8FAFC;border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:6px 10px;margin-bottom:4px;font-size:12px;color:var(--gray);}
+.msg-reaction{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#F3F4F6;border:1px solid var(--border);border-radius:20px;margin-top:4px;margin-right:4px;cursor:pointer;font-size:13px;transition:background .15s;}
+.msg-reaction:hover,.msg-reaction.reacted{background:var(--lb);border-color:var(--blue);}
+.msg-reaction span{font-size:11px;color:var(--gray);font-weight:700;}
+
+/* OWN MESSAGES */
+.msg-row.own{flex-direction:row-reverse;}
+.msg-row.own .msg-body{align-items:flex-end;display:flex;flex-direction:column;}
+.msg-row.own .msg-meta{flex-direction:row-reverse;}
+.msg-row.own .msg-text{background:var(--blue);color:white;padding:8px 12px;border-radius:12px 12px 2px 12px;display:inline-block;max-width:480px;}
+.msg-row.own .msg-actions{left:8px;right:auto;}
+
+/* PINNED */
+.pinned-bar{background:#FDF6E3;border-bottom:1px solid #F0E6C0;padding:8px 20px;font-size:12px;color:#7A5F00;display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .15s;}
+.pinned-bar:hover{background:#FEF3C7;}
+
+/* INPUT AREA */
+.input-area{padding:12px 20px 16px;background:white;border-top:2px solid var(--border);flex-shrink:0;}
+.reply-preview{background:var(--lb);border-left:3px solid var(--blue);border-radius:0 6px 6px 0;padding:6px 10px;margin-bottom:8px;font-size:12px;color:var(--gray);display:flex;align-items:center;gap:8px;}
+.reply-preview button{background:none;border:none;cursor:pointer;color:var(--gray);font-size:16px;padding:0 2px;}
+.input-toolbar{display:flex;gap:6px;margin-bottom:8px;}
+.toolbar-btn{padding:5px 8px;background:none;border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;color:var(--gray);transition:all .15s;}
+.toolbar-btn:hover{background:var(--lb);color:var(--blue);border-color:var(--blue);}
+.input-row{display:flex;gap:10px;align-items:flex-end;}
+.msg-input{flex:1;padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:13px;resize:none;min-height:42px;max-height:120px;line-height:1.5;transition:border-color .2s;font-family:Arial,sans-serif;}
+.msg-input:focus{outline:none;border-color:var(--blue);}
+.send-btn{padding:10px 18px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;height:42px;}
+.send-btn:hover{background:#142d55;}
+.send-btn:disabled{background:var(--border);color:var(--gray);cursor:not-allowed;}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:white;border-radius:14px;padding:24px;width:420px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal h3{font-size:16px;font-weight:800;color:var(--blue);margin-bottom:16px;}
+.form-field{margin-bottom:14px;}
+.form-field label{display:block;font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;}
+.form-field input,.form-field select,.form-field textarea{width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;}
+.form-field input:focus,.form-field select:focus{outline:none;border-color:var(--blue);}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+.btn-primary{padding:9px 20px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-outline{padding:9px 20px;background:transparent;color:var(--blue);border:2px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+
+/* EMOJI PICKER */
+.emoji-picker{position:absolute;bottom:70px;left:20px;background:white;border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);display:none;z-index:50;width:280px;}
+.emoji-picker.open{display:block;}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;}
+.emoji-btn{font-size:20px;padding:4px;cursor:pointer;border-radius:6px;border:none;background:none;text-align:center;transition:background .1s;}
+.emoji-btn:hover{background:var(--lb);}
+
+/* NOTIFICATION TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--blue);color:white;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:200;display:none;align-items:center;gap:10px;max-width:320px;}
+.toast.show{display:flex;}
+.toast-close{background:none;border:none;color:white;cursor:pointer;font-size:16px;opacity:.7;padding:0;margin-left:auto;}
+
+/* ANNOUNCEMENT BAR */
+.announcement{background:linear-gradient(90deg,var(--gold),#E8C060);padding:8px 20px;font-size:12px;font-weight:700;color:white;display:flex;align-items:center;gap:8px;cursor:pointer;}
+.announcement:hover{opacity:.95;}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .sidebar{width:200px;}
+  .msg-row.own .msg-text{max-width:260px;}
+}
+@media(max-width:500px){
+  .sidebar{display:none;}
+  .layout{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="font-size:28px;">💬</div>
+  <div>
+    <h1>CP Restoration — Team Chat</h1>
+    <p>Internal communications across all departments</p>
+  </div>
+  <div class="header-right">
+    <div class="online-badge"><div class="online-dot"></div><span id="online-count">1 online</span></div>
+    <button class="ch-action-btn" onclick="openLoginModal()" id="login-btn">👤 Set My Name</button>
+    <a href="https://claude.ai/artifact/XUAgfzAYgDfF66a8ispnw4" target="_blank" style="color:var(--gold);font-size:11px;text-decoration:none;white-space:nowrap;">← Main System</a>
+  </div>
+</div>
+
+<!-- PINNED ANNOUNCEMENT -->
+<div class="announcement" onclick="openAnnouncement()" id="announcement-bar">
+  📢 Welcome to CP Restoration Team Chat — Set your name to get started. Jason Crown can pin announcements here.
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <input class="sidebar-search" type="text" placeholder="🔍 Search messages..." oninput="searchMessages(this.value)">
+    </div>
+
+    <div class="sidebar-section">Channels</div>
+    <div class="channel active" onclick="openChannel('general')" id="ch-general">
+      <span class="ch-icon">#</span><span class="ch-name">general</span>
+    </div>
+    <div class="channel" onclick="openChannel('announcements')" id="ch-announcements">
+      <span class="ch-icon">📢</span><span class="ch-name">announcements</span>
+    </div>
+    <div class="channel" onclick="openChannel('sales')" id="ch-sales">
+      <span class="ch-icon">💼</span><span class="ch-name">sales</span>
+    </div>
+    <div class="channel" onclick="openChannel('bureau-calling')" id="ch-bureau-calling">
+      <span class="ch-icon">📞</span><span class="ch-name">bureau-calling</span>
+    </div>
+    <div class="channel" onclick="openChannel('dispute-ops')" id="ch-dispute-ops">
+      <span class="ch-icon">⚖️</span><span class="ch-name">dispute-ops</span>
+    </div>
+    <div class="channel" onclick="openChannel('compliance')" id="ch-compliance">
+      <span class="ch-icon">📋</span><span class="ch-name">compliance</span>
+    </div>
+    <div class="channel" onclick="openChannel('customer-service')" id="ch-customer-service">
+      <span class="ch-icon">🎧</span><span class="ch-name">customer-service</span>
+    </div>
+    <div class="channel" onclick="openChannel('escalations')" id="ch-escalations">
+      <span class="ch-icon">🚨</span><span class="ch-name">escalations</span>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:10px;">Direct Messages</div>
+    <div id="dm-list">
+      <div class="dm-item active" onclick="openDM('jason')" id="dm-jason">
+        <div class="dm-avatar" style="background:var(--gold);">JC<div class="online-indicator online"></div></div>
+        <div><div class="dm-name">Jason Crown</div><div class="dm-role">Owner / Admin</div></div>
+      </div>
+      <div class="dm-item" onclick="openDM('julius')" id="dm-julius">
+        <div class="dm-avatar" style="background:#3B82F6;">JV<div class="online-indicator offline"></div></div>
+        <div><div class="dm-name">Julius Velitario</div><div class="dm-role">Bureau Caller</div></div>
+      </div>
+      <div class="dm-item" onclick="openDM('queen')" id="dm-queen">
+        <div class="dm-avatar" style="background:#8B5CF6;">QC<div class="online-indicator offline"></div></div>
+        <div><div class="dm-name">Queen Jearel Cruz</div><div class="dm-role">Compliance</div></div>
+      </div>
+      <div class="dm-item" onclick="openDM('lyslejane')" id="dm-lyslejane">
+        <div class="dm-avatar" style="background:#EC4899;">LO<div class="online-indicator offline"></div></div>
+        <div><div class="dm-name">Lyslejane Ogue</div><div class="dm-role">Bureau Caller</div></div>
+      </div>
+      <div class="dm-item" onclick="openDM('dean')" id="dm-dean">
+        <div class="dm-avatar" style="background:#10B981;">DM<div class="online-indicator offline"></div></div>
+        <div><div class="dm-name">Dean Macaraeg</div><div class="dm-role">Customer Service</div></div>
+      </div>
+      <div class="dm-item" onclick="openDM('krisha')" id="dm-krisha">
+        <div class="dm-avatar" style="background:#F59E0B;">KV<div class="online-indicator offline"></div></div>
+        <div><div class="dm-name">Krisha Velarde</div><div class="dm-role">Customer Service</div></div>
+      </div>
+      <div class="dm-item" onclick="openDM('bukunmi')" id="dm-bukunmi">
+        <div class="dm-avatar" style="background:#EF4444;">BA<div class="online-indicator offline"></div></div>
+        <div><div class="dm-name">Bukunmi Aina</div><div class="dm-role">Paid Media</div></div>
+      </div>
+      <div class="dm-item" onclick="openDM('francis')" id="dm-francis">
+        <div class="dm-avatar" style="background:#6366F1;">FG<div class="online-indicator offline"></div></div>
+        <div><div class="dm-name">Francis Gacho</div><div class="dm-role">Lead Gen</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT AREA -->
+  <div class="chat-area">
+    <div class="chat-header">
+      <div class="chat-header-icon" id="ch-header-icon">#</div>
+      <div>
+        <div class="chat-header-name" id="ch-header-name">general</div>
+        <div class="chat-header-desc" id="ch-header-desc">Company-wide updates and conversation for all CP Restoration team members</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="ch-action-btn" onclick="togglePinned()">📌 Pinned</button>
+        <button class="ch-action-btn" onclick="openAnnouncementCompose()" id="announce-btn" style="display:none;">📢 Announce</button>
+      </div>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+      <div class="reply-preview" id="reply-preview" style="display:none;">
+        <span id="reply-text">Replying to...</span>
+        <button onclick="cancelReply()">×</button>
+      </div>
+      <div class="input-toolbar">
+        <button class="toolbar-btn" onclick="toggleEmoji()" title="Emoji">😊</button>
+        <button class="toolbar-btn" onclick="insertFormatting('**','**')" title="Bold"><b>B</b></button>
+        <button class="toolbar-btn" onclick="insertFormatting('_','_')" title="Italic"><i>I</i></button>
+        <button class="toolbar-btn" onclick="insertFormatting('@','')" title="Mention">@</button>
+        <button class="toolbar-btn" onclick="triggerFileUpload()" title="Attach">📎</button>
+        <button class="toolbar-btn" onclick="sendQuickUpdate()" title="Status Update">📊</button>
+        <input type="file" id="file-input" style="display:none" onchange="handleFileAttach(this)">
+      </div>
+      <div class="input-row">
+        <textarea class="msg-input" id="msg-input" placeholder="Message #general..." rows="1"
+          onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" onclick="sendMessage()" id="send-btn">Send ↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EMOJI PICKER -->
+<div class="emoji-picker" id="emoji-picker">
+  <div class="emoji-grid" id="emoji-grid"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toast-msg"></span>
+  <button class="toast-close" onclick="hideToast()">×</button>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="overlay" id="login-modal">
+  <div class="modal">
+    <h3>👤 Set Your Name</h3>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Choose your name so teammates know who you are.</p>
+    <div class="form-field"><label>Your Name</label>
+      <select id="login-name-select">
+        <option value="">-- Select your name --</option>
+        <option value="Jason Crown|Owner / Admin|JC|#C9A84C">Jason Crown</option>
+        <option value="Julius Velitario|Bureau Caller|JV|#3B82F6">Julius Velitario</option>
+        <option value="Queen Jearel Cruz|Compliance Specialist|QC|#8B5CF6">Queen Jearel Cruz</option>
+        <option value="Lyslejane Ogue|Bureau Caller|LO|#EC4899">Lyslejane Ogue</option>
+        <option value="Dean Macaraeg|Customer Service|DM|#10B981">Dean Macaraeg</option>
+        <option value="Krisha Velarde|Customer Service|KV|#F59E0B">Krisha Velarde</option>
+        <option value="Bukunmi Aina|Paid Media|BA|#EF4444">Bukunmi Aina</option>
+        <option value="Francis Gacho|Lead Gen|FG|#6366F1">Francis Gacho</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-outline" onclick="closeOverlay('login-modal')">Cancel</button>
+      <button class="btn-primary" onclick="confirmLogin()">Join Chat</button>
+    </div>
+  </div>
+</div>
+
+<!-- ANNOUNCEMENT MODAL -->
+<div class="overlay" id="announcement-modal">
+  <div class="modal">
+    <h3>📢 Post Announcement</h3>
+    <div class="form-field"><label>Announcement</label>
+      <textarea id="ann-text" rows="3" placeholder="Important update for the whole team..." style="width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;"></textarea>
+    </div>
+    <div class="form-field"><label>Pin to announcement bar?</label>
+      <select id="ann-pin"><option value="yes">Yes — show at top of page</option><option value="no">No — just post in #announcements</option></select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-outline" onclick="closeOverlay('announcement-modal')">Cancel</button>
+      <button class="btn-primary" onclick="postAnnouncement()">📢 Post</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────
+let currentUser = { name: '', role: '', initials: '', color: '' };
+let currentChannel = 'general';
+let replyingTo = null;
+let messages = {};
+let unread = {};
+
+const CHANNELS = {
+  'general':          { icon: '#', desc: 'Company-wide updates and conversation for all CP Restoration team members' },
+  'announcements':    { icon: '📢', desc: 'Important announcements from management — read only for all team members' },
+  'sales':            { icon: '💼', desc: 'Sales team — leads, closes, scripts, and daily dial updates' },
+  'bureau-calling':   { icon: '📞', desc: 'Bureau callers — call logs, bureau updates, point tracking' },
+  'dispute-ops':      { icon: '⚖️', desc: 'Dispute operations — letters, portals, follow-ups, rounds' },
+  'compliance':       { icon: '📋', desc: 'Compliance team — checklists, login verifications, quota flags' },
+  'customer-service': { icon: '🎧', desc: 'CS team — client updates, escalations, response tracking' },
+  'escalations':      { icon: '🚨', desc: 'Urgent escalations requiring immediate management attention' },
+};
+
+const DM_USERS = {
+  jason:     { name: 'Jason Crown',       role: 'Owner / Admin',         initials: 'JC', color: '#C9A84C' },
+  julius:    { name: 'Julius Velitario',  role: 'Bureau Caller',         initials: 'JV', color: '#3B82F6' },
+  queen:     { name: 'Queen Jearel Cruz', role: 'Compliance Specialist', initials: 'QC', color: '#8B5CF6' },
+  lyslejane: { name: 'Lyslejane Ogue',    role: 'Bureau Caller',         initials: 'LO', color: '#EC4899' },
+  dean:      { name: 'Dean Macaraeg',     role: 'Customer Service',      initials: 'DM', color: '#10B981' },
+  krisha:    { name: 'Krisha Velarde',    role: 'Customer Service',      initials: 'KV', color: '#F59E0B' },
+  bukunmi:   { name: 'Bukunmi Aina',      role: 'Paid Media',            initials: 'BA', color: '#EF4444' },
+  francis:   { name: 'Francis Gacho',     role: 'Lead Gen',              initials: 'FG', color: '#6366F1' },
+};
+
+const DEPT_COLORS = {
+  'Owner / Admin': '#C9A84C', 'Bureau Caller': '#3B82F6',
+  'Compliance Specialist': '#8B5CF6', 'Customer Service': '#10B981',
+  'Paid Media': '#EF4444', 'Lead Gen': '#6366F1',
+  'Sales Representative': '#F59E0B', 'Dispute Operations': '#1A5C38'
+};
+
+const EMOJIS = ['👍','❤️','🔥','✅','❌','⚠️','📞','⚖️','📋','💼','🎯','🙌','👏','😊','🚨','📢','💡','✉️','📊','🏆','⏰','🔄','📌','💬'];
+
+// Seed messages
+const SEED = {
+  general: [
+    { id:'g1', user:'Jason Crown', role:'Owner / Admin', color:'#C9A84C', text:'Good morning team! Quick reminder — all bureau callers need to have their points logged by end of day Friday. Compliance will be reviewing. Let\'s have a great week 💪', time: fmtTime(-90), reactions:{'🔥':3,'✅':5} },
+    { id:'g2', user:'Julius Velitario', role:'Bureau Caller', color:'#3B82F6', text:'Good morning Jason! Ready to go — starting calls in 5 minutes.', time: fmtTime(-88) },
+    { id:'g3', user:'Dean Macaraeg', role:'Customer Service', color:'#10B981', text:'Morning everyone. I\'ll be following up on all client messages from the weekend first thing this morning.', time: fmtTime(-85) },
+    { id:'g4', user:'Queen Jearel Cruz', role:'Compliance Specialist', color:'#8B5CF6', text:'Morning team. I\'ll be running the application checklist on all new clients from last week. If compliance reaches out for any documents — please respond to clients within 24 hours.', time: fmtTime(-82) },
+  ],
+  announcements: [
+    { id:'a1', user:'Jason Crown', role:'Owner / Admin', color:'#C9A84C', text:'📢 **TEAM ANNOUNCEMENT — Base Pay Update**\n\nEffective immediately, base pay for all positions is **$100/week** during the 30-day probationary period. After 30 days and a satisfactory performance review, base pay will be reviewed for increase based on results. Commission structure remains unchanged at 10% per closed sale. Questions — DM me directly.', time: fmtTime(-2880), reactions:{'✅':6} },
+    { id:'a2', user:'Jason Crown', role:'Owner / Admin', color:'#C9A84C', text:'📢 **SYSTEM UPDATE — Dispute File Queue**\n\nThe Dispute Operations queue now has a full Work Panel. Click any client row to open it. You can log bureau calls and dispute actions directly from the queue without switching pages. The ⚖️ Dispute button shows a reference card with the client info — use it to open the Dispute Center. Check the training module for full instructions.', time: fmtTime(-1440), reactions:{'👍':4,'🔥':2} },
+  ],
+  sales: [
+    { id:'s1', user:'Jason Crown', role:'Owner / Admin', color:'#C9A84C', text:'Sales team — reminder on package order: **always lead with Express at $3,999**. Only offer Standard if they push back on price. Financing is a last resort. We are leaving money on the table by leading with Standard.', time: fmtTime(-360), reactions:{'✅':2} },
+  ],
+  'bureau-calling': [
+    { id:'b1', user:'Julius Velitario', role:'Bureau Caller', color:'#3B82F6', text:'Equifax call just removed a Capital One collection for CPR-00045. That\'s 3 points 🏆 Logging now.', time: fmtTime(-45) },
+    { id:'b2', user:'Lyslejane Ogue', role:'Bureau Caller', color:'#EC4899', text:'Good one Julius! I had a Fraud Alert placed for CPR-00112 — 2 points. TransUnion was quick today.', time: fmtTime(-40) },
+    { id:'b3', user:'Julius Velitario', role:'Bureau Caller', color:'#3B82F6', text:'Heads up — Experian hold times are long today, about 35 minutes. Plan accordingly if you have Experian calls queued.', time: fmtTime(-30) },
+  ],
+  'dispute-ops': [
+    { id:'d1', user:'Queen Jearel Cruz', role:'Compliance Specialist', color:'#8B5CF6', text:'Dispute letters for this week\'s new Standard clients are ready. Starting portal uploads now. Will confirm when all 3 bureaus are done.', time: fmtTime(-120) },
+  ],
+  compliance: [
+    { id:'c1', user:'Queen Jearel Cruz', role:'Compliance Specialist', color:'#8B5CF6', text:'Application checklist update: CPR-01250 through CPR-01260 all cleared. Files are open and ready for dispute ops. One file (CPR-01255) is still pending SSN card — client has been notified. 5-day deadline in place.', time: fmtTime(-60) },
+  ],
+  'customer-service': [
+    { id:'cs1', user:'Dean Macaraeg', role:'Customer Service', color:'#10B981', text:'Client CPR-00089 called asking for an update. Gave them a full breakdown — disputes filed with all 3 bureaus on 9/15, next follow-up scheduled for 9/29. They were happy with the update. Logged in the system.', time: fmtTime(-180) },
+  ],
+  escalations: [
+    { id:'e1', user:'Dean Macaraeg', role:'Customer Service', color:'#10B981', text:'🚨 **ESCALATION — CPR-00033**\n\nClient is threatening to dispute the charge with their credit card company. They say they have not seen any progress in 45 days. I pulled their file — disputes were filed but no bureau responses have come back yet. Need Jason or compliance to review and reach out to the client today.', time: fmtTime(-30), reactions:{'⚠️':2} },
+  ],
+};
+
+function fmtTime(minutesAgo) {
+  const d = new Date(Date.now() + minutesAgo * 60000);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function getToday() {
+  return new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  // Initialize message stores
+  Object.keys(CHANNELS).forEach(ch => { messages[ch] = [...(SEED[ch]||[])]; });
+  Object.keys(DM_USERS).forEach(u => { messages['dm_'+u] = []; });
+
+  initEmojiPicker();
+  openLoginModal();
+  renderChannel('general');
+  updateInputPlaceholder();
+});
+
+// ── LOGIN ─────────────────────────────────────────────────────────────
+function openLoginModal() {
+  document.getElementById('login-modal').classList.add('open');
+}
+
+function confirmLogin() {
+  const val = document.getElementById('login-name-select').value;
+  if (!val) { alert('Please select your name.'); return; }
+  const [name, role, initials, color] = val.split('|');
+  currentUser = { name, role, initials, color };
+  closeOverlay('login-modal');
+  document.getElementById('login-btn').textContent = '👤 ' + initials;
+
+  // Show announce btn for Jason
+  if (name === 'Jason Crown') {
+    document.getElementById('announce-btn').style.display = 'block';
+  }
+
+  // Post join message
+  addMessage(currentChannel, {
+    id: 'join_' + Date.now(),
+    user: 'System',
+    role: '',
+    color: '#6B7280',
+    text: currentUser.name + ' joined the chat.',
+    time: fmtTime(0),
+    isSystem: true
+  });
+
+  showToast('Welcome ' + name + '! You are now connected to CP Restoration Team Chat.');
+}
+
+// ── CHANNEL NAVIGATION ────────────────────────────────────────────────
+function openChannel(ch) {
+  currentChannel = ch;
+  document.querySelectorAll('.channel, .dm-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('ch-' + ch)?.classList.add('active');
+  document.getElementById('ch-header-icon').textContent = CHANNELS[ch].icon;
+  document.getElementById('ch-header-name').textContent = ch;
+  document.getElementById('ch-header-desc').textContent = CHANNELS[ch].desc;
+  updateInputPlaceholder();
+  renderChannel(ch);
+  clearUnread(ch);
+}
+
+function openDM(userId) {
+  const u = DM_USERS[userId];
+  currentChannel = 'dm_' + userId;
+  document.querySelectorAll('.channel, .dm-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('dm-' + userId)?.classList.add('active');
+  document.getElementById('ch-header-icon').textContent = u.initials;
+  document.getElementById('ch-header-name').textContent = u.name;
+  document.getElementById('ch-header-desc').textContent = u.role + ' — Direct Message';
+  updateInputPlaceholder();
+  renderChannel('dm_' + userId);
+  clearUnread('dm_' + userId);
+}
+
+function updateInputPlaceholder() {
+  const input = document.getElementById('msg-input');
+  if (!input) return;
+  const ch = currentChannel;
+  if (ch.startsWith('dm_')) {
+    const userId = ch.replace('dm_', '');
+    input.placeholder = 'Message ' + (DM_USERS[userId]?.name || '') + '...';
+  } else {
+    input.placeholder = 'Message #' + ch + '...';
+  }
+}
+
+// ── RENDER MESSAGES ───────────────────────────────────────────────────
+function renderChannel(ch) {
+  const container = document.getElementById('messages');
+  const msgs = messages[ch] || [];
+
+  if (!msgs.length) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gray);">
+      <div style="font-size:48px;margin-bottom:12px;">${ch.startsWith('dm_') ? '💬' : CHANNELS[ch]?.icon || '#'}</div>
+      <div style="font-size:16px;font-weight:800;color:var(--blue);margin-bottom:6px;">No messages yet</div>
+      <div style="font-size:13px;">Be the first to say something!</div>
+    </div>`;
+    return;
+  }
+
+  let html = `<div class="msg-date-divider">${getToday()}</div>`;
+  let lastUser = '';
+
+  msgs.forEach((m, i) => {
+    if (m.isSystem) {
+      html += `<div style="text-align:center;font-size:11px;color:var(--gray);padding:6px 0;font-style:italic;">${m.text}</div>`;
+      return;
+    }
+
+    const isOwn = m.user === currentUser.name;
+    const isSameUser = m.user === lastUser && i > 0 && !msgs[i-1]?.isSystem;
+    lastUser = m.user;
+
+    const replyHtml = m.replyTo ? `<div class="msg-reply">↩ <strong>${m.replyTo.user}:</strong> ${m.replyTo.text.substring(0,60)}${m.replyTo.text.length>60?'…':''}</div>` : '';
+
+    const reactionsHtml = m.reactions ? Object.entries(m.reactions).map(([emoji, count]) =>
+      `<span class="msg-reaction ${m.userReacted?.includes(emoji)?'reacted':''}" onclick="addReaction('${m.id}','${emoji}')">${emoji} <span>${count}</span></span>`
+    ).join('') : '';
+
+    const formattedText = (m.text||'')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/_([^_]+)_/g, '<em>$1</em>')
+      .replace(/@(\w+)/g, '<span style="color:var(--blue);font-weight:700;background:var(--lb);padding:1px 4px;border-radius:4px;">@$1</span>')
+      .replace(/\n/g, '<br>');
+
+    if (isOwn) {
+      html += `<div class="msg-row own" id="msg-${m.id}">
+        <div class="msg-body">
+          ${!isSameUser ? `<div class="msg-meta"><span class="msg-time">${m.time}</span><span class="msg-name">${m.user}</span></div>` : ''}
+          ${replyHtml}
+          <div class="msg-text">${formattedText}</div>
+          ${reactionsHtml ? `<div style="margin-top:4px;">${reactionsHtml}</div>` : ''}
+        </div>
+        <div class="msg-avatar" style="background:${m.color||'#6B7280'};">${m.initials||m.user.charAt(0)}</div>
+        <div class="msg-actions">
+          <button class="msg-action-btn" onclick="replyTo('${m.id}')" title="Reply">↩</button>
+          <button class="msg-action-btn" onclick="showEmojiForMsg('${m.id}')" title="React">😊</button>
+          <button class="msg-action-btn" onclick="deleteMsg('${m.id}')" title="Delete">🗑</button>
+        </div>
+      </div>`;
+    } else {
+      html += `<div class="msg-row" id="msg-${m.id}">
+        <div class="msg-avatar ${isSameUser?'ghost':''}" style="background:${m.color||'#6B7280'};">${m.initials||m.user.charAt(0)}</div>
+        <div class="msg-body">
+          ${!isSameUser ? `<div class="msg-meta">
+            <span class="msg-name">${m.user}</span>
+            <span class="msg-role-tag" style="background:${m.color||'#6B7280'};">${m.role}</span>
+            <span class="msg-time">${m.time}</span>
+          </div>` : ''}
+          ${replyHtml}
+          <div class="msg-text">${formattedText}</div>
+          ${reactionsHtml ? `<div style="margin-top:4px;">${reactionsHtml}</div>` : ''}
+        </div>
+        <div class="msg-actions">
+          <button class="msg-action-btn" onclick="replyTo('${m.id}')" title="Reply">↩</button>
+          <button class="msg-action-btn" onclick="showEmojiForMsg('${m.id}')" title="React">😊</button>
+        </div>
+      </div>`;
+    }
+  });
+
+  container.innerHTML = html;
+  container.scrollTop = container.scrollHeight;
+}
+
+// ── SEND MESSAGE ──────────────────────────────────────────────────────
+function sendMessage() {
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!currentUser.name) { openLoginModal(); return; }
+
+  const msg = {
+    id: 'm' + Date.now(),
+    user: currentUser.name,
+    role: currentUser.role,
+    color: currentUser.color,
+    initials: currentUser.initials,
+    text,
+    time: fmtTime(0),
+    replyTo: replyingTo || null
+  };
+
+  addMessage(currentChannel, msg);
+  input.value = '';
+  input.style.height = 'auto';
+  cancelReply();
+
+  // Simulate response in DMs
+  if (currentChannel.startsWith('dm_') && currentChannel !== 'dm_jason') {
+    const userId = currentChannel.replace('dm_', '');
+    const u = DM_USERS[userId];
+    setTimeout(() => {
+      const responses = [
+        'Got it, thanks!',
+        'On it — will update you shortly.',
+        'Understood. I\'ll take care of that.',
+        'Thanks for the heads up!',
+        '✅ Will do.',
+        'Received. Let me check on that.',
+      ];
+      addMessage(currentChannel, {
+        id: 'auto_' + Date.now(),
+        user: u.name,
+        role: u.role,
+        color: u.color,
+        initials: u.initials,
+        text: responses[Math.floor(Math.random() * responses.length)],
+        time: fmtTime(0)
+      });
+    }, 1500 + Math.random() * 2000);
+  }
+}
+
+function addMessage(ch, msg) {
+  if (!messages[ch]) messages[ch] = [];
+  messages[ch].push(msg);
+  if (ch === currentChannel) {
+    renderChannel(ch);
+  } else {
+    // Increment unread
+    unread[ch] = (unread[ch] || 0) + 1;
+    const badge = document.querySelector(`#ch-${ch} .ch-badge, #dm-${ch?.replace('dm_','')} .dm-unread`);
+    if (badge) { badge.textContent = unread[ch]; } else {
+      const el = document.getElementById('ch-' + ch) || document.getElementById('dm-' + ch.replace('dm_',''));
+      if (el) el.innerHTML += `<span class="ch-badge">${unread[ch]}</span>`;
+    }
+    showToast('New message in ' + (ch.startsWith('dm_') ? DM_USERS[ch.replace('dm_','')]?.name : '#'+ch));
+  }
+}
+
+function clearUnread(ch) {
+  unread[ch] = 0;
+  const el = document.getElementById('ch-' + ch) || document.getElementById('dm-' + ch.replace('dm_',''));
+  if (el) { el.querySelectorAll('.ch-badge, .dm-unread').forEach(b => b.remove()); }
+}
+
+// ── REPLY ─────────────────────────────────────────────────────────────
+function replyTo(msgId) {
+  const ch = currentChannel;
+  const msg = (messages[ch] || []).find(m => m.id === msgId);
+  if (!msg) return;
+  replyingTo = { id: msgId, user: msg.user, text: msg.text };
+  document.getElementById('reply-preview').style.display = 'flex';
+  document.getElementById('reply-text').textContent = 'Replying to ' + msg.user + ': ' + msg.text.substring(0, 50) + (msg.text.length > 50 ? '…' : '');
+  document.getElementById('msg-input').focus();
+}
+
+function cancelReply() {
+  replyingTo = null;
+  document.getElementById('reply-preview').style.display = 'none';
+}
+
+// ── REACTIONS ─────────────────────────────────────────────────────────
+function addReaction(msgId, emoji) {
+  const ch = currentChannel;
+  const msg = (messages[ch] || []).find(m => m.id === msgId);
+  if (!msg) return;
+  if (!msg.reactions) msg.reactions = {};
+  if (!msg.userReacted) msg.userReacted = [];
+  if (msg.userReacted.includes(emoji)) {
+    msg.reactions[emoji] = Math.max(0, (msg.reactions[emoji]||1) - 1);
+    msg.userReacted = msg.userReacted.filter(e => e !== emoji);
+    if (msg.reactions[emoji] === 0) delete msg.reactions[emoji];
+  } else {
+    msg.reactions[emoji] = (msg.reactions[emoji] || 0) + 1;
+    msg.userReacted.push(emoji);
+  }
+  renderChannel(ch);
+}
+
+let emojiTargetMsgId = null;
+function showEmojiForMsg(msgId) {
+  emojiTargetMsgId = msgId;
+  toggleEmoji();
+}
+
+// ── DELETE ─────────────────────────────────────────────────────────────
+function deleteMsg(msgId) {
+  if (!confirm('Delete this message?')) return;
+  const ch = currentChannel;
+  messages[ch] = (messages[ch] || []).filter(m => m.id !== msgId);
+  renderChannel(ch);
+}
+
+// ── KEYBOARD ──────────────────────────────────────────────────────────
+function handleKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ── FORMATTING ────────────────────────────────────────────────────────
+function insertFormatting(before, after) {
+  const input = document.getElementById('msg-input');
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  const selected = input.value.substring(start, end);
+  input.value = input.value.substring(0, start) + before + selected + after + input.value.substring(end);
+  input.focus();
+  input.selectionStart = start + before.length;
+  input.selectionEnd = end + before.length;
+}
+
+// ── EMOJI ─────────────────────────────────────────────────────────────
+function initEmojiPicker() {
+  const grid = document.getElementById('emoji-grid');
+  grid.innerHTML = EMOJIS.map(e =>
+    `<button class="emoji-btn" onclick="insertEmoji('${e}')">${e}</button>`
+  ).join('');
+}
+
+function toggleEmoji() {
+  const picker = document.getElementById('emoji-picker');
+  picker.classList.toggle('open');
+}
+
+function insertEmoji(emoji) {
+  if (emojiTargetMsgId) {
+    addReaction(emojiTargetMsgId, emoji);
+    emojiTargetMsgId = null;
+  } else {
+    const input = document.getElementById('msg-input');
+    const pos = input.selectionStart;
+    input.value = input.value.substring(0, pos) + emoji + input.value.substring(pos);
+    input.focus();
+  }
+  document.getElementById('emoji-picker').classList.remove('open');
+}
+
+// ── FILE ATTACH ───────────────────────────────────────────────────────
+function triggerFileUpload() {
+  document.getElementById('file-input').click();
+}
+
+function handleFileAttach(input) {
+  const file = input.files[0];
+  if (!file || !currentUser.name) return;
+  const msg = {
+    id: 'f' + Date.now(),
+    user: currentUser.name,
+    role: currentUser.role,
+    color: currentUser.color,
+    initials: currentUser.initials,
+    text: '📎 Shared a file: <span class="msg-file">📄 ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)</span>',
+    time: fmtTime(0)
+  };
+  addMessage(currentChannel, msg);
+  input.value = '';
+}
+
+// ── QUICK STATUS UPDATE ───────────────────────────────────────────────
+function sendQuickUpdate() {
+  if (!currentUser.name) { openLoginModal(); return; }
+  const templates = {
+    'Bureau Caller': ['Points today: logged. Starting next round of calls.', 'Bureau call complete — item disputed. Reference number logged.', 'Experian verified item. Escalating to next round.', 'Fraud alert placed for client. All 3 bureaus notified.'],
+    'Customer Service': ['Client follow-up complete — status update provided.', 'Client inquiry resolved. Logged in system.', 'Escalation raised — needs management review.', '24-hour response check complete. All messages answered.'],
+    'Compliance Specialist': ['Application checklist complete — file approved to open.', 'Bureau login verified — all 3 bureaus working.', 'Client email setup complete — codes routing to dedicated inbox.', 'Quota check complete — all reps on track.'],
+    'Owner / Admin': ['Team — please review the latest announcements.', 'Payroll processing Friday. Ensure all time is logged.', 'New client batch onboarded. Dispute ops — check your queue.'],
+  };
+  const options = templates[currentUser.role] || templates['Owner / Admin'];
+  const chosen = options[Math.floor(Math.random() * options.length)];
+  document.getElementById('msg-input').value = chosen;
+  document.getElementById('msg-input').focus();
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────
+function searchMessages(query) {
+  if (!query.trim()) { renderChannel(currentChannel); return; }
+  const q = query.toLowerCase();
+  const container = document.getElementById('messages');
+  const allMsgs = Object.values(messages).flat().filter(m => m.text?.toLowerCase().includes(q));
+  if (!allMsgs.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">No messages found for "' + query + '"</div>';
+    return;
+  }
+  container.innerHTML = allMsgs.map(m =>
+    `<div style="padding:12px;border-bottom:1px solid var(--border);">
+      <div style="font-size:11px;color:var(--gray);margin-bottom:4px;">${m.user} · ${m.time}</div>
+      <div style="font-size:13px;">${(m.text||'').replace(new RegExp(query,'gi'), match => '<mark style="background:var(--gold);color:white;padding:0 2px;border-radius:2px;">'+match+'</mark>')}</div>
+    </div>`
+  ).join('');
+}
+
+// ── ANNOUNCEMENTS ─────────────────────────────────────────────────────
+function openAnnouncementCompose() {
+  document.getElementById('announcement-modal').classList.add('open');
+}
+
+function postAnnouncement() {
+  const text = document.getElementById('ann-text').value.trim();
+  const pin = document.getElementById('ann-pin').value;
+  if (!text) { alert('Enter announcement text.'); return; }
+  if (!currentUser.name) { openLoginModal(); return; }
+
+  if (pin === 'yes') {
+    document.getElementById('announcement-bar').textContent = '📢 ' + currentUser.name + ': ' + text;
+  }
+
+  addMessage('announcements', {
+    id: 'ann' + Date.now(),
+    user: currentUser.name,
+    role: currentUser.role,
+    color: currentUser.color,
+    initials: currentUser.initials,
+    text: '📢 **ANNOUNCEMENT**\n' + text,
+    time: fmtTime(0)
+  });
+
+  closeOverlay('announcement-modal');
+  document.getElementById('ann-text').value = '';
+  showToast('Announcement posted to #announcements');
+}
+
+function openAnnouncement() {
+  openChannel('announcements');
+}
+
+function togglePinned() {
+  showToast('No pinned messages in this channel yet.');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(hideToast, 4000);
+}
+
+function hideToast() {
+  document.getElementById('toast').classList.remove('show');
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.addEventListener('click', e => {
+  const picker = document.getElementById('emoji-picker');
+  if (picker.classList.contains('open') && !picker.contains(e.target) && !e.target.classList.contains('toolbar-btn')) {
+    picker.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>
