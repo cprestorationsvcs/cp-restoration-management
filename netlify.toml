@@ -2,7 +2,7 @@
   functions = "functions"
 
 [functions]
-  node_bundler = "esbuild"
+  node_bundler = "zip"
 
 [[redirects]]
   from = "/voice-webhook"
@@ -12,4 +12,9 @@
 [[redirects]]
   from = "/voice-webhook/*"
   to = "/.netlify/functions/voice-webhook"
+  status = 200
+
+[[redirects]]
+  from = "/call-log"
+  to = "/.netlify/functions/call-log"
   status = 200
