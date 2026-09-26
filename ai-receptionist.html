@@ -310,62 +310,84 @@ ESCALATE TO JASON when caller says: cancel, refund, lawsuit, attorney, chargebac
 
 For sales leads: collect name, phone, what credit issues they have, their timeline, and their budget.`;
 
-// ── DEMO CALLS ───────────────────────────────────────────────────
-var DEMO_CALLS = [
-  {
-    id: 1,
-    name: 'Maria Johnson',
-    phone: '+1 (305) 555-0142',
-    clientId: 'CPR-00042',
-    type: 'cs',
-    time: '9:14 AM',
-    status: 'active',
-    messages: [
-      { role:'ai',   text:'Thank you for calling CP Restoration Services. My name is Aria, your virtual assistant. CP Restoration is fully open and working hard for all our clients. How can I help you today?', time:'9:14 AM' },
-      { role:'user', text:'Hi I got an email saying you guys were closing and I should go to some other company. Is that true?', time:'9:14 AM' },
-      { role:'ai',   text:'I completely understand your concern and I am glad you called to verify directly with us. That email did not come from CP Restoration Services. We are 100% open and fully operational. Your file is active, your disputes are ongoing, and nothing has changed about your service. That email was sent by a former associate who is no longer affiliated with our company in any way. Please disregard it entirely. Your file, your client ID, and all your dispute records are safe with us. Is there anything else I can help reassure you about?', time:'9:15 AM' },
-      { role:'user', text:'Oh thank goodness. So my disputes are still being worked on?', time:'9:15 AM' },
-      { role:'ai',   text:'Absolutely. Your disputes are actively being worked on. CP Restoration Services has been in business since 2014 and we are not going anywhere. Jason Crown, our founder, is personally overseeing all active files during this transition period. Your credit repair is continuing as agreed. Can I pull up your client ID to give you a specific update on your file?', time:'9:16 AM' },
-    ]
-  },
-  {
-    id: 2,
-    name: 'New Caller',
-    phone: '+1 (786) 555-0389',
-    clientId: null,
-    type: 'sales',
-    time: '9:41 AM',
-    status: 'active',
-    messages: [
-      { role:'ai',   text:'Thank you for calling CP Restoration Services. My name is Aria, your virtual assistant. How can I help you today?', time:'9:41 AM' },
-      { role:'user', text:'Yes hi I saw your ad on Facebook and I have a lot of collections and late payments on my credit. I want to see if you can help me.', time:'9:41 AM' },
-      { role:'ai',   text:'You called the right place! CP Restoration Services has been helping people just like you restore their credit since 2014. Collections and late payments are exactly what we specialize in. Can I ask — are these showing on all three bureaus, or just one or two? And do you know roughly how many negative items you are dealing with?', time:'9:42 AM' },
-      { role:'user', text:'I think all three. I have like 8 collections and maybe 5 late payments.', time:'9:42 AM' },
-      { role:'ai',   text:'Got it — so about 13 negative items across all three bureaus. That is very workable. We dispute those through live bureau calls, FTC reports, and certified dispute letters, and we follow up every 10 business days to push for removal. For your situation our Standard Package at $2,499 would be the best fit — that covers all three bureaus with a 120 business day timeline. We also have financing available — just $750 down and $292 a month. What is most important to you right now — speed of results or keeping the monthly cost low?', time:'9:43 AM' },
-    ]
-  },
-  {
-    id: 3,
-    name: 'Robert Williams',
-    phone: '+1 (954) 555-0217',
-    clientId: 'CPR-00156',
-    type: 'cs',
-    time: '10:02 AM',
-    status: 'done',
-    messages: [
-      { role:'ai',   text:'Thank you for calling CP Restoration Services. My name is Aria, your virtual assistant. How can I help you today?', time:'10:02 AM' },
-      { role:'user', text:'I just want to know if my Equifax dispute went through because I have not heard anything.', time:'10:02 AM' },
-      { role:'ai',   text:'Of course, I understand. Bureaus typically take 30 to 45 days to respond to disputes. If your dispute was filed recently, it may still be within the review window. Can I get your client ID so I can note this for Jason and have him review your specific file status?', time:'10:03 AM' },
-      { role:'user', text:'Sure its CPR-00156', time:'10:03 AM' },
-      { role:'ai',   text:'Thank you Robert. I have noted your inquiry for client ID CPR-00156 regarding your Equifax dispute status. Jason Crown will personally review your file and follow up with you within 24 hours. Is the best number to reach you still the one you are calling from?', time:'10:03 AM' },
-      { role:'user', text:'Yes that works. Thanks', time:'10:04 AM' },
-      { role:'ai',   text:'Perfect. You are all set Robert. Jason will be in touch within 24 hours with an update on your Equifax dispute. Is there anything else I can help you with today?', time:'10:04 AM' },
-    ]
-  }
-];
+// ── LIVE CALL DATA ───────────────────────────────────────────────
+var calls = [];
+var callLog = [];
+var salesLeads = [];
+var activeCallId = null;
+var aiName = 'Aria';
+
+function fetchLiveCalls() {
+  fetch('/.netlify/functions/call-log')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data.records) return;
+      calls = [];
+      callLog = [];
+      salesLeads = [];
+
+      data.records.forEach(function(rec) {
+        var time = rec.startTime ? new Date(rec.startTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '--:--';
+        var type = rec.topic==='pricing'||rec.topic==='express'||rec.topic==='standard'||rec.topic==='financing' ? 'sales' : 'cs';
+
+        // Build call object for sidebar
+        var call = {
+          id: rec.callSid,
+          name: rec.name || 'Caller',
+          phone: rec.caller || 'Unknown',
+          clientId: null,
+          type: type,
+          time: time,
+          status: rec.state==='completed'||rec.state==='transferred' ? 'done' : 'active',
+          topic: rec.topic || '',
+          messages: (rec.transcript||[]).map(function(t){
+            return { role:'user', text:t.text, time:new Date(t.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) };
+          })
+        };
+        calls.push(call);
+
+        // Log entry
+        callLog.push({
+          time: time,
+          name: rec.name || rec.caller || 'Caller',
+          phone: rec.caller || 'Unknown',
+          type: type,
+          duration: '--',
+          outcome: rec.state==='transferred' ? 'Transferred' : rec.state==='completed' ? 'AI Handled' : 'In Progress',
+          summary: rec.topic ? 'Asked about: ' + rec.topic : 'General inquiry'
+        });
+
+        // Sales lead if name and number captured
+        if (rec.name && rec.number && type==='sales') {
+          salesLeads.push({
+            callId: rec.callSid,
+            time: time,
+            name: rec.name,
+            phone: rec.number,
+            issues: rec.topic || 'Credit repair inquiry',
+            budget: 'TBD',
+            urgency: 'High',
+            status: 'New'
+          });
+        }
+      });
+
+      renderCallList();
+      updateLogStats();
+      set('call-count', calls.length + ' conversations today');
+    })
+    .catch(function(err){
+      console.log('Could not fetch live calls:', err);
+      // Show empty state gracefully
+      calls = [];
+      renderCallList();
+    });
+}
 
 // ── INIT ─────────────────────────────────────────────────────────
 window.addEventListener('load', function() {
+  fetchLiveCalls();
+  setInterval(fetchLiveCalls, 30000); // refresh every 30 seconds
   calls = DEMO_CALLS;
   renderCallList();
   updateLogStats();
