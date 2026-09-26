@@ -1,10 +1,9 @@
-// CP Restoration AI Receptionist — Render.com server
-// Ultra simple — no env vars needed, hardcoded URLs
+// CP Restoration AI Receptionist — Render.com
 const http = require('http');
 const https = require('https');
 
 const PORT = process.env.PORT || 3000;
-const BASE_URL = 'https://cp-restoration-receptionist.onrender.com';
+const BASE_URL = 'https://cp-restoration-management.onrender.com';
 const TRANSFER = '+17542660042';
 
 function esc(t) {
@@ -38,7 +37,7 @@ function answer(speech) {
   var t = (speech||'').toLowerCase();
   if (/transfer|speak to (a |)(human|person|rep)|real person|talk to (a |)(human|person)|connect me/.test(t)) return 'TRANSFER';
   if (/cancel|refund|attorney|lawsuit|charg.?back/.test(t)) return 'TRANSFER';
-  if (/closed|closing|shut down|out of business|email|heard.*clos|told.*clos/.test(t)) return 'CP Restoration is fully open. Any email claiming we closed was sent by a former employee without authorization and is false. Your file is active and your service continues normally.';
+  if (/closed|closing|shut down|out of business|email|heard.*clos|told.*clos/.test(t)) return 'CP Restoration is fully open. Any email claiming we closed was sent by a former employee without authorization and is completely false. Your file is active and your service continues normally.';
   if (/\bexpress\b/.test(t)) return 'The Express package is $3,999 covering all three bureaus in 60 business days with a money-back guarantee.';
   if (/\bstandard\b/.test(t)) return 'The Standard package is $2,499 covering all three bureaus in 120 business days. Our most popular option.';
   if (/financ|payment plan|monthly|down payment|afford/.test(t)) return 'Our financing is $750 down and $292 a month for 6 months covering all three bureaus.';
@@ -49,7 +48,7 @@ function answer(speech) {
   if (/guarantee|money back/.test(t)) return 'Yes, we offer a money-back guarantee. If we do not deliver results you get your money back. We have been in business since 2014.';
   if (/score|credit score/.test(t)) return 'Most clients see score increases of 50 to 150 points when negative items are removed.';
   if (/bankruptcy|bankrupt/.test(t)) return 'Yes, we work with clients who have had bankruptcies. Any errors in how it is reported can be disputed.';
-  if (/inquiry|inquiries|hard pull/.test(t)) return 'Our Inquiries Only package is $45 per inquiry per bureau across all three bureaus.';
+  if (/inquiry|inquiries|hard pull/.test(t)) return 'Our Inquiries Only package is $45 per inquiry per bureau.';
   if (/my (file|case|account|dispute|status)|existing|already a client/.test(t)) return 'Your file is active and your disputes are ongoing. Our team follows up within 24 hours.';
   if (/yes|yeah|sure|ok|okay|yep|please|go ahead/.test(t)) return 'YES';
   return null;
@@ -74,14 +73,12 @@ var server = http.createServer(function(req, res) {
   req.on('data', function(c){ body += c; });
   req.on('end', function() {
 
-    // Health check
     if (req.url === '/' || req.url === '/health') {
       res.writeHead(200, {'Content-Type':'text/plain'});
-      res.end('CP Restoration AI Receptionist — Online ✓');
+      res.end('CP Restoration AI Receptionist Online');
       return;
     }
 
-    // Aria voice handler
     if (req.url.startsWith('/aria')) {
       var get = parseForm(body);
       var qp  = parseQS(req.url);
@@ -93,28 +90,23 @@ var server = http.createServer(function(req, res) {
       res.writeHead(200, {'Content-Type':'text/xml'});
 
       try {
-        // NEW CALL
         if (state === 'new') {
           res.end(gather('Thank you for calling CP Restoration Services. My name is Aria. How can I help you today?', sid, 'main'));
           return;
         }
 
-        // COLLECT NAME
         if (state === 'waitname') {
           if (!speech) { res.end(gather('I did not catch that. Can you say your name?', sid, 'waitname')); return; }
           res.end(gather('Thank you ' + speech + '. And what is the best phone number to reach you?', sid, 'waitnumber', speech));
           return;
         }
 
-        // COLLECT NUMBER
         if (state === 'waitnumber') {
           if (!speech) { res.end(gather('I did not catch that. Can you repeat your number?', sid, 'waitnumber', name)); return; }
-          var callerName = name || 'there';
-          res.end(hangup('Perfect. I have your name as ' + callerName + ' and your number as ' + speech + '. Our team will follow up within 24 hours. Thank you for calling CP Restoration Services. Have a great day.'));
+          res.end(hangup('Perfect. I have your name as ' + (name||'there') + ' and your number as ' + speech + '. Our team will follow up within 24 hours. Thank you for calling CP Restoration Services. Have a great day.'));
           return;
         }
 
-        // WAITNAME OFFER
         if (state === 'waitname_offer') {
           if (/yes|yeah|sure|ok|okay|yep|please|go ahead/.test(speech.toLowerCase())) {
             res.end(gather('Can I get your full name?', sid, 'waitname'));
@@ -124,19 +116,16 @@ var server = http.createServer(function(req, res) {
           return;
         }
 
-        // NO SPEECH
         if (!speech) {
-          res.end(gather('I did not catch that. How can I help you?', sid, 'main'));
+          res.end(gather('I did not catch that. How can I help you today?', sid, 'main'));
           return;
         }
 
-        // INSTANT ANSWER
         var a = answer(speech);
         if (a === 'TRANSFER') { res.end(dial('Please hold while I connect you with one of our client services representatives.')); return; }
         if (a === 'YES')      { res.end(gather('Can I get your full name?', sid, 'waitname')); return; }
         if (a)                { res.end(gather(a + ' Would you like to leave your name and number for a follow-up?', sid, 'waitname_offer')); return; }
 
-        // DEFAULT — take a message
         res.end(gather('Thank you for calling. Can I get your name and best number so our team can follow up with you within 24 hours?', sid, 'waitname'));
 
       } catch(err) {
