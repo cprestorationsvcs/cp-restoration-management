@@ -14,11 +14,11 @@ YOUR ROLE:
 - Handle customer service questions about active client files
 - Handle sales inquiries — explain packages and capture lead info  
 - Reassure existing clients their service continues uninterrupted
-- Escalate to Jason Crown when needed
+- Escalate to a client services representative when needed
 
 COMPANY INFO:
 - Name: CP Restoration Services | Website: 35daycreditrepair.com
-- Owner: Jason Crown | Email: cprestorationsvcs@gmail.com
+- Email: cprestorationsvcs@gmail.com
 - Location: Coconut Creek, FL | Founded: 2014
 - Client portal: portal-cprestorationsvcs.com
 
@@ -36,9 +36,9 @@ VOICE RULES (VERY IMPORTANT):
 - Speak naturally, no bullet points, no lists
 - Never say "I am an AI" — just say you are Aria, the virtual assistant
 - Ask one question at a time
-- If caller wants to speak to a human or Jason, say: "Absolutely, let me connect you with Jason Crown right now. Please hold for just a moment."
+- If caller wants to speak to a human or a representative, say: "Absolutely, let me connect you with one of our client services representatives right now. Please hold for just a moment."
 
-ESCALATE immediately when caller says: cancel, refund, lawsuit, attorney, chargeback, speak to owner, speak to Jason, urgent, emergency, legal action.
+ESCALATE immediately when caller says: cancel, refund, lawsuit, attorney, chargeback, speak to owner, speak to representative, urgent, emergency, legal action.
 
 For sales leads: get their name, what credit issues they have, and their phone number for follow-up.`;
 
@@ -81,7 +81,7 @@ function askClaude(messages) {
     });
 
     req.on('error', () => {
-      resolve('Thank you for calling CP Restoration. Please hold while I connect you with our team.');
+      resolve('Thank you for calling CP Restoration Services. Please hold while I connect you with one of our client services representatives.');
     });
 
     req.write(body);
@@ -99,7 +99,7 @@ function twimlSay(text, gather = true, callSid = '') {
     <Say voice="Polly.Joanna">${escapeXml(text)}</Say>
   </Gather>
   <Say voice="Polly.Joanna">I didn't catch that. Let me connect you with Jason Crown directly.</Say>
-  <Dial>${process.env.JASON_PHONE || '+17542660042'}</Dial>
+  <Dial>${'+17542660042'}</Dial>
 </Response>`;
   } else {
     return `<?xml version="1.0" encoding="UTF-8"?>
@@ -150,7 +150,7 @@ exports.handler = async (event, context) => {
   // ── New call: greeting ────────────────────────────────────────
   if (isNew) {
     sessions[callSid] = { messages: [], startTime: Date.now() };
-    const greeting = "Thank you for calling CP Restoration Services. My name is Aria, your virtual assistant. CP Restoration is fully open and actively working for all of our clients. How can I help you today?";
+    const greeting = "Thank you for calling CP Restoration Services. My name is Aria, your virtual assistant. We are fully open and actively working for all of our clients. How can I help you today?";
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'text/xml' },
@@ -175,12 +175,12 @@ exports.handler = async (event, context) => {
 
   // Check for escalation triggers
   if (shouldEscalate(speech)) {
-    const transferMsg = "Absolutely, let me connect you with Jason Crown directly right now. Please hold for just one moment.";
+    const transferMsg = "Absolutely, let me connect you with one of our client services representatives right now. Please hold for just one moment.";
     delete sessions[callSid];
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'text/xml' },
-      body: twimlTransfer(transferMsg, process.env.JASON_PHONE || '+17542660042')
+      body: twimlTransfer(transferMsg, '+17542660042')
     };
   }
 
@@ -191,7 +191,7 @@ exports.handler = async (event, context) => {
   session.messages.push({ role: 'assistant', content: aiReply });
 
   // Check if AI decided to transfer
-  const transferPhrases = ['connect you with jason', 'transfer you to jason', 'put you through to jason'];
+  const transferPhrases = ['connect you with', 'transfer you to our representative', 'put you through to our team'];
   const shouldTransfer = transferPhrases.some(p => aiReply.toLowerCase().includes(p));
 
   if (shouldTransfer) {
@@ -199,7 +199,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'text/xml' },
-      body: twimlTransfer(aiReply, process.env.JASON_PHONE || '+17542660042')
+      body: twimlTransfer(aiReply, '+17542660042')
     };
   }
 
