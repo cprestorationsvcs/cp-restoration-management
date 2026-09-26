@@ -363,8 +363,8 @@ var CONTRACTORS = {
     name: 'Queen Jearel Cruz',
     role: 'Compliance Specialist',
     initials: 'QC',
-    payRate: '$200/week',
-    paySchedule: 'Weekly',
+    payRate: '$400 bi-weekly',
+    paySchedule: 'Bi-Weekly',
     payMethod: 'Wise',
     payAccount: 'queen@mycprteam.com',
     platform: 'Wise'
@@ -379,26 +379,15 @@ var CONTRACTORS = {
     payAccount: 'bukunmiaina@gmail.com',
     platform: 'Wise'
   },
-  'francis@mycprteam.com': {
-    password: 'CPRFran2026',
-    name: 'Francis Gacho',
-    role: 'Lead Generation / Sales',
-    initials: 'FG',
-    payRate: 'Commission',
-    paySchedule: 'Per Sale',
-    payMethod: 'PayPal',
-    payAccount: 'francisgacho121212@gmail.com',
-    platform: 'PayPal'
-  }
 };
 
 // Payment records — in production these sync from the accounting system
 // Format: { id, stubNum, date, period, type, amount, method, status, notes }
 var PAYMENT_DATA = {
   'queen@mycprteam.com': [
-    { id:1, stubNum:'CPR-STB-001', date:'2026-09-20', period:'Sep 14-20, 2026', type:'Weekly', amount:200, method:'Wise', status:'paid', notes:'' },
-    { id:2, stubNum:'CPR-STB-002', date:'2026-09-13', period:'Sep 7-13, 2026',  type:'Weekly', amount:200, method:'Wise', status:'paid', notes:'' },
-    { id:3, stubNum:'CPR-STB-003', date:'2026-09-06', period:'Sep 1-6, 2026',   type:'Weekly', amount:200, method:'Wise', status:'paid', notes:'Start week — pro-rated' },
+    { id:1, stubNum:'CPR-STB-001', date:'2026-09-20', period:'Sep 14-20, 2026', type:'Bi-Weekly', amount:200, method:'Wise', status:'paid', notes:'' },
+    { id:2, stubNum:'CPR-STB-002', date:'2026-09-13', period:'Sep 7-13, 2026',  type:'Bi-Weekly', amount:200, method:'Wise', status:'paid', notes:'' },
+    { id:3, stubNum:'CPR-STB-003', date:'2026-09-06', period:'Sep 1-6, 2026',   type:'Bi-Weekly', amount:200, method:'Wise', status:'paid', notes:'Start week — pro-rated' },
   ]
 };
 
