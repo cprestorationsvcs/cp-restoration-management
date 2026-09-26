@@ -4785,33 +4785,46 @@ function setLoginType(type) {
 }
 
 function loginAdmin() {
-  const email = (document.getElementById('admin-email').value || '').trim().toLowerCase();
-  const pass  = (document.getElementById('admin-pass').value || '').trim();
-  const errEl = document.getElementById('login-error');
-  if (!email || !pass) {
-    if (errEl) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = 'block'; }
-    return;
+  var emailEl = document.getElementById('admin-email');
+  var passEl  = document.getElementById('admin-pass');
+  var errEl   = document.getElementById('login-error');
+  var email   = emailEl ? emailEl.value.trim().toLowerCase() : '';
+  var pass    = passEl  ? passEl.value.trim() : '';
+
+  function showErr(msg) {
+    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+    else { alert(msg); }
   }
-  // Find matching employee
-  const emp = EMPLOYEE_CREDENTIALS.find(e => e.email.toLowerCase() === email && e.password === pass);
-  if (!emp) {
-    if (errEl) { errEl.textContent = 'Incorrect email or password. Contact Jason Crown to reset your password.'; errEl.style.display = 'block'; }
-    document.getElementById('admin-pass').value = '';
-    return;
+
+  if (!email || !pass) { showErr('Please enter your email and password.'); return; }
+
+  var emp = null;
+  for (var i = 0; i < EMPLOYEE_CREDENTIALS.length; i++) {
+    if (EMPLOYEE_CREDENTIALS[i].email.toLowerCase() === email && EMPLOYEE_CREDENTIALS[i].password === pass) {
+      emp = EMPLOYEE_CREDENTIALS[i]; break;
+    }
   }
-  if (!emp.active) {
-    if (errEl) { errEl.textContent = 'Your account has been deactivated. Contact Jason Crown.'; errEl.style.display = 'block'; }
-    return;
-  }
+
+  if (!emp) { showErr('Incorrect email or password. Contact Jason Crown to reset.'); if (passEl) passEl.value = ''; return; }
+  if (!emp.active) { showErr('Your account has been deactivated. Contact Jason Crown.'); return; }
+
   if (errEl) errEl.style.display = 'none';
-  currentUser = { type: 'admin', role: emp.role, label: emp.label, name: emp.name, email: emp.email };
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('user-badge').textContent = emp.name + ' — ' + emp.label;
-  document.getElementById('current-dept').textContent = emp.label;
+  currentUser = { type:'admin', role:emp.role, label:emp.label, name:emp.name, email:emp.email };
+
+  var loginScreen = document.getElementById('login-screen');
+  var appEl = document.getElementById('app');
+  var badgeEl = document.getElementById('user-badge');
+  var deptEl = document.getElementById('current-dept');
+
+  if (loginScreen) loginScreen.style.display = 'none';
+  if (appEl) appEl.style.display = 'block';
+  if (badgeEl) badgeEl.textContent = emp.name + ' — ' + emp.label;
+  if (deptEl) deptEl.textContent = emp.label;
+
   setupNavForRole(emp.role);
   loadDashboard();
 }
+
 
 function toggleLoginPw() {
   const inp = document.getElementById('admin-pass');
