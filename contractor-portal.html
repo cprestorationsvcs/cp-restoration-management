@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<!-- CP Restoration Contractor Portal v1.0 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Contractor Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--white:#fff;
+  --text:#1E293B;--lb:#EFF4FF;--lg:#F0FFF4;--lgold:#FDF8EE;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,var(--navy) 0%,#2d5ca6 100%);}
+.login-card{background:white;border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo-title{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:2px;}
+.login-logo-sub{font-size:12px;color:var(--gray);}
+.login-badge{display:inline-block;padding:4px 12px;background:var(--lb);color:var(--navy);border-radius:10px;font-size:11px;font-weight:700;margin-bottom:20px;}
+.login-title{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+.login-sub{font-size:13px;color:var(--gray);margin-bottom:24px;}
+.form-field{margin-bottom:16px;}
+.form-field label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.form-field input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;transition:border .2s;}
+.form-field input:focus{border-color:var(--navy);}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:44px;}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--gray);}
+.btn-login{width:100%;padding:13px;background:var(--navy);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;transition:background .2s;}
+.btn-login:hover{background:#142d55;}
+.login-error{color:var(--red);font-size:13px;font-weight:600;padding:8px 12px;background:#FFF0F0;border-radius:7px;margin-bottom:12px;display:none;}
+.login-footer{text-align:center;margin-top:16px;font-size:12px;color:var(--gray);}
+
+/* APP */
+#app{display:none;}
+.hdr{background:var(--navy);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.hdr-left{display:flex;align-items:center;gap:12px;}
+.hdr-avatar{width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--navy);}
+.hdr-name{font-size:14px;font-weight:700;color:white;}
+.hdr-role{font-size:11px;color:rgba(255,255,255,.55);}
+.btn-logout{padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:7px;color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-logout:hover{background:rgba(255,255,255,.2);}
+
+/* NAV */
+.nav{display:flex;gap:2px;padding:10px 16px;background:white;border-bottom:1px solid var(--border);overflow-x:auto;}
+.nav-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;white-space:nowrap;transition:all .15s;font-family:inherit;}
+.nav-btn:hover{background:var(--lb);color:var(--navy);}
+.nav-btn.active{background:var(--navy);color:white;}
+
+/* LAYOUT */
+.content{padding:20px;max-width:900px;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* CARDS */
+.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);overflow:hidden;margin-bottom:16px;}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:800;color:var(--navy);}
+.card-body{padding:20px;}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.stat-value{font-size:22px;font-weight:800;color:var(--navy);}
+.stat-sub{font-size:11px;color:var(--gray);margin-top:3px;}
+.stat.green .stat-value{color:var(--green);}
+.stat.gold .stat-value{color:var(--gold);}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--navy);}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:white;letter-spacing:.3px;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:hover{background:var(--lb);}
+tbody td{padding:10px 14px;}
+
+/* PAYSTUB */
+.stub{background:white;border:2px solid var(--border);border-radius:12px;padding:28px;margin-bottom:12px;}
+.stub-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--navy);}
+.stub-company{font-size:16px;font-weight:800;color:var(--navy);}
+.stub-company-sub{font-size:11px;color:var(--gray);margin-top:2px;}
+.stub-label{text-align:right;}
+.stub-label-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;}
+.stub-id{font-size:14px;font-weight:800;color:var(--navy);margin-top:2px;}
+.stub-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.stub-section-title{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.stub-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;}
+.stub-row span:last-child{font-weight:700;}
+.stub-total{background:var(--navy);color:white;padding:14px 20px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-top:16px;}
+.stub-total-label{font-size:13px;font-weight:700;}
+.stub-total-amount{font-size:22px;font-weight:800;color:var(--gold);}
+.stub-footer{margin-top:16px;font-size:11px;color:var(--gray);text-align:center;border-top:1px solid var(--border);padding-top:12px;}
+
+/* BADGES */
+.badge{padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.badge-green{background:#D1FAE5;color:#065F46;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.badge-gray{background:#F3F4F6;color:#374151;}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.5;margin-bottom:16px;}
+.alert-blue{background:var(--lb);border-left:3px solid var(--navy);color:var(--navy);}
+.alert-gold{background:var(--lgold);border-left:3px solid var(--gold);color:#7A5F00;}
+.alert-green{background:var(--lg);border-left:3px solid var(--green);color:var(--green);}
+
+/* PROFILE */
+.profile-avatar{width:72px;height:72px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:var(--gold);margin-bottom:12px;}
+.profile-name{font-size:22px;font-weight:800;color:var(--navy);}
+.profile-role{font-size:14px;color:var(--gray);margin-top:3px;}
+.info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.info-label{color:var(--gray);font-weight:500;}
+.info-value{font-weight:700;color:var(--text);}
+
+/* PRINT */
+@media print{
+  .hdr,.nav,.btn-download,.no-print{display:none!important;}
+  .stub{break-inside:avoid;}
+}
+@media(max-width:500px){
+  .stub-grid{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-title">CP Restoration Services</div>
+        <div class="login-logo-sub">35daycreditrepair.com</div>
+      </div>
+      <div style="text-align:center;margin-bottom:20px;">
+        <span class="login-badge">🧾 Contractor Portal</span>
+      </div>
+      <div class="login-title">Welcome back</div>
+      <div class="login-sub">Log in to view your pay stubs and payment history.</div>
+      <div class="login-error" id="login-error">Incorrect email or password. Contact Jason Crown to reset.</div>
+      <div class="form-field">
+        <label>Work Email</label>
+        <input type="email" id="login-email" placeholder="yourname@mycprteam.com" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button class="pw-toggle" type="button" onclick="togglePw()">👁</button>
+        </div>
+      </div>
+      <button class="btn-login" onclick="doLogin()">Sign In →</button>
+      <div class="login-footer">Forgot your password? Contact Jason Crown at<br>cprestorationsvcs@gmail.com</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-avatar" id="hdr-avatar">JC</div>
+      <div>
+        <div class="hdr-name" id="hdr-name">Contractor</div>
+        <div class="hdr-role" id="hdr-role">CP Restoration Services</div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-btn active" onclick="showPage('dashboard')">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showPage('paystubs')">🧾 Pay Stubs</button>
+    <button class="nav-btn" onclick="showPage('history')">📋 Payment History</button>
+    <button class="nav-btn" onclick="showPage('tax')">📄 Tax Documents</button>
+    <button class="nav-btn" onclick="showPage('profile')">👤 My Profile</button>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div style="margin-bottom:20px;">
+        <div style="font-size:20px;font-weight:800;color:var(--navy);" id="dash-greeting">Good morning!</div>
+        <div style="font-size:13px;color:var(--gray);">Here is your payment summary for CP Restoration Services.</div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat green"><div class="stat-label">Total Earned YTD</div><div class="stat-value" id="d-ytd">$0</div><div class="stat-sub">Year to date</div></div>
+        <div class="stat gold"><div class="stat-label">Last Payment</div><div class="stat-value" id="d-last-amt">—</div><div class="stat-sub" id="d-last-date">No payments yet</div></div>
+        <div class="stat"><div class="stat-label">Payments Received</div><div class="stat-value" id="d-count">0</div><div class="stat-sub">Total payments</div></div>
+        <div class="stat"><div class="stat-label">This Month</div><div class="stat-value" id="d-this-month">$0</div><div class="stat-sub" id="d-month-label">September 2026</div></div>
+      </div>
+
+      <div class="alert alert-gold">
+        📋 <strong>Contractor Reminder:</strong> You are engaged as an independent contractor. You are responsible for your own taxes, including self-employment tax. CP Restoration Services does not withhold taxes. Keep records of all payments for your annual tax filing.
+      </div>
+
+      <!-- Latest pay stub -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">🧾 Most Recent Pay Stub</div>
+          <button class="btn-logout no-print" onclick="showPage('paystubs')" style="font-size:12px;color:var(--navy);background:var(--lb);border-color:var(--lb);">View All →</button>
+        </div>
+        <div class="card-body" id="dash-latest-stub">
+          <div style="text-align:center;padding:24px;color:var(--gray);">No pay stubs yet. Payments will appear here once processed by Jason Crown.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAY STUBS -->
+    <div class="page" id="page-paystubs" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div style="font-size:20px;font-weight:800;color:var(--navy);">Pay Stubs</div>
+        <button class="btn-logout no-print" onclick="window.print()" style="color:var(--navy);background:var(--lb);border-color:var(--lb);">🖨️ Print All</button>
+      </div>
+      <div id="stubs-container">
+        <div style="text-align:center;padding:40px;color:var(--gray);">No pay stubs yet. Payments will appear here once processed.</div>
+      </div>
+    </div>
+
+    <!-- PAYMENT HISTORY -->
+    <div class="page" id="page-history" style="display:none;">
+      <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">Payment History</div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">All Payments</div>
+          <div style="font-size:12px;color:var(--gray);">Total: <strong id="hist-total" style="color:var(--green);">$0.00</strong></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Stub #</th><th>Pay Period</th><th>Payment Date</th><th>Pay Type</th><th>Method</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="hist-tbody">
+              <tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No payments on record yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAX DOCUMENTS -->
+    <div class="page" id="page-tax" style="display:none;">
+      <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">Tax Documents</div>
+      <div class="alert alert-blue">
+        As an independent contractor, you will receive a <strong>1099-NEC</strong> form from CP Restoration Services for any tax year in which you are paid $600 or more. Forms are issued by January 31 of the following year.
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">📄 1099-NEC Documents</div></div>
+        <div class="card-body">
+          <div id="tax-docs-list">
+            <div style="text-align:center;padding:24px;color:var(--gray);">No tax documents available yet. Your 2026 1099-NEC will be available by January 31, 2027.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title">📋 W-9 Information</div></div>
+        <div class="card-body">
+          <div class="alert alert-gold" style="margin-bottom:16px;">
+            CP Restoration Services requires a completed W-9 form on file before issuing payments. If you have not submitted your W-9, please do so immediately. Contact Jason Crown at cprestorationsvcs@gmail.com.
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:8px;">REQUIRED INFORMATION</div>
+              <div class="info-row"><span class="info-label">Legal Name</span><span class="info-value" id="w9-name">—</span></div>
+              <div class="info-row"><span class="info-label">SSN / EIN</span><span class="info-value">On file ••••</span></div>
+              <div class="info-row"><span class="info-label">Business Type</span><span class="info-value">Individual / Sole Proprietor</span></div>
+              <div class="info-row" style="border:none;"><span class="info-label">W-9 Status</span><span class="info-value"><span class="badge badge-green">On File</span></span></div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:8px;">COMPANY INFORMATION</div>
+              <div class="info-row"><span class="info-label">Payer Name</span><span class="info-value">CP Restoration Services</span></div>
+              <div class="info-row"><span class="info-label">Contact</span><span class="info-value">Jason Crown</span></div>
+              <div class="info-row"><span class="info-label">Email</span><span class="info-value">cprestorationsvcs@gmail.com</span></div>
+              <div class="info-row" style="border:none;"><span class="info-label">Location</span><span class="info-value">Coconut Creek, FL</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title">💡 Tax Tips for Contractors</div></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.7;">
+            <div style="padding:12px;background:var(--lb);border-radius:8px;"><strong>Set aside 25-30% of every payment</strong> for taxes. As a self-employed contractor, you pay both the employee and employer portions of Social Security and Medicare (15.3% self-employment tax) plus income tax.</div>
+            <div style="padding:12px;background:var(--lb);border-radius:8px;"><strong>Quarterly estimated taxes</strong> are due April 15, June 15, September 15, and January 15. Use IRS Form 1040-ES to calculate and pay.</div>
+            <div style="padding:12px;background:var(--lb);border-radius:8px;"><strong>Track your deductible expenses</strong> — home office, internet, phone, equipment, and software used for work may be deductible. Keep all receipts.</div>
+            <div style="padding:12px;background:var(--lb);border-radius:8px;"><strong>Your 1099-NEC</strong> from CP Restoration Services will show your total gross pay. Report this on Schedule C of your federal tax return.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="page-profile" style="display:none;">
+      <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">My Profile</div>
+      <div class="card">
+        <div class="card-body" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px;">
+          <div class="profile-avatar" id="prof-avatar">JC</div>
+          <div class="profile-name" id="prof-name">Contractor</div>
+          <div class="profile-role" id="prof-role">Independent Contractor</div>
+          <div style="margin-top:6px;"><span class="badge badge-green">Active Contractor</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title">👤 Contractor Information</div></div>
+        <div class="card-body">
+          <div class="info-row"><span class="info-label">Full Name</span><span class="info-value" id="prof-full-name">—</span></div>
+          <div class="info-row"><span class="info-label">Work Email</span><span class="info-value" id="prof-email">—</span></div>
+          <div class="info-row"><span class="info-label">Role / Department</span><span class="info-value" id="prof-dept">—</span></div>
+          <div class="info-row"><span class="info-label">Contract Type</span><span class="info-value">Independent Contractor (1099)</span></div>
+          <div class="info-row"><span class="info-label">Pay Schedule</span><span class="info-value" id="prof-pay-sched">—</span></div>
+          <div class="info-row"><span class="info-label">Payment Method</span><span class="info-value" id="prof-pay-method">—</span></div>
+          <div class="info-row" style="border:none;"><span class="info-label">Status</span><span class="info-value"><span class="badge badge-green">Active</span></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title">🏦 Payment Account</div></div>
+        <div class="card-body">
+          <div class="info-row"><span class="info-label">Platform</span><span class="info-value" id="prof-platform">—</span></div>
+          <div class="info-row" style="border:none;"><span class="info-label">Account</span><span class="info-value" id="prof-account">—</span></div>
+          <div style="margin-top:14px;font-size:12px;color:var(--gray);">To update your payment account, contact Jason Crown at cprestorationsvcs@gmail.com.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title">🔒 Security</div></div>
+        <div class="card-body">
+          <div class="alert alert-gold">To change your password, contact Jason Crown. Passwords are managed by the CP Restoration admin.</div>
+          <div class="info-row"><span class="info-label">Last Login</span><span class="info-value" id="prof-last-login">Just now</span></div>
+          <div class="info-row" style="border:none;"><span class="info-label">Account Status</span><span class="info-value"><span class="badge badge-green">Active</span></span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+<script>
+// ── CONTRACTOR ACCOUNTS ───────────────────────────────────────────
+// Payments are added by Jason via the accounting system
+// In a live version these would sync via API
+// For now, demo data can be loaded per contractor
+
+var CONTRACTORS = {
+  'queen@mycprteam.com': {
+    password: 'CPRQueen2026',
+    name: 'Queen Jearel Cruz',
+    role: 'Compliance Specialist',
+    initials: 'QC',
+    payRate: '$200/week',
+    paySchedule: 'Weekly',
+    payMethod: 'Wise',
+    payAccount: 'queen@mycprteam.com',
+    platform: 'Wise'
+  },
+  'julius@mycprteam.com': {
+    password: 'CPRJulius2026',
+    name: 'Julius Velitario',
+    role: 'Bureau Caller',
+    initials: 'JV',
+    payRate: 'TBD',
+    paySchedule: 'Bi-Weekly',
+    payMethod: 'Wise',
+    payAccount: 'julius@mycprteam.com',
+    platform: 'Wise'
+  },
+  'lyslejane@mycprteam.com': {
+    password: 'CPRLysl2026',
+    name: 'Lyslejane Ogue',
+    role: 'Bureau Caller',
+    initials: 'LO',
+    payRate: 'TBD',
+    paySchedule: 'Bi-Weekly',
+    payMethod: 'Wise',
+    payAccount: 'lyslejane@mycprteam.com',
+    platform: 'Wise'
+  },
+  'dean@mycprteam.com': {
+    password: 'CPRDean2026',
+    name: 'Dean Macaraeg',
+    role: 'Customer Service',
+    initials: 'DM',
+    payRate: 'TBD',
+    paySchedule: 'Bi-Weekly',
+    payMethod: 'Wise',
+    payAccount: 'macnardean86@gmail.com',
+    platform: 'Wise'
+  },
+  'krisha@mycprteam.com': {
+    password: 'CPRKrisha2026',
+    name: 'Krisha Velarde',
+    role: 'Customer Service',
+    initials: 'KV',
+    payRate: 'TBD',
+    paySchedule: 'Bi-Weekly',
+    payMethod: 'Wise',
+    payAccount: 'krisha@mycprteam.com',
+    platform: 'Wise'
+  },
+  'bukunmi@mycprteam.com': {
+    password: 'CPRBuku2026',
+    name: 'Bukunmi Aina',
+    role: 'Paid Media / Sales',
+    initials: 'BA',
+    payRate: 'TBD',
+    paySchedule: 'Bi-Weekly',
+    payMethod: 'Wise',
+    payAccount: 'bukunmiaina@gmail.com',
+    platform: 'Wise'
+  },
+  'francis@mycprteam.com': {
+    password: 'CPRFran2026',
+    name: 'Francis Gacho',
+    role: 'Lead Generation / Sales',
+    initials: 'FG',
+    payRate: 'Commission',
+    paySchedule: 'Per Sale',
+    payMethod: 'PayPal',
+    payAccount: 'francisgacho121212@gmail.com',
+    platform: 'PayPal'
+  }
+};
+
+// Payment records — in production these sync from the accounting system
+// Format: { id, stubNum, date, period, type, amount, method, status, notes }
+var PAYMENT_DATA = {
+  'queen@mycprteam.com': [
+    { id:1, stubNum:'CPR-STB-001', date:'2026-09-20', period:'Sep 14-20, 2026', type:'Weekly', amount:200, method:'Wise', status:'paid', notes:'' },
+    { id:2, stubNum:'CPR-STB-002', date:'2026-09-13', period:'Sep 7-13, 2026',  type:'Weekly', amount:200, method:'Wise', status:'paid', notes:'' },
+    { id:3, stubNum:'CPR-STB-003', date:'2026-09-06', period:'Sep 1-6, 2026',   type:'Weekly', amount:200, method:'Wise', status:'paid', notes:'Start week — pro-rated' },
+  ]
+};
+
+var currentUser = null;
+var currentContractor = null;
+var currentPayments = [];
+
+// ── LOGIN ────────────────────────────────────────────────────────
+function togglePw() {
+  var inp = document.getElementById('login-pass');
+  if (inp) inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function doLogin() {
+  var email = ((document.getElementById('login-email')||{}).value||'').trim().toLowerCase();
+  var pass  = ((document.getElementById('login-pass')||{}).value||'').trim();
+  var errEl = document.getElementById('login-error');
+
+  if (!email || !pass) {
+    if (errEl) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display='block'; }
+    return;
+  }
+
+  var contractor = CONTRACTORS[email];
+  if (!contractor || contractor.password !== pass) {
+    if (errEl) { errEl.textContent = 'Incorrect email or password. Contact Jason Crown to reset.'; errEl.style.display='block'; }
+    var passEl = document.getElementById('login-pass');
+    if (passEl) passEl.value = '';
+    return;
+  }
+
+  currentUser = email;
+  currentContractor = contractor;
+  currentPayments = PAYMENT_DATA[email] || [];
+
+  if (errEl) errEl.style.display = 'none';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Set header
+  document.getElementById('hdr-avatar').textContent = contractor.initials;
+  document.getElementById('hdr-name').textContent = contractor.name;
+  document.getElementById('hdr-role').textContent = contractor.role + ' — Independent Contractor';
+
+  // Load data
+  updateDashboard();
+  updateProfile();
+  window.scrollTo(0,0);
+}
+
+function doLogout() {
+  currentUser = null;
+  currentContractor = null;
+  currentPayments = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  var emailEl = document.getElementById('login-email');
+  var passEl = document.getElementById('login-pass');
+  if (emailEl) emailEl.value = '';
+  if (passEl) passEl.value = '';
+  showPage('dashboard', true);
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────────
+function showPage(name, silent) {
+  document.querySelectorAll('.page').forEach(function(p){ p.style.display='none'; p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById('page-'+name);
+  if (el) { el.style.display='block'; el.classList.add('active'); }
+  var btns = document.querySelectorAll('.nav-btn');
+  for (var i=0;i<btns.length;i++){
+    if ((btns[i].getAttribute('onclick')||'').indexOf("'"+name+"'")!==-1){ btns[i].classList.add('active'); break; }
+  }
+  if (!silent) {
+    if (name==='paystubs') renderStubs();
+    if (name==='history')  renderHistory();
+    if (name==='tax')      renderTaxDocs();
+  }
+  window.scrollTo(0,0);
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────
+function updateDashboard() {
+  var c = currentContractor;
+  var payments = currentPayments;
+
+  // Greeting
+  var hr = new Date().getHours();
+  var greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  var grEl = document.getElementById('dash-greeting');
+  if (grEl) grEl.textContent = greeting + ', ' + c.name.split(' ')[0] + '! 👋';
+
+  // Stats
+  var ytd = payments.filter(function(p){ return p.date.startsWith('2026') && p.status==='paid'; }).reduce(function(s,p){ return s+p.amount; },0);
+  var thisMonth = payments.filter(function(p){ return p.date.startsWith('2026-09') && p.status==='paid'; }).reduce(function(s,p){ return s+p.amount; },0);
+  var last = payments.filter(function(p){ return p.status==='paid'; }).sort(function(a,b){ return b.date.localeCompare(a.date); })[0];
+
+  set('d-ytd', '$'+ytd.toLocaleString('en-US',{minimumFractionDigits:2}));
+  set('d-this-month', '$'+thisMonth.toLocaleString('en-US',{minimumFractionDigits:2}));
+  set('d-count', payments.filter(function(p){ return p.status==='paid'; }).length);
+
+  if (last) {
+    set('d-last-amt', '$'+last.amount.toLocaleString('en-US',{minimumFractionDigits:2}));
+    set('d-last-date', last.date);
+  }
+
+  // Latest stub on dashboard
+  var dashStub = document.getElementById('dash-latest-stub');
+  if (dashStub) {
+    if (!payments.length) {
+      dashStub.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray);">No pay stubs yet.</div>';
+    } else {
+      var latest = payments[0];
+      dashStub.innerHTML = buildStubHTML(latest, c, true);
+    }
+  }
+}
+
+// ── STUBS ────────────────────────────────────────────────────────
+function buildStubHTML(p, c, compact) {
+  var net = p.amount;
+  var html = '<div class="stub">' +
+    '<div class="stub-header">' +
+      '<div>' +
+        '<div class="stub-company">CP Restoration Services</div>' +
+        '<div class="stub-company-sub">35daycreditrepair.com • Coconut Creek, FL</div>' +
+        '<div class="stub-company-sub">cprestorationsvcs@gmail.com</div>' +
+      '</div>' +
+      '<div class="stub-label">' +
+        '<div class="stub-label-title">Pay Stub</div>' +
+        '<div class="stub-id">'+p.stubNum+'</div>' +
+        '<div style="font-size:11px;color:var(--gray);margin-top:3px;">'+p.date+'</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="stub-grid">' +
+      '<div>' +
+        '<div class="stub-section-title">Contractor Information</div>' +
+        '<div class="stub-row"><span>Name</span><span>'+c.name+'</span></div>' +
+        '<div class="stub-row"><span>Role</span><span>'+c.role+'</span></div>' +
+        '<div class="stub-row"><span>Type</span><span>Independent Contractor (1099)</span></div>' +
+        '<div class="stub-row"><span>Pay Period</span><span>'+p.period+'</span></div>' +
+      '</div>' +
+      '<div>' +
+        '<div class="stub-section-title">Payment Details</div>' +
+        '<div class="stub-row"><span>Pay Type</span><span>'+p.type+'</span></div>' +
+        '<div class="stub-row"><span>Payment Method</span><span>'+p.method+'</span></div>' +
+        '<div class="stub-row"><span>Payment Date</span><span>'+p.date+'</span></div>' +
+        '<div class="stub-row"><span>Status</span><span><span class="badge '+(p.status==='paid'?'badge-green':'badge-gold')+'">'+p.status.toUpperCase()+'</span></span></div>' +
+      '</div>' +
+    '</div>' +
+    '<div>' +
+      '<div class="stub-section-title">Earnings</div>' +
+      '<table style="width:100%;font-size:13px;margin-bottom:12px;">' +
+        '<thead><tr style="background:var(--bg);"><th style="padding:8px;text-align:left;font-size:11px;color:var(--gray);">Description</th><th style="padding:8px;text-align:right;font-size:11px;color:var(--gray);">Amount</th></tr></thead>' +
+        '<tbody>' +
+          '<tr><td style="padding:8px;">'+p.type+' Contractor Fee</td><td style="padding:8px;text-align:right;font-weight:700;">$'+p.amount.toFixed(2)+'</td></tr>' +
+          (p.notes ? '<tr><td style="padding:8px;color:var(--gray);font-size:12px;" colspan="2">Note: '+p.notes+'</td></tr>' : '') +
+        '</tbody>' +
+      '</table>' +
+      '<div style="padding:10px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px;color:var(--gray);">' +
+        '<span>Tax Withholding</span><span>$0.00 (Contractor — self-responsible)</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="stub-total">' +
+      '<div class="stub-total-label">NET PAY</div>' +
+      '<div class="stub-total-amount">$'+net.toFixed(2)+'</div>' +
+    '</div>' +
+    '<div class="stub-footer">'+
+      'This is an official payment record from CP Restoration Services. '+
+      'As an independent contractor, you are responsible for reporting this income and paying applicable taxes. '+
+      'Questions? Contact cprestorationsvcs@gmail.com' +
+    '</div>' +
+  '</div>';
+
+  if (!compact) {
+    html += '<div class="no-print" style="display:flex;gap:8px;margin-top:-4px;margin-bottom:16px;">' +
+      '<button class="btn-download btn-logout" onclick="printStub(\''+p.stubNum+'\')" style="font-size:12px;color:var(--navy);background:var(--lb);border-color:var(--lb);">🖨️ Print Stub</button>' +
+    '</div>';
+  }
+  return html;
+}
+
+function renderStubs() {
+  var container = document.getElementById('stubs-container');
+  if (!container) return;
+  if (!currentPayments.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">No pay stubs yet. Payments will appear here once processed by Jason Crown.</div>';
+    return;
+  }
+  container.innerHTML = currentPayments.map(function(p){
+    return buildStubHTML(p, currentContractor, false);
+  }).join('');
+}
+
+function printStub(stubNum) {
+  window.print();
+}
+
+// ── HISTORY ──────────────────────────────────────────────────────
+function renderHistory() {
+  var tbody = document.getElementById('hist-tbody');
+  var totalEl = document.getElementById('hist-total');
+  if (!tbody) return;
+  if (!currentPayments.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No payment history yet.</td></tr>';
+    return;
+  }
+  var total = currentPayments.filter(function(p){ return p.status==='paid'; }).reduce(function(s,p){ return s+p.amount; },0);
+  if (totalEl) totalEl.textContent = '$'+total.toLocaleString('en-US',{minimumFractionDigits:2});
+  tbody.innerHTML = currentPayments.map(function(p){
+    return '<tr>'+
+      '<td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--navy);">'+p.stubNum+'</td>'+
+      '<td>'+p.period+'</td>'+
+      '<td>'+p.date+'</td>'+
+      '<td><span class="badge badge-blue" style="font-size:10px;">'+p.type+'</span></td>'+
+      '<td>'+p.method+'</td>'+
+      '<td style="font-weight:800;color:var(--green);">$'+p.amount.toFixed(2)+'</td>'+
+      '<td><span class="badge '+(p.status==='paid'?'badge-green':'badge-gold')+'" style="font-size:10px;">'+p.status.toUpperCase()+'</span></td>'+
+      '<td><button class="btn-logout" onclick="showPage(\'paystubs\')" style="font-size:11px;color:var(--navy);background:var(--lb);border-color:var(--lb);padding:4px 10px;">View</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ── TAX DOCS ─────────────────────────────────────────────────────
+function renderTaxDocs() {
+  var el = document.getElementById('w9-name');
+  if (el && currentContractor) el.textContent = currentContractor.name;
+  var total2026 = currentPayments.filter(function(p){ return p.date.startsWith('2026') && p.status==='paid'; }).reduce(function(s,p){ return s+p.amount; },0);
+  var listEl = document.getElementById('tax-docs-list');
+  if (listEl && total2026 >= 600) {
+    listEl.innerHTML = '<div style="padding:16px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;">'+
+      '<div><div style="font-weight:800;font-size:14px;color:var(--navy);">1099-NEC — Tax Year 2026</div>'+
+      '<div style="font-size:12px;color:var(--gray);margin-top:3px;">Gross earnings: $'+total2026.toFixed(2)+' | Available: January 31, 2027</div></div>'+
+      '<span class="badge badge-gold">Pending</span>'+
+    '</div>';
+  }
+}
+
+// ── PROFILE ──────────────────────────────────────────────────────
+function updateProfile() {
+  var c = currentContractor;
+  if (!c) return;
+  var initials = c.initials;
+  set('prof-avatar', initials);
+  set('prof-name', c.name);
+  set('prof-role', c.role);
+  set('prof-full-name', c.name);
+  set('prof-email', currentUser);
+  set('prof-dept', c.role);
+  set('prof-pay-sched', c.paySchedule);
+  set('prof-pay-method', c.payMethod);
+  set('prof-platform', c.platform);
+  set('prof-account', c.payAccount);
+  set('prof-last-login', new Date().toLocaleString());
+  set('w9-name', c.name);
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function set(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+
+// ── INIT ─────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  // Show login
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+});
+</script>
+</body>
+</html>
