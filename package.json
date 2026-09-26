@@ -1,12 +1,7 @@
 {
   "name": "cp-restoration-receptionist",
   "version": "1.0.0",
-  "description": "CP Restoration AI Receptionist",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "engines": {
-    "node": "18.x"
-  }
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": "18.x" }
 }
