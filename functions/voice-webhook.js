@@ -1,12 +1,14 @@
-// CP Restoration AI Receptionist v7 — with live call logging
+// CP Restoration AI Receptionist v8 — direct /tmp logging, no HTTP self-call
 const https = require('https');
+const fs    = require('fs');
 const TRANSFER_NUMBER = '+17542660042';
+const STORE_PATH = '/tmp/cp_calls.json';
 
 const R = {
   greeting:    "Thank you for calling CP Restoration Services. My name is Aria. How can I help you today?",
   pricing:     "Our Standard package is $2,499 covering all three bureaus in 120 business days. Express is $3,999 for results in 60 days. We also offer financing with $750 down and $292 a month. Which sounds right for you?",
-  express:     "The Express package is $3,999 for all three bureaus in 60 business days. It is our fastest option with a money-back guarantee.",
-  standard:    "The Standard package is $2,499 covering all three bureaus in 120 business days. It is our most popular option.",
+  express:     "The Express package is $3,999 for all three bureaus in 60 business days. Our fastest option with a money-back guarantee.",
+  standard:    "The Standard package is $2,499 covering all three bureaus in 120 business days. Our most popular option.",
   financing:   "Our financing is $750 down and $292 a month for 6 months. You get started right away covering all three bureaus.",
   process:     "We make live calls to all three credit bureaus, file FTC reports, and send certified dispute letters. We follow up every 10 business days with a money-back guarantee.",
   timeline:    "Most clients see results within 30 to 45 days. Bureaus must respond within 30 days by law and we follow up every 10 business days.",
@@ -45,6 +47,31 @@ function twimlEnd(text) {
     '</Response>';
 }
 
+// Write directly to /tmp — same instance shares storage with call-log function
+function logCall(record) {
+  try {
+    var records = {};
+    try { records = JSON.parse(fs.readFileSync(STORE_PATH, 'utf8')); } catch(e) {}
+    var existing = records[record.callSid] || {};
+    records[record.callSid] = {
+      callSid:   record.callSid,
+      caller:    record.caller    || existing.caller    || 'Unknown',
+      startTime: existing.startTime || record.time,
+      lastTime:  record.time,
+      state:     record.state     || existing.state     || 'active',
+      topic:     record.topic     || existing.topic     || '',
+      name:      record.name      || existing.name      || '',
+      number:    record.number    || existing.number    || '',
+      transcript: [
+        ...(existing.transcript || []),
+        ...(record.speech ? [{ time:record.time, speaker:'caller', text:record.speech }] : []),
+        ...(record.reply   ? [{ time:record.time, speaker:'aria',  text:record.reply  }] : [])
+      ]
+    };
+    fs.writeFileSync(STORE_PATH, JSON.stringify(records), 'utf8');
+  } catch(e) { /* non-fatal */ }
+}
+
 function matchTopic(input) {
   const t = (input||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ');
   if (/transfer|speak to (a |)(human|person|rep)|real person|talk to (a |)(human|person)|connect me/.test(t)) return 'transfer';
@@ -66,29 +93,13 @@ function isYes(t) {
   return /\b(yes|yeah|sure|correct|right|yep|yup|ok|okay|please|go ahead)\b/.test((t||'').toLowerCase());
 }
 
-function logCall(record) {
-  return new Promise((resolve) => {
-    try {
-      const body = JSON.stringify(record);
-      const host = (process.env.URL||'https://portal-cprestorationsvcs.com').replace('https://','').replace('http://','');
-      const req = https.request({
-        hostname: host, path:'/.netlify/functions/call-log',
-        method:'POST', headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body)}
-      }, (res) => { res.on('data',()=>{}); res.on('end', resolve); });
-      req.on('error', resolve);
-      req.setTimeout(2000, () => { req.destroy(); resolve(); });
-      req.write(body); req.end();
-    } catch(e) { resolve(); }
-  });
-}
-
 function askHaiku(question) {
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve("Can I take your name and number so our team can call you back?"), 3500);
     const body = JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 60,
-      system: 'You are Aria, receptionist for CP Restoration Services (credit repair). Answer in ONE sentence only, max 15 words. Be direct. Express $3,999 slash 60 days, Standard $2,499 slash 120 days, Financing $750 down plus $292 per month. Fully open and operational. Never ask for name or number.',
+      system: 'You are Aria, receptionist for CP Restoration Services (credit repair). Answer in ONE sentence only, max 15 words. Be direct. Express $3,999/60 days, Standard $2,499/120 days, Financing $750 down plus $292/month. Fully open. Never ask for name or number.',
       messages: [{ role:'user', content: question }]
     });
     const req = https.request({
@@ -96,7 +107,11 @@ function askHaiku(question) {
       headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body),'anthropic-version':'2023-06-01'}
     }, (res) => {
       let d=''; res.on('data',c=>d+=c);
-      res.on('end',()=>{ clearTimeout(timer); try { resolve(JSON.parse(d).content[0].text||"Can I take your name and number?"); } catch(e){ resolve("Can I take your name and number?"); }});
+      res.on('end',()=>{
+        clearTimeout(timer);
+        try { resolve(JSON.parse(d).content[0].text||"Can I take your name and number?"); }
+        catch(e){ resolve("Can I take your name and number?"); }
+      });
     });
     req.on('error',()=>{ clearTimeout(timer); resolve("Can I take your name and number?"); });
     req.write(body); req.end();
@@ -105,60 +120,82 @@ function askHaiku(question) {
 
 exports.handler = async (event, context) => {
   context.callbackWaitsForEmptyEventLoop = false;
-  const params    = new URLSearchParams(event.body || '');
-  const qp        = event.queryStringParameters || {};
-  const callSid   = params.get('CallSid') || qp['sid'] || 'unknown';
-  const caller    = params.get('From') || 'Unknown';
-  const speech    = (params.get('SpeechResult') || '').trim();
-  const state     = qp['state'] || 'new';
-  const nameParam = decodeURIComponent(qp['name'] || '');
-  const topicParam= qp['topic'] || '';
-  const now       = new Date().toISOString();
 
-  const respond = (body) => ({ statusCode:200, headers:{'Content-Type':'text/xml'}, body });
+  try {
+    const params    = new URLSearchParams(event.body || '');
+    const qp        = event.queryStringParameters || {};
+    const callSid   = params.get('CallSid') || qp['sid'] || ('call_' + Date.now());
+    const caller    = params.get('From') || 'Unknown';
+    const speech    = (params.get('SpeechResult') || '').trim();
+    const state     = qp['state'] || 'new';
+    const nameParam = decodeURIComponent(qp['name'] || '');
+    const now       = new Date().toISOString();
+    const respond   = (body) => ({ statusCode:200, headers:{'Content-Type':'text/xml'}, body });
 
-  if (state === 'new') {
-    await logCall({ callSid, caller, state:'started', time:now, speech:'', topic:'', name:'', number:'' });
-    return respond(twiml(R.greeting, callSid, 'main'));
+    // NEW CALL
+    if (state === 'new') {
+      logCall({ callSid, caller, state:'started', time:now, speech:'', topic:'', name:'', number:'' });
+      return respond(twiml(R.greeting, callSid, 'main'));
+    }
+
+    // WAITING FOR NAME
+    if (state === 'waitname') {
+      if (!speech) return respond(twiml("I did not catch that. Can you say your name?", callSid, 'waitname'));
+      const reply = "Thank you " + speech + ". And what is the best phone number to reach you?";
+      logCall({ callSid, caller, state:'got_name', time:now, name:speech, reply });
+      return respond(twiml(reply, callSid, 'waitnumber', encodeURIComponent(speech)));
+    }
+
+    // WAITING FOR NUMBER
+    if (state === 'waitnumber') {
+      if (!speech) return respond(twiml("I did not catch that. Can you repeat your number?", callSid, 'waitnumber', encodeURIComponent(nameParam)));
+      const name = nameParam || 'there';
+      logCall({ callSid, caller, state:'completed', time:now, name, number:speech });
+      return respond(twimlEnd("Perfect. I have your name as " + name + " and your number as " + speech + ". Our team will follow up within 24 hours. Thank you for calling CP Restoration Services. Have a great day."));
+    }
+
+    // NO SPEECH
+    if (!speech) return respond(twiml("I did not catch that. How can I help you?", callSid, 'main'));
+
+    const topic = matchTopic(speech);
+
+    // TRANSFER
+    if (topic === 'transfer') {
+      logCall({ callSid, caller, state:'transferred', time:now, speech, topic:'transfer' });
+      return respond(twimlTransfer());
+    }
+
+    // YES — offer name collection
+    if (isYes(speech)) {
+      return respond(twiml("Can I get your full name?", callSid, 'waitname'));
+    }
+
+    // KNOWN TOPIC — instant answer
+    if (topic && R[topic]) {
+      const answer = R[topic] + " Would you like to leave your name and number for a follow-up?";
+      logCall({ callSid, caller, state:'answered', time:now, speech, topic, reply:R[topic] });
+      return respond(twiml(answer, callSid, 'waitname_offer'));
+    }
+
+    // WAITNAME OFFER RESPONSE
+    if (state === 'waitname_offer') {
+      if (isYes(speech)) return respond(twiml("Can I get your full name?", callSid, 'waitname'));
+      logCall({ callSid, caller, state:'completed_no_info', time:now });
+      return respond(twimlEnd("No problem at all. Thank you for calling CP Restoration Services. Have a great day."));
+    }
+
+    // HAIKU FALLBACK
+    const reply = await askHaiku(speech);
+    logCall({ callSid, caller, state:'answered', time:now, speech, topic:'other', reply });
+    return respond(twiml(reply + " Would you like to leave your name and number for a follow-up?", callSid, 'waitname_offer'));
+
+  } catch(err) {
+    // Never let errors reach the caller — always return valid TwiML
+    console.error('Voice webhook error:', err.message);
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'text/xml' },
+      body: '<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Joanna">Thank you for calling CP Restoration Services. Please hold while I connect you with our team.</Say><Dial>+17542660042</Dial></Response>'
+    };
   }
-
-  if (state === 'waitname') {
-    if (!speech) return respond(twiml("I did not catch that. Can you say your name?", callSid, 'waitname'));
-    return respond(twiml("Thank you " + speech + ". And what is the best phone number to reach you?", callSid, 'waitnumber', encodeURIComponent(speech)));
-  }
-
-  if (state === 'waitnumber') {
-    if (!speech) return respond(twiml("I did not catch that. Can you repeat your number?", callSid, 'waitnumber', encodeURIComponent(nameParam)));
-    const name = nameParam || 'the caller';
-    await logCall({ callSid, caller, state:'completed', time:now, speech:'', topic:topicParam, name, number:speech });
-    return respond(twimlEnd("Perfect. I have your name as " + name + " and your number as " + speech + ". Our team will follow up with you within 24 hours. Thank you for calling CP Restoration Services. Have a great day."));
-  }
-
-  if (!speech) return respond(twiml("I did not catch that. How can I help you?", callSid, 'main'));
-
-  const topic = matchTopic(speech);
-
-  if (topic === 'transfer') {
-    await logCall({ callSid, caller, state:'transferred', time:now, speech, topic:'transfer', name:'', number:'' });
-    return respond(twimlTransfer());
-  }
-
-  if (isYes(speech)) {
-    return respond(twiml("Can I get your full name?", callSid, 'waitname'));
-  }
-
-  if (topic && R[topic]) {
-    const answer = R[topic] + " Would you like to leave your name and number for a follow-up?";
-    await logCall({ callSid, caller, state:'answered', time:now, speech, topic, name:'', number:'' });
-    return respond(twiml(answer, callSid, 'waitname_offer'));
-  }
-
-  if (state === 'waitname_offer') {
-    if (isYes(speech)) return respond(twiml("Can I get your full name?", callSid, 'waitname'));
-    return respond(twimlEnd("No problem. Thank you for calling CP Restoration Services. Have a great day."));
-  }
-
-  const reply = await askHaiku(speech);
-  await logCall({ callSid, caller, state:'answered', time:now, speech, topic:'other', name:'', number:'' });
-  return respond(twiml(reply + " Would you like to leave your name and number for a follow-up?", callSid, 'waitname_offer'));
 };
