@@ -1798,6 +1798,64 @@ tr:hover td { background: #FAFAFA; }
                   <button class="btn btn-outline btn-sm" onclick="insertVar('[START_DATE]')">+ Start Date</button>
                 </div>
                 <div id="bc-sms-warning" style="display:none;padding:10px 14px;background:#FEF3C7;border-radius:8px;font-size:12px;color:#7A5F00;margin-bottom:10px;">&#9888; SMS messages should be under 160 characters to avoid extra charges per segment.</div>
+
+                <!-- ATTACHMENTS -->
+                <div id="bc-attach-section" style="margin-bottom:14px;">
+                  <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;">&#128206; Attachments <span style="font-weight:400;color:var(--gray);">(email only — max 25MB total)</span></div>
+
+                  <!-- Source tabs -->
+                  <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+                    <button class="btn btn-outline btn-sm" onclick="bcAttachSource('upload')" id="bca-btn-upload" style="font-size:11px;">&#128190; Upload File</button>
+                    <button class="btn btn-outline btn-sm" onclick="bcAttachSource('drive')" id="bca-btn-drive" style="font-size:11px;">&#128196; Google Drive Link</button>
+                    <button class="btn btn-outline btn-sm" onclick="bcAttachSource('dropbox')" id="bca-btn-dropbox" style="font-size:11px;">&#128230; Dropbox Link</button>
+                    <button class="btn btn-outline btn-sm" onclick="bcAttachSource('url')" id="bca-btn-url" style="font-size:11px;">&#127760; Any URL</button>
+                  </div>
+
+                  <!-- Upload -->
+                  <div id="bca-upload" style="display:block;">
+                    <div class="upload-zone" onclick="document.getElementById('bc-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--navy)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="bcDropFiles(event)" style="border:2px dashed var(--border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;background:var(--bg);">
+                      <div style="font-size:24px;margin-bottom:4px;">&#128190;</div>
+                      <div style="font-size:12px;color:var(--gray);">Click to upload or drag & drop</div>
+                      <div style="font-size:11px;color:var(--gray);margin-top:2px;">PDF, DOC, DOCX, XLS, XLSX, PNG, JPG — max 10MB per file</div>
+                    </div>
+                    <input type="file" id="bc-file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif" style="display:none;" onchange="bcHandleFiles(this.files)">
+                  </div>
+
+                  <!-- Google Drive -->
+                  <div id="bca-drive" style="display:none;">
+                    <div style="font-size:12px;color:var(--gray);margin-bottom:6px;">Paste a Google Drive shareable link. Make sure sharing is set to <strong>Anyone with the link can view</strong>.</div>
+                    <div style="display:flex;gap:8px;">
+                      <input type="url" id="bca-drive-url" placeholder="https://drive.google.com/file/d/..." style="flex:1;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:12px;">
+                      <input type="text" id="bca-drive-name" placeholder="File name (optional)" style="width:160px;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:12px;">
+                      <button class="btn btn-blue btn-sm" onclick="bcAddLinkAttach('drive')" style="font-size:11px;">Add</button>
+                    </div>
+                  </div>
+
+                  <!-- Dropbox -->
+                  <div id="bca-dropbox" style="display:none;">
+                    <div style="font-size:12px;color:var(--gray);margin-bottom:6px;">Paste a Dropbox shared link. Change <strong>dl=0</strong> to <strong>dl=1</strong> at the end for a direct download.</div>
+                    <div style="display:flex;gap:8px;">
+                      <input type="url" id="bca-dropbox-url" placeholder="https://www.dropbox.com/s/..." style="flex:1;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:12px;">
+                      <input type="text" id="bca-dropbox-name" placeholder="File name (optional)" style="width:160px;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:12px;">
+                      <button class="btn btn-blue btn-sm" onclick="bcAddLinkAttach('dropbox')" style="font-size:11px;">Add</button>
+                    </div>
+                  </div>
+
+                  <!-- Any URL -->
+                  <div id="bca-url" style="display:none;">
+                    <div style="font-size:12px;color:var(--gray);margin-bottom:6px;">Paste any public file URL — the link will be included in the email as a download link.</div>
+                    <div style="display:flex;gap:8px;">
+                      <input type="url" id="bca-url-input" placeholder="https://example.com/file.pdf" style="flex:1;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:12px;">
+                      <input type="text" id="bca-url-name" placeholder="Display name" style="width:160px;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:12px;">
+                      <button class="btn btn-blue btn-sm" onclick="bcAddLinkAttach('url')" style="font-size:11px;">Add</button>
+                    </div>
+                  </div>
+
+                  <!-- Attachment list -->
+                  <div id="bc-attach-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+                  <div id="bc-attach-size" style="font-size:11px;color:var(--gray);margin-top:6px;"></div>
+                </div>
+
                 <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;">
                   <div style="padding:8px 14px;background:var(--bg);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--gray);">PREVIEW — Sample: Maria Johnson (CPR-00042, Standard)</div>
                   <div id="bc-preview" style="padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;min-height:60px;"></div>
@@ -8493,8 +8551,10 @@ function updateBCChannel() {
   var val = ch.value;
   var ef = document.getElementById('bc-email-fields');
   var sw = document.getElementById('bc-sms-warning');
+  var att = document.getElementById('bc-attach-section');
   if (ef) ef.style.display = val==='sms'?'none':'block';
   if (sw) sw.style.display = val==='email'?'none':'block';
+  if (att) att.style.display = val==='sms'?'none':'block';
   updateCostEstimate();
 }
 
@@ -8582,7 +8642,7 @@ function sendBroadcast() {
     if (statusEl) statusEl.innerHTML='<span style="color:var(--gold);">Sending... '+sent.toLocaleString()+' / '+total.toLocaleString()+'</span>';
     if (sent>=total) {
       clearInterval(iv);
-      bcHistory.unshift({date:new Date().toLocaleString(),channel:channelLabel,subject:subject||body.substring(0,40)+'...',audience:audienceLabel,count:total,status:'Sent'});
+      var attachNote = bcAttachments.length ? ' ['+bcAttachments.length+' attachment'+(bcAttachments.length>1?'s':'')+']' : ''; bcHistory.unshift({date:new Date().toLocaleString(),channel:channelLabel,subject:(subject||body.substring(0,40)+'...')+attachNote,audience:audienceLabel,count:total,status:'Sent'});
       renderBCHistory();
       if (btn) { btn.disabled=false; btn.textContent='Send Broadcast'; }
       if (statusEl) statusEl.innerHTML='<span style="color:var(--green);font-weight:700;">Broadcast sent to '+total.toLocaleString()+' clients at '+new Date().toLocaleTimeString()+'.</span>';
@@ -8603,6 +8663,94 @@ function renderBCHistory() {
       '<td style="text-align:center;font-weight:700;">'+e.count.toLocaleString()+'</td>'+
       '<td><span class="badge badge-green" style="font-size:10px;">'+e.status+'</span></td></tr>';
   }).join('');
+}
+
+// ── BROADCAST ATTACHMENTS ─────────────────────────────────────────
+var bcAttachments = [];
+
+function bcAttachSource(src) {
+  ['upload','drive','dropbox','url'].forEach(function(s){
+    var el = document.getElementById('bca-'+s);
+    var btn = document.getElementById('bca-btn-'+s);
+    if (el) el.style.display = s===src?'block':'none';
+    if (btn) {
+      btn.style.background = s===src?'var(--navy)':'';
+      btn.style.color = s===src?'white':'';
+    }
+  });
+}
+
+function bcHandleFiles(files) {
+  Array.from(files).forEach(function(file) {
+    if (file.size > 10*1024*1024) { alert(file.name + ' is over 10MB. Please use a Drive or Dropbox link instead.'); return; }
+    var attach = { id: Date.now()+Math.random(), type:'file', name:file.name, size:file.size, icon:bcFileIcon(file.name) };
+    bcAttachments.push(attach);
+    renderBCAttachments();
+  });
+}
+
+function bcDropFiles(e) {
+  e.preventDefault();
+  bcHandleFiles(e.dataTransfer.files);
+}
+
+function bcAddLinkAttach(src) {
+  var urlEl = document.getElementById('bca-'+src+'-url') || document.getElementById('bca-url-input');
+  var nameEl = document.getElementById('bca-'+src+'-name') || document.getElementById('bca-url-name');
+  var url = urlEl ? urlEl.value.trim() : '';
+  var name = nameEl ? nameEl.value.trim() : '';
+  if (!url) { alert('Please paste a link first.'); return; }
+  var labels = { drive:'Google Drive', dropbox:'Dropbox', url:'Link' };
+  if (!name) name = labels[src]+' File';
+  var attach = { id:Date.now(), type:'link', src:src, url:url, name:name, icon:bcFileIcon(name) };
+  bcAttachments.push(attach);
+  if (urlEl) urlEl.value = '';
+  if (nameEl) nameEl.value = '';
+  renderBCAttachments();
+}
+
+function bcRemoveAttach(id) {
+  bcAttachments = bcAttachments.filter(function(a){ return a.id!==id; });
+  renderBCAttachments();
+}
+
+function bcFileIcon(name) {
+  var ext = name.split('.').pop().toLowerCase();
+  var icons = { pdf:'📄', doc:'📝', docx:'📝', xls:'📊', xlsx:'📊', png:'🖼️', jpg:'🖼️', jpeg:'🖼️', gif:'🖼️', zip:'📦', csv:'📊' };
+  return icons[ext] || '📎';
+}
+
+function renderBCAttachments() {
+  var list = document.getElementById('bc-attach-list');
+  var sizeEl = document.getElementById('bc-attach-size');
+  if (!list) return;
+  if (!bcAttachments.length) {
+    list.innerHTML = '';
+    if (sizeEl) sizeEl.textContent = '';
+    return;
+  }
+  list.innerHTML = bcAttachments.map(function(a) {
+    var sizeStr = a.size ? ' (' + (a.size/1024).toFixed(1) + ' KB)' : '';
+    var srcBadge = a.type==='link' ? '<span style="font-size:9px;padding:1px 6px;background:var(--blue);color:white;border-radius:4px;margin-left:6px;">' + (a.src==='drive'?'Drive':a.src==='dropbox'?'Dropbox':'Link') + '</span>' : '';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--lb);border-radius:7px;">' +
+      '<span style="font-size:16px;">' + a.icon + '</span>' +
+      '<span style="flex:1;font-size:12px;font-weight:600;color:var(--text);">' + a.name + sizeStr + srcBadge + '</span>' +
+      (a.type==='link'?'<a href="'+a.url+'" target="_blank" style="font-size:11px;color:var(--blue);">Preview</a>':'') +
+      '<button onclick="bcRemoveAttach('+a.id+')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:15px;line-height:1;">×</button>' +
+    '</div>';
+  }).join('');
+  // Show total size for uploaded files
+  var totalBytes = bcAttachments.filter(function(a){ return a.size; }).reduce(function(sum,a){ return sum+(a.size||0); },0);
+  var totalMB = (totalBytes/1024/1024).toFixed(1);
+  if (sizeEl) {
+    var fileCount = bcAttachments.length;
+    var linkCount = bcAttachments.filter(function(a){ return a.type==='link'; }).length;
+    var parts = [];
+    if (fileCount-linkCount > 0) parts.push((fileCount-linkCount) + ' file' + (fileCount-linkCount>1?'s':'') + ' (' + totalMB + ' MB)');
+    if (linkCount > 0) parts.push(linkCount + ' link' + (linkCount>1?'s':''));
+    sizeEl.textContent = parts.join(' + ') + ' attached' + (totalBytes>0?' — '+totalMB+' MB / 25 MB limit':'');
+    sizeEl.style.color = totalBytes > 24*1024*1024 ? 'var(--red)' : 'var(--gray)';
+  }
 }
 </script>
 
