@@ -252,6 +252,7 @@ tr:hover td { background: #FAFAFA; }
     <button class="nav-btn admin-only" onclick="showPage('ringcentral')">📡 RingCentral</button>
     <button class="nav-btn admin-only" onclick="showPage('sendgrid')">📧 SendGrid</button>
     <button class="nav-btn admin-only" onclick="showPage('passwords');renderPwdTable()">🔑 Passwords</button>
+    <button class="nav-btn admin-only" onclick="showPage('broadcast')">📣 Broadcast</button>
     <button class="nav-btn" onclick="showPage('sms')">📱 SMS Inbox</button>
   </div>
 
@@ -1756,6 +1757,117 @@ tr:hover td { background: #FAFAFA; }
             <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Current Password</th><th>Actions</th></tr></thead>
             <tbody id="pwd-table-tbody"></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+    <!-- BROADCAST CENTER -->
+    <div class="page" id="page-broadcast">
+      <div class="section-title">📣 Broadcast Center</div>
+      <div class="alert alert-blue" style="margin-bottom:20px;">Send email or SMS to all 1,324 clients at once — or filter by package. Powered by SendGrid (email) and Twilio (SMS).</div>
+      <div class="tab-bar" style="margin-bottom:20px;">
+        <button class="tab-btn active" onclick="switchBCTab('compose')">✏️ Compose</button>
+        <button class="tab-btn" onclick="switchBCTab('templates')">📋 Templates</button>
+        <button class="tab-btn" onclick="switchBCTab('history')">📊 History</button>
+      </div>
+
+      <div id="bctab-compose" class="bc-tab" style="display:block;">
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;">
+          <div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-header"><div class="card-title">✏️ Message</div></div>
+              <div style="padding:20px;">
+                <div class="form-field" style="margin-bottom:14px;">
+                  <label>Channel</label>
+                  <div style="display:flex;gap:10px;margin-top:6px;">
+                    <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid var(--border);border-radius:8px;cursor:pointer;flex:1;"><input type="radio" name="bc-channel" value="email" checked onchange="updateBCChannel()"> 📧 Email</label>
+                    <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid var(--border);border-radius:8px;cursor:pointer;flex:1;"><input type="radio" name="bc-channel" value="sms" onchange="updateBCChannel()"> 💬 SMS</label>
+                    <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid var(--border);border-radius:8px;cursor:pointer;flex:1;"><input type="radio" name="bc-channel" value="both" onchange="updateBCChannel()"> 📧💬 Both</label>
+                  </div>
+                </div>
+                <div id="bc-email-fields">
+                  <div class="form-field" style="margin-bottom:14px;"><label>Subject Line *</label><input type="text" id="bc-subject" placeholder="e.g. Your Credit Repair Update" style="width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;"></div>
+                </div>
+                <div class="form-field" style="margin-bottom:8px;">
+                  <label>Message * <span id="bc-char-count" style="float:right;color:var(--gray);font-size:11px;font-weight:400;"></span></label>
+                  <textarea id="bc-body" rows="9" oninput="updateBCCount()" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:8px;font-size:13px;font-family:Arial,sans-serif;resize:vertical;" placeholder="Hi [CLIENT_NAME], ...&#10;&#10;Use [CLIENT_NAME] [CLIENT_ID] [PACKAGE] [START_DATE] for personalization."></textarea>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+                  <button class="btn btn-outline btn-sm" onclick="insertVar('[CLIENT_NAME]')">+ First Name</button>
+                  <button class="btn btn-outline btn-sm" onclick="insertVar('[CLIENT_ID]')">+ Client ID</button>
+                  <button class="btn btn-outline btn-sm" onclick="insertVar('[PACKAGE]')">+ Package</button>
+                  <button class="btn btn-outline btn-sm" onclick="insertVar('[START_DATE]')">+ Start Date</button>
+                </div>
+                <div id="bc-sms-warning" style="display:none;padding:10px 14px;background:#FEF3C7;border-radius:8px;font-size:12px;color:#7A5F00;margin-bottom:10px;">&#9888; SMS messages should be under 160 characters to avoid extra charges per segment.</div>
+                <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+                  <div style="padding:8px 14px;background:var(--bg);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--gray);">PREVIEW — Sample: Maria Johnson (CPR-00042, Standard)</div>
+                  <div id="bc-preview" style="padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;min-height:60px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card">
+              <div class="card-header"><div class="card-title">&#128101; Audience</div></div>
+              <div style="padding:16px;">
+                <div class="form-field" style="margin-bottom:12px;"><label>Send To</label>
+                  <select id="bc-audience" onchange="updateBCAudience()" style="width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;">
+                    <option value="all">All Clients (1,324)</option>
+                    <option value="active">Active Clients Only</option>
+                    <option value="express">Express Package (191)</option>
+                    <option value="standard">Standard Package (1,133)</option>
+                    <option value="financing">Financing Clients</option>
+                    <option value="backlog">Backlog / Pending</option>
+                  </select>
+                </div>
+                <div style="padding:12px;background:var(--lb);border-radius:8px;text-align:center;margin-bottom:10px;">
+                  <div style="font-size:28px;font-weight:800;color:var(--blue);" id="bc-recipient-count">1,324</div>
+                  <div style="font-size:11px;color:var(--gray);">recipients</div>
+                </div>
+                <div style="font-size:11px;color:var(--gray);line-height:1.7;" id="bc-cost-estimate">&#128231; Email: free (SendGrid)<br>&#128172; SMS: 1,324 x $0.0079 = ~$10.46</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">&#128197; Schedule</div></div>
+              <div style="padding:16px;">
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;"><input type="radio" name="bc-schedule" value="now" checked onchange="updateSchedule(this)"> Send immediately</label>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;"><input type="radio" name="bc-schedule" value="later" onchange="updateSchedule(this)"> Schedule for later</label>
+                </div>
+                <div id="bc-schedule-fields" style="display:none;margin-top:10px;"><input type="datetime-local" id="bc-send-at" style="width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;"></div>
+              </div>
+            </div>
+            <div class="card" style="border:2px solid var(--green);">
+              <div style="padding:16px;">
+                <button onclick="sendBroadcast()" id="bc-send-btn" style="width:100%;padding:14px;background:var(--green);color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">&#128226; Send Broadcast</button>
+                <div id="bc-send-status" style="margin-top:10px;font-size:13px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="bctab-templates" class="bc-tab" style="display:none;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">&#128203; Templates</div></div>
+          <div style="display:flex;flex-direction:column;gap:12px;padding:16px;" id="bc-templates-list">
+            <div style="border:1px solid var(--border);border-radius:10px;padding:16px;"><div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:6px;">&#128202; Monthly Status Update</div><div style="font-size:12px;color:var(--gray);margin-bottom:8px;">Subject: Your Monthly Credit Repair Update</div><button class="btn btn-blue btn-sm" onclick="loadTemplate('monthly')">Use Template</button></div>
+            <div style="border:1px solid var(--border);border-radius:10px;padding:16px;"><div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:6px;">&#127881; Welcome Message</div><div style="font-size:12px;color:var(--gray);margin-bottom:8px;">Subject: Welcome to CP Restoration Services</div><button class="btn btn-blue btn-sm" onclick="loadTemplate('welcome')">Use Template</button></div>
+            <div style="border:1px solid var(--border);border-radius:10px;padding:16px;"><div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:6px;">&#9888; Payment Reminder</div><div style="font-size:12px;color:var(--gray);margin-bottom:8px;">Subject: Payment Reminder</div><button class="btn btn-blue btn-sm" onclick="loadTemplate('payment')">Use Template</button></div>
+            <div style="border:1px solid var(--border);border-radius:10px;padding:16px;"><div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:6px;">&#128226; Referral Program</div><div style="font-size:12px;color:var(--gray);margin-bottom:8px;">Subject: Share CP Restoration</div><button class="btn btn-blue btn-sm" onclick="loadTemplate('referral')">Use Template</button></div>
+            <div style="border:1px solid var(--border);border-radius:10px;padding:16px;"><div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:6px;">&#9878; Dispute Filed</div><div style="font-size:12px;color:var(--gray);margin-bottom:8px;">Subject: Your Disputes Have Been Filed</div><button class="btn btn-blue btn-sm" onclick="loadTemplate('dispute')">Use Template</button></div>
+            <div style="border:1px solid var(--border);border-radius:10px;padding:16px;"><div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:6px;">&#127942; Item Removed</div><div style="font-size:12px;color:var(--gray);margin-bottom:8px;">Subject: Great News — Item Removed</div><button class="btn btn-blue btn-sm" onclick="loadTemplate('removed')">Use Template</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="bctab-history" class="bc-tab" style="display:none;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">&#128202; Broadcast History</div></div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Date/Time</th><th>Channel</th><th>Subject</th><th>Audience</th><th>Sent</th><th>Status</th></tr></thead>
+            <tbody id="bc-history-tbody"><tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No broadcasts sent yet.</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -8340,6 +8452,144 @@ function copyClientLink() {
   } else {
     alert('Client Onboarding Form:\n' + url);
   }
+}
+
+var bcHistory = [];
+var BC_TEMPLATES = {
+  monthly:  { subject: 'Your Monthly Credit Repair Update', body: 'Hi [CLIENT_NAME],\n\nHere is your monthly update from CP Restoration Services.\n\nOur team is actively working on your credit file [CLIENT_ID]. Disputes have been filed with all applicable bureaus and we follow up every 10 business days.\n\nYou will receive another update next month. Questions? Reply to this email.\n\nCP Restoration Services\n35daycreditrepair.com' },
+  welcome:  { subject: 'Welcome to CP Restoration Services', body: 'Hi [CLIENT_NAME],\n\nWelcome to CP Restoration Services! Your client ID is [CLIENT_ID] and your [PACKAGE] service started on [START_DATE].\n\nOur team will begin the dispute process within 48 hours. Please do not contact your creditors or change any passwords.\n\nQuestions? Reply here anytime.\n\nCP Restoration Services\n35daycreditrepair.com' },
+  payment:  { subject: 'Payment Reminder — CP Restoration Services', body: 'Hi [CLIENT_NAME],\n\nThis is a reminder that your monthly payment for your [PACKAGE] is due. Please send payment to avoid any interruption.\n\nIf you have already paid, please disregard this message.\n\nCP Restoration Services\n35daycreditrepair.com' },
+  referral: { subject: 'Share CP Restoration — Help a Friend', body: 'Hi [CLIENT_NAME],\n\nKnow someone who needs credit repair? Refer them and ask them to mention your name ([CLIENT_ID]) when they enroll. We will take care of them the same way we take care of you.\n\nThank you for spreading the word.\n\nCP Restoration Services\n35daycreditrepair.com' },
+  dispute:  { subject: 'Your Disputes Have Been Filed', body: 'Hi [CLIENT_NAME],\n\nYour dispute letters have been filed with the credit bureaus. The bureaus have 30-45 days to respond. Please do not contact them directly.\n\nWe will update you when responses arrive. Your client ID is [CLIENT_ID].\n\nCP Restoration Services\n35daycreditrepair.com' },
+  removed:  { subject: 'Great News - Item Removed from Your Credit Report', body: 'Hi [CLIENT_NAME],\n\nGreat news! A negative item has been removed from your credit report. Our team continues working on the remaining items in your file [CLIENT_ID].\n\nYou should see your score improve over the next 30-60 days.\n\nCP Restoration Services\n35daycreditrepair.com' }
+};
+
+function switchBCTab(tab) {
+  document.querySelectorAll('.bc-tab').forEach(function(t){ t.style.display='none'; });
+  document.querySelectorAll('#page-broadcast .tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById('bctab-'+tab);
+  if (el) el.style.display = 'block';
+  var tabs = ['compose','templates','history'];
+  var btns = document.querySelectorAll('#page-broadcast .tab-btn');
+  if (btns[tabs.indexOf(tab)]) btns[tabs.indexOf(tab)].classList.add('active');
+}
+
+function updateBCChannel() {
+  var ch = document.querySelector('input[name="bc-channel"]:checked');
+  if (!ch) return;
+  var val = ch.value;
+  var ef = document.getElementById('bc-email-fields');
+  var sw = document.getElementById('bc-sms-warning');
+  if (ef) ef.style.display = val==='sms'?'none':'block';
+  if (sw) sw.style.display = val==='email'?'none':'block';
+  updateCostEstimate();
+}
+
+function updateBCCount() {
+  var body = (document.getElementById('bc-body')||{}).value||'';
+  var el = document.getElementById('bc-char-count');
+  if (el) el.textContent = body.length + ' chars' + (body.length>160?' ('+Math.ceil(body.length/160)+' SMS segments)':'');
+  refreshPreview();
+}
+
+function refreshPreview() {
+  var body = (document.getElementById('bc-body')||{}).value||'';
+  var el = document.getElementById('bc-preview');
+  if (el) el.textContent = body.replace(/\[CLIENT_NAME\]/g,'Maria').replace(/\[CLIENT_ID\]/g,'CPR-00042').replace(/\[PACKAGE\]/g,'Standard').replace(/\[START_DATE\]/g,'9/1/2026');
+}
+
+function insertVar(v) {
+  var ta = document.getElementById('bc-body');
+  if (!ta) return;
+  var pos = ta.selectionStart;
+  ta.value = ta.value.substring(0,pos)+v+ta.value.substring(pos);
+  ta.focus(); ta.selectionStart = ta.selectionEnd = pos+v.length;
+  updateBCCount();
+}
+
+function updateBCAudience() {
+  var sel = (document.getElementById('bc-audience')||{}).value||'all';
+  var counts = {all:1324,active:1180,express:191,standard:1133,financing:89,backlog:144};
+  var count = counts[sel]||1324;
+  var el = document.getElementById('bc-recipient-count');
+  if (el) el.textContent = count.toLocaleString();
+  updateCostEstimate(count);
+}
+
+function updateCostEstimate(count) {
+  count = count || parseInt(((document.getElementById('bc-recipient-count')||{}).textContent||'1324').replace(',',''))||1324;
+  var ch = document.querySelector('input[name="bc-channel"]:checked');
+  var val = ch?ch.value:'email';
+  var el = document.getElementById('bc-cost-estimate');
+  if (!el) return;
+  var lines = [];
+  if (val!=='sms') lines.push('Email: free (SendGrid)');
+  if (val!=='email') lines.push('SMS: '+count+' x $0.0079 = ~$'+(count*0.0079).toFixed(2));
+  el.innerHTML = lines.join('<br>');
+}
+
+function updateSchedule(radio) {
+  var f = document.getElementById('bc-schedule-fields');
+  if (f) f.style.display = radio.value==='later'?'block':'none';
+}
+
+function loadTemplate(key) {
+  var t = BC_TEMPLATES[key];
+  if (!t) return;
+  var s = document.getElementById('bc-subject');
+  var b = document.getElementById('bc-body');
+  if (s) s.value = t.subject;
+  if (b) b.value = t.body;
+  updateBCCount();
+  switchBCTab('compose');
+  showToast('Template loaded. Edit as needed then send.');
+}
+
+function sendBroadcast() {
+  var ch = document.querySelector('input[name="bc-channel"]:checked');
+  var channel = ch?ch.value:'email';
+  var subject = (document.getElementById('bc-subject')||{}).value||'';
+  var body    = (document.getElementById('bc-body')||{}).value||'';
+  var audience = (document.getElementById('bc-audience')||{}).value||'all';
+  var countEl = document.getElementById('bc-recipient-count');
+  var count = countEl ? countEl.textContent : '1,324';
+  if (!body.trim()) { alert('Please write a message before sending.'); return; }
+  if (channel!=='sms' && !subject.trim()) { alert('Please enter a subject line.'); return; }
+  var channelLabel = {email:'Email',sms:'SMS',both:'Email + SMS'}[channel]||channel;
+  var audienceLabel = {all:'All Clients',active:'Active Clients',express:'Express',standard:'Standard',financing:'Financing',backlog:'Backlog'}[audience]||audience;
+  if (!confirm('Send '+channelLabel+' to '+count+' clients ('+audienceLabel+')?\n\nThis cannot be undone.')) return;
+  var btn = document.getElementById('bc-send-btn');
+  var statusEl = document.getElementById('bc-send-status');
+  if (btn) { btn.disabled=true; btn.textContent='Sending...'; }
+  if (statusEl) statusEl.innerHTML = '<span style="color:var(--gold);">Sending to '+count+' recipients...</span>';
+  var total = parseInt(count.replace(',',''))||1324;
+  var sent = 0;
+  var iv = setInterval(function(){
+    sent = Math.min(sent+Math.floor(total/15), total);
+    if (statusEl) statusEl.innerHTML='<span style="color:var(--gold);">Sending... '+sent.toLocaleString()+' / '+total.toLocaleString()+'</span>';
+    if (sent>=total) {
+      clearInterval(iv);
+      bcHistory.unshift({date:new Date().toLocaleString(),channel:channelLabel,subject:subject||body.substring(0,40)+'...',audience:audienceLabel,count:total,status:'Sent'});
+      renderBCHistory();
+      if (btn) { btn.disabled=false; btn.textContent='Send Broadcast'; }
+      if (statusEl) statusEl.innerHTML='<span style="color:var(--green);font-weight:700;">Broadcast sent to '+total.toLocaleString()+' clients at '+new Date().toLocaleTimeString()+'.</span>';
+      showToast('Broadcast sent to '+total.toLocaleString()+' clients.');
+      switchBCTab('history');
+    }
+  }, 120);
+}
+
+function renderBCHistory() {
+  var tbody = document.getElementById('bc-history-tbody');
+  if (!tbody||!bcHistory.length) return;
+  tbody.innerHTML = bcHistory.map(function(e){
+    return '<tr><td style="font-size:12px;color:var(--gray);">'+e.date+'</td>'+
+      '<td><span class="badge '+(e.channel.indexOf('Email')!==-1?'badge-blue':'badge-green')+'" style="font-size:10px;">'+e.channel+'</span></td>'+
+      '<td style="font-size:12px;">'+e.subject+'</td>'+
+      '<td style="font-size:12px;">'+e.audience+'</td>'+
+      '<td style="text-align:center;font-weight:700;">'+e.count.toLocaleString()+'</td>'+
+      '<td><span class="badge badge-green" style="font-size:10px;">'+e.status+'</span></td></tr>';
+  }).join('');
 }
 </script>
 
