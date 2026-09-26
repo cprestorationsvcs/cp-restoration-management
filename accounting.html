@@ -158,6 +158,7 @@ tbody td{padding:10px 14px;color:var(--text);}
   <button class="nav-btn" onclick="showPage('balance')">⚖️ Balance Sheet</button>
   <button class="nav-btn" onclick="showPage('cashflow')">🔄 Cash Flow</button>
   <button class="nav-btn" onclick="showPage('reports')">📈 Reports</button>
+  <button class="nav-btn" onclick="showPage('reserve')">🏦 Payroll Reserve</button>
 </div>
 
 <div class="content">
@@ -1336,6 +1337,241 @@ window.addEventListener('load', function() {
   var bsDate = document.getElementById('bs-date');
   if (bsDate) bsDate.textContent = new Date().toLocaleDateString();
 });
+
+// ── PAYROLL RESERVE SYSTEM ───────────────────────────────────────
+var reserveLedger = [];
+var PAYROLL_RESERVE_PCT = 0.15;
+var BI_WEEKLY_PAYROLL = 400; // Queen's confirmed rate — update as team grows
+
+function calcReserve() {
+  var pkg = (document.getElementById('calc-pkg')||{}).value;
+  var customWrap = document.getElementById('calc-custom-wrap');
+  var resultEl = document.getElementById('calc-result');
+  var actionEl = document.getElementById('calc-action');
+  var actionText = document.getElementById('calc-action-text');
+
+  if (pkg === 'custom') {
+    if (customWrap) customWrap.style.display = 'block';
+    var custom = parseFloat((document.getElementById('calc-custom')||{}).value)||0;
+    if (!custom) return;
+    showCalcResult(custom, resultEl, actionEl, actionText);
+  } else {
+    if (customWrap) customWrap.style.display = 'none';
+    if (!pkg) { if(resultEl) resultEl.innerHTML='<div style="font-size:12px;color:var(--gray);">SELECT A PACKAGE TO CALCULATE</div>'; return; }
+    showCalcResult(parseFloat(pkg), resultEl, actionEl, actionText);
+  }
+}
+
+function showCalcResult(saleAmt, resultEl, actionEl, actionText) {
+  var reserve = saleAmt * PAYROLL_RESERVE_PCT;
+  var keep = saleAmt - reserve;
+  if (resultEl) {
+    resultEl.innerHTML =
+      '<div style="font-size:11px;color:var(--gray);margin-bottom:6px;">SALE AMOUNT</div>' +
+      '<div style="font-size:22px;font-weight:800;color:var(--navy);margin-bottom:12px;">$'+saleAmt.toLocaleString('en-US',{minimumFractionDigits:2})+'</div>' +
+      '<div style="display:flex;gap:16px;justify-content:center;">' +
+        '<div style="text-align:center;">' +
+          '<div style="font-size:10px;color:var(--gray);font-weight:700;margin-bottom:3px;">MOVE TO RESERVE (15%)</div>' +
+          '<div style="font-size:20px;font-weight:800;color:var(--green);">$'+reserve.toFixed(2)+'</div>' +
+        '</div>' +
+        '<div style="text-align:center;">' +
+          '<div style="font-size:10px;color:var(--gray);font-weight:700;margin-bottom:3px;">KEEP FOR OPERATIONS (85%)</div>' +
+          '<div style="font-size:20px;font-weight:800;color:var(--navy);">$'+keep.toFixed(2)+'</div>' +
+        '</div>' +
+      '</div>';
+  }
+  if (actionEl) { actionEl.style.display='flex'; }
+  if (actionText) actionText.textContent = 'Transfer $'+reserve.toFixed(2)+' to your payroll reserve account now.';
+  // Store calc values for logging
+  window._calcSale = saleAmt;
+  window._calcReserve = reserve;
+}
+
+function logFromCalc() {
+  if (!window._calcReserve) return;
+  var today = new Date().toISOString().split('T')[0];
+  var pkg = (document.getElementById('calc-pkg')||{}).value;
+  var pkgLabels = {'3999':'Express','2499':'Standard','750':'Financing Down','292':'Financing Monthly','1000':'Single Bureau','1500':'Single Bureau+Rush','custom':'Custom'};
+  var desc = '15% reserve from ' + (pkgLabels[pkg]||'sale') + ' ($' + (window._calcSale||0).toFixed(2) + ')';
+  reserveLedger.push({ id:Date.now(), date:today, type:'deposit', desc:desc, amount:window._calcReserve, saleAmt:window._calcSale });
+  renderReserve();
+  showToast('Reserve deposit logged: $' + window._calcReserve.toFixed(2));
+  window._calcSale = 0; window._calcReserve = 0;
+  document.getElementById('calc-pkg').value = '';
+  document.getElementById('calc-result').innerHTML = '<div style="font-size:12px;color:var(--gray);">SELECT A PACKAGE TO CALCULATE</div>';
+  document.getElementById('calc-action').style.display = 'none';
+}
+
+function autoCalcDeposit() {
+  var sale = parseFloat((document.getElementById('res-dep-sale')||{}).value)||0;
+  var amtEl = document.getElementById('res-dep-amount');
+  var noteEl = document.getElementById('res-dep-calc-note');
+  if (sale > 0) {
+    var reserve = sale * PAYROLL_RESERVE_PCT;
+    if (amtEl) amtEl.value = reserve.toFixed(2);
+    if (noteEl) noteEl.textContent = '15% of $'+sale.toFixed(2)+' = $'+reserve.toFixed(2);
+  }
+}
+
+function saveReserveDeposit() {
+  var date   = (document.getElementById('res-dep-date')||{}).value;
+  var desc   = (document.getElementById('res-dep-desc')||{}).value;
+  var amount = parseFloat((document.getElementById('res-dep-amount')||{}).value)||0;
+  if (!date || !desc || !amount) { alert('Please fill in date, description, and amount.'); return; }
+  reserveLedger.push({ id:Date.now(), date:date, type:'deposit', desc:desc, amount:amount });
+  closeModal('modal-reserve-deposit');
+  ['res-dep-date','res-dep-desc','res-dep-amount','res-dep-sale'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var noteEl = document.getElementById('res-dep-calc-note'); if(noteEl) noteEl.textContent='';
+  renderReserve();
+  showToast('Reserve deposit saved: $'+amount.toFixed(2));
+}
+
+function saveReserveWithdraw() {
+  var date   = (document.getElementById('res-with-date')||{}).value;
+  var emp    = (document.getElementById('res-with-emp')||{}).value;
+  var amount = parseFloat((document.getElementById('res-with-amount')||{}).value)||0;
+  var notes  = (document.getElementById('res-with-notes')||{}).value;
+  if (!date || !amount) { alert('Please fill in date and amount.'); return; }
+  var balance = getReserveBalance();
+  if (amount > balance) {
+    if (!confirm('Warning: This withdrawal ($'+amount.toFixed(2)+') exceeds your current reserve balance ($'+balance.toFixed(2)+'). Continue anyway?')) return;
+  }
+  reserveLedger.push({ id:Date.now(), date:date, type:'withdrawal', desc:'Payroll — '+(emp||'Employee')+(notes?' ('+notes+')':''), amount:amount });
+  closeModal('modal-reserve-withdraw');
+  ['res-with-date','res-with-amount','res-with-notes'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  renderReserve();
+  showToast('Withdrawal logged: $'+amount.toFixed(2));
+}
+
+function getReserveBalance() {
+  return reserveLedger.reduce(function(bal, entry) {
+    return entry.type==='deposit' ? bal+entry.amount : bal-entry.amount;
+  }, 0);
+}
+
+function renderReserve() {
+  var balance = getReserveBalance();
+  var totalIn = reserveLedger.filter(function(e){ return e.type==='deposit'; }).reduce(function(s,e){ return s+e.amount; },0);
+  var totalOut = reserveLedger.filter(function(e){ return e.type==='withdrawal'; }).reduce(function(s,e){ return s+e.amount; },0);
+  var periodsCanCover = BI_WEEKLY_PAYROLL > 0 ? Math.floor(balance / BI_WEEKLY_PAYROLL) : 0;
+  var threeMonthsNeeded = BI_WEEKLY_PAYROLL * 6.5; // ~3 months of bi-weekly payments
+  var pct = Math.min(100, Math.round((balance / threeMonthsNeeded) * 100));
+
+  // Stats
+  set('res-balance', '$'+balance.toFixed(2));
+  set('res-ytd', '$'+totalIn.toFixed(2));
+  set('res-paid', '$'+totalOut.toFixed(2));
+  set('res-periods', periodsCanCover);
+  set('res-periods-sub', 'At $'+BI_WEEKLY_PAYROLL+'/bi-weekly');
+  set('res-pct-label', pct+'%');
+
+  // Progress bar
+  var bar = document.getElementById('res-progress-bar');
+  if (bar) { bar.style.width = pct+'%'; bar.style.background = pct>=100?'var(--green)':pct>=50?'var(--gold)':'var(--red)'; }
+
+  // Coverage message
+  var msgEl = document.getElementById('res-coverage-msg');
+  if (msgEl) {
+    if (balance <= 0) {
+      msgEl.innerHTML = '<span style="color:var(--red);font-weight:700;">⚠️ Reserve is empty. Use the calculator above to set aside 15% of every sale.</span>';
+    } else if (periodsCanCover === 0) {
+      msgEl.innerHTML = '<span style="color:var(--red);font-weight:700;">⚠️ Reserve balance ($'+balance.toFixed(2)+') is less than one bi-weekly payroll ($'+BI_WEEKLY_PAYROLL+'). Add more immediately.</span>';
+    } else if (periodsCanCover < 3) {
+      msgEl.innerHTML = '<span style="color:var(--gold);font-weight:700;">⚡ Reserve covers '+periodsCanCover+' pay period'+(periodsCanCover>1?'s':'')+'. Target is 6+ periods (3 months). Keep adding to every sale.</span>';
+    } else if (periodsCanCover < 6) {
+      msgEl.innerHTML = '<span style="color:var(--gold);font-weight:700;">✓ Reserve covers '+periodsCanCover+' pay periods. Good — keep going. Target is 6+ periods for full 3-month buffer.</span>';
+    } else {
+      msgEl.innerHTML = '<span style="color:var(--green);font-weight:700;">✅ Reserve covers '+periodsCanCover+' pay periods — you have a full 3-month payroll buffer. Well done.</span>';
+    }
+  }
+
+  // Alert bar
+  var alertBar = document.getElementById('reserve-alert-bar');
+  if (alertBar) {
+    if (balance < BI_WEEKLY_PAYROLL) {
+      alertBar.innerHTML = '<div class="alert alert-gold" style="margin-bottom:16px;">⚠️ <strong>Payroll Alert:</strong> Your reserve balance ($'+balance.toFixed(2)+') is below one bi-weekly payroll ($'+BI_WEEKLY_PAYROLL+'). Log income and transfer 15% to your reserve account now.</div>';
+    } else {
+      alertBar.innerHTML = '';
+    }
+  }
+
+  // Ledger table
+  var tbody = document.getElementById('reserve-tbody');
+  if (!tbody) return;
+  if (!reserveLedger.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px;">No reserve transactions yet.</td></tr>';
+    return;
+  }
+  var running = 0;
+  var rows = reserveLedger.slice().sort(function(a,b){ return a.date.localeCompare(b.date); }).map(function(e){
+    running += e.type==='deposit' ? e.amount : -e.amount;
+    var isDeposit = e.type==='deposit';
+    return '<tr>' +
+      '<td>'+e.date+'</td>' +
+      '<td><span class="badge '+(isDeposit?'badge-green':'badge-red')+'" style="font-size:10px;">'+(isDeposit?'DEPOSIT':'WITHDRAWAL')+'</span></td>' +
+      '<td style="font-size:12px;">'+e.desc+'</td>' +
+      '<td style="font-weight:700;color:'+(isDeposit?'var(--green)':'var(--red)')+';">'+(isDeposit?'+':'-')+'$'+e.amount.toFixed(2)+'</td>' +
+      '<td style="font-weight:700;color:'+(running>=0?'var(--navy)':'var(--red)')+';">$'+running.toFixed(2)+'</td>' +
+    '</tr>';
+  });
+  tbody.innerHTML = rows.reverse().join('');
+}
+
+// Also update saveIncome to show reserve reminder
+var _origSaveIncome = saveIncome;
+saveIncome = function() {
+  _origSaveIncome();
+};
 </script>
+
+<!-- RESERVE DEPOSIT MODAL -->
+<div class="modal-bg" id="modal-reserve-deposit">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">🏦 Log Reserve Deposit</div><button class="modal-close" onclick="closeModal('modal-reserve-deposit')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Date *</label><input type="date" id="res-dep-date"></div>
+        <div class="field"><label>Source / Description *</label><input type="text" id="res-dep-desc" placeholder="e.g. 15% from Standard sale CPR-00042"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Amount *</label><input type="number" id="res-dep-amount" placeholder="0.00" step="0.01"></div>
+        <div class="field"><label>From Sale Amount</label><input type="number" id="res-dep-sale" placeholder="Full sale amount (optional)" step="0.01" oninput="autoCalcDeposit()"></div>
+      </div>
+      <div id="res-dep-calc-note" style="font-size:12px;color:var(--green);margin-top:4px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-reserve-deposit')">Cancel</button>
+      <button class="btn btn-navy" onclick="saveReserveDeposit()">💾 Save Deposit</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESERVE WITHDRAWAL MODAL -->
+<div class="modal-bg" id="modal-reserve-withdraw">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">💸 Log Reserve Withdrawal</div><button class="modal-close" onclick="closeModal('modal-reserve-withdraw')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Date *</label><input type="date" id="res-with-date"></div>
+        <div class="field"><label>Employee Paid</label>
+          <select id="res-with-emp" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;">
+            <option value="">Select...</option>
+            <option>Queen Jearel Cruz</option>
+            <option>Bukunmi Aina</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Amount *</label><input type="number" id="res-with-amount" placeholder="0.00" step="0.01"></div>
+        <div class="field"><label>Notes</label><input type="text" id="res-with-notes" placeholder="e.g. Bi-weekly pay Sep 1-14"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-reserve-withdraw')">Cancel</button>
+      <button class="btn btn-red" onclick="saveReserveWithdraw()">💸 Log Withdrawal</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
