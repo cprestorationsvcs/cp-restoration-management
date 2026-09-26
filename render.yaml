@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: cp-restoration-receptionist
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: RENDER_URL
+        sync: false
