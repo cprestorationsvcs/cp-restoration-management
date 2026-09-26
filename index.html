@@ -414,7 +414,7 @@ tr:hover td { background: #FAFAFA; }
     </div>
 
     <!-- CLIENTS -->
-    <div class="page" id="page-clients">
+    <div class="page" id="page-clients" style="display:none;">
       <div class="flex-row gap-bottom" style="justify-content:space-between;">
         <div class="section-title" style="margin:0;">Client Management</div>
         <button class="btn btn-blue" onclick="openAddClient()">+ Add New Client</button>
@@ -447,7 +447,7 @@ tr:hover td { background: #FAFAFA; }
     </div>
 
     <!-- SALES -->
-    <div class="page" id="page-sales">
+    <div class="page" id="page-sales" style="display:none;">
       <div class="section-title">Sales</div>
 
       <!-- REVENUE PERIOD SELECTOR -->
@@ -647,7 +647,7 @@ tr:hover td { background: #FAFAFA; }
     </div><!-- /page-sales -->
 
     <!-- DISPUTES -->
-    <div class="page" id="page-disputes">
+    <div class="page" id="page-disputes" style="display:none;">
       <div class="section-title">Dispute Operations</div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Open Files</div><div class="stat-value" id="open-files">0</div></div>
@@ -672,7 +672,7 @@ tr:hover td { background: #FAFAFA; }
     </div>
 
     <!-- BUREAU -->
-    <div class="page" id="page-bureau">
+    <div class="page" id="page-bureau" style="display:none;">
       <div class="section-title">Bureau Caller Department</div>
       <div class="alert alert-blue">Weekly quota: <strong>45 verified actions per week.</strong> Points are <strong>auto-calculated</strong> from logged bureau calls in the Dispute Center — employees cannot manually enter or edit their own points. Each logged bureau call = 1 point. Confirmed removals = 3 points. Fraud alert placed = 2 points.</div>
       <div class="alert alert-gold">📊 Points pull automatically from the bureau call log. To view a specialist's activity, go to the Dispute Center → 📞 Log Bureau Call → Bureau Call History.</div>
@@ -721,7 +721,7 @@ tr:hover td { background: #FAFAFA; }
     </div>
 
     <!-- COMPLIANCE -->
-    <div class="page" id="page-compliance">
+    <div class="page" id="page-compliance" style="display:none;">
       <div class="section-title">Compliance Department</div>
       <div class="stats-grid">
         <div class="stat-card red"><div class="stat-label">Contracts Pending</div><div class="stat-value" id="contracts-pending">0</div></div>
@@ -1372,7 +1372,7 @@ tr:hover td { background: #FAFAFA; }
     </div>
 
     <!-- PAYMENTS -->
-    <div class="page" id="page-payments">
+    <div class="page" id="page-payments" style="display:none;">
       <div class="section-title">Payment Management</div>
       <div class="stats-grid">
         <div class="stat-card green"><div class="stat-label">Collected This Month</div><div class="stat-value" id="pay-collected">$0</div></div>
@@ -1478,7 +1478,7 @@ tr:hover td { background: #FAFAFA; }
     </div>
 
     <!-- TRAINING -->
-    <div class="page" id="page-training">
+    <div class="page" id="page-training" style="display:none;">
       <div class="section-title">Training Center</div>
       <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('training','employee')">Employee Training</button>
@@ -1580,7 +1580,7 @@ tr:hover td { background: #FAFAFA; }
     </div>
 
     <!-- RINGCENTRAL -->
-    <div class="page" id="page-ringcentral">
+    <div class="page" id="page-ringcentral" style="display:none;">
       <div class="section-title">RingCentral Integration</div>
       <div class="alert alert-blue" style="margin-bottom:20px;">Credentials loaded. Setup prepared by Jason Crown for Bukunmi Aina — September 2026. Do NOT share Client ID, Client Secret, or JWT Token with anyone other than Jason Crown.</div>
 
@@ -1747,7 +1747,7 @@ tr:hover td { background: #FAFAFA; }
     </div>
 
     <!-- PASSWORD MANAGEMENT -->
-    <div class="page" id="page-passwords">
+    <div class="page" id="page-passwords" style="display:none;">
       <div class="section-title">🔑 Employee Password Management</div>
       <div class="alert alert-blue" style="margin-bottom:20px;">Admin only. Generate and reset employee passwords here. Employees cannot change their own passwords or roles. Send the new password to the employee via their @mycprteam.com email.</div>
       <div class="card">
@@ -1761,7 +1761,7 @@ tr:hover td { background: #FAFAFA; }
       </div>
     </div>
     <!-- BROADCAST CENTER -->
-    <div class="page" id="page-broadcast">
+    <div class="page" id="page-broadcast" style="display:none;">
       <div class="section-title">📣 Broadcast Center</div>
       <div class="alert alert-blue" style="margin-bottom:20px;">Send email or SMS to all 1,324 clients at once — or filter by package. Powered by SendGrid (email) and Twilio (SMS).</div>
       <div class="tab-bar" style="margin-bottom:20px;">
@@ -1872,7 +1872,7 @@ tr:hover td { background: #FAFAFA; }
       </div>
     </div>
     <!-- REPORTS -->
-    <div class="page" id="page-reports">
+    <div class="page" id="page-reports" style="display:none;">
       <div class="section-title">Reports & Analytics</div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Total Clients (All Time)</div><div class="stat-value">7,000+</div></div>
@@ -1896,7 +1896,7 @@ tr:hover td { background: #FAFAFA; }
 
 
     <!-- ONBOARD CLIENT -->
-    <div class="page" id="page-onboard">
+    <div class="page" id="page-onboard" style="display:none;">
       <div class="section-title">📝 New Client Onboarding</div>
       <div class="alert alert-blue">Complete all sections below. The client must e-sign the service agreement at the bottom before the file is activated. All fields marked * are required.</div>
 
@@ -2436,7 +2436,7 @@ tr:hover td { background: #FAFAFA; }
 
 
     <!-- EMPLOYEE ONBOARDING -->
-    <div class="page" id="page-emp-onboard">
+    <div class="page" id="page-emp-onboard" style="display:none;">
       <div class="section-title">👤 New Employee Onboarding</div>
       <div class="alert alert-blue">Complete all sections below. The employee must e-sign the Employment Application and Non-Compete & Confidentiality Agreement before they can be activated in the system.</div>
 
@@ -2718,7 +2718,7 @@ tr:hover td { background: #FAFAFA; }
 
 
     <!-- TIME TRACKER -->
-    <div class="page" id="page-timetracker">
+    <div class="page" id="page-timetracker" style="display:none;">
       <div class="section-title">⏱️ Time Tracker</div>
 
       <!-- EMPLOYEE CLOCK IN/OUT -->
@@ -3013,7 +3013,7 @@ tr:hover td { background: #FAFAFA; }
 
     <!-- APPLICATIONS REVIEW -->
     <!-- SENDGRID -->
-    <div class="page" id="page-sendgrid">
+    <div class="page" id="page-sendgrid" style="display:none;">
       <div class="section-title">SendGrid — Email Configuration</div>
       <div class="alert alert-blue" style="margin-bottom:20px;">
         ⚠️ <strong>Note from Bukunmi:</strong> The API key changes on page reload. Have Bukunmi send the current test API key right before you click Verify. Do NOT use the key below if the page has been reloaded since it was provided.
@@ -3197,7 +3197,7 @@ CP Restoration Services</textarea>
         </div>
       </div>
     </div>
-    <div class="page" id="page-applications">
+    <div class="page" id="page-applications" style="display:none;">
       <div class="section-title">📥 Employee Applications</div>
       <div class="alert alert-blue">Applications submitted through the employee onboarding link appear here for your review. Approve to activate the employee or decline to send a rejection.</div>
 
@@ -3350,7 +3350,7 @@ CP Restoration Services</textarea>
 
 
     <!-- SMS INBOX -->
-    <div class="page" id="page-sms">
+    <div class="page" id="page-sms" style="display:none;">
       <div class="section-title">📱 SMS Verification Inbox</div>
       <div class="alert alert-blue" style="margin-bottom:20px;">
         This inbox receives SMS verification codes sent to the CP Restoration virtual number. Register <strong>+1 (754) 266-0042</strong> on all client FTC and bureau accounts. Codes appear here within seconds. <span style="color:var(--green);font-weight:700;">&#10003; Twilio connected — Account ACb88dd703</span>
