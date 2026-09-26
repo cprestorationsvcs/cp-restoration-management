@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<!-- CP Restoration Accounting v1.0 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Accounting & Finance</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--white:#fff;
+  --text:#1E293B;--lb:#EFF4FF;--lg:#F0FFF4;--lr:#FFF0F0;--lgold:#FDF8EE;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+.hdr{background:var(--navy);padding:0;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.hdr-title{font-size:15px;font-weight:800;color:white;letter-spacing:-.3px;}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px;}
+.hdr-right{display:flex;align-items:center;gap:12px;}
+.month-select{padding:5px 10px;border:1px solid rgba(255,255,255,.2);border-radius:6px;background:rgba(255,255,255,.1);color:white;font-size:12px;font-family:inherit;}
+.month-select option{color:var(--text);background:white;}
+
+/* NAV */
+.nav{display:flex;gap:2px;padding:12px 16px;background:white;border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap;}
+.nav-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.nav-btn:hover{background:var(--lb);color:var(--navy);}
+.nav-btn.active{background:var(--navy);color:white;}
+
+/* LAYOUT */
+.content{padding:20px;max-width:1200px;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* CARDS */
+.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);overflow:hidden;margin-bottom:16px;}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:800;color:var(--navy);}
+.card-body{padding:20px;}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.stat-value{font-size:24px;font-weight:800;color:var(--navy);}
+.stat-sub{font-size:11px;color:var(--gray);margin-top:3px;}
+.stat.green .stat-value{color:var(--green);}
+.stat.red .stat-value{color:var(--red);}
+.stat.gold .stat-value{color:var(--gold);}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--text);margin-bottom:5px;letter-spacing:.3px;}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);outline:none;transition:border-color .2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--navy);}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+.btn-navy{background:var(--navy);color:white;}
+.btn-green{background:var(--green);color:white;}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+.btn-red{background:var(--red);color:white;}
+.btn-sm{padding:5px 12px;font-size:11px;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--navy);}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:white;letter-spacing:.3px;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:hover{background:var(--lb);}
+tbody td{padding:10px 14px;color:var(--text);}
+.amount-positive{color:var(--green);font-weight:700;}
+.amount-negative{color:var(--red);font-weight:700;}
+
+/* P&L TABLE */
+.pl-table{width:100%;border-collapse:collapse;font-size:13px;}
+.pl-table td,.pl-table th{padding:8px 14px;border-bottom:1px solid var(--border);}
+.pl-section{background:var(--navy);color:white;font-weight:800;font-size:12px;letter-spacing:.5px;text-transform:uppercase;padding:10px 14px;}
+.pl-item td:first-child{padding-left:28px;color:var(--gray);}
+.pl-total{background:#F3F4F6;font-weight:800;}
+.pl-total td{border-top:2px solid var(--border)!important;}
+.pl-net-profit td{background:var(--lg);color:var(--green);font-weight:800;font-size:14px;}
+.pl-net-loss td{background:var(--lr);color:var(--red);font-weight:800;font-size:14px;}
+
+/* BADGES */
+.badge{padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.badge-green{background:#D1FAE5;color:#065F46;}
+.badge-red{background:#FEE2E2;color:#991B1B;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+.badge-gray{background:#F3F4F6;color:#374151;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal{background:white;border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-size:16px;font-weight:800;color:var(--navy);}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);line-height:1;}
+.modal-body{padding:24px;}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.5;margin-bottom:16px;}
+.alert-blue{background:var(--lb);border-left:3px solid var(--navy);color:var(--navy);}
+.alert-green{background:var(--lg);border-left:3px solid var(--green);color:var(--green);}
+.alert-gold{background:var(--lgold);border-left:3px solid var(--gold);color:#7A5F00;}
+
+/* PRINT */
+@media print {
+  .hdr,.nav,.btn,.modal-bg{display:none!important;}
+  .page{display:block!important;}
+  .card{box-shadow:none;border:1px solid #ccc;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <div class="hdr-title">CP Restoration Services — Accounting</div>
+    <div class="hdr-sub">Financial Management System</div>
+  </div>
+  <div class="hdr-right">
+    <select class="month-select" id="period-select" onchange="updatePeriod()">
+      <option value="2026-09">September 2026</option>
+      <option value="2026-08">August 2026</option>
+      <option value="2026-07">July 2026</option>
+      <option value="2026-06">June 2026</option>
+      <option value="2026-05">May 2026</option>
+      <option value="2026-04">April 2026</option>
+      <option value="2026-03">March 2026</option>
+      <option value="2026-02">February 2026</option>
+      <option value="2026-01">January 2026</option>
+      <option value="2025-12">December 2025</option>
+      <option value="2025-11">November 2025</option>
+      <option value="2025-10">October 2025</option>
+      <option value="all">Full Year 2026</option>
+    </select>
+    <button class="btn btn-gold btn-sm" onclick="window.print()">🖨️ Print</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showPage('dashboard')">📊 Dashboard</button>
+  <button class="nav-btn" onclick="showPage('income')">💰 Income</button>
+  <button class="nav-btn" onclick="showPage('expenses')">💸 Expenses</button>
+  <button class="nav-btn" onclick="showPage('payroll')">👥 Payroll</button>
+  <button class="nav-btn" onclick="showPage('pl')">📋 P&amp;L Statement</button>
+  <button class="nav-btn" onclick="showPage('balance')">⚖️ Balance Sheet</button>
+  <button class="nav-btn" onclick="showPage('cashflow')">🔄 Cash Flow</button>
+  <button class="nav-btn" onclick="showPage('reports')">📈 Reports</button>
+</div>
+
+<div class="content">
+
+<!-- ── DASHBOARD ──────────────────────────────────────────────── -->
+<div class="page active" id="page-dashboard">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div>
+      <div style="font-size:20px;font-weight:800;color:var(--navy);">Financial Dashboard</div>
+      <div style="font-size:13px;color:var(--gray);" id="dash-period-label">September 2026</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-navy btn-sm" onclick="openModal('modal-income')">+ Log Income</button>
+      <button class="btn btn-outline btn-sm" onclick="openModal('modal-expense')">+ Log Expense</button>
+    </div>
+  </div>
+
+  <div class="stat-grid" id="dash-stats">
+    <div class="stat green"><div class="stat-label">Total Revenue</div><div class="stat-value" id="d-revenue">$0</div><div class="stat-sub">This period</div></div>
+    <div class="stat red"><div class="stat-label">Total Expenses</div><div class="stat-value" id="d-expenses">$0</div><div class="stat-sub">This period</div></div>
+    <div class="stat" id="d-profit-stat"><div class="stat-label">Net Profit / Loss</div><div class="stat-value" id="d-profit">$0</div><div class="stat-sub" id="d-margin">0% margin</div></div>
+    <div class="stat gold"><div class="stat-label">Outstanding Invoices</div><div class="stat-value" id="d-outstanding">$0</div><div class="stat-sub">Pending collection</div></div>
+    <div class="stat"><div class="stat-label">Payroll This Period</div><div class="stat-value" id="d-payroll">$0</div><div class="stat-sub">All employees</div></div>
+    <div class="stat"><div class="stat-label">Active Clients</div><div class="stat-value">1,324</div><div class="stat-sub">Revenue generating</div></div>
+  </div>
+
+  <!-- Revenue by category -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="card">
+      <div class="card-head"><div class="card-title">💰 Revenue by Package</div></div>
+      <div class="card-body" id="dash-revenue-breakdown">
+        <div style="text-align:center;color:var(--gray);padding:20px;">Log income to see breakdown.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">💸 Expenses by Category</div></div>
+      <div class="card-body" id="dash-expense-breakdown">
+        <div style="text-align:color:var(--gray);padding:20px;">Log expenses to see breakdown.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent transactions -->
+  <div class="card" style="margin-top:16px;">
+    <div class="card-head">
+      <div class="card-title">🕐 Recent Transactions</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-navy btn-sm" onclick="openModal('modal-income')">+ Income</button>
+        <button class="btn btn-outline btn-sm" onclick="openModal('modal-expense')">+ Expense</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Category</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody id="dash-transactions"><tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No transactions yet. Click + Income or + Expense to get started.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── INCOME ──────────────────────────────────────────────────── -->
+<div class="page" id="page-income" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div style="font-size:20px;font-weight:800;color:var(--navy);">Income Ledger</div>
+    <button class="btn btn-navy" onclick="openModal('modal-income')">+ Log Income</button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat green"><div class="stat-label">Total Income</div><div class="stat-value" id="inc-total">$0</div></div>
+    <div class="stat"><div class="stat-label">Express Sales</div><div class="stat-value" id="inc-express">$0</div></div>
+    <div class="stat"><div class="stat-label">Standard Sales</div><div class="stat-value" id="inc-standard">$0</div></div>
+    <div class="stat"><div class="stat-label">Financing</div><div class="stat-value" id="inc-financing">$0</div></div>
+    <div class="stat"><div class="stat-label">Single Bureau</div><div class="stat-value" id="inc-bureau">$0</div></div>
+    <div class="stat"><div class="stat-label">Other Income</div><div class="stat-value" id="inc-other">$0</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">Income Transactions</div>
+      <input type="text" placeholder="Search..." oninput="filterTable('income-tbody',this.value)" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;width:180px;">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Client ID</th><th>Client Name</th><th>Package</th><th>Payment Method</th><th>Amount</th><th>Status</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="income-tbody"><tr><td colspan="9" style="text-align:center;color:var(--gray);padding:24px;">No income logged yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXPENSES ───────────────────────────────────────────────── -->
+<div class="page" id="page-expenses" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div style="font-size:20px;font-weight:800;color:var(--navy);">Expense Ledger</div>
+    <button class="btn btn-navy" onclick="openModal('modal-expense')">+ Log Expense</button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat red"><div class="stat-label">Total Expenses</div><div class="stat-value" id="exp-total">$0</div></div>
+    <div class="stat"><div class="stat-label">Payroll</div><div class="stat-value" id="exp-payroll">$0</div></div>
+    <div class="stat"><div class="stat-label">Software & Tools</div><div class="stat-value" id="exp-software">$0</div></div>
+    <div class="stat"><div class="stat-label">Advertising</div><div class="stat-value" id="exp-ads">$0</div></div>
+    <div class="stat"><div class="stat-label">Office & Admin</div><div class="stat-value" id="exp-office">$0</div></div>
+    <div class="stat"><div class="stat-label">Other</div><div class="stat-value" id="exp-other-stat">$0</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">Expense Transactions</div>
+      <input type="text" placeholder="Search..." oninput="filterTable('expense-tbody',this.value)" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;width:180px;">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Category</th><th>Vendor / Description</th><th>Payment Method</th><th>Amount</th><th>Receipt</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="expense-tbody"><tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No expenses logged yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAYROLL ────────────────────────────────────────────────── -->
+<div class="page" id="page-payroll" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div style="font-size:20px;font-weight:800;color:var(--navy);">Payroll</div>
+    <button class="btn btn-navy" onclick="openModal('modal-payroll')">+ Log Payment</button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat red"><div class="stat-label">Total Payroll</div><div class="stat-value" id="pay-total">$0</div><div class="stat-sub">This period</div></div>
+    <div class="stat"><div class="stat-label">Employees Paid</div><div class="stat-value" id="pay-count">0</div></div>
+    <div class="stat"><div class="stat-label">Via Wise</div><div class="stat-value" id="pay-wise">$0</div></div>
+    <div class="stat"><div class="stat-label">Via PayPal</div><div class="stat-value" id="pay-paypal">$0</div></div>
+  </div>
+
+  <!-- Employee pay schedule -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-head"><div class="card-title">👥 Employee Pay Schedule</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Employee</th><th>Role</th><th>Pay Rate</th><th>Payment Method</th><th>Payment Account</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Queen Jearel Cruz</strong></td><td>Compliance</td><td>$200/week</td><td>Wise</td><td>queen@mycprteam.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Queen Jearel Cruz','200','Wise')">Pay</button></td></tr>
+          <tr><td><strong>Dean Macaraeg</strong></td><td>Customer Service</td><td>TBD</td><td>Wise</td><td>macnardean86@gmail.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Dean Macaraeg','0','Wise')">Pay</button></td></tr>
+          <tr><td><strong>Bukunmi Aina</strong></td><td>Paid Media</td><td>TBD</td><td>Wise</td><td>bukunmiaina@gmail.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Bukunmi Aina','0','Wise')">Pay</button></td></tr>
+          <tr><td><strong>Francis Gacho</strong></td><td>Lead Gen</td><td>Commission</td><td>PayPal</td><td>francisgacho121212@gmail.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Francis Gacho','0','PayPal')">Pay</button></td></tr>
+          <tr><td><strong>Julius Velitario</strong></td><td>Bureau Caller</td><td>TBD</td><td>TBD</td><td>julius@mycprteam.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Julius Velitario','0','Wise')">Pay</button></td></tr>
+          <tr><td><strong>Lyslejane Ogue</strong></td><td>Bureau Caller</td><td>TBD</td><td>TBD</td><td>lyslejane@mycprteam.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Lyslejane Ogue','0','Wise')">Pay</button></td></tr>
+          <tr><td><strong>Krisha Velarde</strong></td><td>Customer Service</td><td>TBD</td><td>TBD</td><td>krisha@mycprteam.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Krisha Velarde','0','Wise')">Pay</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">Payroll History</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Employee</th><th>Role</th><th>Amount</th><th>Method</th><th>Period</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="payroll-tbody"><tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No payroll logged yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── P&L STATEMENT ──────────────────────────────────────────── -->
+<div class="page" id="page-pl" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div>
+      <div style="font-size:20px;font-weight:800;color:var(--navy);">Profit & Loss Statement</div>
+      <div style="font-size:13px;color:var(--gray);" id="pl-period-label">September 2026</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-navy btn-sm" onclick="exportPL()">📥 Export</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">CP Restoration Services — Profit & Loss</div>
+      <div style="font-size:12px;color:var(--gray);" id="pl-date-range"></div>
+    </div>
+    <div class="card-body">
+      <table class="pl-table">
+        <thead><tr><th style="width:60%;">Account</th><th style="text-align:right;">Amount</th></tr></thead>
+        <tbody>
+          <tr><td colspan="2" class="pl-section">REVENUE</td></tr>
+          <tr class="pl-item"><td>Express Package Sales</td><td style="text-align:right;" id="pl-express">$0.00</td></tr>
+          <tr class="pl-item"><td>Standard Package Sales</td><td style="text-align:right;" id="pl-standard">$0.00</td></tr>
+          <tr class="pl-item"><td>In-House Financing</td><td style="text-align:right;" id="pl-financing">$0.00</td></tr>
+          <tr class="pl-item"><td>Single Bureau</td><td style="text-align:right;" id="pl-bureau1">$0.00</td></tr>
+          <tr class="pl-item"><td>Inquiries Only</td><td style="text-align:right;" id="pl-inquiries">$0.00</td></tr>
+          <tr class="pl-item"><td>Other Income</td><td style="text-align:right;" id="pl-other-inc">$0.00</td></tr>
+          <tr class="pl-total"><td><strong>TOTAL REVENUE</strong></td><td style="text-align:right;"><strong id="pl-total-rev">$0.00</strong></td></tr>
+
+          <tr><td colspan="2" class="pl-section">COST OF SERVICES</td></tr>
+          <tr class="pl-item"><td>Bureau Call Costs</td><td style="text-align:right;" id="pl-call-cost">$0.00</td></tr>
+          <tr class="pl-item"><td>Dispute Filing Costs</td><td style="text-align:right;" id="pl-dispute-cost">$0.00</td></tr>
+          <tr class="pl-item"><td>Refunds Issued</td><td style="text-align:right;" id="pl-refunds">$0.00</td></tr>
+          <tr class="pl-total"><td><strong>TOTAL COST OF SERVICES</strong></td><td style="text-align:right;"><strong id="pl-total-cos">$0.00</strong></td></tr>
+          <tr class="pl-total" style="background:var(--lb);"><td><strong>GROSS PROFIT</strong></td><td style="text-align:right;"><strong id="pl-gross">$0.00</strong></td></tr>
+
+          <tr><td colspan="2" class="pl-section">OPERATING EXPENSES</td></tr>
+          <tr class="pl-item"><td>Payroll & Contractor Fees</td><td style="text-align:right;" id="pl-exp-payroll">$0.00</td></tr>
+          <tr class="pl-item"><td>Advertising & Marketing</td><td style="text-align:right;" id="pl-exp-ads">$0.00</td></tr>
+          <tr class="pl-item"><td>Software & Subscriptions</td><td style="text-align:right;" id="pl-exp-software">$0.00</td></tr>
+          <tr class="pl-item"><td>SMS & Telecom (Twilio/RingCentral)</td><td style="text-align:right;" id="pl-exp-telecom">$0.00</td></tr>
+          <tr class="pl-item"><td>Email & Hosting (SendGrid/Netlify)</td><td style="text-align:right;" id="pl-exp-hosting">$0.00</td></tr>
+          <tr class="pl-item"><td>Office & Administrative</td><td style="text-align:right;" id="pl-exp-office">$0.00</td></tr>
+          <tr class="pl-item"><td>Professional Services</td><td style="text-align:right;" id="pl-exp-prof">$0.00</td></tr>
+          <tr class="pl-item"><td>Other Expenses</td><td style="text-align:right;" id="pl-exp-other">$0.00</td></tr>
+          <tr class="pl-total"><td><strong>TOTAL OPERATING EXPENSES</strong></td><td style="text-align:right;"><strong id="pl-total-opex">$0.00</strong></td></tr>
+
+          <tr id="pl-net-row" class="pl-net-profit"><td><strong>NET PROFIT / (LOSS)</strong></td><td style="text-align:right;"><strong id="pl-net">$0.00</strong></td></tr>
+          <tr class="pl-item"><td style="padding-left:14px!important;color:var(--gray);">Net Margin</td><td style="text-align:right;color:var(--gray);" id="pl-net-margin">0.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── BALANCE SHEET ───────────────────────────────────────────── -->
+<div class="page" id="page-balance" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div>
+      <div style="font-size:20px;font-weight:800;color:var(--navy);">Balance Sheet</div>
+      <div style="font-size:13px;color:var(--gray);">As of <span id="bs-date"></span></div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print</button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <!-- ASSETS -->
+    <div class="card">
+      <div class="card-head"><div class="card-title" style="color:var(--green);">ASSETS</div></div>
+      <div class="card-body">
+        <table class="pl-table">
+          <tbody>
+            <tr><td colspan="2" style="font-weight:700;font-size:12px;color:var(--gray);text-transform:uppercase;padding-bottom:8px;">Current Assets</td></tr>
+            <tr class="pl-item"><td>Cash & Bank Accounts</td><td style="text-align:right;" id="bs-cash">$0.00</td></tr>
+            <tr class="pl-item"><td>Accounts Receivable</td><td style="text-align:right;" id="bs-ar">$0.00</td></tr>
+            <tr class="pl-item"><td>Prepaid Expenses</td><td style="text-align:right;">$0.00</td></tr>
+            <tr class="pl-total"><td><strong>Total Current Assets</strong></td><td style="text-align:right;"><strong id="bs-current-assets">$0.00</strong></td></tr>
+            <tr><td colspan="2" style="font-weight:700;font-size:12px;color:var(--gray);text-transform:uppercase;padding:12px 0 8px;">Fixed Assets</td></tr>
+            <tr class="pl-item"><td>Equipment & Technology</td><td style="text-align:right;">$0.00</td></tr>
+            <tr class="pl-item"><td>Less: Depreciation</td><td style="text-align:right;">($0.00)</td></tr>
+            <tr class="pl-total"><td><strong>Total Assets</strong></td><td style="text-align:right;color:var(--green);"><strong id="bs-total-assets">$0.00</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LIABILITIES & EQUITY -->
+    <div class="card">
+      <div class="card-head"><div class="card-title" style="color:var(--red);">LIABILITIES & EQUITY</div></div>
+      <div class="card-body">
+        <table class="pl-table">
+          <tbody>
+            <tr><td colspan="2" style="font-weight:700;font-size:12px;color:var(--gray);text-transform:uppercase;padding-bottom:8px;">Current Liabilities</td></tr>
+            <tr class="pl-item"><td>Accounts Payable</td><td style="text-align:right;" id="bs-ap">$0.00</td></tr>
+            <tr class="pl-item"><td>Refunds Payable</td><td style="text-align:right;" id="bs-refunds">$0.00</td></tr>
+            <tr class="pl-item"><td>Payroll Payable</td><td style="text-align:right;" id="bs-payroll-pay">$0.00</td></tr>
+            <tr class="pl-total"><td><strong>Total Liabilities</strong></td><td style="text-align:right;color:var(--red);"><strong id="bs-total-liab">$0.00</strong></td></tr>
+            <tr><td colspan="2" style="font-weight:700;font-size:12px;color:var(--gray);text-transform:uppercase;padding:12px 0 8px;">Owner's Equity</td></tr>
+            <tr class="pl-item"><td>Owner's Capital (Jason Crown)</td><td style="text-align:right;" id="bs-capital">$0.00</td></tr>
+            <tr class="pl-item"><td>Retained Earnings</td><td style="text-align:right;" id="bs-retained">$0.00</td></tr>
+            <tr class="pl-item"><td>Current Period Net Income</td><td style="text-align:right;" id="bs-net-income">$0.00</td></tr>
+            <tr class="pl-total"><td><strong>Total Liabilities & Equity</strong></td><td style="text-align:right;color:var(--navy);"><strong id="bs-total-le">$0.00</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-blue" style="margin-top:8px;">Balance Sheet entries for assets, liabilities, and equity can be updated manually in the Settings tab of each section. The P&L net income flows into the Balance Sheet automatically.</div>
+</div>
+
+<!-- ── CASH FLOW ──────────────────────────────────────────────── -->
+<div class="page" id="page-cashflow" style="display:none;">
+  <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">Cash Flow Statement</div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Cash Flow — <span id="cf-period">September 2026</span></div></div>
+    <div class="card-body">
+      <table class="pl-table">
+        <tbody>
+          <tr><td colspan="2" class="pl-section">OPERATING ACTIVITIES</td></tr>
+          <tr class="pl-item"><td>Net Income</td><td style="text-align:right;" id="cf-net-income">$0.00</td></tr>
+          <tr class="pl-item"><td>Add: Depreciation & Amortization</td><td style="text-align:right;">$0.00</td></tr>
+          <tr class="pl-item"><td>Change in Accounts Receivable</td><td style="text-align:right;" id="cf-ar-change">$0.00</td></tr>
+          <tr class="pl-item"><td>Change in Accounts Payable</td><td style="text-align:right;" id="cf-ap-change">$0.00</td></tr>
+          <tr class="pl-total"><td><strong>Net Cash from Operations</strong></td><td style="text-align:right;"><strong id="cf-operations">$0.00</strong></td></tr>
+
+          <tr><td colspan="2" class="pl-section">INVESTING ACTIVITIES</td></tr>
+          <tr class="pl-item"><td>Equipment Purchases</td><td style="text-align:right;">$0.00</td></tr>
+          <tr class="pl-total"><td><strong>Net Cash from Investing</strong></td><td style="text-align:right;"><strong>$0.00</strong></td></tr>
+
+          <tr><td colspan="2" class="pl-section">FINANCING ACTIVITIES</td></tr>
+          <tr class="pl-item"><td>Owner Draws</td><td style="text-align:right;" id="cf-draws">$0.00</td></tr>
+          <tr class="pl-item"><td>Owner Contributions</td><td style="text-align:right;" id="cf-contrib">$0.00</td></tr>
+          <tr class="pl-total"><td><strong>Net Cash from Financing</strong></td><td style="text-align:right;"><strong id="cf-financing">$0.00</strong></td></tr>
+
+          <tr class="pl-net-profit"><td><strong>NET CHANGE IN CASH</strong></td><td style="text-align:right;"><strong id="cf-net-change">$0.00</strong></td></tr>
+          <tr class="pl-item"><td>Beginning Cash Balance</td><td style="text-align:right;" id="cf-begin-cash">$0.00</td></tr>
+          <tr class="pl-total" style="background:var(--lb);"><td><strong>Ending Cash Balance</strong></td><td style="text-align:right;color:var(--navy);"><strong id="cf-end-cash">$0.00</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── REPORTS ────────────────────────────────────────────────── -->
+<div class="page" id="page-reports" style="display:none;">
+  <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">Financial Reports</div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+    <div class="card" style="border:2px solid var(--navy);">
+      <div class="card-body" style="text-align:center;padding:24px;">
+        <div style="font-size:36px;margin-bottom:10px;">📋</div>
+        <div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;">Monthly P&L</div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:14px;">Full profit and loss statement for the selected period</div>
+        <button class="btn btn-navy" onclick="showPage('pl')">View Report</button>
+      </div>
+    </div>
+    <div class="card" style="border:2px solid var(--green);">
+      <div class="card-body" style="text-align:center;padding:24px;">
+        <div style="font-size:36px;margin-bottom:10px;">⚖️</div>
+        <div style="font-size:15px;font-weight:800;color:var(--green);margin-bottom:6px;">Balance Sheet</div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:14px;">Assets, liabilities, and owner's equity snapshot</div>
+        <button class="btn btn-green" onclick="showPage('balance')">View Report</button>
+      </div>
+    </div>
+    <div class="card" style="border:2px solid var(--gold);">
+      <div class="card-body" style="text-align:center;padding:24px;">
+        <div style="font-size:36px;margin-bottom:10px;">🔄</div>
+        <div style="font-size:15px;font-weight:800;color:var(--gold);margin-bottom:6px;">Cash Flow</div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:14px;">Operating, investing, and financing activities</div>
+        <button class="btn btn-gold" onclick="showPage('cashflow')">View Report</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:24px;">
+        <div style="font-size:36px;margin-bottom:10px;">📊</div>
+        <div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;">Annual Summary</div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:14px;">Year-to-date totals across all accounts</div>
+        <button class="btn btn-outline" onclick="showAnnualSummary()">View Report</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:24px;">
+        <div style="font-size:36px;margin-bottom:10px;">👥</div>
+        <div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;">Payroll Summary</div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:14px;">All employee payments for the selected period</div>
+        <button class="btn btn-outline" onclick="showPage('payroll')">View Report</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:24px;">
+        <div style="font-size:36px;margin-bottom:10px;">💸</div>
+        <div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;">Expense Report</div>
+        <div style="font-size:12px;color:var(--gray);margin-bottom:14px;">All expenses broken down by category</div>
+        <button class="btn btn-outline" onclick="showPage('expenses')">View Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annual summary table -->
+  <div class="card" style="margin-top:16px;" id="annual-summary-card">
+    <div class="card-head"><div class="card-title">📊 Year-to-Date Summary — 2026</div></div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Month</th><th>Revenue</th><th>Expenses</th><th>Payroll</th><th>Net Profit</th><th>Margin</th></tr></thead>
+        <tbody id="annual-tbody">
+          <tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">Log transactions to see annual breakdown.</td></tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:var(--navy);color:white;font-weight:700;">
+            <td>TOTAL 2026</td>
+            <td id="annual-rev-total">$0.00</td>
+            <td id="annual-exp-total">$0.00</td>
+            <td id="annual-pay-total">$0.00</td>
+            <td id="annual-net-total">$0.00</td>
+            <td id="annual-margin-total">0%</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<!-- ── INCOME MODAL ────────────────────────────────────────────── -->
+<div class="modal-bg" id="modal-income">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">💰 Log Income</div><button class="modal-close" onclick="closeModal('modal-income')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Date *</label><input type="date" id="inc-date"></div>
+        <div class="field"><label>Client ID</label><input type="text" id="inc-client-id" placeholder="CPR-00001" oninput="lookupIncomeClient()"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Client Name</label><input type="text" id="inc-client-name" placeholder="Auto-filled from ID"></div>
+        <div class="field"><label>Package / Service *</label>
+          <select id="inc-package" onchange="autoFillAmount()">
+            <option value="">Select...</option>
+            <option value="express">Express — $3,999</option>
+            <option value="standard">Standard — $2,499</option>
+            <option value="financing-down">Financing Down Payment — $750</option>
+            <option value="financing-monthly">Financing Monthly — $292</option>
+            <option value="bureau1">Single Bureau — $1,000</option>
+            <option value="bureau1rush">Single Bureau + Rush — $1,500</option>
+            <option value="inquiries">Inquiries Only</option>
+            <option value="other">Other Income</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Amount *</label><input type="number" id="inc-amount" placeholder="0.00" step="0.01"></div>
+        <div class="field"><label>Payment Method</label>
+          <select id="inc-method">
+            <option>Zelle</option><option>Cash App</option><option>PayPal</option>
+            <option>Credit Card</option><option>Wire Transfer</option><option>Check</option><option>Cash</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Status</label>
+          <select id="inc-status">
+            <option value="received">Received</option>
+            <option value="pending">Pending</option>
+            <option value="partial">Partial</option>
+            <option value="refunded">Refunded</option>
+          </select>
+        </div>
+        <div class="field"><label>Invoice #</label><input type="text" id="inc-invoice" placeholder="INV-001"></div>
+      </div>
+      <div class="field"><label>Notes</label><input type="text" id="inc-notes" placeholder="Optional notes"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-income')">Cancel</button>
+      <button class="btn btn-navy" onclick="saveIncome()">💾 Save Income</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXPENSE MODAL ───────────────────────────────────────────── -->
+<div class="modal-bg" id="modal-expense">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">💸 Log Expense</div><button class="modal-close" onclick="closeModal('modal-expense')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Date *</label><input type="date" id="exp-date"></div>
+        <div class="field"><label>Category *</label>
+          <select id="exp-category">
+            <option value="">Select...</option>
+            <option value="payroll">Payroll & Contractor Fees</option>
+            <option value="ads">Advertising & Marketing</option>
+            <option value="software">Software & Subscriptions</option>
+            <option value="telecom">SMS & Telecom (Twilio/RingCentral)</option>
+            <option value="hosting">Email & Hosting (SendGrid/Netlify)</option>
+            <option value="office">Office & Administrative</option>
+            <option value="professional">Professional Services</option>
+            <option value="refund">Refund Issued</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Vendor / Description *</label><input type="text" id="exp-vendor" placeholder="e.g. Meta Ads, Twilio, Wise"></div>
+        <div class="field"><label>Amount *</label><input type="number" id="exp-amount" placeholder="0.00" step="0.01"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Payment Method</label>
+          <select id="exp-method">
+            <option>Credit Card</option><option>Debit Card</option><option>Bank Transfer</option>
+            <option>PayPal</option><option>Zelle</option><option>Cash</option><option>Auto-Charge</option>
+          </select>
+        </div>
+        <div class="field"><label>Receipt / Reference #</label><input type="text" id="exp-receipt" placeholder="Receipt # or transaction ID"></div>
+      </div>
+      <div class="field"><label>Notes</label><input type="text" id="exp-notes" placeholder="Optional notes"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-expense')">Cancel</button>
+      <button class="btn btn-navy" onclick="saveExpense()">💾 Save Expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAYROLL MODAL ───────────────────────────────────────────── -->
+<div class="modal-bg" id="modal-payroll">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">👥 Log Payroll</div><button class="modal-close" onclick="closeModal('modal-payroll')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Date *</label><input type="date" id="pay-date"></div>
+        <div class="field"><label>Employee *</label>
+          <select id="pay-employee" onchange="autoFillPayMethod()">
+            <option value="">Select employee...</option>
+            <option value="Queen Jearel Cruz">Queen Jearel Cruz — Compliance</option>
+            <option value="Julius Velitario">Julius Velitario — Bureau Caller</option>
+            <option value="Lyslejane Ogue">Lyslejane Ogue — Bureau Caller</option>
+            <option value="Dean Macaraeg">Dean Macaraeg — Customer Service</option>
+            <option value="Krisha Velarde">Krisha Velarde — Customer Service</option>
+            <option value="Bukunmi Aina">Bukunmi Aina — Paid Media</option>
+            <option value="Francis Gacho">Francis Gacho — Lead Gen</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Amount *</label><input type="number" id="pay-amount" placeholder="0.00" step="0.01"></div>
+        <div class="field"><label>Payment Method</label>
+          <select id="pay-method">
+            <option>Wise</option><option>PayPal</option><option>Zelle</option><option>Bank Transfer</option><option>Cash</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Pay Period</label><input type="text" id="pay-period" placeholder="e.g. Sep 1-15, 2026"></div>
+        <div class="field"><label>Pay Type</label>
+          <select id="pay-type">
+            <option>Weekly</option><option>Bi-Weekly</option><option>Monthly</option>
+            <option>Commission</option><option>Bonus</option><option>Contractor</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Notes</label><input type="text" id="pay-notes" placeholder="Optional notes"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-payroll')">Cancel</button>
+      <button class="btn btn-navy" onclick="savePayroll()">💾 Save Payment</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────
+var incomeData    = [];
+var expenseData   = [];
+var payrollData   = [];
+var currentPeriod = '2026-09';
+
+var PKG_AMOUNTS = {
+  express:3999, standard:2499, 'financing-down':750,
+  'financing-monthly':292, bureau1:1000, bureau1rush:1500,
+  inquiries:0, other:0
+};
+
+var PAY_METHODS = {
+  'Queen Jearel Cruz':'Wise','Dean Macaraeg':'Wise','Bukunmi Aina':'Wise',
+  'Francis Gacho':'PayPal','Julius Velitario':'Wise','Lyslejane Ogue':'Wise','Krisha Velarde':'Wise'
+};
+
+var EXP_CATS = {
+  payroll:'Payroll',ads:'Advertising',software:'Software',
+  telecom:'Telecom',hosting:'Hosting',office:'Office',
+  professional:'Professional',refund:'Refund',other:'Other'
+};
+
+var MONTHS = ['January','February','March','April','May','June',
+              'July','August','September','October','November','December'];
+
+// ── NAVIGATION ───────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(function(p){ p.style.display='none'; p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById('page-'+name);
+  if (el) { el.style.display='block'; el.classList.add('active'); }
+  var btns = document.querySelectorAll('.nav-btn');
+  for (var i=0;i<btns.length;i++){
+    if ((btns[i].getAttribute('onclick')||'').indexOf("'"+name+"'")!==-1){ btns[i].classList.add('active'); break; }
+  }
+  if (name==='pl')       updatePL();
+  if (name==='balance')  updateBS();
+  if (name==='cashflow') updateCF();
+  if (name==='reports')  updateAnnual();
+  window.scrollTo(0,0);
+}
+
+// ── PERIOD ───────────────────────────────────────────────────────
+function updatePeriod() {
+  currentPeriod = document.getElementById('period-select').value;
+  updateDashboard();
+  updateIncomeStats();
+  updateExpenseStats();
+  updatePayrollStats();
+  updatePL();
+  updateBS();
+  updateCF();
+}
+
+function periodLabel(p) {
+  if (p==='all') return 'Full Year 2026';
+  var parts = p.split('-');
+  return MONTHS[parseInt(parts[1])-1] + ' ' + parts[0];
+}
+
+function inPeriod(dateStr) {
+  if (!dateStr) return false;
+  if (currentPeriod==='all') return dateStr.startsWith('2026');
+  return dateStr.startsWith(currentPeriod);
+}
+
+// ── MODAL ────────────────────────────────────────────────────────
+function openModal(id) {
+  var m = document.getElementById(id);
+  if (m) m.classList.add('open');
+  // Set today's date
+  var today = new Date().toISOString().split('T')[0];
+  var dateInputs = {'modal-income':'inc-date','modal-expense':'exp-date','modal-payroll':'pay-date'};
+  var di = document.getElementById(dateInputs[id]);
+  if (di && !di.value) di.value = today;
+}
+
+function closeModal(id) {
+  var m = document.getElementById(id);
+  if (m) m.classList.remove('open');
+}
+
+// Click outside to close
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-bg')) {
+    e.target.classList.remove('open');
+  }
+});
+
+// ── INCOME ───────────────────────────────────────────────────────
+function autoFillAmount() {
+  var pkg = (document.getElementById('inc-package')||{}).value;
+  var amtEl = document.getElementById('inc-amount');
+  if (amtEl && PKG_AMOUNTS[pkg]) amtEl.value = PKG_AMOUNTS[pkg];
+}
+
+function lookupIncomeClient() {
+  var id = ((document.getElementById('inc-client-id')||{}).value||'').toUpperCase();
+  var nameEl = document.getElementById('inc-client-name');
+  // Check against existing income records for name
+  var rec = incomeData.find(function(r){ return r.clientId===id; });
+  if (rec && nameEl) nameEl.value = rec.clientName;
+}
+
+function saveIncome() {
+  var date    = (document.getElementById('inc-date')||{}).value;
+  var pkg     = (document.getElementById('inc-package')||{}).value;
+  var amount  = parseFloat((document.getElementById('inc-amount')||{}).value)||0;
+  var method  = (document.getElementById('inc-method')||{}).value;
+  var status  = (document.getElementById('inc-status')||{}).value;
+  var clientId = (document.getElementById('inc-client-id')||{}).value;
+  var clientName = (document.getElementById('inc-client-name')||{}).value;
+  var invoice = (document.getElementById('inc-invoice')||{}).value;
+  var notes   = (document.getElementById('inc-notes')||{}).value;
+
+  if (!date || !pkg || !amount) { alert('Please fill in date, package, and amount.'); return; }
+
+  var entry = {
+    id: Date.now(), date: date, clientId: clientId, clientName: clientName,
+    package: pkg, amount: amount, method: method, status: status,
+    invoice: invoice, notes: notes, type: 'income'
+  };
+  incomeData.unshift(entry);
+  closeModal('modal-income');
+  clearIncomeForm();
+  updateDashboard();
+  updateIncomeStats();
+  updatePL();
+  renderIncomeTable();
+  showToast('Income logged: $' + amount.toLocaleString('en-US',{minimumFractionDigits:2}));
+}
+
+function clearIncomeForm() {
+  ['inc-date','inc-client-id','inc-client-name','inc-amount','inc-notes','inc-invoice'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value='';
+  });
+  var pkg = document.getElementById('inc-package'); if(pkg) pkg.value='';
+  var meth = document.getElementById('inc-method'); if(meth) meth.value='Zelle';
+  var stat = document.getElementById('inc-status'); if(stat) stat.value='received';
+}
+
+function deleteIncome(id) {
+  if (!confirm('Delete this income record?')) return;
+  incomeData = incomeData.filter(function(r){ return r.id!==id; });
+  updateDashboard(); updateIncomeStats(); updatePL(); renderIncomeTable();
+}
+
+function renderIncomeTable() {
+  var tbody = document.getElementById('income-tbody');
+  if (!tbody) return;
+  var filtered = incomeData.filter(function(r){ return inPeriod(r.date); });
+  if (!filtered.length) {
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--gray);padding:24px;">No income records for this period.</td></tr>';
+    return;
+  }
+  var pkgLabels = {express:'Express',standard:'Standard','financing-down':'Financing Down',
+    'financing-monthly':'Financing Monthly',bureau1:'Single Bureau',bureau1rush:'Single Bureau+Rush',
+    inquiries:'Inquiries Only',other:'Other'};
+  var statusBadge = {received:'badge-green',pending:'badge-gold',partial:'badge-blue',refunded:'badge-red'};
+  tbody.innerHTML = filtered.map(function(r){
+    return '<tr>'+
+      '<td>'+r.date+'</td>'+
+      '<td style="font-family:monospace;font-size:12px;">'+r.clientId+'</td>'+
+      '<td>'+r.clientName+'</td>'+
+      '<td><span class="badge badge-blue" style="font-size:10px;">'+(pkgLabels[r.package]||r.package)+'</span></td>'+
+      '<td>'+r.method+'</td>'+
+      '<td class="amount-positive">$'+r.amount.toLocaleString('en-US',{minimumFractionDigits:2})+'</td>'+
+      '<td><span class="badge '+(statusBadge[r.status]||'badge-gray')+'" style="font-size:10px;">'+r.status+'</span></td>'+
+      '<td style="font-size:12px;color:var(--gray);">'+r.notes+'</td>'+
+      '<td><button class="btn btn-outline btn-sm" style="color:var(--red);font-size:10px;" onclick="deleteIncome('+r.id+')">✕</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ── EXPENSES ─────────────────────────────────────────────────────
+function saveExpense() {
+  var date     = (document.getElementById('exp-date')||{}).value;
+  var category = (document.getElementById('exp-category')||{}).value;
+  var vendor   = (document.getElementById('exp-vendor')||{}).value;
+  var amount   = parseFloat((document.getElementById('exp-amount')||{}).value)||0;
+  var method   = (document.getElementById('exp-method')||{}).value;
+  var receipt  = (document.getElementById('exp-receipt')||{}).value;
+  var notes    = (document.getElementById('exp-notes')||{}).value;
+
+  if (!date || !category || !vendor || !amount) { alert('Please fill in date, category, vendor, and amount.'); return; }
+
+  var entry = { id:Date.now(), date:date, category:category, vendor:vendor,
+    amount:amount, method:method, receipt:receipt, notes:notes, type:'expense' };
+  expenseData.unshift(entry);
+  closeModal('modal-expense');
+  ['exp-date','exp-vendor','exp-amount','exp-receipt','exp-notes'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  updateDashboard(); updateExpenseStats(); updatePL(); renderExpenseTable();
+  showToast('Expense logged: $' + amount.toLocaleString('en-US',{minimumFractionDigits:2}));
+}
+
+function deleteExpense(id) {
+  if (!confirm('Delete this expense?')) return;
+  expenseData = expenseData.filter(function(r){ return r.id!==id; });
+  updateDashboard(); updateExpenseStats(); updatePL(); renderExpenseTable();
+}
+
+function renderExpenseTable() {
+  var tbody = document.getElementById('expense-tbody');
+  if (!tbody) return;
+  var filtered = expenseData.filter(function(r){ return inPeriod(r.date); });
+  if (!filtered.length) {
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No expenses for this period.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(function(r){
+    return '<tr>'+
+      '<td>'+r.date+'</td>'+
+      '<td><span class="badge badge-gray" style="font-size:10px;">'+(EXP_CATS[r.category]||r.category)+'</span></td>'+
+      '<td style="font-weight:600;">'+r.vendor+'</td>'+
+      '<td>'+r.method+'</td>'+
+      '<td class="amount-negative">($'+r.amount.toLocaleString('en-US',{minimumFractionDigits:2})+')</td>'+
+      '<td style="font-size:12px;color:var(--gray);">'+r.receipt+'</td>'+
+      '<td style="font-size:12px;color:var(--gray);">'+r.notes+'</td>'+
+      '<td><button class="btn btn-outline btn-sm" style="color:var(--red);font-size:10px;" onclick="deleteExpense('+r.id+')">✕</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ── PAYROLL ──────────────────────────────────────────────────────
+function quickPay(name, amount, method) {
+  openModal('modal-payroll');
+  var nameEl = document.getElementById('pay-employee');
+  if (nameEl) nameEl.value = name;
+  var amtEl = document.getElementById('pay-amount');
+  if (amtEl) amtEl.value = amount;
+  var methEl = document.getElementById('pay-method');
+  if (methEl) methEl.value = method;
+}
+
+function autoFillPayMethod() {
+  var name = (document.getElementById('pay-employee')||{}).value;
+  var meth = document.getElementById('pay-method');
+  if (meth && PAY_METHODS[name]) meth.value = PAY_METHODS[name];
+}
+
+function savePayroll() {
+  var date     = (document.getElementById('pay-date')||{}).value;
+  var employee = (document.getElementById('pay-employee')||{}).value;
+  var amount   = parseFloat((document.getElementById('pay-amount')||{}).value)||0;
+  var method   = (document.getElementById('pay-method')||{}).value;
+  var period   = (document.getElementById('pay-period')||{}).value;
+  var type     = (document.getElementById('pay-type')||{}).value;
+  var notes    = (document.getElementById('pay-notes')||{}).value;
+
+  if (!date || !employee || !amount) { alert('Please fill in date, employee, and amount.'); return; }
+
+  var entry = { id:Date.now(), date:date, employee:employee, amount:amount,
+    method:method, period:period, type:type, notes:notes };
+  payrollData.unshift(entry);
+
+  // Also log as expense
+  expenseData.unshift({ id:Date.now()+1, date:date, category:'payroll',
+    vendor:'Payroll — '+employee, amount:amount, method:method,
+    receipt:'', notes:period+' ('+type+')', type:'expense' });
+
+  closeModal('modal-payroll');
+  ['pay-date','pay-amount','pay-period','pay-notes'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  updateDashboard(); updatePayrollStats(); updateExpenseStats(); updatePL(); renderPayrollTable();
+  showToast('Payroll logged: '+employee+' — $'+amount.toLocaleString('en-US',{minimumFractionDigits:2}));
+}
+
+function renderPayrollTable() {
+  var tbody = document.getElementById('payroll-tbody');
+  if (!tbody) return;
+  var filtered = payrollData.filter(function(r){ return inPeriod(r.date); });
+  if (!filtered.length) {
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No payroll for this period.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(function(r){
+    return '<tr>'+
+      '<td>'+r.date+'</td>'+
+      '<td style="font-weight:700;">'+r.employee+'</td>'+
+      '<td><span class="badge badge-blue" style="font-size:10px;">'+r.type+'</span></td>'+
+      '<td class="amount-negative">$'+r.amount.toLocaleString('en-US',{minimumFractionDigits:2})+'</td>'+
+      '<td>'+r.method+'</td>'+
+      '<td style="font-size:12px;">'+r.period+'</td>'+
+      '<td style="font-size:12px;color:var(--gray);">'+r.notes+'</td>'+
+      '<td><button class="btn btn-outline btn-sm" style="color:var(--red);font-size:10px;" onclick="deletePayroll('+r.id+')">✕</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function deletePayroll(id) {
+  if (!confirm('Delete this payroll record?')) return;
+  payrollData = payrollData.filter(function(r){ return r.id!==id; });
+  updateDashboard(); updatePayrollStats(); renderPayrollTable();
+}
+
+// ── CALCULATIONS ─────────────────────────────────────────────────
+function sumIncome(pkgs) {
+  return incomeData.filter(function(r){ return inPeriod(r.date) && (!pkgs || pkgs.indexOf(r.package)!==-1) && r.status!=='refunded'; })
+    .reduce(function(s,r){ return s+r.amount; }, 0);
+}
+
+function sumExpenses(cats) {
+  return expenseData.filter(function(r){ return inPeriod(r.date) && (!cats || cats.indexOf(r.category)!==-1); })
+    .reduce(function(s,r){ return s+r.amount; }, 0);
+}
+
+function sumPayroll() {
+  return payrollData.filter(function(r){ return inPeriod(r.date); })
+    .reduce(function(s,r){ return s+r.amount; }, 0);
+}
+
+function fmt(n) { return '$'+(Math.abs(n)).toLocaleString('en-US',{minimumFractionDigits:2}); }
+function fmtSigned(n) { return (n<0?'('+fmt(n)+')':fmt(n)); }
+function set(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+
+// ── DASHBOARD ────────────────────────────────────────────────────
+function updateDashboard() {
+  var totalRev = sumIncome();
+  var totalExp = sumExpenses();
+  var net = totalRev - totalExp;
+  var margin = totalRev > 0 ? ((net/totalRev)*100).toFixed(1) : '0.0';
+  var pending = incomeData.filter(function(r){ return inPeriod(r.date) && r.status==='pending'; }).reduce(function(s,r){ return s+r.amount; },0);
+
+  set('d-revenue', fmt(totalRev));
+  set('d-expenses', fmt(totalExp));
+  set('d-profit', (net<0?'(':'') + fmt(net) + (net<0?')':''));
+  set('d-margin', margin + '% margin');
+  set('d-outstanding', fmt(pending));
+  set('d-payroll', fmt(sumPayroll()));
+  set('dash-period-label', periodLabel(currentPeriod));
+
+  var profitStat = document.getElementById('d-profit-stat');
+  if (profitStat) {
+    profitStat.className = 'stat ' + (net >= 0 ? 'green' : 'red');
+  }
+
+  // Revenue breakdown
+  var revBreak = document.getElementById('dash-revenue-breakdown');
+  if (revBreak) {
+    var cats = [
+      {label:'Express', pkgs:['express'], color:var_gold},
+      {label:'Standard', pkgs:['standard','financing-down','financing-monthly'], color:'#1A5C38'},
+      {label:'Single Bureau', pkgs:['bureau1','bureau1rush'], color:'#4B4BAA'},
+      {label:'Inquiries', pkgs:['inquiries'], color:'#1B3A6B'},
+      {label:'Other', pkgs:['other'], color:'#6B7280'}
+    ];
+    var html = '';
+    cats.forEach(function(c){
+      var amt = sumIncome(c.pkgs);
+      if (amt > 0) {
+        var pct = totalRev > 0 ? ((amt/totalRev)*100).toFixed(0) : 0;
+        html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
+          '<div style="width:10px;height:10px;border-radius:50%;background:'+c.color+';flex-shrink:0;"></div>'+
+          '<div style="flex:1;font-size:13px;">'+c.label+'</div>'+
+          '<div style="font-size:13px;font-weight:700;">'+fmt(amt)+'</div>'+
+          '<div style="font-size:11px;color:var(--gray);">'+pct+'%</div>'+
+        '</div>';
+      }
+    });
+    revBreak.innerHTML = html || '<div style="color:var(--gray);font-size:13px;">No income logged yet.</div>';
+  }
+
+  // Expense breakdown
+  var expBreak = document.getElementById('dash-expense-breakdown');
+  if (expBreak) {
+    var expCats = Object.keys(EXP_CATS);
+    var html2 = '';
+    expCats.forEach(function(cat){
+      var amt = sumExpenses([cat]);
+      if (amt > 0) {
+        var pct = totalExp > 0 ? ((amt/totalExp)*100).toFixed(0) : 0;
+        html2 += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
+          '<div style="width:10px;height:10px;border-radius:50%;background:var(--red);flex-shrink:0;"></div>'+
+          '<div style="flex:1;font-size:13px;">'+EXP_CATS[cat]+'</div>'+
+          '<div style="font-size:13px;font-weight:700;color:var(--red);">'+fmt(amt)+'</div>'+
+          '<div style="font-size:11px;color:var(--gray);">'+pct+'%</div>'+
+        '</div>';
+      }
+    });
+    expBreak.innerHTML = html2 || '<div style="color:var(--gray);font-size:13px;">No expenses logged yet.</div>';
+  }
+
+  // Recent transactions
+  var tbody = document.getElementById('dash-transactions');
+  if (tbody) {
+    var all = incomeData.concat(expenseData).filter(function(r){ return inPeriod(r.date); });
+    all.sort(function(a,b){ return b.date.localeCompare(a.date); });
+    var recent = all.slice(0,10);
+    if (!recent.length) {
+      tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No transactions yet.</td></tr>';
+    } else {
+      tbody.innerHTML = recent.map(function(r){
+        var isInc = r.type==='income';
+        var desc = isInc ? (r.clientName||r.clientId||'Client') : r.vendor;
+        var cat  = isInc ? (r.package||'income') : (EXP_CATS[r.category]||r.category);
+        var amt  = isInc ? '<span class="amount-positive">+'+fmt(r.amount)+'</span>' : '<span class="amount-negative">('+fmt(r.amount)+')</span>';
+        return '<tr>'+
+          '<td>'+r.date+'</td>'+
+          '<td><span class="badge '+(isInc?'badge-green':'badge-red')+'" style="font-size:10px;">'+(isInc?'Income':'Expense')+'</span></td>'+
+          '<td style="font-weight:600;">'+desc+'</td>'+
+          '<td><span class="badge badge-gray" style="font-size:10px;">'+cat+'</span></td>'+
+          '<td>'+amt+'</td>'+
+          '<td><span class="badge '+(r.status==='received'||!r.status?'badge-green':'badge-gold')+'" style="font-size:10px;">'+(r.status||'logged')+'</span></td>'+
+        '</tr>';
+      }).join('');
+    }
+  }
+}
+
+var var_gold = '#C9A84C';
+
+// ── INCOME STATS ─────────────────────────────────────────────────
+function updateIncomeStats() {
+  set('inc-total', fmt(sumIncome()));
+  set('inc-express', fmt(sumIncome(['express'])));
+  set('inc-standard', fmt(sumIncome(['standard'])));
+  set('inc-financing', fmt(sumIncome(['financing-down','financing-monthly'])));
+  set('inc-bureau', fmt(sumIncome(['bureau1','bureau1rush'])));
+  set('inc-other', fmt(sumIncome(['inquiries','other'])));
+  renderIncomeTable();
+}
+
+// ── EXPENSE STATS ────────────────────────────────────────────────
+function updateExpenseStats() {
+  set('exp-total', fmt(sumExpenses()));
+  set('exp-payroll', fmt(sumExpenses(['payroll'])));
+  set('exp-software', fmt(sumExpenses(['software','hosting'])));
+  set('exp-ads', fmt(sumExpenses(['ads'])));
+  set('exp-office', fmt(sumExpenses(['office','professional'])));
+  set('exp-other-stat', fmt(sumExpenses(['telecom','refund','other'])));
+  renderExpenseTable();
+}
+
+// ── PAYROLL STATS ────────────────────────────────────────────────
+function updatePayrollStats() {
+  var total = sumPayroll();
+  set('pay-total', fmt(total));
+  var paid = payrollData.filter(function(r){ return inPeriod(r.date); });
+  var unique = [...new Set(paid.map(function(r){ return r.employee; }))];
+  set('pay-count', unique.length);
+  var wise = paid.filter(function(r){ return r.method==='Wise'; }).reduce(function(s,r){ return s+r.amount; },0);
+  var paypal = paid.filter(function(r){ return r.method==='PayPal'; }).reduce(function(s,r){ return s+r.amount; },0);
+  set('pay-wise', fmt(wise));
+  set('pay-paypal', fmt(paypal));
+  renderPayrollTable();
+}
+
+// ── P&L ──────────────────────────────────────────────────────────
+function updatePL() {
+  var label = periodLabel(currentPeriod);
+  set('pl-period-label', label);
+  set('pl-date-range', label);
+
+  var express    = sumIncome(['express']);
+  var standard   = sumIncome(['standard']);
+  var financing  = sumIncome(['financing-down','financing-monthly']);
+  var bureau1    = sumIncome(['bureau1','bureau1rush']);
+  var inquiries  = sumIncome(['inquiries']);
+  var otherInc   = sumIncome(['other']);
+  var totalRev   = express + standard + financing + bureau1 + inquiries + otherInc;
+
+  var refunds    = expenseData.filter(function(r){ return inPeriod(r.date) && r.category==='refund'; }).reduce(function(s,r){ return s+r.amount; },0);
+  var cos        = refunds; // Cost of services = refunds issued (direct service costs)
+  var grossProfit = totalRev - cos;
+
+  var payrollExp  = sumExpenses(['payroll']);
+  var adsExp      = sumExpenses(['ads']);
+  var softExp     = sumExpenses(['software']);
+  var telecomExp  = sumExpenses(['telecom']);
+  var hostExp     = sumExpenses(['hosting']);
+  var officeExp   = sumExpenses(['office']);
+  var profExp     = sumExpenses(['professional']);
+  var otherExp    = sumExpenses(['other']);
+  var totalOpex   = payrollExp + adsExp + softExp + telecomExp + hostExp + officeExp + profExp + otherExp;
+  var netProfit   = grossProfit - totalOpex;
+  var margin      = totalRev > 0 ? ((netProfit/totalRev)*100).toFixed(1) : '0.0';
+
+  set('pl-express',    fmt(express));
+  set('pl-standard',   fmt(standard));
+  set('pl-financing',  fmt(financing));
+  set('pl-bureau1',    fmt(bureau1));
+  set('pl-inquiries',  fmt(inquiries));
+  set('pl-other-inc',  fmt(otherInc));
+  set('pl-total-rev',  fmt(totalRev));
+  set('pl-refunds',    fmt(refunds));
+  set('pl-call-cost',  '$0.00');
+  set('pl-dispute-cost','$0.00');
+  set('pl-total-cos',  fmt(cos));
+  set('pl-gross',      fmt(grossProfit));
+  set('pl-exp-payroll',  fmt(payrollExp));
+  set('pl-exp-ads',      fmt(adsExp));
+  set('pl-exp-software', fmt(softExp));
+  set('pl-exp-telecom',  fmt(telecomExp));
+  set('pl-exp-hosting',  fmt(hostExp));
+  set('pl-exp-office',   fmt(officeExp));
+  set('pl-exp-prof',     fmt(profExp));
+  set('pl-exp-other',    fmt(otherExp));
+  set('pl-total-opex',   fmt(totalOpex));
+  set('pl-net',          (netProfit<0?'(':'') + fmt(netProfit) + (netProfit<0?')':''));
+  set('pl-net-margin',   margin+'%');
+
+  var netRow = document.getElementById('pl-net-row');
+  if (netRow) netRow.className = netProfit >= 0 ? 'pl-net-profit' : 'pl-net-loss';
+}
+
+// ── BALANCE SHEET ────────────────────────────────────────────────
+function updateBS() {
+  var today = new Date().toLocaleDateString();
+  set('bs-date', today);
+  var totalRev = incomeData.filter(function(r){ return r.date.startsWith('2026'); }).reduce(function(s,r){ return s+r.amount; },0);
+  var totalExp = expenseData.filter(function(r){ return r.date.startsWith('2026'); }).reduce(function(s,r){ return s+r.amount; },0);
+  var net = totalRev - totalExp;
+  var pending = incomeData.filter(function(r){ return r.date.startsWith('2026') && r.status==='pending'; }).reduce(function(s,r){ return s+r.amount; },0);
+  var refunds = expenseData.filter(function(r){ return r.date.startsWith('2026') && r.category==='refund'; }).reduce(function(s,r){ return s+r.amount; },0);
+  var payrollPending = 0;
+  var cash = totalRev - pending - totalExp;
+  var totalAssets = cash + pending;
+  var totalLiab = refunds + payrollPending;
+  var equity = totalAssets - totalLiab;
+
+  set('bs-cash', fmt(Math.max(0,cash)));
+  set('bs-ar', fmt(pending));
+  set('bs-current-assets', fmt(totalAssets));
+  set('bs-total-assets', fmt(totalAssets));
+  set('bs-ap', '$0.00');
+  set('bs-refunds', fmt(refunds));
+  set('bs-payroll-pay', '$0.00');
+  set('bs-total-liab', fmt(totalLiab));
+  set('bs-capital', '$0.00');
+  set('bs-retained', fmt(Math.max(0, equity - net)));
+  set('bs-net-income', (net<0?'(':'') + fmt(net) + (net<0?')':''));
+  set('bs-total-le', fmt(totalAssets));
+}
+
+// ── CASH FLOW ────────────────────────────────────────────────────
+function updateCF() {
+  set('cf-period', periodLabel(currentPeriod));
+  var net = sumIncome() - sumExpenses();
+  var pending = incomeData.filter(function(r){ return inPeriod(r.date) && r.status==='pending'; }).reduce(function(s,r){ return s+r.amount; },0);
+  var ops = net - pending;
+  set('cf-net-income', (net<0?'(':'') + fmt(net) + (net<0?')':''));
+  set('cf-ar-change', pending > 0 ? '('+fmt(pending)+')' : '$0.00');
+  set('cf-ap-change', '$0.00');
+  set('cf-operations', fmt(ops));
+  set('cf-draws', '$0.00');
+  set('cf-contrib', '$0.00');
+  set('cf-financing', '$0.00');
+  set('cf-net-change', fmt(ops));
+  set('cf-begin-cash', '$0.00');
+  set('cf-end-cash', fmt(Math.max(0,ops)));
+}
+
+// ── ANNUAL SUMMARY ───────────────────────────────────────────────
+function updateAnnual() {
+  var months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+  var totalRev=0, totalExp=0, totalPay=0;
+  var oldPeriod = currentPeriod;
+  var rows = '';
+  months.forEach(function(m){
+    currentPeriod = '2026-'+m;
+    var rev = sumIncome();
+    var exp = sumExpenses();
+    var pay = sumPayroll();
+    var net = rev - exp;
+    var margin = rev>0 ? ((net/rev)*100).toFixed(0)+'%' : '—';
+    totalRev+=rev; totalExp+=exp; totalPay+=pay;
+    if (rev>0||exp>0) {
+      rows += '<tr>'+
+        '<td style="font-weight:600;">'+MONTHS[parseInt(m)-1]+' 2026</td>'+
+        '<td class="amount-positive">'+fmt(rev)+'</td>'+
+        '<td class="amount-negative">'+fmt(exp)+'</td>'+
+        '<td style="color:var(--red);">'+fmt(pay)+'</td>'+
+        '<td class="'+(net>=0?'amount-positive':'amount-negative')+'">'+fmt(net)+'</td>'+
+        '<td>'+margin+'</td>'+
+      '</tr>';
+    }
+  });
+  currentPeriod = oldPeriod;
+  var totalNet = totalRev - totalExp;
+  var tbody = document.getElementById('annual-tbody');
+  if (tbody) tbody.innerHTML = rows || '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No transactions logged yet.</td></tr>';
+  set('annual-rev-total', fmt(totalRev));
+  set('annual-exp-total', fmt(totalExp));
+  set('annual-pay-total', fmt(totalPay));
+  set('annual-net-total', fmt(totalNet));
+  set('annual-margin-total', totalRev>0 ? ((totalNet/totalRev)*100).toFixed(0)+'%' : '0%');
+}
+
+function showAnnualSummary() {
+  showPage('reports');
+  updateAnnual();
+}
+
+// ── FILTER TABLE ─────────────────────────────────────────────────
+function filterTable(tbodyId, query) {
+  var q = query.toLowerCase();
+  var rows = document.getElementById(tbodyId);
+  if (!rows) return;
+  Array.from(rows.querySelectorAll('tr')).forEach(function(row){
+    row.style.display = row.textContent.toLowerCase().indexOf(q)!==-1 ? '' : 'none';
+  });
+}
+
+// ── EXPORT ───────────────────────────────────────────────────────
+function exportPL() {
+  var label = periodLabel(currentPeriod);
+  var lines = [
+    'CP Restoration Services — Profit & Loss Statement',
+    'Period: ' + label,
+    '',
+    'REVENUE',
+    'Express Package,' + document.getElementById('pl-express').textContent,
+    'Standard Package,' + document.getElementById('pl-standard').textContent,
+    'Financing,' + document.getElementById('pl-financing').textContent,
+    'Single Bureau,' + document.getElementById('pl-bureau1').textContent,
+    'Inquiries Only,' + document.getElementById('pl-inquiries').textContent,
+    'Other Income,' + document.getElementById('pl-other-inc').textContent,
+    'TOTAL REVENUE,' + document.getElementById('pl-total-rev').textContent,
+    '',
+    'OPERATING EXPENSES',
+    'Payroll,' + document.getElementById('pl-exp-payroll').textContent,
+    'Advertising,' + document.getElementById('pl-exp-ads').textContent,
+    'Software,' + document.getElementById('pl-exp-software').textContent,
+    'Telecom,' + document.getElementById('pl-exp-telecom').textContent,
+    'Hosting,' + document.getElementById('pl-exp-hosting').textContent,
+    'Office,' + document.getElementById('pl-exp-office').textContent,
+    'Professional,' + document.getElementById('pl-exp-prof').textContent,
+    'Other,' + document.getElementById('pl-exp-other').textContent,
+    'TOTAL EXPENSES,' + document.getElementById('pl-total-opex').textContent,
+    '',
+    'NET PROFIT/(LOSS),' + document.getElementById('pl-net').textContent,
+    'Net Margin,' + document.getElementById('pl-net-margin').textContent,
+  ];
+  var blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'CPR_PL_'+currentPeriod+'.csv';
+  a.click();
+}
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.3);';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3000);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  currentPeriod = '2026-09';
+  updateDashboard();
+  var bsDate = document.getElementById('bs-date');
+  if (bsDate) bsDate.textContent = new Date().toLocaleDateString();
+});
+</script>
+</body>
+</html>
