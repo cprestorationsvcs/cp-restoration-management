@@ -5000,13 +5000,24 @@ function setupNavForRole(role) {
 // NAVIGATION
 // ============================================================
 function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  const btn = [...document.querySelectorAll('.nav-btn')].find(b => b.getAttribute('onclick').includes("'"+name+"'"));
-  if(btn) btn.classList.add('active');
-  if(name==='clients') loadClientsTable();
-  if(name==='disputes') loadDisputesTable();
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  var pageEl = document.getElementById('page-'+name);
+  if (!pageEl) { console.warn('Page not found: page-'+name); return; }
+  pageEl.classList.add('active');
+  var allBtns = document.querySelectorAll('.nav-btn');
+  for (var i=0;i<allBtns.length;i++){
+    var oc = allBtns[i].getAttribute('onclick')||'';
+    if (oc.indexOf("'"+name+"'")!==-1){ allBtns[i].classList.add('active'); break; }
+  }
+  if (name==='clients')    loadClientsTable();
+  if (name==='disputes')   loadDisputesTable();
+  if (name==='ringcentral') loadRCRecordings();
+  if (name==='passwords')  renderPwdTable();
+  if (name==='broadcast')  { updateBCAudience(); refreshPreview(); }
+  if (name==='sms')        { if(typeof renderSMSInbox==='function') renderSMSInbox(); updateSMSStats(); }
+  if (name==='timetracker') { if(typeof loadTimeTracker==='function') loadTimeTracker(); }
+  if (name==='reports')    { if(typeof loadReports==='function') loadReports(); }
 }
 
 function switchTab(section, tab) {
