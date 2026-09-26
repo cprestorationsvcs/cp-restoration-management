@@ -4978,16 +4978,16 @@ function setupNavForRole(role) {
 
   if(role === 'admin') return; // admin sees everything
 
-  const rolePages = {
-    sales: ['dashboard','sales'],
-    cs: ['dashboard','clients'],
-    bureau: ['dashboard','bureau'],
-    compliance: ['dashboard','compliance'],
-    dispute: ['dashboard','disputes','ringcentral']
+  var rolePages = {
+    sales:      ['dashboard','sales','onboard','training','timetracker'],
+    cs:         ['dashboard','clients','payments','training','timetracker'],
+    bureau:     ['dashboard','bureau','disputes','sms','training','timetracker'],
+    compliance: ['dashboard','compliance','clients','sms','training','timetracker'],
+    dispute:    ['dashboard','disputes','bureau','sms','training','timetracker']
   };
   const allowed = rolePages[role] || ['dashboard'];
-  allBtns.forEach(btn => {
-    const match = btn.getAttribute('onclick') && btn.getAttribute('onclick').match(/'([^']+)'/);
+  allBtns.forEach(function(btn) {
+    var match = btn.getAttribute('onclick') && btn.getAttribute('onclick').match(/'([^']+)'/);
     if(!match) return;
     const page = match[1];
     // Never show admin-only nav items to non-admins regardless of allowed pages
