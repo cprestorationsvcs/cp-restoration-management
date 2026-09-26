@@ -1,7 +1,24 @@
-// CP Restoration — Call Log Function
-// Stores call records in Netlify Blobs and serves them to the dashboard
+// CP Restoration — Call Log Function v2
+// No external packages — uses /tmp for persistence within function lifetime
 
-const { getStore } = require('@netlify/blobs');
+const fs = require('fs');
+const path = require('path');
+const STORE_PATH = '/tmp/cp_calls.json';
+
+function loadRecords() {
+  try {
+    if (fs.existsSync(STORE_PATH)) {
+      return JSON.parse(fs.readFileSync(STORE_PATH, 'utf8'));
+    }
+  } catch(e) {}
+  return {};
+}
+
+function saveRecords(records) {
+  try {
+    fs.writeFileSync(STORE_PATH, JSON.stringify(records), 'utf8');
+  } catch(e) {}
+}
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -11,58 +28,56 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Headers': 'Content-Type'
   };
 
-  if (event.httpMethod === 'OPTIONS') return { statusCode:200, headers, body:'' };
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
 
-  try {
-    const store = getStore({ name:'call-records', consistency:'strong' });
+  const records = loadRecords();
 
-    // POST — save a call record from the voice webhook
-    if (event.httpMethod === 'POST') {
+  // POST — save a call record
+  if (event.httpMethod === 'POST') {
+    try {
       const record = JSON.parse(event.body || '{}');
-      if (!record.callSid) return { statusCode:400, headers, body: JSON.stringify({ error:'Missing callSid' }) };
+      if (!record.callSid) {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing callSid' }) };
+      }
 
-      // Get existing records for this call or start fresh
-      let existing = {};
-      try { existing = JSON.parse(await store.get(record.callSid) || '{}'); } catch(e) {}
-
-      // Merge — keep the latest state, accumulate transcript
-      const updated = {
-        ...existing,
-        callSid:  record.callSid,
-        caller:   record.caller || existing.caller || 'Unknown',
-        startTime: existing.startTime || record.time,
-        lastTime:  record.time,
-        state:     record.state,
-        topic:     record.topic || existing.topic || '',
-        name:      record.name  || existing.name  || '',
-        number:    record.number|| existing.number || '',
-        transcript: [...(existing.transcript||[]), ...(record.speech ? [{ time:record.time, text:record.speech }] : [])]
+      const existing = records[record.callSid] || {};
+      records[record.callSid] = {
+        callSid:   record.callSid,
+        caller:    record.caller   || existing.caller    || 'Unknown',
+        startTime: existing.startTime || record.time     || new Date().toISOString(),
+        lastTime:  record.time        || new Date().toISOString(),
+        state:     record.state       || existing.state  || 'active',
+        topic:     record.topic       || existing.topic  || '',
+        name:      record.name        || existing.name   || '',
+        number:    record.number      || existing.number || '',
+        transcript: [
+          ...(existing.transcript || []),
+          ...(record.speech ? [{ time: record.time, speaker: 'caller', text: record.speech }] : []),
+          ...(record.reply   ? [{ time: record.time, speaker: 'aria',   text: record.reply  }] : [])
+        ]
       };
 
-      await store.set(record.callSid, JSON.stringify(updated));
-      return { statusCode:200, headers, body: JSON.stringify({ ok:true }) };
+      saveRecords(records);
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+
+    } catch(e) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
     }
-
-    // GET — return all call records for the dashboard
-    if (event.httpMethod === 'GET') {
-      const { blobs } = await store.list();
-      const records = [];
-      for (const blob of blobs.slice(-100)) { // last 100 calls
-        try {
-          const data = await store.get(blob.key);
-          if (data) records.push(JSON.parse(data));
-        } catch(e) {}
-      }
-      // Sort newest first
-      records.sort((a,b) => (b.lastTime||'').localeCompare(a.lastTime||''));
-      return { statusCode:200, headers, body: JSON.stringify({ records }) };
-    }
-
-    return { statusCode:405, headers, body: JSON.stringify({ error:'Method not allowed' }) };
-
-  } catch(err) {
-    // Fallback if Netlify Blobs not available — use in-memory store
-    console.error('Blob error:', err.message);
-    return { statusCode:200, headers, body: JSON.stringify({ records:[], error: err.message }) };
   }
+
+  // GET — return all records newest first
+  if (event.httpMethod === 'GET') {
+    try {
+      const list = Object.values(records)
+        .sort((a, b) => (b.lastTime || '').localeCompare(a.lastTime || ''))
+        .slice(0, 100);
+      return { statusCode: 200, headers, body: JSON.stringify({ records: list }) };
+    } catch(e) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: e.message, records: [] }) };
+    }
+  }
+
+  return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 };
