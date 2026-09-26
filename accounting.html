@@ -297,10 +297,9 @@ tbody td{padding:10px 14px;color:var(--text);}
       <table>
         <thead><tr><th>Employee</th><th>Role</th><th>Pay Rate</th><th>Payment Method</th><th>Payment Account</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
-          <tr><td><strong>Queen Jearel Cruz</strong></td><td>Compliance</td><td>$200/week</td><td>Wise</td><td>queen@mycprteam.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Queen Jearel Cruz','200','Wise')">Pay</button></td></tr>
+          <tr><td><strong>Queen Jearel Cruz</strong></td><td>Compliance</td><td>$400 bi-weekly</td><td>Wise</td><td>queen@mycprteam.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Queen Jearel Cruz','200','Wise')">Pay</button></td></tr>
                     <tr><td><strong>Bukunmi Aina</strong></td><td>Paid Media</td><td>TBD</td><td>Wise</td><td>bukunmiaina@gmail.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Bukunmi Aina','0','Wise')">Pay</button></td></tr>
-          <tr><td><strong>Francis Gacho</strong></td><td>Lead Gen</td><td>Commission</td><td>PayPal</td><td>francisgacho121212@gmail.com</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline btn-sm" onclick="quickPay('Francis Gacho','0','PayPal')">Pay</button></td></tr>
-                                      </tbody>
+          </tbody>
       </table>
     </div>
   </div>
@@ -653,8 +652,7 @@ tbody td{padding:10px 14px;color:var(--text);}
             <option value="">Select employee...</option>
             <option value="Queen Jearel Cruz">Queen Jearel Cruz — Compliance</option>
                                                             <option value="Bukunmi Aina">Bukunmi Aina — Paid Media</option>
-            <option value="Francis Gacho">Francis Gacho — Lead Gen</option>
-          </select>
+            </select>
         </div>
       </div>
       <div class="form-grid">
@@ -669,7 +667,7 @@ tbody td{padding:10px 14px;color:var(--text);}
         <div class="field"><label>Pay Period</label><input type="text" id="pay-period" placeholder="e.g. Sep 1-15, 2026"></div>
         <div class="field"><label>Pay Type</label>
           <select id="pay-type">
-            <option>Weekly</option><option>Bi-Weekly</option><option>Monthly</option>
+            <option>Bi-Weekly</option><option>Bi-Weekly</option><option>Monthly</option>
             <option>Commission</option><option>Bonus</option><option>Contractor</option>
           </select>
         </div>
@@ -698,7 +696,6 @@ var PKG_AMOUNTS = {
 
 var PAY_METHODS = {
   'Queen Jearel Cruz':'Wise','Bukunmi Aina':'Wise',
-  'Francis Gacho':'PayPal',
 };
 
 var EXP_CATS = {
