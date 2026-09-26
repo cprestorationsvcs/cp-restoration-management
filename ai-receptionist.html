@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<!-- CP Restoration AI Receptionist v1.0 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — AI Receptionist</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--white:#fff;--text:#1E293B;
+  --lb:#EFF4FF;--lg:#F0FFF4;--lgold:#FDF8EE;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+/* HEADER */
+.hdr{background:var(--navy);padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.hdr-brand{display:flex;align-items:center;gap:12px;}
+.hdr-logo{width:36px;height:36px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.hdr-title{font-size:15px;font-weight:800;color:white;}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.5);}
+.status-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.status-label{font-size:12px;color:#22c55e;font-weight:700;display:flex;align-items:center;gap:6px;}
+
+/* NAV */
+.nav{display:flex;gap:2px;padding:10px 16px;background:white;border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;}
+.nav-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s;}
+.nav-btn:hover{background:var(--lb);color:var(--navy);}
+.nav-btn.active{background:var(--navy);color:white;}
+
+/* LAYOUT */
+.main{display:grid;grid-template-columns:320px 1fr;flex:1;overflow:hidden;height:calc(100vh - 110px);}
+@media(max-width:700px){.main{grid-template-columns:1fr;height:auto;}}
+
+/* SIDEBAR */
+.sidebar{border-right:1px solid var(--border);background:white;display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-head{padding:16px;border-bottom:1px solid var(--border);}
+.sidebar-title{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.sidebar-sub{font-size:11px;color:var(--gray);}
+.call-list{flex:1;overflow-y:auto;}
+.call-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
+.call-item:hover{background:var(--lb);}
+.call-item.active{background:var(--lb);border-left:3px solid var(--navy);}
+.call-name{font-size:13px;font-weight:700;color:var(--text);}
+.call-phone{font-size:11px;color:var(--gray);font-family:monospace;}
+.call-time{font-size:10px;color:var(--gray);}
+.call-preview{font-size:11px;color:var(--gray);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.call-badge{font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;}
+.badge-new{background:#FEE2E2;color:#991B1B;}
+.badge-active{background:#D1FAE5;color:#065F46;}
+.badge-done{background:#F3F4F6;color:#6B7280;}
+.badge-sales{background:#DBEAFE;color:#1E40AF;}
+.badge-cs{background:#FEF3C7;color:#92400E;}
+
+/* CHAT AREA */
+.chat-area{display:flex;flex-direction:column;background:var(--bg);overflow:hidden;}
+.chat-header{padding:14px 20px;background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.chat-caller-name{font-size:15px;font-weight:800;color:var(--navy);}
+.chat-caller-sub{font-size:12px;color:var(--gray);}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;}
+.msg{max-width:80%;display:flex;flex-direction:column;gap:4px;}
+.msg.ai{align-self:flex-start;}
+.msg.user{align-self:flex-end;}
+.msg-bubble{padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.6;}
+.msg.ai .msg-bubble{background:white;border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px;}
+.msg.user .msg-bubble{background:var(--navy);color:white;border-bottom-right-radius:4px;}
+.msg-meta{font-size:10px;color:var(--gray);}
+.msg.ai .msg-meta{padding-left:4px;}
+.msg.user .msg-meta{padding-right:4px;text-align:right;}
+.typing{display:flex;align-items:center;gap:4px;padding:12px 16px;background:white;border:1px solid var(--border);border-radius:14px;border-bottom-left-radius:4px;width:60px;}
+.typing span{width:6px;height:6px;background:var(--gray);border-radius:50%;animation:bounce .9s infinite;}
+.typing span:nth-child(2){animation-delay:.15s;}
+.typing span:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+
+/* INPUT */
+.chat-input-wrap{padding:14px 20px;background:white;border-top:1px solid var(--border);flex-shrink:0;}
+.chat-input-row{display:flex;gap:10px;align-items:flex-end;}
+.chat-input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;resize:none;outline:none;max-height:100px;transition:border .2s;}
+.chat-input:focus{border-color:var(--navy);}
+.btn-send{padding:10px 18px;background:var(--navy);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.btn-send:hover{background:#142d55;}
+.btn-send:disabled{opacity:.5;cursor:not-allowed;}
+.quick-replies{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.qr-btn{padding:5px 10px;background:var(--lb);border:1px solid var(--navy);border-radius:6px;font-size:11px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;transition:all .15s;}
+.qr-btn:hover{background:var(--navy);color:white;}
+
+/* PAGES (non-chat) */
+.page-content{flex:1;overflow-y:auto;padding:20px;max-width:1000px;margin:0 auto;width:100%;}
+.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:800;color:var(--navy);}
+.card-body{padding:18px;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px;}
+.stat{background:white;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stat-label{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.stat-value{font-size:22px;font-weight:800;color:var(--navy);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--navy);}
+thead th{padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:white;white-space:nowrap;}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--border);}
+tbody tr:hover{background:var(--lb);}
+.badge{padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;}
+.badge-green{background:#D1FAE5;color:#065F46;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.badge-red{background:#FEE2E2;color:#991B1B;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:14px;}
+.alert-gold{background:var(--lgold);border-left:3px solid var(--gold);color:#7A5F00;}
+.alert-blue{background:var(--lb);border-left:3px solid var(--navy);color:var(--navy);}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;}
+.field input:focus,.field select:focus{border-color:var(--navy);}
+.btn{padding:8px 16px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-navy{background:var(--navy);color:white;}
+.btn-green{background:var(--green);color:white;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+.btn-sm{padding:5px 12px;font-size:11px;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-logo">🤖</div>
+    <div>
+      <div class="hdr-title">CP Restoration — AI Receptionist</div>
+      <div class="hdr-sub">Powered by Claude AI • Grasshopper Integration</div>
+    </div>
+  </div>
+  <div class="status-label"><span class="status-dot"></span>LIVE — Answering Calls</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showSection('live')">📞 Live Calls</button>
+  <button class="nav-btn" onclick="showSection('log')">📋 Call Log</button>
+  <button class="nav-btn" onclick="showSection('leads')">💰 Sales Leads</button>
+  <button class="nav-btn" onclick="showSection('settings')">⚙️ Settings</button>
+</div>
+
+<!-- LIVE CALLS SECTION -->
+<div id="section-live" class="main">
+  <!-- Sidebar: call list -->
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title">📞 Incoming Calls</div>
+      <div class="sidebar-sub" id="call-count">3 conversations today</div>
+    </div>
+    <div class="call-list" id="call-list"></div>
+  </div>
+
+  <!-- Chat area -->
+  <div class="chat-area" id="chat-area">
+    <div class="chat-header" id="chat-header">
+      <div>
+        <div class="chat-caller-name" id="chat-caller-name">Select a conversation</div>
+        <div class="chat-caller-sub" id="chat-caller-sub">Choose from the left to view</div>
+      </div>
+      <div id="chat-header-actions" style="display:flex;gap:8px;"></div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div style="text-align:center;padding:40px;color:var(--gray);">
+        <div style="font-size:48px;margin-bottom:12px;">🤖</div>
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px;">AI Receptionist Active</div>
+        <div style="font-size:13px;line-height:1.7;">The AI is answering calls from your Grasshopper number.<br>Select a conversation to view the transcript and join if needed.</div>
+      </div>
+    </div>
+    <div class="chat-input-wrap" id="chat-input-wrap">
+      <div class="quick-replies" id="quick-replies">
+        <button class="qr-btn" onclick="sendQuick('Transfer to Jason Crown — owner and founder.')">👤 Transfer to Jason</button>
+        <button class="qr-btn" onclick="sendQuick('Please hold while I pull up your file.')">📂 Pull File</button>
+        <button class="qr-btn" onclick="sendQuick('Your file is active and your disputes are ongoing. No changes to your service.')">✅ Reassure Client</button>
+        <button class="qr-btn" onclick="sendQuick('I will have Jason call you back within 2 hours.')">📞 Schedule Callback</button>
+      </div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chat-input" placeholder="Type a message to inject into the conversation..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+        <button class="btn-send" onclick="sendMessage()" id="btn-send">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALL LOG SECTION -->
+<div id="section-log" style="display:none;" class="page-content">
+  <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">Call Log</div>
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-label">Total Calls Today</div><div class="stat-value" id="log-total">0</div></div>
+    <div class="stat"><div class="stat-label">Handled by AI</div><div class="stat-value" id="log-ai">0</div></div>
+    <div class="stat"><div class="stat-label">Transferred</div><div class="stat-value" id="log-transferred">0</div></div>
+    <div class="stat"><div class="stat-label">Sales Leads</div><div class="stat-value" id="log-leads">0</div></div>
+    <div class="stat"><div class="stat-label">Avg Handle Time</div><div class="stat-value" id="log-avg">0m</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">All Calls</div></div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Time</th><th>Caller</th><th>Phone</th><th>Type</th><th>Duration</th><th>Outcome</th><th>Summary</th></tr></thead>
+        <tbody id="log-tbody"><tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">No calls yet today.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SALES LEADS SECTION -->
+<div id="section-leads" style="display:none;" class="page-content">
+  <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">Sales Leads Captured</div>
+  <div class="alert alert-gold">The AI captures contact information and credit situation details from every sales inquiry. Follow up with these leads as soon as possible — they called because they want help.</div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">💰 Leads</div>
+      <div style="font-size:12px;color:var(--gray);" id="lead-count">0 leads captured</div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Time</th><th>Name</th><th>Phone</th><th>Credit Issues</th><th>Budget</th><th>Urgency</th><th>Status</th></tr></thead>
+        <tbody id="leads-tbody"><tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">No leads captured yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS SECTION -->
+<div id="section-settings" style="display:none;" class="page-content">
+  <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">AI Receptionist Settings</div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-head"><div class="card-title">🤖 AI Behavior</div></div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="field"><label>AI Greeting (what the AI says first)</label>
+        <textarea id="set-greeting" rows="3" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;">Thank you for calling CP Restoration Services. My name is Aria, I am your virtual assistant. CP Restoration is fully open and actively working for all of our clients. How can I help you today?</textarea>
+      </div>
+      <div class="field"><label>AI Persona Name</label>
+        <input type="text" id="set-name" value="Aria"></div>
+      <div class="field"><label>Escalation Trigger (AI transfers to Jason when caller says...)</label>
+        <input type="text" id="set-escalate" value="cancel, refund, lawsuit, attorney, charge back, speak to owner, speak to Jason, urgent, emergency"></div>
+      <div class="field"><label>Business Hours (AI mentions these when caller asks)</label>
+        <input type="text" id="set-hours" value="Monday through Friday, 9 AM to 6 PM Eastern Time"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-head"><div class="card-title">📞 Grasshopper Integration</div></div>
+    <div class="card-body">
+      <div class="alert alert-blue" style="margin-bottom:14px;">
+        To connect Grasshopper: set your Grasshopper number to forward unanswered calls to this AI system. In your Grasshopper dashboard go to Settings → Call Forwarding → set the forward-to number to the webhook URL below.
+      </div>
+      <div class="field" style="margin-bottom:10px;"><label>Your Grasshopper Number</label>
+        <input type="text" id="set-grasshopper" placeholder="+1 (xxx) xxx-xxxx"></div>
+      <div class="field" style="margin-bottom:10px;"><label>Webhook URL (give this to Grasshopper)</label>
+        <input type="text" value="https://portal-cprestorationsvcs.com/ai-receptionist-webhook" readonly style="background:var(--bg);font-family:monospace;font-size:12px;"></div>
+      <div class="field"><label>Callback Number (AI tells callers Jason will call back from this number)</label>
+        <input type="text" id="set-callback" placeholder="+1 (xxx) xxx-xxxx"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-head"><div class="card-title">📋 AI Knowledge Base</div></div>
+    <div class="card-body">
+      <div style="font-size:13px;color:var(--gray);margin-bottom:12px;">The AI uses this information to answer caller questions accurately.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="padding:12px;background:var(--lb);border-radius:8px;font-size:13px;"><strong>Company:</strong> CP Restoration Services | Founded 2014 | Owner: Jason Crown | Location: Coconut Creek, FL | Website: 35daycreditrepair.com</div>
+        <div style="padding:12px;background:var(--lb);border-radius:8px;font-size:13px;"><strong>Packages:</strong> Express $3,999 (60 days), Standard $2,499 (120 days), Financing $750 + $292×6, Single Bureau $1,000, Inquiries Only $45/inquiry/bureau. Rush add-on +$500.</div>
+        <div style="padding:12px;background:var(--lb);border-radius:8px;font-size:13px;"><strong>Process:</strong> Live bureau calls + FTC reports + dispute letters. All 3 bureaus. Follow up every 10 business days. Money-back guarantee if we don't deliver.</div>
+        <div style="padding:12px;background:var(--lb);border-radius:8px;font-size:13px;"><strong>Current situation:</strong> CP Restoration is fully operational. Ignore any emails from former associates — they are not affiliated with us.</div>
+        <div style="padding:12px;background:var(--lb);border-radius:8px;font-size:13px;"><strong>Client portal:</strong> portal-cprestorationsvcs.com — clients can check their account and submit information here.</div>
+      </div>
+      <button class="btn btn-navy btn-sm" style="margin-top:12px;" onclick="saveSettings()">💾 Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────
+var activeCallId = null;
+var calls = [];
+var callLog = [];
+var salesLeads = [];
+var isTyping = false;
+var aiName = 'Aria';
+
+var AI_SYSTEM_PROMPT = `You are Aria, the AI receptionist for CP Restoration Services, a credit repair company founded in 2014 by Jason Crown in Coconut Creek, FL.
+
+IMPORTANT CURRENT SITUATION: CP Restoration Services is fully operational. A former employee named Xyla left and started a competing company, taking some staff with her and emailing our clients. If callers mention receiving emails about switching companies, reassure them firmly that CP Restoration is open, their file is safe, and we are stronger than ever.
+
+YOUR ROLE:
+- Answer customer service questions about active client files
+- Handle sales inquiries and capture lead information
+- Reassure existing clients that their service continues uninterrupted
+- Escalate urgent issues to Jason Crown
+
+COMPANY INFO:
+- Services: Credit repair — disputes with Equifax, Experian, TransUnion
+- Packages: Express $3,999 (60 days), Standard $2,499 (120 days), Financing $750 down + $292/month x 6, Single Bureau $1,000, Inquiries Only $45/inquiry/bureau. Rush add-on +$500.
+- Process: Live bureau calls + FTC reports + dispute letters. Follow up every 10 business days.
+- Guarantee: Money back if we do not deliver results
+- Client portal: portal-cprestorationsvcs.com
+- Email: cprestorationsvcs@gmail.com
+- Owner: Jason Crown — available for escalations
+
+TONE: Professional, warm, confident, reassuring. Never speak negatively about any other company. Never confirm or deny details about internal personnel situations. Keep responses concise — this is a phone conversation.
+
+ESCALATE TO JASON when caller says: cancel, refund, lawsuit, attorney, chargeback, speak to owner, urgent, or emergency.
+
+For sales leads: collect name, phone, what credit issues they have, their timeline, and their budget.`;
+
+// ── DEMO CALLS ───────────────────────────────────────────────────
+var DEMO_CALLS = [
+  {
+    id: 1,
+    name: 'Maria Johnson',
+    phone: '+1 (305) 555-0142',
+    clientId: 'CPR-00042',
+    type: 'cs',
+    time: '9:14 AM',
+    status: 'active',
+    messages: [
+      { role:'ai',   text:'Thank you for calling CP Restoration Services. My name is Aria, your virtual assistant. CP Restoration is fully open and working hard for all our clients. How can I help you today?', time:'9:14 AM' },
+      { role:'user', text:'Hi I got an email saying you guys were closing and I should go to some other company. Is that true?', time:'9:14 AM' },
+      { role:'ai',   text:'I completely understand your concern and I am glad you called to verify directly with us. That email did not come from CP Restoration Services. We are 100% open and fully operational. Your file is active, your disputes are ongoing, and nothing has changed about your service. That email was sent by a former associate who is no longer affiliated with our company in any way. Please disregard it entirely. Your file, your client ID, and all your dispute records are safe with us. Is there anything else I can help reassure you about?', time:'9:15 AM' },
+      { role:'user', text:'Oh thank goodness. So my disputes are still being worked on?', time:'9:15 AM' },
+      { role:'ai',   text:'Absolutely. Your disputes are actively being worked on. CP Restoration Services has been in business since 2014 and we are not going anywhere. Jason Crown, our founder, is personally overseeing all active files during this transition period. Your credit repair is continuing as agreed. Can I pull up your client ID to give you a specific update on your file?', time:'9:16 AM' },
+    ]
+  },
+  {
+    id: 2,
+    name: 'New Caller',
+    phone: '+1 (786) 555-0389',
+    clientId: null,
+    type: 'sales',
+    time: '9:41 AM',
+    status: 'active',
+    messages: [
+      { role:'ai',   text:'Thank you for calling CP Restoration Services. My name is Aria, your virtual assistant. How can I help you today?', time:'9:41 AM' },
+      { role:'user', text:'Yes hi I saw your ad on Facebook and I have a lot of collections and late payments on my credit. I want to see if you can help me.', time:'9:41 AM' },
+      { role:'ai',   text:'You called the right place! CP Restoration Services has been helping people just like you restore their credit since 2014. Collections and late payments are exactly what we specialize in. Can I ask — are these showing on all three bureaus, or just one or two? And do you know roughly how many negative items you are dealing with?', time:'9:42 AM' },
+      { role:'user', text:'I think all three. I have like 8 collections and maybe 5 late payments.', time:'9:42 AM' },
+      { role:'ai',   text:'Got it — so about 13 negative items across all three bureaus. That is very workable. We dispute those through live bureau calls, FTC reports, and certified dispute letters, and we follow up every 10 business days to push for removal. For your situation our Standard Package at $2,499 would be the best fit — that covers all three bureaus with a 120 business day timeline. We also have financing available — just $750 down and $292 a month. What is most important to you right now — speed of results or keeping the monthly cost low?', time:'9:43 AM' },
+    ]
+  },
+  {
+    id: 3,
+    name: 'Robert Williams',
+    phone: '+1 (954) 555-0217',
+    clientId: 'CPR-00156',
+    type: 'cs',
+    time: '10:02 AM',
+    status: 'done',
+    messages: [
+      { role:'ai',   text:'Thank you for calling CP Restoration Services. My name is Aria, your virtual assistant. How can I help you today?', time:'10:02 AM' },
+      { role:'user', text:'I just want to know if my Equifax dispute went through because I have not heard anything.', time:'10:02 AM' },
+      { role:'ai',   text:'Of course, I understand. Bureaus typically take 30 to 45 days to respond to disputes. If your dispute was filed recently, it may still be within the review window. Can I get your client ID so I can note this for Jason and have him review your specific file status?', time:'10:03 AM' },
+      { role:'user', text:'Sure its CPR-00156', time:'10:03 AM' },
+      { role:'ai',   text:'Thank you Robert. I have noted your inquiry for client ID CPR-00156 regarding your Equifax dispute status. Jason Crown will personally review your file and follow up with you within 24 hours. Is the best number to reach you still the one you are calling from?', time:'10:03 AM' },
+      { role:'user', text:'Yes that works. Thanks', time:'10:04 AM' },
+      { role:'ai',   text:'Perfect. You are all set Robert. Jason will be in touch within 24 hours with an update on your Equifax dispute. Is there anything else I can help you with today?', time:'10:04 AM' },
+    ]
+  }
+];
+
+// ── INIT ─────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  calls = DEMO_CALLS;
+  renderCallList();
+  updateLogStats();
+  loadCallToLog();
+});
+
+// ── NAVIGATION ───────────────────────────────────────────────────
+function showSection(name) {
+  ['live','log','leads','settings'].forEach(function(s){
+    var el = document.getElementById('section-'+s);
+    if (el) el.style.display = s===name ? (s==='live'?'grid':'block') : 'none';
+  });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  var btns = document.querySelectorAll('.nav-btn');
+  for (var i=0;i<btns.length;i++){
+    if ((btns[i].getAttribute('onclick')||'').indexOf("'"+name+"'")!==-1){ btns[i].classList.add('active'); break; }
+  }
+  if (name==='leads') renderLeads();
+  if (name==='log') renderLog();
+}
+
+// ── CALL LIST ────────────────────────────────────────────────────
+function renderCallList() {
+  var list = document.getElementById('call-list');
+  if (!list) return;
+  var countEl = document.getElementById('call-count');
+  if (countEl) countEl.textContent = calls.length + ' conversations today';
+  list.innerHTML = calls.map(function(c) {
+    var lastMsg = c.messages[c.messages.length-1];
+    var typeBadge = c.type==='sales' ? '<span class="call-badge badge-sales">SALES</span>' : '<span class="call-badge badge-cs">CS</span>';
+    var statusBadge = c.status==='active' ? '<span class="call-badge badge-active">ACTIVE</span>' : '<span class="call-badge badge-done">DONE</span>';
+    return '<div class="call-item'+(c.id===activeCallId?' active':'')+'" onclick="openCall('+c.id+')">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;">' +
+        '<div class="call-name">'+c.name+'</div>' +
+        '<div class="call-time">'+c.time+'</div>' +
+      '</div>' +
+      '<div class="call-phone">'+c.phone+'</div>' +
+      '<div style="display:flex;gap:4px;margin-top:5px;">'+typeBadge+' '+statusBadge+'</div>' +
+      '<div class="call-preview">'+(lastMsg?lastMsg.text.substring(0,50)+'...':'')+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openCall(id) {
+  activeCallId = id;
+  var call = calls.find(function(c){ return c.id===id; });
+  if (!call) return;
+  renderCallList();
+
+  // Update header
+  document.getElementById('chat-caller-name').textContent = call.name + (call.clientId ? ' — ' + call.clientId : ' — Prospect');
+  document.getElementById('chat-caller-sub').textContent = call.phone + ' • ' + (call.type==='sales'?'Sales Inquiry':'Customer Service') + ' • ' + call.time;
+
+  var actions = document.getElementById('chat-header-actions');
+  if (actions) actions.innerHTML =
+    '<button class="btn btn-outline btn-sm" onclick="escalateToJason()">📞 Transfer to Jason</button>' +
+    '<button class="btn btn-navy btn-sm" onclick="endCall()">✓ End Call</button>';
+
+  renderMessages(call.messages);
+}
+
+// ── MESSAGES ─────────────────────────────────────────────────────
+function renderMessages(messages) {
+  var container = document.getElementById('chat-messages');
+  if (!container) return;
+  container.innerHTML = messages.map(function(m) {
+    return '<div class="msg '+m.role+'">' +
+      '<div class="msg-bubble">'+m.text+'</div>' +
+      '<div class="msg-meta">'+(m.role==='ai'?aiName+' (AI)':'Caller')+' • '+m.time+'</div>' +
+    '</div>';
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  var container = document.getElementById('chat-messages');
+  if (!container) return;
+  var typing = document.createElement('div');
+  typing.className = 'msg ai';
+  typing.id = 'typing-indicator';
+  typing.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  container.appendChild(typing);
+  container.scrollTop = container.scrollHeight;
+}
+
+function hideTyping() {
+  var el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+// ── SEND MESSAGE ─────────────────────────────────────────────────
+function sendMessage() {
+  var input = document.getElementById('chat-input');
+  if (!input || !input.value.trim() || !activeCallId) return;
+  var text = input.value.trim();
+  input.value = '';
+
+  var call = calls.find(function(c){ return c.id===activeCallId; });
+  if (!call) return;
+
+  var now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  call.messages.push({ role:'user', text:text, time:now });
+  renderMessages(call.messages);
+  renderCallList();
+
+  // Get AI response
+  getAIResponse(call, text);
+}
+
+function sendQuick(text) {
+  if (!activeCallId) { alert('Please select a call first.'); return; }
+  var input = document.getElementById('chat-input');
+  if (input) input.value = text;
+  sendMessage();
+}
+
+function getAIResponse(call, userMessage) {
+  showTyping();
+  var btn = document.getElementById('btn-send');
+  if (btn) btn.disabled = true;
+
+  // Build messages for Claude API
+  var messages = call.messages.slice(0,-1).map(function(m){
+    return { role: m.role==='ai' ? 'assistant' : 'user', content: m.text };
+  });
+  messages.push({ role:'user', content: userMessage });
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
+    body:JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:1000,
+      system: AI_SYSTEM_PROMPT,
+      messages: messages
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    hideTyping();
+    if (btn) btn.disabled = false;
+    var reply = (data.content && data.content[0]) ? data.content[0].text : 'I apologize, I am having a technical issue. Please hold while I connect you with Jason Crown directly.';
+    var now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    call.messages.push({ role:'ai', text:reply, time:now });
+    renderMessages(call.messages);
+    renderCallList();
+
+    // Check if this is a sales lead and capture info
+    if (call.type==='sales' && call.messages.length > 4) {
+      checkCaptureLead(call);
+    }
+  })
+  .catch(function(){
+    hideTyping();
+    if (btn) btn.disabled = false;
+    var now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    var fallback = 'I apologize for the delay. Let me make sure Jason Crown receives your message personally and calls you back within the hour. Can I confirm the best number to reach you?';
+    call.messages.push({ role:'ai', text:fallback, time:now });
+    renderMessages(call.messages);
+  });
+}
+
+// ── DEMO RESPONSE (for quick testing without API) ─────────────────
+function addDemoMessage(call) {
+  var responses = {
+    cs: [
+      'I completely understand your concern. Your file is active and being worked on. Let me note this for Jason and he will follow up with you within 24 hours.',
+      'Absolutely. Your disputes are ongoing and nothing has changed about your service. CP Restoration is fully operational and committed to your results.',
+      'I have noted that for your file. Jason Crown will personally review this and get back to you today.'
+    ],
+    sales: [
+      'That is a great question. Our Standard Package at $2,499 covers all three bureaus with a 120-day timeline. We also offer financing — just $750 down and $292 a month.',
+      'We have been doing this since 2014 with thousands of clients. Our process uses live bureau calls, FTC reports, and certified dispute letters.',
+      'Can I get your name and best callback number so Jason can personally follow up with you about your options?'
+    ]
+  };
+  var opts = responses[call.type] || responses.cs;
+  return opts[Math.floor(Math.random()*opts.length)];
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────
+function escalateToJason() {
+  if (!activeCallId) return;
+  var call = calls.find(function(c){ return c.id===activeCallId; });
+  if (!call) return;
+  var now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  call.messages.push({ role:'ai', text:'One moment please — I am transferring you to Jason Crown, the founder of CP Restoration Services, right now. Thank you for your patience.', time:now });
+  renderMessages(call.messages);
+  alert('📞 Transfer initiated to Jason Crown.\n\nCaller: ' + call.name + '\nPhone: ' + call.phone + '\nType: ' + call.type);
+}
+
+function endCall() {
+  if (!activeCallId) return;
+  var call = calls.find(function(c){ return c.id===activeCallId; });
+  if (!call) return;
+  call.status = 'done';
+  callLog.push({
+    time: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+    name: call.name,
+    phone: call.phone,
+    type: call.type,
+    duration: Math.floor(Math.random()*8+2) + 'm',
+    outcome: 'AI Handled',
+    summary: call.messages[call.messages.length-1].text.substring(0,60)+'...'
+  });
+  updateLogStats();
+  renderCallList();
+  showToast('Call ended and logged.');
+}
+
+function checkCaptureLead(call) {
+  var transcript = call.messages.map(function(m){ return m.text; }).join(' ');
+  if (transcript.toLowerCase().indexOf('name') !== -1 && salesLeads.findIndex(function(l){ return l.callId===call.id; }) === -1) {
+    salesLeads.push({
+      callId: call.id,
+      time: call.time,
+      name: call.name,
+      phone: call.phone,
+      issues: 'Collections, Late Payments',
+      budget: 'TBD',
+      urgency: 'High',
+      status: 'New'
+    });
+    document.getElementById('log-leads').textContent = salesLeads.length;
+  }
+}
+
+// ── LOG ──────────────────────────────────────────────────────────
+function loadCallToLog() {
+  callLog = DEMO_CALLS.filter(function(c){ return c.status==='done'; }).map(function(c){
+    return {
+      time: c.time,
+      name: c.name,
+      phone: c.phone,
+      type: c.type,
+      duration: Math.floor(Math.random()*6+2)+'m',
+      outcome: 'AI Handled',
+      summary: c.messages[c.messages.length-1].text.substring(0,60)+'...'
+    };
+  });
+  salesLeads = [{
+    callId: 2,
+    time: '9:41 AM',
+    name: 'New Caller',
+    phone: '+1 (786) 555-0389',
+    issues: '8 Collections, 5 Late Payments (all 3 bureaus)',
+    budget: 'Open to financing',
+    urgency: 'High',
+    status: 'New'
+  }];
+  updateLogStats();
+}
+
+function updateLogStats() {
+  set('log-total', calls.length);
+  set('log-ai', calls.length);
+  set('log-transferred', 0);
+  set('log-leads', salesLeads.length);
+  set('log-avg', '4m');
+  set('lead-count', salesLeads.length + ' leads captured');
+}
+
+function renderLog() {
+  var tbody = document.getElementById('log-tbody');
+  if (!tbody) return;
+  var allLog = callLog.concat(calls.filter(function(c){ return c.status==='active'; }).map(function(c){
+    return { time:c.time, name:c.name, phone:c.phone, type:c.type, duration:'In progress', outcome:'Active', summary:'...' };
+  }));
+  if (!allLog.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">No calls logged yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allLog.map(function(c){
+    var typeBadge = c.type==='sales'?'<span class="badge badge-blue">Sales</span>':'<span class="badge badge-gold">CS</span>';
+    var outBadge = c.outcome==='Active'?'<span class="badge badge-green">Active</span>':'<span class="badge" style="background:#F3F4F6;color:#374151;">'+c.outcome+'</span>';
+    return '<tr><td>'+c.time+'</td><td style="font-weight:600;">'+c.name+'</td><td style="font-family:monospace;font-size:12px;">'+c.phone+'</td><td>'+typeBadge+'</td><td>'+c.duration+'</td><td>'+outBadge+'</td><td style="font-size:12px;color:var(--gray);">'+c.summary+'</td></tr>';
+  }).join('');
+}
+
+function renderLeads() {
+  var tbody = document.getElementById('leads-tbody');
+  var countEl = document.getElementById('lead-count');
+  if (!tbody) return;
+  if (countEl) countEl.textContent = salesLeads.length + ' leads captured';
+  if (!salesLeads.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">No leads captured yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = salesLeads.map(function(l){
+    return '<tr><td>'+l.time+'</td><td style="font-weight:700;">'+l.name+'</td><td style="font-family:monospace;font-size:12px;">'+l.phone+'</td><td style="font-size:12px;">'+l.issues+'</td><td>'+l.budget+'</td><td><span class="badge badge-red">'+l.urgency+'</span></td><td><span class="badge badge-gold">'+l.status+'</span></td></tr>';
+  }).join('');
+}
+
+function saveSettings() {
+  aiName = document.getElementById('set-name').value || 'Aria';
+  showToast('Settings saved.');
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function set(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.3);';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3000);
+}
+
+// Auto-simulate incoming call after 8 seconds
+setTimeout(function() {
+  var newCall = {
+    id: 4,
+    name: 'Incoming Call...',
+    phone: '+1 (561) 555-0301',
+    clientId: null,
+    type: 'cs',
+    time: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+    status: 'new',
+    messages: []
+  };
+  calls.unshift(newCall);
+  renderCallList();
+  showToast('📞 New incoming call from +1 (561) 555-0301');
+
+  setTimeout(function() {
+    var now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    newCall.name = 'Caller';
+    newCall.status = 'active';
+    newCall.messages.push({ role:'ai', text:'Thank you for calling CP Restoration Services. My name is Aria, your virtual assistant. CP Restoration is fully open and actively working for all of our clients. How can I help you today?', time:now });
+    renderCallList();
+  }, 2000);
+}, 8000);
+</script>
+</body>
+</html>
