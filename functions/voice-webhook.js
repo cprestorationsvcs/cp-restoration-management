@@ -5,7 +5,7 @@
 const https = require('https');
 
 // ── COMPANY KNOWLEDGE BASE ────────────────────────────────────────
-const SYSTEM_PROMPT = `You are Aria, the AI receptionist for CP Restoration Services, a credit repair company founded in 2014 by Jason Crown in Coconut Creek, FL.
+const SYSTEM_PROMPT = `You are Aria, the AI receptionist for CP Restoration Services, a credit repair company founded in 2014 by our client services representative in Coconut Creek, FL.
 
 CRITICAL SITUATION: CP Restoration Services is FULLY OPERATIONAL. A former employee named Xyla left and started a competing company, taking some staff and emailing our clients to switch. If any caller mentions receiving emails about switching companies, a company closing, or going with a cheaper service — reassure them firmly that CP Restoration is open, their file is safe, and we are not going anywhere.
 
@@ -73,9 +73,9 @@ function askClaude(messages) {
         try {
           const parsed = JSON.parse(data);
           const text = parsed.content && parsed.content[0] ? parsed.content[0].text : null;
-          resolve(text || 'I apologize for the delay. Let me connect you with Jason Crown directly. Please hold.');
+          resolve(text || 'I apologize for the delay. Let me connect you with our client services representative directly. Please hold.');
         } catch(e) {
-          resolve('Thank you for calling CP Restoration Services. Please hold while I connect you with Jason Crown.');
+          resolve('Thank you for calling CP Restoration Services. Please hold while I connect you with our client services representative.');
         }
       });
     });
@@ -98,7 +98,7 @@ function twimlSay(text, gather = true, callSid = '') {
   <Gather input="speech" action="${gatherAction}" method="POST" speechTimeout="3" language="en-US">
     <Say voice="Polly.Joanna">${escapeXml(text)}</Say>
   </Gather>
-  <Say voice="Polly.Joanna">I didn't catch that. Let me connect you with Jason Crown directly.</Say>
+  <Say voice="Polly.Joanna">I didn't catch that. Let me connect you with our client services representative directly.</Say>
   <Dial>${'+17542660042'}</Dial>
 </Response>`;
   } else {
@@ -130,7 +130,7 @@ function escapeXml(text) {
 // ── ESCALATION CHECK ─────────────────────────────────────────────
 function shouldEscalate(text) {
   const triggers = ['cancel','refund','lawsuit','attorney','chargeback',
-    'speak to owner','speak to jason','jason crown','urgent','emergency',
+    'speak to owner','speak to jason','our client services representative','urgent','emergency',
     'legal','lawyer','sue','scam','fraud','police'];
   const lower = (text || '').toLowerCase();
   return triggers.some(t => lower.includes(t));
