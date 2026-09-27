@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<!-- CP Restoration Client Portal v1.0 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Client Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--white:#fff;--text:#1E293B;
+  --lb:#EFF4FF;--lg:#F0FFF4;--lgold:#FDF8EE;--lr:#FFF0F0;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,var(--navy) 0%,#2d5ca6 100%);}
+.login-card{background:white;border-radius:20px;padding:40px 36px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+.login-logo{text-align:center;margin-bottom:24px;}
+.login-logo-icon{width:64px;height:64px;background:var(--navy);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;}
+.login-logo-title{font-size:20px;font-weight:800;color:var(--navy);}
+.login-logo-sub{font-size:12px;color:var(--gray);margin-top:2px;}
+.login-title{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--gray);margin-bottom:24px;}
+.form-field{margin-bottom:16px;}
+.form-field label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px;letter-spacing:.3px;}
+.form-field input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border .2s;color:var(--text);}
+.form-field input:focus{border-color:var(--navy);}
+.btn-login{width:100%;padding:14px;background:var(--navy);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;margin-top:4px;}
+.btn-login:hover{background:#142d55;}
+.login-error{color:var(--red);font-size:13px;font-weight:600;padding:10px 14px;background:var(--lr);border-radius:8px;margin-bottom:14px;display:none;border-left:3px solid var(--red);}
+.login-help{text-align:center;margin-top:20px;font-size:12px;color:var(--gray);line-height:1.7;}
+
+/* APP */
+#app{display:none;}
+
+/* HEADER */
+.hdr{background:var(--navy);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.hdr-left{display:flex;align-items:center;gap:12px;}
+.hdr-avatar{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--navy);}
+.hdr-name{font-size:14px;font-weight:700;color:white;}
+.hdr-id{font-size:11px;color:rgba(255,255,255,.5);font-family:monospace;}
+.btn-out{padding:7px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* NAV */
+.nav{display:flex;gap:2px;padding:10px 16px;background:white;border-bottom:1px solid var(--border);overflow-x:auto;}
+.nav-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s;}
+.nav-btn:hover{background:var(--lb);color:var(--navy);}
+.nav-btn.active{background:var(--navy);color:white;}
+
+/* CONTENT */
+.content{padding:20px;max-width:900px;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* CARDS */
+.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);overflow:hidden;margin-bottom:16px;}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:800;color:var(--navy);}
+.card-body{padding:20px;}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.stat-value{font-size:20px;font-weight:800;color:var(--navy);}
+.stat-sub{font-size:11px;color:var(--gray);margin-top:3px;}
+.stat.green .stat-value{color:var(--green);}
+.stat.gold .stat-value{color:var(--gold);}
+.stat.red .stat-value{color:var(--red);}
+
+/* BADGES */
+.badge{padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
+.badge-green{background:#D1FAE5;color:#065F46;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.badge-red{background:#FEE2E2;color:#991B1B;}
+.badge-gray{background:#F3F4F6;color:#374151;}
+
+/* PROGRESS BAR */
+.progress-wrap{background:var(--border);border-radius:6px;height:10px;overflow:hidden;margin:8px 0;}
+.progress-bar{height:100%;background:var(--green);border-radius:6px;transition:width .5s;}
+
+/* DISPUTE ITEMS */
+.dispute-item{padding:14px 16px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.dispute-item.removed{border-color:#D1FAE5;background:var(--lg);}
+.dispute-item.pending{border-color:#FEF3C7;background:var(--lgold);}
+.dispute-item.filed{border-color:#DBEAFE;background:var(--lb);}
+.dispute-name{font-size:13px;font-weight:700;color:var(--text);}
+.dispute-detail{font-size:11px;color:var(--gray);margin-top:2px;}
+.bureau-dots{display:flex;gap:6px;margin-top:6px;}
+.bureau-dot{padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;}
+.dot-eq{background:#FEE2E2;color:#991B1B;}
+.dot-ex{background:#DBEAFE;color:#1E40AF;}
+.dot-tu{background:#D1FAE5;color:#065F46;}
+.dot-filed{background:#E0E7FF;color:#3730A3;}
+.dot-removed{background:#D1FAE5;color:#065F46;}
+.dot-pending{background:#FEF3C7;color:#92400E;}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border);}
+.timeline-item{position:relative;margin-bottom:20px;}
+.timeline-dot{position:absolute;left:-20px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--navy);border:2px solid white;box-shadow:0 0 0 2px var(--navy);}
+.timeline-dot.green{background:var(--green);box-shadow:0 0 0 2px var(--green);}
+.timeline-dot.gold{background:var(--gold);box-shadow:0 0 0 2px var(--gold);}
+.timeline-date{font-size:11px;color:var(--gray);margin-bottom:2px;}
+.timeline-title{font-size:13px;font-weight:700;color:var(--text);}
+.timeline-body{font-size:12px;color:var(--gray);margin-top:3px;line-height:1.6;}
+
+/* MESSAGE */
+.msg-form textarea{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;outline:none;min-height:100px;}
+.msg-form textarea:focus{border-color:var(--navy);}
+.btn{padding:9px 18px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;}
+.btn-navy{background:var(--navy);color:white;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+.btn-sm{padding:5px 12px;font-size:11px;}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:16px;}
+.alert-blue{background:var(--lb);border-left:3px solid var(--navy);color:var(--navy);}
+.alert-green{background:var(--lg);border-left:3px solid var(--green);color:var(--green);}
+.alert-gold{background:var(--lgold);border-left:3px solid var(--gold);color:#7A5F00;}
+
+/* INFO ROWS */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.info-row:last-child{border:none;}
+.info-label{color:var(--gray);font-weight:500;}
+.info-value{font-weight:700;color:var(--text);text-align:right;}
+
+/* MESSAGE THREAD */
+.msg-thread{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;max-height:300px;overflow-y:auto;}
+.msg-bubble-wrap{display:flex;flex-direction:column;}
+.msg-bubble-wrap.client{align-items:flex-end;}
+.msg-bubble-wrap.team{align-items:flex-start;}
+.msg-bbl{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:80%;}
+.msg-bubble-wrap.client .msg-bbl{background:var(--navy);color:white;border-bottom-right-radius:3px;}
+.msg-bubble-wrap.team .msg-bbl{background:white;border:1px solid var(--border);color:var(--text);border-bottom-left-radius:3px;}
+.msg-meta-sm{font-size:10px;color:var(--gray);margin-top:3px;padding:0 4px;}
+
+/* MOBILE */
+@media(max-width:500px){
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .dispute-item{flex-direction:column;align-items:flex-start;}
+  .login-card{padding:28px 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">🔐</div>
+        <div class="login-logo-title">CP Restoration Services</div>
+        <div class="login-logo-sub">Client Portal — 35daycreditrepair.com</div>
+      </div>
+      <div class="login-title">Welcome back</div>
+      <div class="login-sub">Log in to view your file, dispute status, and updates.</div>
+      <div class="login-error" id="login-error">Incorrect Client ID or password. Contact us at cprestorationsvcs@gmail.com</div>
+      <div class="form-field">
+        <label>Client ID</label>
+        <input type="text" id="login-id" placeholder="e.g. CPR-00001" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" id="login-pw" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-login" onclick="doLogin()">Sign In →</button>
+      <div class="login-help">
+        Don't have your login yet? Email us at<br>
+        <strong>cprestorationsvcs@gmail.com</strong><br>
+        or call <strong>(878) 777-4923</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-avatar" id="hdr-avatar">?</div>
+      <div>
+        <div class="hdr-name" id="hdr-name">Client</div>
+        <div class="hdr-id" id="hdr-id">CP Restoration Services</div>
+      </div>
+    </div>
+    <button class="btn-out" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showPage('dashboard')">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showPage('disputes')">⚖️ My Disputes</button>
+    <button class="nav-btn" onclick="showPage('updates')">🔔 Updates</button>
+    <button class="nav-btn" onclick="showPage('documents')">📄 Documents</button>
+    <button class="nav-btn" onclick="showPage('messages')">💬 Messages</button>
+    <button class="nav-btn" onclick="showPage('account')">👤 My Account</button>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--navy);" id="dash-greeting">Good morning!</div>
+          <div style="font-size:13px;color:var(--gray);">Here is the latest on your credit repair file.</div>
+        </div>
+        <span class="badge badge-green" id="dash-status-badge">● Active</span>
+      </div>
+
+      <!-- STATUS BANNER -->
+      <div class="alert alert-green" id="dash-banner">
+        ✅ Your file is active and your disputes are in progress. The CP Restoration team is working on your behalf every business day.
+      </div>
+
+      <!-- STATS -->
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-label">Client ID</div><div class="stat-value" style="font-size:16px;font-family:monospace;" id="stat-id">—</div></div>
+        <div class="stat"><div class="stat-label">Package</div><div class="stat-value" style="font-size:15px;" id="stat-package">—</div></div>
+        <div class="stat"><div class="stat-label">Items Disputed</div><div class="stat-value" id="stat-disputed">0</div><div class="stat-sub">Across all bureaus</div></div>
+        <div class="stat green"><div class="stat-label">Items Removed</div><div class="stat-value" id="stat-removed">0</div><div class="stat-sub">And counting</div></div>
+        <div class="stat"><div class="stat-label">Days Active</div><div class="stat-value" id="stat-days">0</div><div class="stat-sub" id="stat-days-sub">Since start date</div></div>
+        <div class="stat gold"><div class="stat-label">Next Update</div><div class="stat-value" style="font-size:14px;" id="stat-next-update">—</div></div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head"><div class="card-title">📈 Overall Progress</div><span class="badge badge-blue" id="dash-progress-pct">0% Complete</span></div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--gray);margin-bottom:6px;">
+            <span>Items removed vs total disputed</span>
+            <span id="dash-progress-label">0 of 0</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" id="dash-progress-bar" style="width:0%;"></div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px;text-align:center;">
+            <div style="padding:10px;background:var(--lr);border-radius:8px;">
+              <div style="font-size:18px;font-weight:800;color:var(--red);" id="bureau-eq-count">0</div>
+              <div style="font-size:11px;color:var(--gray);">Equifax Items</div>
+            </div>
+            <div style="padding:10px;background:var(--lb);border-radius:8px;">
+              <div style="font-size:18px;font-weight:800;color:var(--navy);" id="bureau-ex-count">0</div>
+              <div style="font-size:11px;color:var(--gray);">Experian Items</div>
+            </div>
+            <div style="padding:10px;background:var(--lg);border-radius:8px;">
+              <div style="font-size:18px;font-weight:800;color:var(--green);" id="bureau-tu-count">0</div>
+              <div style="font-size:11px;color:var(--gray);">TransUnion Items</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LATEST UPDATE -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">🔔 Latest Update</div>
+          <button class="btn btn-outline btn-sm" onclick="showPage('updates')">View All →</button>
+        </div>
+        <div class="card-body" id="dash-latest-update">
+          <div style="color:var(--gray);font-size:13px;">No updates yet. Check back soon.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISPUTES -->
+    <div class="page" id="page-disputes" style="display:none;">
+      <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:6px;">My Dispute Items</div>
+      <div style="font-size:13px;color:var(--gray);margin-bottom:16px;">Every negative item being disputed on your credit report.</div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;" id="dispute-filter-btns">
+        <button class="btn btn-navy btn-sm" onclick="filterDisputes('all')">All Items</button>
+        <button class="btn btn-outline btn-sm" onclick="filterDisputes('filed')">Filed</button>
+        <button class="btn btn-outline btn-sm" onclick="filterDisputes('pending')">Pending</button>
+        <button class="btn btn-outline btn-sm" onclick="filterDisputes('removed')">✅ Removed</button>
+      </div>
+
+      <div id="disputes-list">
+        <div style="text-align:center;padding:40px;color:var(--gray);">Your dispute items will appear here once your file is reviewed.</div>
+      </div>
+    </div>
+
+    <!-- UPDATES -->
+    <div class="page" id="page-updates" style="display:none;">
+      <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">File Updates</div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">🔔 All Updates — Newest First</div></div>
+        <div class="card-body">
+          <div class="timeline" id="updates-timeline">
+            <div style="color:var(--gray);font-size:13px;">No updates yet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="page" id="page-documents" style="display:none;">
+      <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">My Documents</div>
+      <div class="alert alert-blue">Your service agreement, dispute letters, and bureau responses will appear here as they are processed.</div>
+      <div id="docs-list">
+        <div class="card">
+          <div class="card-head"><div class="card-title">📄 Service Agreement</div><span class="badge badge-green">Signed</span></div>
+          <div class="card-body">
+            <div class="info-row"><span class="info-label">Package</span><span class="info-value" id="doc-package">—</span></div>
+            <div class="info-row"><span class="info-label">Start Date</span><span class="info-value" id="doc-start">—</span></div>
+            <div class="info-row"><span class="info-label">Timeline</span><span class="info-value" id="doc-timeline">—</span></div>
+            <div class="info-row"><span class="info-label">Bureaus Covered</span><span class="info-value" id="doc-bureaus">—</span></div>
+            <div class="info-row" style="border:none;"><span class="info-label">Guarantee</span><span class="info-value">Money-back if no results</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">📋 Dispute Letters</div></div>
+          <div class="card-body" id="dispute-letters-list">
+            <div style="color:var(--gray);font-size:13px;">Dispute letters will appear here once filed.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="page" id="page-messages" style="display:none;">
+      <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">Messages</div>
+      <div class="alert alert-gold">Messages are reviewed by the CP Restoration team and answered within 24 hours Monday through Friday.</div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">💬 Message Thread</div></div>
+        <div class="card-body">
+          <div class="msg-thread" id="msg-thread">
+            <div class="msg-bubble-wrap team">
+              <div class="msg-bbl">Welcome to the CP Restoration client portal. Your file is active and we are working on your disputes. Feel free to message us any questions here and we will respond within 24 hours.</div>
+              <div class="msg-meta-sm">CP Restoration Team · Today</div>
+            </div>
+          </div>
+          <div class="msg-form">
+            <textarea id="msg-input" placeholder="Type your message here..."></textarea>
+            <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+              <button class="btn btn-navy" onclick="sendMessage()">Send Message</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT -->
+    <div class="page" id="page-account" style="display:none;">
+      <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px;">My Account</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-body" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px;">
+          <div style="width:72px;height:72px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:var(--gold);margin-bottom:12px;" id="acc-avatar">?</div>
+          <div style="font-size:20px;font-weight:800;color:var(--navy);" id="acc-name">—</div>
+          <div style="font-size:13px;color:var(--gray);margin-top:4px;" id="acc-id">—</div>
+          <div style="margin-top:8px;"><span class="badge badge-green">Active Client</span></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head"><div class="card-title">📋 Account Information</div></div>
+        <div class="card-body">
+          <div class="info-row"><span class="info-label">Client ID</span><span class="info-value" id="acc-client-id" style="font-family:monospace;">—</span></div>
+          <div class="info-row"><span class="info-label">Full Name</span><span class="info-value" id="acc-full-name">—</span></div>
+          <div class="info-row"><span class="info-label">Email</span><span class="info-value" id="acc-email">—</span></div>
+          <div class="info-row"><span class="info-label">Phone</span><span class="info-value" id="acc-phone">—</span></div>
+          <div class="info-row"><span class="info-label">Package</span><span class="info-value" id="acc-package">—</span></div>
+          <div class="info-row"><span class="info-label">Start Date</span><span class="info-value" id="acc-start">—</span></div>
+          <div class="info-row"><span class="info-label">Timeline</span><span class="info-value" id="acc-timeline">—</span></div>
+          <div class="info-row" style="border:none;"><span class="info-label">Status</span><span class="info-value"><span class="badge badge-green">Active</span></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">🔒 Security</div></div>
+        <div class="card-body">
+          <div class="alert alert-gold" style="margin-bottom:0;">To change your password or update your contact information, email us at <strong>cprestorationsvcs@gmail.com</strong> or call <strong>(878) 777-4923</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+<script>
+// ── CLIENT DATABASE ───────────────────────────────────────────────
+// In production this would sync from your management system
+// For now each client is seeded with their data
+// Jason can update client records through the admin system
+
+var CLIENT_DB = {
+  'CPR-00001': {
+    password: 'restore2026',
+    name: 'Client One',
+    email: 'client@email.com',
+    phone: '',
+    package: 'Standard',
+    timeline: '120 Business Days',
+    bureaus: 'Equifax, Experian, TransUnion',
+    startDate: '2026-01-15',
+    disputes: [
+      { name: 'Capital One Collection', type: 'Collection', amount: '$1,240', bureau: ['EQ','EX','TU'], status: 'filed', date: '2026-01-20' },
+      { name: 'Late Payment — Chase', type: 'Late Payment', amount: '', bureau: ['EQ','EX'], status: 'pending', date: '2026-01-20' },
+      { name: 'Midland Credit Collection', type: 'Collection', amount: '$3,100', bureau: ['EQ','TU'], status: 'removed', date: '2026-02-15' },
+    ],
+    updates: [
+      { date: '2026-09-15', title: 'Dispute Follow-Up Sent', body: 'Follow-up letters sent to all three bureaus. Bureaus have 30 days to respond.', type: 'green' },
+      { date: '2026-08-20', title: 'Item Removed — Midland Credit', body: 'Great news! The Midland Credit Management collection has been successfully removed from Equifax and TransUnion. Your score should improve within 30-60 days.', type: 'green' },
+      { date: '2026-01-20', title: 'Disputes Filed', body: 'Your dispute letters have been filed with Equifax, Experian, and TransUnion for all items on your file. The bureaus have 30-45 days to respond.', type: 'navy' },
+      { date: '2026-01-16', title: 'File Opened', body: 'Welcome to CP Restoration Services. Your file has been opened and our team has begun reviewing your credit reports. You will receive an update within 5 business days.', type: 'navy' },
+    ],
+    messages: []
+  }
+};
+
+// Ryan Felder — CPR-00378 (his email is r.felder1987@gmail.com)
+CLIENT_DB['CPR-00378'] = {
+  password: 'restore2026',
+  name: 'Ryan Felder',
+  email: 'r.felder1987@gmail.com',
+  phone: '',
+  package: 'Standard',
+  timeline: '120 Business Days',
+  bureaus: 'Equifax, Experian, TransUnion',
+  startDate: '2025-06-01',
+  disputes: [
+    { name: 'Collection Account', type: 'Collection', amount: 'TBD', bureau: ['EQ','EX','TU'], status: 'filed', date: '2025-06-10' },
+    { name: 'Late Payment', type: 'Late Payment', amount: '', bureau: ['EQ','EX','TU'], status: 'pending', date: '2025-06-10' },
+  ],
+  updates: [
+    { date: '2026-09-27', title: 'New Portal Launched', body: 'Welcome to your new client portal Ryan. You can now view your file status, dispute items, and send messages to our team directly here. We apologize for the lack of updates — our team went through a transition and we are now back fully operational with new systems to keep you informed.', type: 'green' },
+    { date: '2025-06-10', title: 'Disputes Filed', body: 'Your dispute letters have been filed with all three bureaus. The bureaus have 30-45 days to respond. We follow up every 10 business days.', type: 'navy' },
+    { date: '2025-06-01', title: 'File Opened', body: 'Welcome to CP Restoration Services. Your Standard package has been activated and our team has begun reviewing your credit reports.', type: 'navy' },
+  ],
+  messages: [
+    { from: 'team', text: 'Welcome to the CP Restoration client portal Ryan. Your file is active and we are working on your disputes. We apologize for the communication gap — we have upgraded our systems and you will now receive regular updates here. Feel free to message us any questions.', date: '2026-09-27' }
+  ]
+};
+
+var currentClient = null;
+var currentClientId = null;
+var currentDisputes = [];
+
+// ── LOGIN ─────────────────────────────────────────────────────────
+function doLogin() {
+  var id  = ((document.getElementById('login-id')||{}).value||'').trim().toUpperCase();
+  var pw  = ((document.getElementById('login-pw')||{}).value||'').trim();
+  var err = document.getElementById('login-error');
+
+  if (!id || !pw) { if(err){err.textContent='Please enter your Client ID and password.';err.style.display='block';} return; }
+
+  // Check exact match first
+  var client = CLIENT_DB[id];
+
+  // If not found, try generating a default client record for any CPR-XXXXX
+  if (!client && /^CPR-\d{5}$/.test(id) && pw === 'restore2026') {
+    client = {
+      password: 'restore2026',
+      name: 'Valued Client',
+      email: '',
+      phone: '',
+      package: 'Standard',
+      timeline: '120 Business Days',
+      bureaus: 'Equifax, Experian, TransUnion',
+      startDate: '2026-01-01',
+      disputes: [],
+      updates: [
+        { date: '2026-09-27', title: 'Portal Access Granted', body: 'Welcome to your new CP Restoration client portal. Your file is active and your disputes are ongoing. Your full dispute details will be updated here shortly. Contact us at cprestorationsvcs@gmail.com for a detailed status update.', type: 'green' }
+      ],
+      messages: [
+        { from: 'team', text: 'Welcome to the CP Restoration client portal. Your file is active and we are working on your behalf. Please message us if you have any questions.', date: '2026-09-27' }
+      ]
+    };
+  }
+
+  if (!client || client.password !== pw) {
+    if(err){err.textContent='Incorrect Client ID or password. Contact cprestorationsvcs@gmail.com for help.';err.style.display='block';}
+    var pwEl = document.getElementById('login-pw'); if(pwEl) pwEl.value='';
+    return;
+  }
+
+  currentClientId = id;
+  currentClient   = client;
+  currentDisputes = client.disputes || [];
+
+  if(err) err.style.display='none';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  loadPortal();
+  window.scrollTo(0,0);
+}
+
+function doLogout() {
+  currentClient = null; currentClientId = null; currentDisputes = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  showPage('dashboard', true);
+  var idEl = document.getElementById('login-id'); if(idEl) idEl.value='';
+  var pwEl = document.getElementById('login-pw'); if(pwEl) pwEl.value='';
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function showPage(name, silent) {
+  document.querySelectorAll('.page').forEach(function(p){ p.style.display='none'; p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById('page-'+name);
+  if(el){ el.style.display='block'; el.classList.add('active'); }
+  var btns = document.querySelectorAll('.nav-btn');
+  for(var i=0;i<btns.length;i++){
+    if((btns[i].getAttribute('onclick')||'').indexOf("'"+name+"'")!==-1){ btns[i].classList.add('active'); break; }
+  }
+  if(!silent){
+    if(name==='disputes') renderDisputes('all');
+    if(name==='updates')  renderUpdates();
+    if(name==='messages') renderMessages();
+    if(name==='documents') renderDocuments();
+  }
+  window.scrollTo(0,0);
+}
+
+// ── LOAD PORTAL ───────────────────────────────────────────────────
+function loadPortal() {
+  var c  = currentClient;
+  var id = currentClientId;
+  var initials = c.name.split(' ').map(function(n){ return n[0]; }).join('').substring(0,2).toUpperCase();
+
+  // Header
+  set('hdr-avatar', initials);
+  set('hdr-name', c.name);
+  set('hdr-id', id + ' — CP Restoration Services');
+
+  // Greeting
+  var hr = new Date().getHours();
+  var greet = hr<12?'Good morning':'hr<17?'Good afternoon':'Good evening';
+  greet = hr<12?'Good morning, ':hr<17?'Good afternoon, ':'Good evening, ';
+  set('dash-greeting', greet + c.name.split(' ')[0] + '! 👋');
+
+  // Stats
+  var removed  = currentDisputes.filter(function(d){ return d.status==='removed'; }).length;
+  var total    = currentDisputes.length;
+  var pct      = total > 0 ? Math.round((removed/total)*100) : 0;
+  var start    = new Date(c.startDate);
+  var days     = Math.floor((new Date() - start) / (1000*60*60*24));
+  var nextUpd  = new Date(new Date().getTime() + 10*24*60*60*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+  set('stat-id',       id);
+  set('stat-package',  c.package);
+  set('stat-disputed', total);
+  set('stat-removed',  removed);
+  set('stat-days',     days);
+  set('stat-next-update', nextUpd);
+  set('dash-progress-label', removed + ' of ' + total);
+  set('dash-progress-pct',   pct + '% Complete');
+
+  var bar = document.getElementById('dash-progress-bar');
+  if(bar) bar.style.width = pct + '%';
+
+  // Bureau counts
+  var eq = currentDisputes.filter(function(d){ return d.bureau.indexOf('EQ')!==-1 && d.status!=='removed'; }).length;
+  var ex = currentDisputes.filter(function(d){ return d.bureau.indexOf('EX')!==-1 && d.status!=='removed'; }).length;
+  var tu = currentDisputes.filter(function(d){ return d.bureau.indexOf('TU')!==-1 && d.status!=='removed'; }).length;
+  set('bureau-eq-count', eq);
+  set('bureau-ex-count', ex);
+  set('bureau-tu-count', tu);
+
+  // Latest update on dashboard
+  var updates = c.updates || [];
+  var latestEl = document.getElementById('dash-latest-update');
+  if(latestEl && updates.length) {
+    var u = updates[0];
+    latestEl.innerHTML = '<div class="timeline"><div class="timeline-item">' +
+      '<div class="timeline-dot '+(u.type||'')+'"></div>' +
+      '<div class="timeline-date">'+new Date(u.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'</div>' +
+      '<div class="timeline-title">'+u.title+'</div>' +
+      '<div class="timeline-body">'+u.body+'</div>' +
+    '</div></div>';
+  }
+
+  // Account page
+  set('acc-avatar',   initials);
+  set('acc-name',     c.name);
+  set('acc-id',       id);
+  set('acc-client-id',id);
+  set('acc-full-name',c.name);
+  set('acc-email',    c.email || 'On file');
+  set('acc-phone',    c.phone || 'On file');
+  set('acc-package',  c.package);
+  set('acc-start',    new Date(c.startDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}));
+  set('acc-timeline', c.timeline);
+
+  // Documents
+  set('doc-package',  c.package);
+  set('doc-start',    new Date(c.startDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}));
+  set('doc-timeline', c.timeline);
+  set('doc-bureaus',  c.bureaus);
+}
+
+// ── RENDER DISPUTES ───────────────────────────────────────────────
+function renderDisputes(filter) {
+  var list = document.getElementById('disputes-list');
+  if(!list) return;
+
+  // Update filter buttons
+  document.querySelectorAll('#dispute-filter-btns button').forEach(function(b){ b.className='btn btn-outline btn-sm'; });
+  var activeBtn = document.querySelector('#dispute-filter-btns button:nth-child('+(filter==='all'?1:filter==='filed'?2:filter==='pending'?3:4)+')');
+  if(activeBtn) activeBtn.className='btn btn-navy btn-sm';
+
+  var filtered = filter==='all' ? currentDisputes : currentDisputes.filter(function(d){ return d.status===filter; });
+
+  if(!filtered.length) {
+    list.innerHTML='<div style="text-align:center;padding:40px;color:var(--gray);">No '+filter+' items to show.</div>';
+    return;
+  }
+
+  var bureauLabels = { EQ:'Equifax', EX:'Experian', TU:'TransUnion' };
+  var bureauClasses = { EQ:'dot-eq', EX:'dot-eq', TU:'dot-tu' };
+  var statusMap = { filed:'Filed', pending:'Pending Response', removed:'Removed ✅' };
+  var statusBadge = { filed:'badge-blue', pending:'badge-gold', removed:'badge-green' };
+  var itemClass = { filed:'filed', pending:'pending', removed:'removed' };
+
+  list.innerHTML = filtered.map(function(d) {
+    var bureaus = d.bureau.map(function(b){
+      return '<span class="bureau-dot dot-filed">'+bureauLabels[b]+'</span>';
+    }).join('');
+    return '<div class="dispute-item '+itemClass[d.status]+'">' +
+      '<div>' +
+        '<div class="dispute-name">'+d.name+'</div>' +
+        '<div class="dispute-detail">'+d.type+(d.amount?' — '+d.amount:'')+'  •  Filed '+new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'</div>' +
+        '<div class="bureau-dots">'+bureaus+'</div>' +
+      '</div>' +
+      '<span class="badge '+statusBadge[d.status]+'">'+statusMap[d.status]+'</span>' +
+    '</div>';
+  }).join('');
+}
+
+// ── RENDER UPDATES ────────────────────────────────────────────────
+function renderUpdates() {
+  var tl = document.getElementById('updates-timeline');
+  if(!tl) return;
+  var updates = (currentClient && currentClient.updates) || [];
+  if(!updates.length) { tl.innerHTML='<div style="color:var(--gray);font-size:13px;">No updates yet.</div>'; return; }
+  tl.innerHTML = updates.map(function(u) {
+    return '<div class="timeline-item">' +
+      '<div class="timeline-dot '+(u.type==='green'?'green':u.type==='gold'?'gold':'')+'"></div>' +
+      '<div class="timeline-date">'+new Date(u.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'</div>' +
+      '<div class="timeline-title">'+u.title+'</div>' +
+      '<div class="timeline-body">'+u.body+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── RENDER MESSAGES ───────────────────────────────────────────────
+function renderMessages() {
+  var thread = document.getElementById('msg-thread');
+  if(!thread || !currentClient) return;
+  var msgs = currentClient.messages || [];
+  var welcome = '<div class="msg-bubble-wrap team"><div class="msg-bbl">Welcome to the CP Restoration client portal. Your file is active and we are working on your disputes. Feel free to message us any questions here and we will respond within 24 hours.</div><div class="msg-meta-sm">CP Restoration Team · Today</div></div>';
+  if(!msgs.length) { thread.innerHTML=welcome; return; }
+  thread.innerHTML = msgs.map(function(m) {
+    var isClient = m.from==='client';
+    return '<div class="msg-bubble-wrap '+(isClient?'client':'team')+'">' +
+      '<div class="msg-bbl">'+m.text+'</div>' +
+      '<div class="msg-meta-sm">'+(isClient?currentClient.name:'CP Restoration Team')+' · '+new Date(m.date).toLocaleDateString()+'</div>' +
+    '</div>';
+  }).join('');
+  thread.scrollTop = thread.scrollHeight;
+}
+
+// ── RENDER DOCUMENTS ──────────────────────────────────────────────
+function renderDocuments() {
+  var lettersEl = document.getElementById('dispute-letters-list');
+  if(!lettersEl || !currentClient) return;
+  var filed = currentDisputes.filter(function(d){ return d.status!=='pending'; });
+  if(!filed.length) { lettersEl.innerHTML='<div style="color:var(--gray);font-size:13px;">Dispute letters will appear here once filed.</div>'; return; }
+  lettersEl.innerHTML = filed.map(function(d) {
+    return '<div class="info-row">' +
+      '<span class="info-label">'+d.name+'</span>' +
+      '<span class="info-value"><span class="badge '+(d.status==='removed'?'badge-green':'badge-blue')+'">'+(d.status==='removed'?'Removed':'Filed')+'</span></span>' +
+    '</div>';
+  }).join('');
+}
+
+// ── SEND MESSAGE ──────────────────────────────────────────────────
+function sendMessage() {
+  var input = document.getElementById('msg-input');
+  if(!input || !input.value.trim() || !currentClient) return;
+  var text = input.value.trim();
+  input.value = '';
+  if(!currentClient.messages) currentClient.messages = [];
+  currentClient.messages.push({ from:'client', text:text, date:new Date().toISOString() });
+  renderMessages();
+  showToast('Message sent. Our team will respond within 24 hours.');
+}
+
+// ── FILTER DISPUTES ───────────────────────────────────────────────
+function filterDisputes(filter) {
+  renderDisputes(filter);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function set(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.3);white-space:nowrap;';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+});
+</script>
+</body>
+</html>
