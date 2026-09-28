@@ -85,7 +85,7 @@ tbody tr:hover{background:#EFF4FF;}
 .step.done{border-bottom-color:var(--green);color:var(--green);}
 
 /* FORMS */
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}.bureau-box .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;width:100%;}.bureau-box .fld{margin-bottom:0;width:100%;min-width:0;}
 .fld{margin-bottom:14px;}
 .fld label{display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
 .fld input,.fld select,.fld textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;}
@@ -257,17 +257,17 @@ tbody tr:hover{background:#EFF4FF;}
         <div class="alert alert-blue">Store the client's credit bureau credentials for live dispute calls.</div>
         <div class="bureau-box bureau-eq">
           <div class="bureau-title">&#x1F534; Equifax &mdash; equifax.com</div>
-          <div class="frow"><div class="fld"><label>Username / Email</label><input id="e-eq-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="e-eq-pass" autocomplete="off"></div></div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="e-eq-user" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div><div class="fld"><label>Password</label><input type="password" id="e-eq-pass" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div></div>
         </div>
         <div class="bureau-box bureau-ex">
           <div class="bureau-title">&#x1F535; Experian &mdash; experian.com</div>
-          <div class="frow"><div class="fld"><label>Username / Email</label><input id="e-ex-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="e-ex-pass" autocomplete="off"></div></div>
-          <div class="frow"><div class="fld"><label>4-Digit PIN</label><input id="e-ex-pin" maxlength="4" autocomplete="off"></div><div class="fld"><label>Security Question Answer</label><input id="e-ex-secq" autocomplete="off"></div></div>
-          <div class="fld"><label>Security Question</label><input id="e-ex-secq-text" placeholder="e.g. What was your first pet's name?"></div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="e-ex-user" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div><div class="fld"><label>Password</label><input type="password" id="e-ex-pass" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div></div>
+          <div class="frow"><div class="fld"><label>4-Digit PIN</label><input id="e-ex-pin" maxlength="4" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div><div class="fld"><label>Security Question Answer</label><input id="e-ex-secq" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div></div>
+          <div class="fld"><label>Security Question</label><input id="e-ex-secq-text" placeholder="e.g. What was your first pet's name?" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div>
         </div>
         <div class="bureau-box bureau-tu">
           <div class="bureau-title">&#x1F7E2; TransUnion &mdash; transunion.com</div>
-          <div class="frow"><div class="fld"><label>Username / Email</label><input id="e-tu-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="e-tu-pass" autocomplete="off"></div></div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="e-tu-user" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div><div class="fld"><label>Password</label><input type="password" id="e-tu-pass" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div></div>
         </div>
       </div>
 
@@ -371,17 +371,17 @@ tbody tr:hover{background:#EFF4FF;}
         <div class="alert alert-blue">Enter the client's login credentials for each credit bureau.</div>
         <div class="bureau-box bureau-eq">
           <div class="bureau-title">&#x1F534; Equifax &mdash; equifax.com</div>
-          <div class="frow"><div class="fld"><label>Username / Email</label><input id="o-eq-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="o-eq-pass" autocomplete="off"></div></div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="o-eq-user" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div><div class="fld"><label>Password</label><input type="password" id="o-eq-pass" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div></div>
         </div>
         <div class="bureau-box bureau-ex">
           <div class="bureau-title">&#x1F535; Experian &mdash; experian.com</div>
-          <div class="frow"><div class="fld"><label>Username / Email</label><input id="o-ex-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="o-ex-pass" autocomplete="off"></div></div>
-          <div class="frow"><div class="fld"><label>4-Digit PIN</label><input id="o-ex-pin" maxlength="4" autocomplete="off" placeholder="e.g. 1234"></div><div class="fld"><label>Security Question Answer</label><input id="o-ex-secq" autocomplete="off"></div></div>
-          <div class="fld"><label>Security Question (write the question)</label><input id="o-ex-secq-text" placeholder="e.g. What was your first pet's name?"></div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="o-ex-user" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div><div class="fld"><label>Password</label><input type="password" id="o-ex-pass" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div></div>
+          <div class="frow"><div class="fld"><label>4-Digit PIN</label><input id="o-ex-pin" maxlength="4" autocomplete="off" placeholder="e.g. 1234" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div><div class="fld"><label>Security Question Answer</label><input id="o-ex-secq" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div></div>
+          <div class="fld"><label>Security Question (write the question)</label><input id="o-ex-secq-text" placeholder="e.g. What was your first pet's name?" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div>
         </div>
         <div class="bureau-box bureau-tu">
           <div class="bureau-title">&#x1F7E2; TransUnion &mdash; transunion.com</div>
-          <div class="frow"><div class="fld"><label>Username / Email</label><input id="o-tu-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="o-tu-pass" autocomplete="off"></div></div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="o-tu-user" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div><div class="fld"><label>Password</label><input type="password" id="o-tu-pass" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;background:white;box-sizing:border-box;display:block;margin-top:0;"></div></div>
         </div>
         <div class="alert alert-gold">&#9888; Credentials are stored securely for live bureau dispute calls only. Never share outside your team.</div>
       </div>
