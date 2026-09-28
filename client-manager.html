@@ -2,130 +2,169 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CP Restoration — Client Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
-  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--text:#1E293B;
-  --lb:#EFF4FF;--lg:#F0FFF4;--lgold:#FDF8EE;--lr:#FFF0F0;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-.hdr{background:var(--navy);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+body{font-family:'Inter',sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;}
+:root{--navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;--gray:#6B7280;--border:#E2E8F0;}
+
+/* HEADER */
+.hdr{background:var(--navy);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;}
 .hdr-title{font-size:15px;font-weight:800;color:white;}
 .hdr-right{display:flex;gap:10px;align-items:center;}
-.btn{padding:8px 16px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-navy{background:var(--navy);color:white;}
 .btn-gold{background:var(--gold);color:var(--navy);}
 .btn-green{background:#166534;color:white;}
-.btn-red{background:var(--red);color:white;}
-.btn-outline{background:white;border:1.5px solid var(--border);color:var(--text);}
-.btn-outline-white{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;}
+.btn-red{background:#991B1B;color:white;}
+.btn-gray{background:#F3F4F6;color:#374151;border:1px solid var(--border);}
+.btn-white{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;}
 .btn-sm{padding:5px 12px;font-size:11px;}
+
+/* CONTENT */
 .content{padding:20px;max-width:1200px;margin:0 auto;}
+
+/* STATS */
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
-.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
 .stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
 .stat-value{font-size:22px;font-weight:800;color:var(--navy);}
 .stat.green .stat-value{color:var(--green);}
 .stat.gold .stat-value{color:#92400E;}
-.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;}
+
+/* CARD */
+.card{background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;}
 .card-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .card-title{font-size:14px;font-weight:800;color:var(--navy);}
+
+/* SEARCH BAR */
+.search-bar{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.search-bar input,.search-bar select{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;}
+.search-bar input{flex:1;min-width:200px;}
+.search-bar select{width:160px;}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--navy);}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:white;white-space:nowrap;}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);}
+tbody tr:hover{background:#EFF4FF;}
+.empty-row{text-align:center;padding:48px;color:var(--gray);line-height:1.8;}
+
+/* BADGES */
 .badge{padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
 .badge-green{background:#D1FAE5;color:#065F46;}
 .badge-gold{background:#FEF3C7;color:#92400E;}
 .badge-blue{background:#DBEAFE;color:#1E40AF;}
 .badge-red{background:#FEE2E2;color:#991B1B;}
 .badge-gray{background:#F3F4F6;color:#374151;}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-thead tr{background:var(--navy);}
-thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:white;white-space:nowrap;}
-tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
-tbody tr:hover{background:var(--lb);}
-.empty{text-align:center;padding:48px;color:var(--gray);font-size:13px;line-height:1.8;}
-input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],select,textarea{
-  padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;
-  font-family:inherit;outline:none;transition:border .2s;color:var(--text);background:white;width:100%;}
-input:focus,select:focus,textarea:focus{border-color:var(--navy);}
-textarea{resize:vertical;min-height:80px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-.form-field{margin-bottom:14px;}.form-field input,.form-field select,.form-field textarea{width:100%;box-sizing:border-box;}
-.form-field label{display:block;font-size:11px;font-weight:700;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
-.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:8000;align-items:center;justify-content:center;padding:16px;overflow:auto;}
-.modal-overlay.open{display:flex;}
-.modal{background:white;border-radius:16px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.4);position:relative;z-index:8001;}
-.modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;z-index:1;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);z-index:9000;overflow-y:auto;padding:20px;}
+.overlay.show{display:flex;align-items:flex-start;justify-content:center;}
+.modal-box{background:white;border-radius:16px;width:100%;max-width:660px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.modal-hdr{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;border-radius:16px 16px 0 0;z-index:1;}
 .modal-title{font-size:16px;font-weight:800;color:var(--navy);}
 .modal-body{padding:22px;}
 .modal-foot{padding:16px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
-.step-bar{display:flex;gap:0;margin-bottom:24px;}
-.step-item{flex:1;text-align:center;font-size:11px;font-weight:700;padding:8px 4px;border-bottom:3px solid var(--border);color:var(--gray);transition:all .2s;}
-.step-item.active{border-color:var(--navy);color:var(--navy);}
-.step-item.done{border-color:var(--green);color:var(--green);}
-.dupe-alert{background:var(--lgold);border:2px solid var(--gold);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:none;}
-.dupe-alert-title{font-size:13px;font-weight:800;color:#92400E;margin-bottom:6px;}
-.dupe-item{font-size:12px;color:#7A5F00;padding:4px 0;border-bottom:1px solid rgba(201,168,76,.3);}
-.dupe-item:last-child{border:none;}
-.alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:14px;}
-.alert-blue{background:var(--lb);border-left:3px solid var(--navy);color:var(--navy);}
-.alert-green{background:var(--lg);border-left:3px solid var(--green);color:var(--green);}
-.alert-red{background:var(--lr);border-left:3px solid var(--red);color:var(--red);}
-.search-bar{display:flex;gap:10px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-.search-bar input{flex:1;min-width:200px;}
-.search-bar select{width:160px;}
+.close-btn{background:none;border:none;font-size:24px;cursor:pointer;color:var(--gray);line-height:1;}
+
+/* TABS */
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;}
+.tab-btn{padding:9px 16px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;color:var(--gray);border-bottom:3px solid transparent;margin-bottom:-2px;font-family:inherit;white-space:nowrap;}
+.tab-btn.on{color:var(--navy);border-bottom-color:var(--navy);}
+
+/* STEP BAR */
+.step-bar{display:flex;margin-bottom:20px;overflow-x:auto;}
+.step{flex:1;text-align:center;padding:8px 4px;font-size:11px;font-weight:700;border-bottom:3px solid var(--border);color:var(--gray);white-space:nowrap;}
+.step.on{border-bottom-color:var(--navy);color:var(--navy);}
+.step.done{border-bottom-color:var(--green);color:var(--green);}
+
+/* FORMS */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.fld{margin-bottom:14px;}
+.fld label{display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
+.fld input,.fld select,.fld textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--navy);}
+.fld textarea{resize:vertical;min-height:120px;}
+
+/* ALERTS */
+.alert{padding:11px 15px;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:16px;}
+.alert-blue{background:#EFF4FF;border-left:3px solid var(--navy);color:var(--navy);}
+.alert-green{background:#F0FFF4;border-left:3px solid var(--green);color:var(--green);}
+.alert-gold{background:#FDF8EE;border-left:3px solid var(--gold);color:#7A5F00;}
+
+/* BUREAU BOXES */
+.bureau-box{border-radius:12px;padding:16px;margin-bottom:14px;}
+.bureau-eq{background:#FFF0F0;border-left:4px solid #991B1B;}
+.bureau-ex{background:#EFF4FF;border-left:4px solid #1E40AF;}
+.bureau-tu{background:#F0FFF4;border-left:4px solid #065F46;}
+.bureau-title{font-size:13px;font-weight:800;margin-bottom:14px;}
+.bureau-eq .bureau-title{color:#991B1B;}
+.bureau-ex .bureau-title{color:#1E40AF;}
+.bureau-tu .bureau-title{color:#065F46;}
+
+/* DOCS */
+.doc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F8FAFC;border-radius:8px;margin-bottom:8px;border:1px solid var(--border);}
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;}
+.drop-zone:hover,.drop-zone.over{border-color:var(--navy);background:#EFF4FF;}
+.drop-zone.uploaded{border-color:var(--green);background:#F0FFF4;}
+.drop-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+
+/* DUPE ALERT */
+.dupe-box{background:#FDF8EE;border:2px solid var(--gold);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:none;}
+.dupe-title{font-size:13px;font-weight:800;color:#92400E;margin-bottom:6px;}
+.dupe-item{font-size:12px;color:#7A5F00;padding:3px 0;border-bottom:1px solid rgba(201,168,76,.3);}
+
+/* INFO TABLE */
+.info-table{width:100%;font-size:13px;}
+.info-table td{padding:7px 0;vertical-align:top;}
+.info-table td:first-child{color:var(--gray);font-weight:600;width:140px;}
+
 @media(max-width:600px){
-  .form-row{grid-template-columns:1fr;}
+  .frow,.drop-grid{grid-template-columns:1fr;}
   .stat-grid{grid-template-columns:1fr 1fr;}
 }
-
-.doc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:8px;border:1px solid var(--border);}
-.drop-active{border-color:var(--navy) !important;background:var(--lb) !important;}
-.edit-tab{padding:9px 18px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;color:var(--gray);margin-bottom:-2px;font-family:inherit;transition:all .15s;}
-.edit-tab.active{border-bottom-color:var(--navy);color:var(--navy);}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <div class="hdr-title">👥 Client Manager — CP Restoration Services</div>
+  <div class="hdr-title">&#128101; Client Manager &mdash; CP Restoration Services</div>
   <div class="hdr-right">
-    <span id="client-count-hdr" style="font-size:11px;color:rgba(255,255,255,.5);">0 clients</span>
-    <button class="btn btn-outline-white btn-sm" onclick="exportClients()">⬇ Export</button>
+    <span id="cnt-hdr" style="font-size:11px;color:rgba(255,255,255,.5);">0 clients</span>
+    <button class="btn btn-white btn-sm" onclick="exportCSV()">&#11015; Export</button>
     <button class="btn btn-gold" onclick="openOnboarding()">+ New Client</button>
-    <a href="/index.html" class="btn btn-outline-white btn-sm">← Portal</a>
+    <a href="/dashboard.html" class="btn btn-white btn-sm">&#8592; Dashboard</a>
   </div>
 </div>
 
 <div class="content">
-
-  <!-- STATS -->
   <div class="stat-grid">
-    <div class="stat green"><div class="stat-label">Active Clients</div><div class="stat-value" id="stat-active">0</div></div>
-    <div class="stat"><div class="stat-label">Total Clients</div><div class="stat-value" id="stat-total">0</div></div>
-    <div class="stat gold"><div class="stat-label">Pending</div><div class="stat-value" id="stat-pending">0</div></div>
-    <div class="stat"><div class="stat-label">Completed</div><div class="stat-value" id="stat-completed">0</div></div>
+    <div class="stat green"><div class="stat-label">Active</div><div class="stat-value" id="s-active">0</div></div>
+    <div class="stat"><div class="stat-label">Total</div><div class="stat-value" id="s-total">0</div></div>
+    <div class="stat gold"><div class="stat-label">Pending</div><div class="stat-value" id="s-pending">0</div></div>
+    <div class="stat"><div class="stat-label">Completed</div><div class="stat-value" id="s-completed">0</div></div>
   </div>
 
-  <!-- CLIENT TABLE -->
   <div class="card">
     <div class="card-head">
-      <div class="card-title">👥 All Clients</div>
+      <div class="card-title">&#128101; All Clients</div>
     </div>
     <div class="search-bar">
-      <input type="text" id="client-search" placeholder="🔍 Search by name, ID, email, or phone..." oninput="filterClients()">
-      <select id="status-filter" onchange="filterClients()">
+      <input type="text" id="srch" placeholder="&#128269; Search name, ID, email, phone..." oninput="renderTable()">
+      <select id="srch-status" onchange="renderTable()">
         <option value="">All Statuses</option>
         <option value="Active">Active</option>
         <option value="Pending">Pending</option>
         <option value="Completed">Completed</option>
         <option value="Cancelled">Cancelled</option>
       </select>
-      <select id="package-filter" onchange="filterClients()">
+      <select id="srch-pkg" onchange="renderTable()">
         <option value="">All Packages</option>
         <option value="Standard">Standard</option>
         <option value="Express">Express</option>
@@ -136,1143 +175,651 @@ textarea{resize:vertical;min-height:80px;}
     </div>
     <div style="overflow-x:auto;">
       <table>
-        <thead>
-          <tr>
-            <th>Client ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Package</th>
-            <th>Start Date</th>
-            <th>Status</th>
-            <th>Portal Password</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="clients-tbody">
-          <tr><td colspan="9" class="empty">Loading clients...</td></tr>
-        </tbody>
+        <thead><tr>
+          <th>Client ID</th><th>Name</th><th>Email</th><th>Phone</th>
+          <th>Package</th><th>Start Date</th><th>Status</th><th>Portal Pass</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="tbl-body"><tr><td colspan="9" class="empty-row">Loading...</td></tr></tbody>
       </table>
     </div>
   </div>
-
 </div>
 
-<!-- ONBOARDING MODAL -->
-<div class="modal-overlay" id="onboarding-modal">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="onb-modal-title">New Client Onboarding</div>
-      <button onclick="closeOnboarding()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);">×</button>
+<!-- ── VIEW MODAL ─────────────────────────────────────────────── -->
+<div class="overlay" id="view-overlay">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-title" id="v-name">Client</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:2px;" id="v-sub"></div>
+      </div>
+      <button class="close-btn" onclick="closeView()">&#215;</button>
     </div>
     <div class="modal-body">
-
-      <!-- STEP BAR -->
-      <div class="step-bar">
-        <div class="step-item active" id="step-dot-1">1. Personal</div>
-        <div class="step-item" id="step-dot-2">2. Package</div>
-        <div class="step-item" id="step-dot-3">3. Disputes</div>
-        <div class="step-item" id="step-dot-4">4. Agreement</div>
-        <div class="step-item" id="step-dot-5">5. Confirm</div>
+      <table class="info-table" id="v-table"></table>
+      <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+        <button class="btn btn-navy" id="v-edit-btn" onclick="openEdit()">&#9998; Edit</button>
+        <button class="btn btn-green" id="v-copy-btn" onclick="copyLogin()">&#128273; Copy Portal Login</button>
+        <button class="btn btn-gray" onclick="closeView()">Close</button>
       </div>
-
-      <!-- DUPLICATE ALERT -->
-      <div class="dupe-alert" id="dupe-alert">
-        <div class="dupe-alert-title">⚠️ Possible Duplicate Client Detected</div>
-        <div id="dupe-list"></div>
-        <div style="margin-top:10px;font-size:12px;color:#92400E;">Review the existing client below before continuing. Click <strong>Continue Anyway</strong> to create a new file, or <strong>Cancel</strong> to go back.</div>
-      </div>
-
-      <!-- STEP 1: PERSONAL INFO -->
-      <div id="onb-step-1">
-        <div class="alert alert-blue">Enter the client's personal information. The system will automatically check for duplicate files.</div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Full Name *</label>
-            <input type="text" id="onb-name" placeholder="First Last" oninput="checkDupes()">
-          </div>
-          <div class="form-field">
-            <label>Date of Birth</label>
-            <input type="date" id="onb-dob">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Email Address</label>
-            <input type="email" id="onb-email" placeholder="client@email.com" oninput="checkDupes()">
-          </div>
-          <div class="form-field">
-            <label>Phone Number</label>
-            <input type="tel" id="onb-phone" placeholder="(555) 555-5555" oninput="checkDupes()">
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Home Address</label>
-          <input type="text" id="onb-address" placeholder="Street, City, State, ZIP">
-        </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>SSN (Last 4 only)</label>
-            <input type="text" id="onb-ssn" placeholder="XXXX" maxlength="4">
-          </div>
-          <div class="form-field">
-            <label>Referred By</label>
-            <input type="text" id="onb-referral" placeholder="Name or source">
-          </div>
-        </div>
-      </div>
-
-      <!-- STEP 2: PACKAGE -->
-      <div id="onb-step-2" style="display:none;">
-        <div class="alert alert-blue">Select the service package and payment details.</div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Service Package *</label>
-            <select id="onb-package" onchange="updatePackageInfo()">
-              <option value="">Select a package...</option>
-              <option value="Standard">Standard — $2,499 / 120 Business Days</option>
-              <option value="Express">Express — $3,999 / 60 Business Days</option>
-              <option value="Financing">Financing — $750 down + $292×6</option>
-              <option value="Single Bureau">Single Bureau — $1,000 / 120 Days</option>
-              <option value="Inquiries Only">Inquiries Only — $45/inquiry/bureau</option>
-            </select>
-          </div>
-          <div class="form-field">
-            <label>Bureaus Covered</label>
-            <select id="onb-bureaus">
-              <option value="All 3">All 3 Bureaus (EQ, EX, TU)</option>
-              <option value="Equifax Only">Equifax Only</option>
-              <option value="Experian Only">Experian Only</option>
-              <option value="TransUnion Only">TransUnion Only</option>
-            </select>
-          </div>
-        </div>
-        <div id="package-info-box" style="display:none;background:var(--lb);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--navy);line-height:1.7;"></div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Initial Payment Amount</label>
-            <input type="text" id="onb-pay-amount" placeholder="e.g. $2,499">
-          </div>
-          <div class="form-field">
-            <label>Payment Method</label>
-            <select id="onb-pay-method">
-              <option value="">Select...</option>
-              <option value="Credit Card">Credit Card</option>
-              <option value="Debit Card">Debit Card</option>
-              <option value="Zelle">Zelle</option>
-              <option value="CashApp">CashApp</option>
-              <option value="Venmo">Venmo</option>
-              <option value="Check">Check</option>
-              <option value="Wire">Wire Transfer</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Start Date</label>
-          <input type="date" id="onb-start-date">
-        </div>
-      </div>
-
-      <!-- STEP 3: DISPUTES -->
-      <!-- STEP 3: BUREAU LOGINS -->
-      <div id="onb-step-3" style="display:none;">
-        <div style="font-size:13px;color:#1E40AF;background:#EFF4FF;border-radius:8px;padding:10px 14px;margin-bottom:16px;border-left:3px solid #1E40AF;">Enter the client's credit bureau login credentials. These are used to make live dispute calls on their behalf.</div>
-
-        <!-- EQUIFAX -->
-        <div style="background:#FFF0F0;border-radius:12px;padding:16px;margin-bottom:14px;border-left:4px solid #991B1B;">
-          <div style="font-size:13px;font-weight:800;color:#991B1B;margin-bottom:14px;">&#x1F534; Equifax &mdash; equifax.com</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Username / Email</label><input type="text" id="onb-eq-user" placeholder="Equifax username" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Password</label><input type="password" id="onb-eq-pass" placeholder="Equifax password" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-          </div>
-        </div>
-
-        <!-- EXPERIAN -->
-        <div style="background:#EFF4FF;border-radius:12px;padding:16px;margin-bottom:14px;border-left:4px solid #1E40AF;">
-          <div style="font-size:13px;font-weight:800;color:#1E40AF;margin-bottom:14px;">&#x1F535; Experian &mdash; experian.com</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Username / Email</label><input type="text" id="onb-ex-user" placeholder="Experian username" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Password</label><input type="password" id="onb-ex-pass" placeholder="Experian password" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;margin-top:14px;">
-            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">4-Digit PIN</label><input type="text" id="onb-ex-pin" placeholder="e.g. 1234" maxlength="4" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Security Question Answer</label><input type="text" id="onb-ex-secq" placeholder="Your answer" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-          </div>
-          <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Security Question (optional &mdash; write the question itself)</label><input type="text" id="onb-ex-secq-text" placeholder="e.g. What was the name of your first pet?" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-        </div>
-
-        <!-- TRANSUNION -->
-        <div style="background:#F0FFF4;border-radius:12px;padding:16px;margin-bottom:14px;border-left:4px solid #065F46;">
-          <div style="font-size:13px;font-weight:800;color:#065F46;margin-bottom:14px;">&#x1F7E2; TransUnion &mdash; transunion.com</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Username / Email</label><input type="text" id="onb-tu-user" placeholder="TransUnion username" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Password</label><input type="password" id="onb-tu-pass" placeholder="TransUnion password" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-          </div>
-        </div>
-
-        <div style="background:#FDF8EE;border-radius:8px;padding:10px 14px;font-size:12px;color:#7A5F00;">&#x26A0;&#xFE0F; Credentials are stored securely and used only for live bureau dispute calls. Never share outside your team.</div>
-      <!-- STEP 4: DISPUTES (was step 3) -->
-      <div id="onb-step-4" style="display:none;">
-        <div class="alert alert-blue">Document the negative items being disputed and any existing reports filed.</div>
-        <div class="form-field">
-          <label>Negative Items to Dispute</label>
-          <textarea id="onb-disputes" placeholder="List each item: type, creditor name, amount, which bureaus it appears on&#10;Example:&#10;- Collection: Midland Credit $1,240 (EQ, EX, TU)&#10;- Late Payment: Chase Visa (EQ, EX)&#10;- Hard Inquiry: Capital One (TU)"></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>FTC Identity Theft Report #</label>
-            <input type="text" id="onb-ftc" placeholder="FTC report number (if applicable)">
-          </div>
-          <div class="form-field">
-            <label>Credit Score at Start (est.)</label>
-            <input type="number" id="onb-score" placeholder="e.g. 520">
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Additional Notes</label>
-          <textarea id="onb-notes" placeholder="Any special circumstances, previous disputes, bankruptcy, etc."></textarea>
-        </div>
-      </div>
-
-      <!-- STEP 4: AGREEMENT -->
-      <div id="onb-step-4" style="display:none;">
-        <div class="alert alert-blue">Confirm the client has reviewed and agreed to the service agreement terms.</div>
-        <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:16px;font-size:12px;line-height:1.8;color:var(--text);">
-          <div style="font-weight:800;margin-bottom:8px;color:var(--navy);">CP Restoration Services — Service Agreement Summary</div>
-          <div id="agreement-summary">Package details will appear here after selection.</div>
-        </div>
-        <div class="form-field">
-          <label>Client Full Name (as signature) *</label>
-          <input type="text" id="onb-signature" placeholder="Type full legal name to sign">
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:14px;background:var(--lg);border-radius:8px;margin-bottom:14px;">
-          <input type="checkbox" id="onb-agree" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;">
-          <label for="onb-agree" style="font-size:12px;line-height:1.6;cursor:pointer;">
-            I confirm that <span id="agree-name">the client</span> has read, understood, and agreed to the CP Restoration Services terms and conditions, including the money-back guarantee policy, the service timeline, and the payment schedule.
-          </label>
-        </div>
-        <div class="form-field">
-          <label>Date Signed</label>
-          <input type="date" id="onb-sign-date">
-        </div>
-      </div>
-
-      <!-- STEP 5: CONFIRM -->
-      <div id="onb-step-5" style="display:none;">
-        <div class="alert alert-green">✅ Ready to create the client file. Review the summary below.</div>
-        <div id="onb-summary" style="font-size:13px;line-height:2;"></div>
-      </div>
-
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline" id="onb-back-btn" onclick="onbBack()" style="display:none;">← Back</button>
-      <button class="btn btn-navy" id="onb-next-btn" onclick="onbNext()">Next →</button>
     </div>
   </div>
 </div>
 
-<!-- CLIENT DETAIL MODAL -->
-<div class="modal-overlay" id="client-detail-modal">
-  <div class="modal">
-    <div class="modal-head">
+<!-- ── EDIT MODAL ─────────────────────────────────────────────── -->
+<div class="overlay" id="edit-overlay">
+  <div class="modal-box" style="max-width:700px;">
+    <div class="modal-hdr">
       <div>
-        <div class="modal-title" id="detail-name">Client Name</div>
-        <div style="font-size:12px;color:var(--gray);margin-top:2px;" id="detail-id">CPR-00000</div>
+        <div class="modal-title">Edit Client File</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:2px;" id="e-sub"></div>
       </div>
-      <button onclick="closeDetailModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);">×</button>
+      <button class="close-btn" onclick="closeEdit()">&#215;</button>
     </div>
     <div class="modal-body">
-      <div id="detail-content"></div>
-      <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
-        <button class="btn btn-navy" onclick="editCurrentClient()">✏️ Edit</button>
-        <button class="btn btn-green" onclick="copyPortalCredentials()">🔑 Copy Portal Login</button>
-        <button class="btn btn-outline" onclick="closeDetailModal()">Close</button>
+      <div class="tabs">
+        <button class="tab-btn on" onclick="eTab('info',this)">Personal</button>
+        <button class="tab-btn" onclick="eTab('service',this)">Service</button>
+        <button class="tab-btn" onclick="eTab('bureaus',this)">Bureau Logins</button>
+        <button class="tab-btn" onclick="eTab('disputes',this)">Disputes</button>
+        <button class="tab-btn" onclick="eTab('docs',this)">Documents</button>
+        <button class="tab-btn" onclick="eTab('notes',this)">Notes</button>
       </div>
+
+      <!-- PERSONAL -->
+      <div id="e-info">
+        <div class="frow"><div class="fld"><label>Full Name</label><input id="e-name"></div><div class="fld"><label>Date of Birth</label><input type="date" id="e-dob"></div></div>
+        <div class="frow"><div class="fld"><label>Email</label><input type="email" id="e-email"></div><div class="fld"><label>Phone</label><input type="tel" id="e-phone"></div></div>
+        <div class="fld"><label>Home Address</label><input id="e-address"></div>
+        <div class="frow"><div class="fld"><label>SSN Last 4</label><input id="e-ssn" maxlength="4"></div><div class="fld"><label>Referred By</label><input id="e-referral"></div></div>
+        <div class="frow">
+          <div class="fld"><label>Status</label><select id="e-status"><option>Active</option><option>Pending</option><option>Completed</option><option>Cancelled</option></select></div>
+          <div class="fld"><label>Portal Password</label><input id="e-pwd"></div>
+        </div>
+      </div>
+
+      <!-- SERVICE -->
+      <div id="e-service" style="display:none;">
+        <div class="frow">
+          <div class="fld"><label>Package</label><select id="e-pkg"><option>Standard</option><option>Express</option><option>Financing</option><option>Single Bureau</option><option>Inquiries Only</option></select></div>
+          <div class="fld"><label>Bureaus</label><select id="e-bureaus"><option>All 3</option><option>Equifax Only</option><option>Experian Only</option><option>TransUnion Only</option></select></div>
+        </div>
+        <div class="frow"><div class="fld"><label>Start Date</label><input type="date" id="e-start"></div><div class="fld"><label>Payment Amount</label><input id="e-pay-amt"></div></div>
+        <div class="frow">
+          <div class="fld"><label>Payment Method</label><select id="e-pay-meth"><option value="">Select...</option><option>Credit Card</option><option>Debit Card</option><option>Zelle</option><option>CashApp</option><option>Venmo</option><option>Check</option><option>Wire</option></select></div>
+          <div class="fld"><label>Starting Score</label><input type="number" id="e-score"></div>
+        </div>
+        <div class="fld"><label>FTC Report Number</label><input id="e-ftc"></div>
+      </div>
+
+      <!-- BUREAU LOGINS -->
+      <div id="e-bureaus-tab" style="display:none;">
+        <div class="alert alert-blue">Store the client's credit bureau credentials for live dispute calls.</div>
+        <div class="bureau-box bureau-eq">
+          <div class="bureau-title">&#x1F534; Equifax &mdash; equifax.com</div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="e-eq-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="e-eq-pass" autocomplete="off"></div></div>
+        </div>
+        <div class="bureau-box bureau-ex">
+          <div class="bureau-title">&#x1F535; Experian &mdash; experian.com</div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="e-ex-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="e-ex-pass" autocomplete="off"></div></div>
+          <div class="frow"><div class="fld"><label>4-Digit PIN</label><input id="e-ex-pin" maxlength="4" autocomplete="off"></div><div class="fld"><label>Security Question Answer</label><input id="e-ex-secq" autocomplete="off"></div></div>
+          <div class="fld"><label>Security Question</label><input id="e-ex-secq-text" placeholder="e.g. What was your first pet's name?"></div>
+        </div>
+        <div class="bureau-box bureau-tu">
+          <div class="bureau-title">&#x1F7E2; TransUnion &mdash; transunion.com</div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="e-tu-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="e-tu-pass" autocomplete="off"></div></div>
+        </div>
+      </div>
+
+      <!-- DISPUTES -->
+      <div id="e-disputes" style="display:none;">
+        <div class="fld"><label>Dispute Items</label><textarea id="e-disputes-txt" style="min-height:200px;" placeholder="List each negative item:&#10;- Collection: Midland Credit $1,240 (EQ, EX, TU)&#10;- Late Payment: Chase Visa (EQ, EX)&#10;- Hard Inquiry: Capital One (TU)"></textarea></div>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div id="e-docs" style="display:none;">
+        <div class="alert alert-blue">Files stored in browser. Max 5MB each. Click Save after uploading.</div>
+        <div class="drop-grid">
+          <div class="drop-zone" id="dz-dl" onclick="document.getElementById('upl-dl').click()" ondragover="dzOver(event,'dz-dl')" ondragleave="dzOut('dz-dl')" ondrop="dzDrop(event,'dl')">
+            <div style="font-size:28px;margin-bottom:6px;">&#x1F43A;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">Driver's License</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="st-dl">Click or drag to upload</div>
+            <input type="file" id="upl-dl" accept="image/*,.pdf" style="display:none" onchange="doUpload('dl',this.files)">
+          </div>
+          <div class="drop-zone" id="dz-ssn" onclick="document.getElementById('upl-ssn').click()" ondragover="dzOver(event,'dz-ssn')" ondragleave="dzOut('dz-ssn')" ondrop="dzDrop(event,'ssn')">
+            <div style="font-size:28px;margin-bottom:6px;">&#x1F4CB;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">Social Security Card</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="st-ssn">Click or drag to upload</div>
+            <input type="file" id="upl-ssn" accept="image/*,.pdf" style="display:none" onchange="doUpload('ssn',this.files)">
+          </div>
+          <div class="drop-zone" id="dz-addr" onclick="document.getElementById('upl-addr').click()" ondragover="dzOver(event,'dz-addr')" ondragleave="dzOut('dz-addr')" ondrop="dzDrop(event,'addr')">
+            <div style="font-size:28px;margin-bottom:6px;">&#x1F3E0;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">Proof of Address</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="st-addr">Utility bill or lease</div>
+            <input type="file" id="upl-addr" accept="image/*,.pdf" style="display:none" onchange="doUpload('addr',this.files)">
+          </div>
+          <div class="drop-zone" id="dz-other" onclick="document.getElementById('upl-other').click()" ondragover="dzOver(event,'dz-other')" ondragleave="dzOut('dz-other')" ondrop="dzDrop(event,'other')">
+            <div style="font-size:28px;margin-bottom:6px;">&#x1F4C1;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">Supporting Documents</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="st-other">Credit reports, letters, etc.</div>
+            <input type="file" id="upl-other" accept="image/*,.pdf" multiple style="display:none" onchange="doUpload('other',this.files)">
+          </div>
+        </div>
+        <div id="doc-list"></div>
+      </div>
+
+      <!-- NOTES -->
+      <div id="e-notes" style="display:none;">
+        <div class="fld"><label>Internal Notes (Team Only)</label><textarea id="e-notes-txt" style="min-height:200px;" placeholder="Internal notes not visible to client."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-gray" onclick="closeEdit()">Cancel</button>
+      <button class="btn btn-navy" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ONBOARDING MODAL ───────────────────────────────────────── -->
+<div class="overlay" id="onb-overlay">
+  <div class="modal-box" style="max-width:680px;">
+    <div class="modal-hdr">
+      <div class="modal-title">New Client Onboarding</div>
+      <button class="close-btn" onclick="closeOnboarding()">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="step-bar">
+        <div class="step on" id="sp1">1. Personal</div>
+        <div class="step" id="sp2">2. Package</div>
+        <div class="step" id="sp3">3. Bureau Logins</div>
+        <div class="step" id="sp4">4. Disputes</div>
+        <div class="step" id="sp5">5. Agreement</div>
+        <div class="step" id="sp6">6. Confirm</div>
+      </div>
+
+      <div class="dupe-box" id="dupe-box">
+        <div class="dupe-title">&#9888; Possible Duplicate Detected</div>
+        <div id="dupe-list"></div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div id="os1">
+        <div class="alert alert-blue">Enter the client's personal information. The system checks for duplicates automatically.</div>
+        <div class="frow"><div class="fld"><label>Full Name *</label><input id="o-name" oninput="checkDupe()"></div><div class="fld"><label>Date of Birth</label><input type="date" id="o-dob"></div></div>
+        <div class="frow"><div class="fld"><label>Email</label><input type="email" id="o-email" oninput="checkDupe()"></div><div class="fld"><label>Phone</label><input type="tel" id="o-phone" oninput="checkDupe()"></div></div>
+        <div class="fld"><label>Home Address</label><input id="o-address"></div>
+        <div class="frow"><div class="fld"><label>SSN Last 4</label><input id="o-ssn" maxlength="4"></div><div class="fld"><label>Referred By</label><input id="o-referral"></div></div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div id="os2" style="display:none;">
+        <div class="alert alert-blue">Select service package and payment details.</div>
+        <div class="frow">
+          <div class="fld"><label>Package *</label><select id="o-pkg" onchange="pkgInfo()"><option value="">Select...</option><option>Standard</option><option>Express</option><option>Financing</option><option>Single Bureau</option><option>Inquiries Only</option></select></div>
+          <div class="fld"><label>Bureaus</label><select id="o-bureaus"><option>All 3</option><option>Equifax Only</option><option>Experian Only</option><option>TransUnion Only</option></select></div>
+        </div>
+        <div id="pkg-info-box" style="display:none;background:#EFF4FF;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--navy);"></div>
+        <div class="frow"><div class="fld"><label>Start Date</label><input type="date" id="o-start"></div><div class="fld"><label>Payment Amount</label><input id="o-pay-amt"></div></div>
+        <div class="frow">
+          <div class="fld"><label>Payment Method</label><select id="o-pay-meth"><option value="">Select...</option><option>Credit Card</option><option>Debit Card</option><option>Zelle</option><option>CashApp</option><option>Venmo</option><option>Check</option><option>Wire</option></select></div>
+          <div class="fld"><label>Starting Credit Score</label><input type="number" id="o-score" placeholder="e.g. 520"></div>
+        </div>
+      </div>
+
+      <!-- STEP 3: BUREAU LOGINS -->
+      <div id="os3" style="display:none;">
+        <div class="alert alert-blue">Enter the client's login credentials for each credit bureau.</div>
+        <div class="bureau-box bureau-eq">
+          <div class="bureau-title">&#x1F534; Equifax &mdash; equifax.com</div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="o-eq-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="o-eq-pass" autocomplete="off"></div></div>
+        </div>
+        <div class="bureau-box bureau-ex">
+          <div class="bureau-title">&#x1F535; Experian &mdash; experian.com</div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="o-ex-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="o-ex-pass" autocomplete="off"></div></div>
+          <div class="frow"><div class="fld"><label>4-Digit PIN</label><input id="o-ex-pin" maxlength="4" autocomplete="off" placeholder="e.g. 1234"></div><div class="fld"><label>Security Question Answer</label><input id="o-ex-secq" autocomplete="off"></div></div>
+          <div class="fld"><label>Security Question (write the question)</label><input id="o-ex-secq-text" placeholder="e.g. What was your first pet's name?"></div>
+        </div>
+        <div class="bureau-box bureau-tu">
+          <div class="bureau-title">&#x1F7E2; TransUnion &mdash; transunion.com</div>
+          <div class="frow"><div class="fld"><label>Username / Email</label><input id="o-tu-user" autocomplete="off"></div><div class="fld"><label>Password</label><input type="password" id="o-tu-pass" autocomplete="off"></div></div>
+        </div>
+        <div class="alert alert-gold">&#9888; Credentials are stored securely for live bureau dispute calls only. Never share outside your team.</div>
+      </div>
+
+      <!-- STEP 4: DISPUTES -->
+      <div id="os4" style="display:none;">
+        <div class="fld"><label>Dispute Items</label><textarea id="o-disputes" style="min-height:180px;" placeholder="List each negative item:&#10;- Collection: Midland Credit $1,240 (EQ, EX, TU)&#10;- Late Payment: Chase Visa (EQ, EX)&#10;- Hard Inquiry: Capital One (TU)"></textarea></div>
+        <div class="frow"><div class="fld"><label>FTC Report Number</label><input id="o-ftc" placeholder="If applicable"></div><div class="fld"><label>Starting Credit Score</label><input type="number" id="o-score2"></div></div>
+        <div class="fld"><label>Notes</label><textarea id="o-notes"></textarea></div>
+      </div>
+
+      <!-- STEP 5: AGREEMENT -->
+      <div id="os5" style="display:none;">
+        <div class="alert alert-blue">Confirm the client has reviewed and agreed to the service agreement.</div>
+        <div style="background:#F8FAFC;border-radius:10px;padding:16px;margin-bottom:16px;font-size:12px;line-height:1.8;" id="agree-summary"></div>
+        <div class="fld"><label>Client Full Name (as signature) *</label><input id="o-sig" placeholder="Type full legal name"></div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:14px;background:#F0FFF4;border-radius:8px;margin-bottom:14px;">
+          <input type="checkbox" id="o-agree" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;">
+          <label for="o-agree" style="font-size:12px;line-height:1.6;cursor:pointer;">I confirm that <b id="agree-name">the client</b> has read, understood, and agreed to the CP Restoration Services terms and conditions, including the money-back guarantee policy and payment schedule.</label>
+        </div>
+        <div class="fld"><label>Date Signed</label><input type="date" id="o-sign-date"></div>
+      </div>
+
+      <!-- STEP 6: CONFIRM -->
+      <div id="os6" style="display:none;">
+        <div class="alert alert-green">&#x2705; Ready to create the client file. Review below.</div>
+        <table class="info-table" id="o-summary-table"></table>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-gray" id="onb-back" onclick="oBack()" style="display:none;">&#8592; Back</button>
+      <button class="btn btn-navy" id="onb-next" onclick="oNext()">Next &#8594;</button>
     </div>
   </div>
 </div>
 
 <script>
-var CLIENTS_KEY = 'cp_clients_v2';
-var currentStep = 1;
-var onbData = {};
-var viewingClientId = null;
-
 // ── STORAGE ───────────────────────────────────────────────────────
-function getClients() {
-  try { return JSON.parse(localStorage.getItem(CLIENTS_KEY) || '[]'); }
-  catch(e) { return []; }
+var KEY = 'cp_clients_v2';
+function getClients(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+function saveClients(arr){ localStorage.setItem(KEY, JSON.stringify(arr)); }
+function genId(){
+  var arr = getClients();
+  var max = arr.reduce(function(m,c){ var n=parseInt((c.id||'CPR-00000').replace('CPR-',''),10); return n>m?n:m; },0);
+  return 'CPR-'+String(max+1).padStart(5,'0');
 }
-
-function saveClients(clients) {
-  try { localStorage.setItem(CLIENTS_KEY, JSON.stringify(clients)); }
-  catch(e) { showToast('Storage error', 'error'); }
-}
-
-function genId() {
-  var clients = getClients();
-  var nums = clients.map(function(c){ var m=(c.id||'').match(/CPR-(\d+)/); return m?parseInt(m[1]):0; });
-  var max = nums.length ? Math.max.apply(null,nums) : 0;
-  return 'CPR-' + String(max+1).padStart(5,'0');
-}
-
-// Seed initial clients
-function seedClients() {
-  var clients = getClients();
-  if (!clients.find(function(c){ return c.id==='CPR-00378'; })) {
-    clients.push({
-      id:'CPR-00378', name:'Ryan Felder', email:'r.felder1987@gmail.com', phone:'',
-      dob:'', address:'', ssn:'', referral:'', package:'Standard', bureaus:'All 3',
-      startDate:'2025-06-01', payAmount:'$2,499', payMethod:'', signDate:'2025-06-01',
-      disputes:'Collection Account (EQ, EX, TU)\nLate Payment (EQ, EX, TU)',
-      ftc:'', score:'', notes:'Portal login: CPR-00378 / restore2026',
-      status:'Active', portalPwd:'restore2026', createdAt:'2025-06-01T00:00:00.000Z'
-    });
-    saveClients(clients);
-  }
-}
-
-// ── DUPLICATE DETECTION ───────────────────────────────────────────
-function findDuplicates(name, email, phone) {
-  var clients = getClients();
-  var matches = [];
-  var nl = (name||'').toLowerCase().trim();
-  var el = (email||'').toLowerCase().trim();
-  var pc = (phone||'').replace(/\D/g,'');
-  clients.forEach(function(c) {
-    var score=0; var reasons=[];
-    if (el && c.email && c.email.toLowerCase()===el)   { score+=100; reasons.push('same email'); }
-    if (pc && c.phone && c.phone.replace(/\D/g,'')===pc) { score+=100; reasons.push('same phone'); }
-    if (nl && c.name) {
-      var np=nl.split(' ').filter(Boolean);
-      var cp=c.name.toLowerCase().split(' ').filter(Boolean);
-      var shared=np.filter(function(p){ return cp.indexOf(p)!==-1; }).length;
-      if (shared>=2) { score+=80; reasons.push('same name'); }
-      else if (shared===1 && nl.length>3) { score+=30; reasons.push('similar name'); }
-    }
-    if (score>=80) matches.push({client:c, score:score, reasons:reasons});
-  });
-  return matches.sort(function(a,b){ return b.score-a.score; });
-}
-
-var dupeConfirmed = false;
-
-function checkDupes() {
-  var name  = (document.getElementById('onb-name')||{}).value||'';
-  var email = (document.getElementById('onb-email')||{}).value||'';
-  var phone = (document.getElementById('onb-phone')||{}).value||'';
-  if (!name && !email && !phone) { hideDupeAlert(); return; }
-  var dupes = findDuplicates(name, email, phone);
-  if (dupes.length) {
-    showDupeAlert(dupes);
-    dupeConfirmed = false;
-  } else {
-    hideDupeAlert();
-    dupeConfirmed = true;
-  }
-}
-
-function showDupeAlert(dupes) {
-  var alertEl = document.getElementById('dupe-alert');
-  var listEl  = document.getElementById('dupe-list');
-  if (!alertEl || !listEl) return;
-  listEl.innerHTML = dupes.slice(0,3).map(function(d) {
-    return '<div class="dupe-item">⚠️ <strong>' + d.client.name + '</strong> (' + d.client.id + ') — ' +
-      d.reasons.join(', ') + ' — Status: ' + (d.client.status||'Active') + '</div>';
-  }).join('');
-  alertEl.style.display = 'block';
-}
-
-function hideDupeAlert() {
-  var alertEl = document.getElementById('dupe-alert');
-  if (alertEl) alertEl.style.display = 'none';
-}
-
-// ── ONBOARDING ────────────────────────────────────────────────────
-function openOnboarding() {
-  currentStep = 1;
-  onbData = {};
-  dupeConfirmed = false;
-  hideDupeAlert();
-  // Clear fields
-  ['onb-name','onb-email','onb-phone','onb-address','onb-dob','onb-ssn','onb-referral',
-   'onb-pay-amount','onb-ftc','onb-score','onb-notes','onb-signature'].forEach(function(id){
-    var el=document.getElementById(id); if(el) el.value='';
-  });
-  ['onb-package','onb-bureaus','onb-pay-method'].forEach(function(id){
-    var el=document.getElementById(id); if(el) el.selectedIndex=0;
-  });
-  var agreeEl = document.getElementById('onb-agree'); if(agreeEl) agreeEl.checked=false;
-  var startEl = document.getElementById('onb-start-date');
-  if (startEl) startEl.value = new Date().toISOString().split('T')[0];
-  var signEl = document.getElementById('onb-sign-date');
-  if (signEl) signEl.value = new Date().toISOString().split('T')[0];
-  var pkgInfo = document.getElementById('package-info-box'); if(pkgInfo) pkgInfo.style.display='none';
-  showStep(1);
-  var _om = document.getElementById('onboarding-modal');
-  if(_om) _om.style.cssText = 'display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:8000;align-items:center;justify-content:center;padding:16px;overflow:auto;';
-}
-
-function closeOnboarding() {
-  var _om2 = document.getElementById('onboarding-modal'); if(_om2) _om2.style.cssText='display:none;';
-}
-
-function showStep(step) {
-  for (var i=1;i<=6;i++) {
-    var el = document.getElementById('onb-step-'+i);
-    if (el) el.style.display = i===step ? 'block' : 'none';
-    var dot = document.getElementById('step-dot-'+i);
-    if (dot) {
-      dot.className = 'step-item' + (i===step?' active':i<step?' done':'');
-    }
-  }
-  currentStep = step;
-  var backBtn = document.getElementById('onb-back-btn');
-  var nextBtn = document.getElementById('onb-next-btn');
-  if (backBtn) backBtn.style.display = step > 1 ? 'block' : 'none';
-  if (nextBtn) nextBtn.textContent = step === 5 ? '✅ Create Client File' : 'Next →';
-}
-
-function onbBack() { if (currentStep > 1) showStep(currentStep-1); }
-
-function onbNext() {
-  if (currentStep === 1) {
-    var name = (document.getElementById('onb-name')||{}).value || '';
-    if (!name.trim()) { showToast('Please enter the client name.', 'error'); return; }
-    // Check dupes — warn but allow to continue
-    var dupes = findDuplicates(
-      name,
-      (document.getElementById('onb-email')||{}).value||'',
-      (document.getElementById('onb-phone')||{}).value||''
-    );
-    if (dupes.length && !dupeConfirmed) {
-      showDupeAlert(dupes);
-      if (!confirm('Possible duplicate client detected:\n\n' + dupes.map(function(d){ return d.client.name + ' (' + d.client.id + ') — ' + d.reasons.join(', '); }).join('\n') + '\n\nContinue creating a new file anyway?')) return;
-      dupeConfirmed = true;
-    }
-    onbData.name     = name.trim();
-    onbData.email    = (document.getElementById('onb-email')||{}).value||'';
-    onbData.phone    = (document.getElementById('onb-phone')||{}).value||'';
-    onbData.address  = (document.getElementById('onb-address')||{}).value||'';
-    onbData.dob      = (document.getElementById('onb-dob')||{}).value||'';
-    onbData.ssn      = (document.getElementById('onb-ssn')||{}).value||'';
-    onbData.referral = (document.getElementById('onb-referral')||{}).value||'';
-    showStep(2);
-    return;
-  }
-
-  if (currentStep === 2) {
-    var pkg = (document.getElementById('onb-package')||{}).value||'';
-    if (!pkg) { showToast('Please select a package.', 'error'); return; }
-    onbData.package   = pkg;
-    onbData.bureaus   = (document.getElementById('onb-bureaus')||{}).value||'All 3';
-    onbData.payAmount = (document.getElementById('onb-pay-amount')||{}).value||'';
-    onbData.payMethod = (document.getElementById('onb-pay-method')||{}).value||'';
-    onbData.startDate = (document.getElementById('onb-start-date')||{}).value || new Date().toISOString().split('T')[0];
-    showStep(3);
-    return;
-  }
-
-  if (currentStep === 3) {
-    onbData.bureauLogins = {
-      equifax:    { user: (document.getElementById('onb-eq-user')||{}).value||'', pass: (document.getElementById('onb-eq-pass')||{}).value||'' },
-      experian:   { user: (document.getElementById('onb-ex-user')||{}).value||'', pass: (document.getElementById('onb-ex-pass')||{}).value||'', pin: (document.getElementById('onb-ex-pin')||{}).value||'', secAnswer: (document.getElementById('onb-ex-secq')||{}).value||'', secQuestion: (document.getElementById('onb-ex-secq-text')||{}).value||'' },
-      transunion: { user: (document.getElementById('onb-tu-user')||{}).value||'', pass: (document.getElementById('onb-tu-pass')||{}).value||'' }
-    };
-    showStep(4);
-    return;
-  }
-
-  if (currentStep === 4) {
-    onbData.disputes = (document.getElementById('onb-disputes')||{}).value||'';
-    onbData.ftc      = (document.getElementById('onb-ftc')||{}).value||'';
-    onbData.score    = (document.getElementById('onb-score')||{}).value||'';
-    onbData.notes    = (document.getElementById('onb-notes')||{}).value||'';
-    // Update agreement summary
-    var summaryEl = document.getElementById('agreement-summary');
-    if (summaryEl) summaryEl.innerHTML =
-      '<strong>Client:</strong> ' + onbData.name + '<br>' +
-      '<strong>Package:</strong> ' + onbData.package + '<br>' +
-      '<strong>Bureaus:</strong> ' + onbData.bureaus + '<br>' +
-      '<strong>Start Date:</strong> ' + onbData.startDate + '<br>' +
-      '<strong>Payment:</strong> ' + (onbData.payAmount||'TBD') + ' via ' + (onbData.payMethod||'TBD') + '<br>' +
-      '<strong>Guarantee:</strong> Money-back if no results delivered';
-    var agreeNameEl = document.getElementById('agree-name');
-    if (agreeNameEl) agreeNameEl.textContent = onbData.name;
-    showStep(5);
-    return;
-  }
-
-  if (currentStep === 5) {
-    var sig = (document.getElementById('onb-signature')||{}).value||'';
-    var agreed = (document.getElementById('onb-agree')||{}).checked;
-    if (!sig.trim()) { showToast('Client signature name is required.', 'error'); return; }
-    if (!agreed) { showToast('Client must agree to the terms to proceed.', 'error'); return; }
-    onbData.signature = sig.trim();
-    onbData.signDate  = (document.getElementById('onb-sign-date')||{}).value||'';
-    // Build summary
-    var newId = genId();
-    onbData._previewId = newId;
-    var summEl = document.getElementById('onb-summary');
-    if (summEl) summEl.innerHTML =
-      '<table style="width:100%;font-size:13px;">' +
-      '<tr><td style="padding:4px 0;color:var(--gray);width:140px;">Client ID</td><td style="font-weight:700;font-family:monospace;">' + newId + '</td></tr>' +
-      '<tr><td style="padding:4px 0;color:var(--gray);">Name</td><td style="font-weight:700;">' + onbData.name + '</td></tr>' +
-      '<tr><td style="padding:4px 0;color:var(--gray);">Email</td><td>' + (onbData.email||'—') + '</td></tr>' +
-      '<tr><td style="padding:4px 0;color:var(--gray);">Phone</td><td>' + (onbData.phone||'—') + '</td></tr>' +
-      '<tr><td style="padding:4px 0;color:var(--gray);">Package</td><td>' + onbData.package + '</td></tr>' +
-      '<tr><td style="padding:4px 0;color:var(--gray);">Bureaus</td><td>' + onbData.bureaus + '</td></tr>' +
-      '<tr><td style="padding:4px 0;color:var(--gray);">Start Date</td><td>' + onbData.startDate + '</td></tr>' +
-      '<tr><td style="padding:4px 0;color:var(--gray);">Payment</td><td>' + (onbData.payAmount||'TBD') + ' (' + (onbData.payMethod||'TBD') + ')</td></tr>' +
-      '<tr><td style="padding:4px 0;color:var(--gray);">Portal Password</td><td style="font-family:monospace;">restore2026</td></tr>' +
-      '<tr><td style="padding:4px 0;color:var(--gray);">Signed By</td><td>' + onbData.signature + '</td></tr>' +
-      '</table>';
-    showStep(6);
-    return;
-  }
-
-  if (currentStep === 6) {
-    completeOnboarding();
-  }
-}
-
-function completeOnboarding() {
-  var clients = getClients();
-  var newId = genId();
-  clients.push({
-    id: newId, name: onbData.name, email: onbData.email, phone: onbData.phone,
-    dob: onbData.dob, address: onbData.address, ssn: onbData.ssn, referral: onbData.referral,
-    package: onbData.package, bureaus: onbData.bureaus, startDate: onbData.startDate,
-    payAmount: onbData.payAmount, payMethod: onbData.payMethod, signDate: onbData.signDate,
-    disputes: onbData.disputes, ftc: onbData.ftc, score: onbData.score,
-    notes: onbData.notes, signature: onbData.signature,
-    bureauLogins: onbData.bureauLogins || {},
-    status: 'Active', portalPwd: 'restore2026',
-    createdAt: new Date().toISOString()
-  });
-  saveClients(clients);
-  closeOnboarding();
-  showToast('✅ Client ' + newId + ' — ' + onbData.name + ' created!', 'success');
-  renderTable(getClients());
-  updateStats();
-}
-
-// ── CLIENT TABLE ──────────────────────────────────────────────────
-function filterClients() {
-  var s   = ((document.getElementById('client-search')||{}).value||'').toLowerCase().trim();
-  var st  = (document.getElementById('status-filter')||{}).value||'';
-  var pkg = (document.getElementById('package-filter')||{}).value||'';
-  var clients = getClients();
-  var filtered = clients.filter(function(c) {
-    var matchS = !s ||
-      (c.name||'').toLowerCase().includes(s) ||
-      (c.id||'').toLowerCase().includes(s) ||
-      (c.email||'').toLowerCase().includes(s) ||
-      (c.phone||'').replace(/\D/g,'').includes(s.replace(/\D/g,''));
-    var matchSt  = !st  || (c.status||'Active')===st;
-    var matchPkg = !pkg || (c.package||'')=== pkg;
-    return matchS && matchSt && matchPkg;
-  });
-  renderTable(filtered);
-}
-
-function renderTable(clients) {
-  var tbody = document.getElementById('clients-tbody');
-  if (!tbody) return;
-  if (!clients || !clients.length) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty">No clients found.<br>Click <strong>+ New Client</strong> to add one.</td></tr>';
-    return;
-  }
-  var statusBadge = function(s) {
-    var map = { Active:'badge-green', Pending:'badge-gold', Completed:'badge-blue', Cancelled:'badge-red' };
-    return '<span class="badge ' + (map[s] || 'badge-gray') + '">' + (s || 'Active') + '</span>';
-  };
-  var html = '';
-  clients.forEach(function(c) {
-    html += '<tr data-id="' + esc(c.id||'') + '">' +
-      '<td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--navy);">' + esc(c.id||'') + '</td>' +
-      '<td style="font-weight:700;">' + esc(c.name||'') + '</td>' +
-      '<td style="font-size:12px;">' + esc(c.email||'') + '</td>' +
-      '<td style="font-size:12px;">' + esc(c.phone||'') + '</td>' +
-      '<td style="font-size:12px;">' + esc(c.package||'') + '</td>' +
-      '<td style="font-size:12px;">' + (c.startDate ? new Date(c.startDate).toLocaleDateString() : '') + '</td>' +
-      '<td>' + statusBadge(c.status) + '</td>' +
-      '<td style="font-family:monospace;font-size:11px;">' + esc(c.portalPwd||'restore2026') + '</td>' +
-      '<td><div style="display:flex;gap:5px;">' +
-        '<button class="btn btn-sm btn-navy" data-action="view" data-id="' + esc(c.id||'') + '">View</button>' +
-        '<button class="btn btn-sm btn-outline" data-action="del" data-id="' + esc(c.id||'') + '">&#10005;</button>' +
-      '</div></td>' +
-    '</tr>';
-  });
-  tbody.innerHTML = html;
-}
-
-
-
-// Table button event delegation
-document.addEventListener('click', function(e) {
-  var btn = e.target.closest('button[data-action]');
-  if (!btn) return;
-  var action = btn.getAttribute('data-action');
-  var id = btn.getAttribute('data-id');
-  if (!id) return;
-  if (action === 'view') viewClient(id);
-  if (action === 'del')  deleteClient(id);
-});
-
-function updateStats() {
-  var clients = getClients();
-  var active    = clients.filter(function(c){ return (c.status||'Active')==='Active'; }).length;
-  var pending   = clients.filter(function(c){ return c.status==='Pending'; }).length;
-  var completed = clients.filter(function(c){ return c.status==='Completed'; }).length;
-  set('stat-active', active);
-  set('stat-total', clients.length);
-  set('stat-pending', pending);
-  set('stat-completed', completed);
-  set('client-count-hdr', clients.length + ' client' + (clients.length!==1?'s':''));
-}
-
-// ── VIEW CLIENT ───────────────────────────────────────────────────
-function viewClient(id) {
-  var clients = getClients();
-  var c = clients.find(function(x){ return x.id===id; });
-  if (!c) return;
-  viewingClientId = id;
-  set('detail-name', c.name||'—');
-  set('detail-id', (c.id||'—') + ' — ' + (c.package||'—') + ' — ' + (c.status||'Active'));
-  var rows = [
-    ['Client ID', '<span style="font-family:monospace;font-weight:700;">' + (c.id||'—') + '</span>'],
-    ['Full Name', c.name||'—'], ['Email', c.email||'—'], ['Phone', c.phone||'—'],
-    ['Date of Birth', c.dob||'—'], ['Address', c.address||'—'],
-    ['Package', c.package||'—'], ['Bureaus', c.bureaus||'—'],
-    ['Start Date', c.startDate ? new Date(c.startDate).toLocaleDateString() : '—'],
-    ['Payment', (c.payAmount||'—') + ' via ' + (c.payMethod||'—')],
-    ['Status', c.status||'Active'],
-    ['Portal Login', '<span style="font-family:monospace;">' + c.id + ' / ' + (c.portalPwd||'restore2026') + '</span>'],
-    ['FTC Report #', c.ftc||'—'], ['Starting Score', c.score||'—'],
-    ['Disputes', '<div style="white-space:pre-wrap;font-size:12px;">' + esc(c.disputes||'—') + '</div>'],
-    ['Notes', '<div style="white-space:pre-wrap;font-size:12px;">' + esc(c.notes||'—') + '</div>'],
-    ['Referred By', c.referral||'—'],
-    ['Created', c.createdAt ? new Date(c.createdAt).toLocaleString() : '—']
-  ];
-  var detailEl = document.getElementById('detail-content');
-  if (detailEl) {
-    detailEl.innerHTML = '<table style="width:100%;font-size:13px;">' +
-      rows.map(function(r) {
-        return '<tr><td style="padding:7px 0;color:var(--gray);font-weight:600;width:130px;vertical-align:top;">' + r[0] + '</td>' +
-               '<td style="padding:7px 0;">' + r[1] + '</td></tr>';
-      }).join('') + '</table>';
-  }
-  var _cdm = document.getElementById('client-detail-modal');
-  if(_cdm) {
-    _cdm.style.cssText = 'display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:8000;align-items:center;justify-content:center;padding:16px;overflow:auto;';
-  }
-  var _eb = document.getElementById('detail-edit-btn'); if(_eb) _eb.setAttribute('data-cid', id);
-}
-
-function closeDetailModal() {
-  var _cdm2 = document.getElementById('client-detail-modal'); if(_cdm2) _cdm2.style.cssText='display:none;';
-  viewingClientId = null;
-}
-
-function copyPortalCredentials() {
-  var btn = document.getElementById('detail-edit-btn');
-  var id = (btn ? btn.getAttribute('data-cid') : null) || viewingClientId;
-  if (!id) return;
-  viewingClientId = id;
-  var clients = getClients();
-  var c = clients.find(function(x){ return x.id===viewingClientId; });
-  if (!c) return;
-  var text = 'Portal URL: https://portal-cprestorationsvcs.com/client-portal.html\nClient ID: ' + c.id + '\nPassword: ' + (c.portalPwd||'restore2026');
-  navigator.clipboard.writeText(text).then(function(){
-    showToast('Portal credentials copied!', 'success');
-  }).catch(function(){
-    prompt('Copy these credentials:', text);
-  });
-}
-
-function deleteClient(id) {
-  if (!confirm('Delete this client file? This cannot be undone.')) return;
-  var clients = getClients().filter(function(c){ return c.id!==id; });
-  saveClients(clients);
-  filterClients();
-  updateStats();
-  showToast('Client deleted.', 'success');
-}
-
-function updatePackageInfo() {
-  var pkg = (document.getElementById('onb-package')||{}).value||'';
-  var box = document.getElementById('package-info-box');
-  var info = {
-    'Standard':      '📋 $2,499 — All 3 bureaus — 120 business days — Money-back guarantee',
-    'Express':       '⚡ $3,999 — All 3 bureaus — 60 business days — Money-back guarantee',
-    'Financing':     '💳 $750 down + $292/month × 6 — All 3 bureaus — Money-back guarantee',
-    'Single Bureau': '1️⃣ $1,000 — One bureau — 120 business days (+$500 rush)',
-    'Inquiries Only':'🔍 $45 per inquiry per bureau — 120 business days'
-  };
-  if (box) {
-    if (pkg && info[pkg]) { box.textContent = info[pkg]; box.style.display='block'; }
-    else box.style.display='none';
-  }
-  // Auto-set payment amount
-  var payEl = document.getElementById('onb-pay-amount');
-  var amounts = { Standard:'$2,499', Express:'$3,999', Financing:'$750', 'Single Bureau':'$1,000' };
-  if (payEl && amounts[pkg]) payEl.value = amounts[pkg];
-}
-
-// ── EXPORT ────────────────────────────────────────────────────────
-function exportClients() {
-  var clients = getClients();
-  if (!clients.length) { showToast('No clients to export.', 'error'); return; }
-  var headers = ['ID','Name','Email','Phone','Package','Start Date','Status','Portal Password','Notes'];
-  var rows = clients.map(function(c) {
-    return [c.id,c.name,c.email,c.phone,c.package,c.startDate,c.status,c.portalPwd||'restore2026',
-      (c.notes||'').replace(/,/g,';').replace(/\n/g,' ')
-    ].map(function(v){ return '"'+(v||'')+'"'; }).join(',');
-  });
-  var csv = [headers.join(',')].concat(rows).join('\n');
-  var a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = 'cp_clients_' + new Date().toISOString().split('T')[0] + '.csv';
-  a.click();
-}
-
-// ── HELPERS ───────────────────────────────────────────────────────
-function set(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
-function esc(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function showToast(msg,type) {
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function gv(id){ var e=document.getElementById(id); return e ? e.value.trim() : ''; }
+function sv(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; }
+function toast(msg,type){
   var bg=type==='error'?'#8B1A1A':type==='success'?'#166534':'#1B3A6B';
   var t=document.createElement('div');
   t.textContent=msg;
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+bg+';color:white;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap;font-family:Inter,sans-serif;';
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+bg+';color:white;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap;font-family:inherit;';
   document.body.appendChild(t);
-  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },3000);
+  setTimeout(function(){t.parentNode&&t.parentNode.removeChild(t);},3000);
 }
 
-// Close modals on overlay click
-(document.getElementById('onboarding-modal')||{addEventListener:function(){}}).addEventListener('click', function(e){ if(e.target===this) closeOnboarding(); });
-var _cdm = document.getElementById('client-detail-modal'); if(_cdm) _cdm.addEventListener('click', function(e){ if(e.target===this) closeDetailModal(); });
+// Seed Ryan Felder
+function seed(){
+  var arr=getClients();
+  if(!arr.find(function(c){return c.id==='CPR-00378';})){
+    arr.push({id:'CPR-00378',name:'Ryan Felder',email:'r.felder1987@gmail.com',phone:'',dob:'',address:'',ssn:'',referral:'',package:'Standard',bureaus:'All 3',startDate:'2025-06-01',payAmount:'$2,499',payMethod:'',score:'',ftc:'',disputes:'Collection Account (EQ, EX, TU)\nLate Payment (EQ, EX, TU)',notes:'Portal login: CPR-00378 / restore2026',status:'Active',portalPwd:'restore2026',bureauLogins:{},docs:{},createdAt:'2025-06-01T00:00:00.000Z'});
+    saveClients(arr);
+  }
+}
 
-// ── INIT ─────────────────────────────────────────────────────────
-seedClients();
-filterClients();
-updateStats();
-
-var _editId = null;
-var _pendingDocs = {};
-
-function editCurrentClient() {
-  var btn = document.getElementById('detail-edit-btn');
-  var id = (btn ? btn.getAttribute('data-cid') : null) || viewingClientId;
-  if (!id) return;
-  viewingClientId = id;
-  closeDetailModal();
-  _editId = id;
-  var clients = getClients();
-  var c = clients.find(function(x){ return x.id === _editId; });
-  if (!c) return;
-  _pendingDocs = {};
-
-  var lbl = document.getElementById('edit-client-id-label');
-  if (lbl) lbl.textContent = c.id + ' -- ' + (c.name || '');
-
-  function fv(id, val) { var el=document.getElementById(id); if(el) el.value = val||''; }
-  fv('edit-name', c.name); fv('edit-dob', c.dob); fv('edit-email', c.email);
-  fv('edit-phone', c.phone); fv('edit-address', c.address); fv('edit-ssn', c.ssn);
-  fv('edit-referral', c.referral); fv('edit-status', c.status||'Active');
-  fv('edit-portal-pwd', c.portalPwd||'restore2026');
-  fv('edit-package', c.package); fv('edit-bureaus', c.bureaus||'All 3');
-  fv('edit-start-date', c.startDate); fv('edit-pay-amount', c.payAmount);
-  fv('edit-pay-method', c.payMethod); fv('edit-score', c.score); fv('edit-ftc', c.ftc);
-  fv('edit-disputes', c.disputes); fv('edit-notes', c.notes);
-
-  var docs = c.docs || {};
-  var docTypes = ['dl','ssn','addr','other'];
-  var docLabels = {dl:"Driver's License uploaded",ssn:'SSN Card uploaded',addr:'Address proof uploaded',other:' file(s) uploaded'};
-  docTypes.forEach(function(t) {
-    var d = docs[t];
-    var statusEl = document.getElementById('status-' + t);
-    var dropEl   = document.getElementById('drop-' + t);
-    if (d) {
-      var label = t === 'other' ? (Array.isArray(d) ? d.length : 1) + docLabels[t] : docLabels[t];
-      if (statusEl) statusEl.textContent = '✅ ' + label;
-      if (dropEl) { dropEl.style.borderColor='var(--green)'; dropEl.style.background='var(--lg)'; }
-    } else {
-      var defaults = {dl:'Click or drag to upload',ssn:'Click or drag to upload',addr:'Utility bill, lease, or bank stmt',other:'Credit reports, letters, etc.'};
-      if (statusEl) statusEl.textContent = defaults[t];
-      if (dropEl) { dropEl.style.borderColor='var(--border)'; dropEl.style.background=''; }
-    }
+// ── TABLE ─────────────────────────────────────────────────────────
+function renderTable(){
+  var arr=getClients();
+  var s=gv('srch').toLowerCase();
+  var st=gv('srch-status');
+  var pk=gv('srch-pkg');
+  arr=arr.filter(function(c){
+    if(s&&!(c.name||'').toLowerCase().includes(s)&&!(c.id||'').toLowerCase().includes(s)&&!(c.email||'').toLowerCase().includes(s)&&!(c.phone||'').includes(s)) return false;
+    if(st&&(c.status||'Active')!==st) return false;
+    if(pk&&(c.package||'')!==pk) return false;
+    return true;
   });
-
-  renderUploadedDocs(c.docs || {});
-  showEditTab('info');
-  var _em = document.getElementById('edit-modal');
-  if(_em) _em.style.cssText = 'display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:8000;align-items:center;justify-content:center;padding:16px;overflow:auto;';
-}
-
-function closeEditModal() {
-  var _em2 = document.getElementById('edit-modal'); if(_em2) _em2.style.cssText='display:none;';
-  _editId = null; _pendingDocs = {};
-}
-
-function showEditTab(tab) {
-  var tabs = ['info','service','bureaus','disputes','docs','notes'];
-  tabs.forEach(function(t) {
-    var el = document.getElementById('edit-tab-' + t);
-    if (el) el.style.display = t === tab ? 'block' : 'none';
-    var btn = document.getElementById('etab-' + t);
-    if (btn) { btn.classList.toggle('active', t === tab); }
-  });
-}
-
-function saveEdits() {
-  if (!_editId) return;
-  var clients = getClients();
-  var idx = clients.findIndex(function(c){ return c.id === _editId; });
-  if (idx === -1) return;
-  var c = clients[idx];
-  function gv(id) { var el=document.getElementById(id); return el ? el.value.trim() : ''; }
-  c.name      = gv('edit-name')      || c.name;
-  c.dob       = gv('edit-dob')       || c.dob;
-  c.email     = gv('edit-email')     || c.email;
-  c.phone     = gv('edit-phone')     || c.phone;
-  c.address   = gv('edit-address');
-  c.ssn       = gv('edit-ssn');
-  c.referral  = gv('edit-referral');
-  c.status    = gv('edit-status')    || c.status;
-  c.portalPwd = gv('edit-portal-pwd')|| c.portalPwd;
-  c.package   = gv('edit-package')   || c.package;
-  c.bureaus   = gv('edit-bureaus')   || c.bureaus;
-  c.startDate = gv('edit-start-date')|| c.startDate;
-  c.payAmount = gv('edit-pay-amount');
-  c.payMethod = gv('edit-pay-method');
-  c.score     = gv('edit-score');
-  c.ftc       = gv('edit-ftc');
-  c.disputes  = document.getElementById('edit-disputes') ? document.getElementById('edit-disputes').value : c.disputes;
-  c.notes     = document.getElementById('edit-notes')    ? document.getElementById('edit-notes').value    : c.notes;
-  c.updatedAt = new Date().toISOString();
-  // Bureau logins
-  if (!c.bureauLogins) c.bureauLogins = {};
-  var gv2 = function(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; };
-  c.bureauLogins.equifax   = { user: gv2('edit-eq-user'), pass: gv2('edit-eq-pass') };
-  c.bureauLogins.experian  = { user: gv2('edit-ex-user'), pass: gv2('edit-ex-pass'), pin: gv2('edit-ex-pin'), secAnswer: gv2('edit-ex-secq'), secQuestion: gv2('edit-ex-secq-text') };
-  c.bureauLogins.transunion= { user: gv2('edit-tu-user'), pass: gv2('edit-tu-pass') };
-  if (!c.docs) c.docs = {};
-  Object.keys(_pendingDocs).forEach(function(k){ c.docs[k] = _pendingDocs[k]; });
-  clients[idx] = c;
-  saveClients(clients);
-  closeEditModal();
-  filterClients();
+  var tbody=document.getElementById('tbl-body');
+  if(!arr.length){tbody.innerHTML='<tr><td colspan="9" class="empty-row">No clients found.</td></tr>';return;}
+  var bmap={Active:'badge-green',Pending:'badge-gold',Completed:'badge-blue',Cancelled:'badge-red'};
+  tbody.innerHTML=arr.map(function(c){
+    return '<tr>'+
+      '<td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--navy);">'+esc(c.id||'')+'</td>'+
+      '<td style="font-weight:700;">'+esc(c.name||'')+'</td>'+
+      '<td style="font-size:12px;">'+esc(c.email||'')+'</td>'+
+      '<td style="font-size:12px;">'+esc(c.phone||'')+'</td>'+
+      '<td style="font-size:12px;">'+esc(c.package||'')+'</td>'+
+      '<td style="font-size:12px;">'+(c.startDate?new Date(c.startDate).toLocaleDateString():'')+'</td>'+
+      '<td><span class="badge '+(bmap[c.status||'Active']||'badge-gray')+'">'+(c.status||'Active')+'</span></td>'+
+      '<td style="font-family:monospace;font-size:11px;">'+esc(c.portalPwd||'restore2026')+'</td>'+
+      '<td><div style="display:flex;gap:5px;">'+
+        '<button class="btn btn-navy btn-sm" data-id="'+esc(c.id)+'" data-act="view">View</button>'+
+        '<button class="btn btn-gray btn-sm" data-id="'+esc(c.id)+'" data-act="del">&#10005;</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
   updateStats();
-  showToast('Client file saved!', 'success');
+  document.getElementById('cnt-hdr').textContent=arr.length+' client'+(arr.length!==1?'s':'');
 }
 
-function handleUpload(type, files) {
-  if (!files || !files.length) return;
-  if (type === 'other') {
-    var arr = []; var done = 0;
-    Array.from(files).forEach(function(f) {
-      if (f.size > 5*1024*1024) { showToast(f.name + ' too large (max 5MB)', 'error'); done++; return; }
-      var fr = new FileReader();
-      fr.onload = function(e) {
-        arr.push({name:f.name, size:f.size, type:f.type, data:e.target.result});
-        done++;
-        if (done === files.length) {
-          _pendingDocs['other'] = arr;
-          var st = document.getElementById('status-other');
-          if (st) st.textContent = '✅ ' + arr.length + ' file(s) ready';
-          var dp = document.getElementById('drop-other');
-          if (dp) { dp.style.borderColor='var(--green)'; dp.style.background='var(--lg)'; }
-          showToast(arr.length + ' file(s) ready. Click Save Changes.', 'success');
-          renderPendingDocs();
-        }
-      };
+// Table click delegation
+document.getElementById('tbl-body').addEventListener('click',function(e){
+  var btn=e.target.closest('button[data-act]');
+  if(!btn) return;
+  var id=btn.getAttribute('data-id');
+  var act=btn.getAttribute('data-act');
+  if(act==='view') openView(id);
+  if(act==='del') delClient(id);
+});
+
+function updateStats(){
+  var arr=getClients();
+  document.getElementById('s-active').textContent=arr.filter(function(c){return (c.status||'Active')==='Active';}).length;
+  document.getElementById('s-total').textContent=arr.length;
+  document.getElementById('s-pending').textContent=arr.filter(function(c){return c.status==='Pending';}).length;
+  document.getElementById('s-completed').textContent=arr.filter(function(c){return c.status==='Completed';}).length;
+}
+
+function delClient(id){
+  if(!confirm('Delete this client file? This cannot be undone.')) return;
+  saveClients(getClients().filter(function(c){return c.id!==id;}));
+  renderTable();
+  toast('Client deleted.','success');
+}
+
+function exportCSV(){
+  var arr=getClients();
+  if(!arr.length){toast('No clients to export.','error');return;}
+  var h='ID,Name,Email,Phone,Package,Start Date,Status,Portal Password,Notes';
+  var rows=arr.map(function(c){return [c.id,c.name,c.email,c.phone,c.package,c.startDate,c.status,c.portalPwd||'restore2026',(c.notes||'').replace(/,/g,';').replace(/\n/g,' ')].map(function(v){return '"'+(v||'')+'"';}).join(',');});
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([h].concat(rows).join('\n'));
+  a.download='cp_clients_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+}
+
+// ── VIEW MODAL ────────────────────────────────────────────────────
+var viewId=null;
+function openView(id){
+  var arr=getClients(); var c=arr.find(function(x){return x.id===id;});
+  if(!c) return;
+  viewId=id;
+  document.getElementById('v-name').textContent=c.name||'';
+  document.getElementById('v-sub').textContent=(c.id||'')+'  —  '+(c.package||'')+'  —  '+(c.status||'Active');
+  var rows=[
+    ['Client ID','<span style="font-family:monospace;font-weight:700;">'+esc(c.id||'')+'</span>'],
+    ['Full Name',esc(c.name||'')],['Email',esc(c.email||'')],['Phone',esc(c.phone||'')],
+    ['Date of Birth',esc(c.dob||'')],['Address',esc(c.address||'')],
+    ['SSN Last 4',c.ssn?'****'+c.ssn:''],
+    ['Package',esc(c.package||'')],['Bureaus',esc(c.bureaus||'')],
+    ['Start Date',c.startDate?new Date(c.startDate).toLocaleDateString():''],
+    ['Payment',(c.payAmount||'')+(c.payMethod?' via '+c.payMethod:'')],
+    ['Status',c.status||'Active'],
+    ['Portal Login','<span style="font-family:monospace;">'+esc(c.id||'')+' / '+(c.portalPwd||'restore2026')+'</span>'],
+    ['FTC Report #',esc(c.ftc||'')],['Starting Score',esc(c.score||'')],
+    ['Disputes','<div style="white-space:pre-wrap;font-size:12px;">'+esc(c.disputes||'')+'</div>'],
+    ['Notes','<div style="white-space:pre-wrap;font-size:12px;">'+esc(c.notes||'')+'</div>'],
+    ['Bureau Logins',c.bureauLogins&&(c.bureauLogins.equifax&&c.bureauLogins.equifax.user)?'&#x2705; Saved':'Not entered'],
+    ['Documents',c.docs&&Object.keys(c.docs).length?Object.keys(c.docs).length+' file(s)':'None'],
+    ['Created',c.createdAt?new Date(c.createdAt).toLocaleString():'']
+  ];
+  document.getElementById('v-table').innerHTML=rows.map(function(r){return '<tr><td style="color:var(--gray);font-weight:600;width:140px;padding:7px 0;vertical-align:top;">'+r[0]+'</td><td style="padding:7px 0;">'+r[1]+'</td></tr>';}).join('');
+  document.getElementById('view-overlay').className='overlay show';
+}
+function closeView(){ document.getElementById('view-overlay').className='overlay'; viewId=null; }
+function copyLogin(){
+  if(!viewId) return;
+  var c=getClients().find(function(x){return x.id===viewId;});
+  if(!c) return;
+  var txt='Portal: https://portal-cprestorationsvcs.com/client-portal.html\nClient ID: '+c.id+'\nPassword: '+(c.portalPwd||'restore2026');
+  navigator.clipboard.writeText(txt).then(function(){toast('Portal login copied!','success');}).catch(function(){prompt('Copy these:',txt);});
+}
+
+// ── EDIT MODAL ────────────────────────────────────────────────────
+var editId=null; var pendingDocs={};
+function openEdit(){
+  if(!viewId) return;
+  var c=getClients().find(function(x){return x.id===viewId;});
+  if(!c){toast('Client not found','error');return;}
+  editId=viewId; pendingDocs={};
+  closeView();
+  document.getElementById('e-sub').textContent=c.id+' — '+c.name;
+  sv('e-name',c.name);sv('e-dob',c.dob);sv('e-email',c.email);sv('e-phone',c.phone);
+  sv('e-address',c.address);sv('e-ssn',c.ssn);sv('e-referral',c.referral);
+  sv('e-status',c.status||'Active');sv('e-pwd',c.portalPwd||'restore2026');
+  sv('e-pkg',c.package);sv('e-bureaus',c.bureaus||'All 3');sv('e-start',c.startDate);
+  sv('e-pay-amt',c.payAmount);sv('e-pay-meth',c.payMethod);sv('e-score',c.score);sv('e-ftc',c.ftc);
+  var dl=document.getElementById('e-disputes-txt'); if(dl) dl.value=c.disputes||'';
+  var nl=document.getElementById('e-notes-txt');    if(nl) nl.value=c.notes||'';
+  var bl=c.bureauLogins||{};
+  var eq=bl.equifax||{};var ex=bl.experian||{};var tu=bl.transunion||{};
+  sv('e-eq-user',eq.user);sv('e-eq-pass',eq.pass);
+  sv('e-ex-user',ex.user);sv('e-ex-pass',ex.pass);sv('e-ex-pin',ex.pin);sv('e-ex-secq',ex.secAnswer);sv('e-ex-secq-text',ex.secQuestion);
+  sv('e-tu-user',tu.user);sv('e-tu-pass',tu.pass);
+  loadDocList(c.docs||{});
+  eTab('info',document.querySelector('#edit-overlay .tab-btn'));
+  document.getElementById('edit-overlay').className='overlay show';
+}
+function closeEdit(){ document.getElementById('edit-overlay').className='overlay'; editId=null; pendingDocs={}; }
+function eTab(tab,btn){
+  ['info','service','bureaus-tab','disputes','docs','notes'].forEach(function(t){ var e=document.getElementById('e-'+t); if(e) e.style.display='none'; });
+  var el=document.getElementById('e-'+tab); if(el) el.style.display='block';
+  document.querySelectorAll('#edit-overlay .tab-btn').forEach(function(b){b.classList.remove('on');});
+  if(btn) btn.classList.add('on');
+}
+function saveEdit(){
+  if(!editId) return;
+  var arr=getClients(); var idx=arr.findIndex(function(c){return c.id===editId;});
+  if(idx===-1){toast('Client not found','error');return;}
+  var c=arr[idx];
+  c.name=gv('e-name')||c.name; c.dob=gv('e-dob'); c.email=gv('e-email'); c.phone=gv('e-phone');
+  c.address=gv('e-address'); c.ssn=gv('e-ssn'); c.referral=gv('e-referral');
+  c.status=gv('e-status')||c.status; c.portalPwd=gv('e-pwd')||c.portalPwd;
+  c.package=gv('e-pkg')||c.package; c.bureaus=gv('e-bureaus')||c.bureaus;
+  c.startDate=gv('e-start')||c.startDate; c.payAmount=gv('e-pay-amt'); c.payMethod=gv('e-pay-meth');
+  c.score=gv('e-score'); c.ftc=gv('e-ftc');
+  var dtxt=document.getElementById('e-disputes-txt'); c.disputes=dtxt?dtxt.value:c.disputes;
+  var ntxt=document.getElementById('e-notes-txt');    c.notes=ntxt?ntxt.value:c.notes;
+  c.bureauLogins={
+    equifax:   {user:gv('e-eq-user'),pass:gv('e-eq-pass')},
+    experian:  {user:gv('e-ex-user'),pass:gv('e-ex-pass'),pin:gv('e-ex-pin'),secAnswer:gv('e-ex-secq'),secQuestion:gv('e-ex-secq-text')},
+    transunion:{user:gv('e-tu-user'),pass:gv('e-tu-pass')}
+  };
+  if(!c.docs) c.docs={};
+  Object.keys(pendingDocs).forEach(function(k){c.docs[k]=pendingDocs[k];});
+  c.updatedAt=new Date().toISOString();
+  arr[idx]=c; saveClients(arr);
+  closeEdit(); renderTable();
+  toast('Client file saved!','success');
+}
+
+// ── DOCUMENTS ─────────────────────────────────────────────────────
+function dzOver(e,id){e.preventDefault();var el=document.getElementById(id);if(el)el.classList.add('over');}
+function dzOut(id){var el=document.getElementById(id);if(el)el.classList.remove('over');}
+function dzDrop(e,type){e.preventDefault();dzOut('dz-'+type);doUpload(type,e.dataTransfer.files);}
+function doUpload(type,files){
+  if(!files||!files.length) return;
+  if(type==='other'){
+    var arr=[];var done=0;
+    Array.from(files).forEach(function(f){
+      if(f.size>5*1024*1024){toast(f.name+' too large (max 5MB)','error');done++;return;}
+      var fr=new FileReader();
+      fr.onload=function(ev){arr.push({name:f.name,size:f.size,type:f.type,data:ev.target.result});done++;if(done===files.length){pendingDocs.other=arr;setDocStatus('other','✅ '+arr.length+' file(s) ready — click Save');setDzUploaded('dz-other',true);loadDocList(mergedDocs());}};
       fr.readAsDataURL(f);
     });
   } else {
-    var f = files[0];
-    if (f.size > 5*1024*1024) { showToast('File too large (max 5MB)', 'error'); return; }
-    var fr = new FileReader();
-    fr.onload = function(e) {
-      _pendingDocs[type] = {name:f.name, size:f.size, type:f.type, data:e.target.result};
-      var st = document.getElementById('status-' + type);
-      if (st) st.textContent = '✅ ' + f.name;
-      var dp = document.getElementById('drop-' + type);
-      if (dp) { dp.style.borderColor='var(--green)'; dp.style.background='var(--lg)'; }
-      showToast(f.name + ' ready. Click Save Changes.', 'success');
-      renderPendingDocs();
-    };
+    var f=files[0];
+    if(f.size>5*1024*1024){toast('File too large (max 5MB)','error');return;}
+    var fr=new FileReader();
+    fr.onload=function(ev){pendingDocs[type]={name:f.name,size:f.size,type:f.type,data:ev.target.result};setDocStatus(type,'✅ '+f.name+' ready — click Save');setDzUploaded('dz-'+type,true);loadDocList(mergedDocs());};
     fr.readAsDataURL(f);
   }
 }
-
-function handleDrop(event, type) {
-  event.preventDefault();
-  var dp = document.getElementById('drop-' + type);
-  if (dp) dp.classList.remove('drop-active');
-  handleUpload(type, event.dataTransfer.files);
+function mergedDocs(){
+  if(!editId) return pendingDocs;
+  var c=getClients().find(function(x){return x.id===editId;});
+  return Object.assign({},c?c.docs||{}:{},pendingDocs);
 }
-
-function renderUploadedDocs(docs) {
-  var el = document.getElementById('uploaded-docs-list');
-  if (!el) return;
-  var typeLabels = {dl:"Driver's License", ssn:'Social Security Card', addr:'Proof of Address', other:'Supporting Docs'};
-  var html = '';
-  Object.keys(docs).forEach(function(k) {
-    var d = docs[k];
-    var items = Array.isArray(d) ? d : [d];
-    items.forEach(function(item, itemIdx) {
-      if (!item || !item.name) return;
-      var sizeStr = item.size > 1024*1024 ? (item.size/1024/1024).toFixed(1)+'MB' : Math.round(item.size/1024)+'KB';
-      html += '<div class="doc-item" data-doc-key="' + esc(k) + '" data-doc-name="' + esc(item.name) + '">' +
-        '<span style="font-size:18px;">&#x1F4C4;</span>' +
-        '<div style="flex:1;"><div style="font-size:12px;font-weight:700;">' + esc(item.name) + '</div>' +
-        '<div style="font-size:10px;color:var(--gray);">' + (typeLabels[k]||k) + ' - ' + sizeStr + '</div></div>' +
-        (item.data ? '<a href="' + item.data + '" download="' + esc(item.name) + '" style="font-size:11px;color:var(--navy);font-weight:700;text-decoration:none;padding:4px 10px;background:var(--lb);border-radius:6px;white-space:nowrap;margin-right:6px;">&#11015; Download</a>' : '') +
-        '<button class="doc-delete-btn" data-doc-key="' + esc(k) + '" data-doc-name="' + esc(item.name) + '" style="background:var(--lr);border:none;color:var(--red);font-size:11px;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;white-space:nowrap;">&#x1F5D1; Delete</button>' +
-        '</div>';
+function setDocStatus(type,msg){var e=document.getElementById('st-'+type);if(e)e.textContent=msg;}
+function setDzUploaded(id,on){var e=document.getElementById(id);if(e){e.className='drop-zone'+(on?' uploaded':'');}}
+function loadDocList(docs){
+  var el=document.getElementById('doc-list'); if(!el) return;
+  var labels={dl:"Driver's License",ssn:'Social Security Card',addr:'Proof of Address',other:'Supporting Docs'};
+  var html='';
+  Object.keys(docs).forEach(function(k){
+    var d=docs[k]; var items=Array.isArray(d)?d:[d];
+    items.forEach(function(item){
+      if(!item||!item.name) return;
+      var sz=item.size>1024*1024?(item.size/1024/1024).toFixed(1)+'MB':Math.round(item.size/1024)+'KB';
+      html+='<div class="doc-item">'+
+        '<span style="font-size:18px;">&#x1F4C4;</span>'+
+        '<div style="flex:1;"><div style="font-size:12px;font-weight:700;">'+esc(item.name)+'</div>'+
+        '<div style="font-size:10px;color:var(--gray);">'+(labels[k]||k)+' &mdash; '+sz+'</div></div>'+
+        (item.data?'<a href="'+item.data+'" download="'+esc(item.name)+'" style="font-size:11px;color:var(--navy);font-weight:700;text-decoration:none;padding:4px 10px;background:#EFF4FF;border-radius:6px;white-space:nowrap;margin-right:6px;">&#11015; Download</a>':'')+
+        '<button onclick="deleteDoc(\''+esc(k)+'\',\''+esc(item.name)+'\')" style="background:#FEE2E2;border:none;color:#991B1B;font-size:11px;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;white-space:nowrap;">&#x1F5D1; Delete</button>'+
+      '</div>';
     });
   });
-  el.innerHTML = html || '<div style="color:var(--gray);font-size:12px;text-align:center;padding:12px;">No documents uploaded yet.</div>';
-
-  // Wire delete buttons
-  if (el) {
-    el.querySelectorAll('.doc-delete-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var key  = btn.getAttribute('data-doc-key');
-        var name = btn.getAttribute('data-doc-name');
-        deleteDoc(key, name);
-      });
-    });
-  }
+  el.innerHTML=html||'<div style="color:var(--gray);font-size:12px;text-align:center;padding:12px;">No documents uploaded yet.</div>';
+}
+function deleteDoc(key,name){
+  if(!confirm('Delete "'+name+'"?')) return;
+  if(!editId) return;
+  var arr=getClients(); var idx=arr.findIndex(function(c){return c.id===editId;});
+  if(idx===-1) return;
+  var c=arr[idx]; if(!c.docs) return;
+  if(Array.isArray(c.docs[key])){ c.docs[key]=c.docs[key].filter(function(d){return d.name!==name;}); if(!c.docs[key].length) delete c.docs[key]; }
+  else delete c.docs[key];
+  if(pendingDocs[key]){ if(Array.isArray(pendingDocs[key])){ pendingDocs[key]=pendingDocs[key].filter(function(d){return d.name!==name;}); } else delete pendingDocs[key]; }
+  arr[idx]=c; saveClients(arr);
+  setDzUploaded('dz-'+key,false);
+  var defaults={dl:'Click or drag to upload',ssn:'Click or drag to upload',addr:'Utility bill or lease',other:'Credit reports, letters, etc.'};
+  setDocStatus(key,defaults[key]||'Click to upload');
+  loadDocList(mergedDocs());
+  toast('Document deleted.','success');
 }
 
-function deleteDoc(key, name) {
-  if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
-  if (!_editId) return;
-  var clients = getClients();
-  var idx = clients.findIndex(function(c){ return c.id === _editId; });
-  if (idx === -1) return;
-  var c = clients[idx];
-  if (!c.docs) return;
-  if (Array.isArray(c.docs[key])) {
-    c.docs[key] = c.docs[key].filter(function(d){ return d.name !== name; });
-    if (!c.docs[key].length) delete c.docs[key];
-  } else {
-    delete c.docs[key];
+// ── ONBOARDING ────────────────────────────────────────────────────
+var oStep=1; var oData={};
+function openOnboarding(){
+  oStep=1; oData={};
+  ['o-name','o-dob','o-email','o-phone','o-address','o-ssn','o-referral','o-pay-amt','o-ftc','o-sig','o-score','o-score2'].forEach(function(id){sv(id,'');});
+  ['o-pkg','o-bureaus','o-pay-meth'].forEach(function(id){sv(id,'');});
+  var ag=document.getElementById('o-agree'); if(ag) ag.checked=false;
+  var sd=document.getElementById('o-start'); if(sd) sd.value=new Date().toISOString().split('T')[0];
+  var ssd=document.getElementById('o-sign-date'); if(ssd) ssd.value=new Date().toISOString().split('T')[0];
+  var dp=document.getElementById('pkg-info-box'); if(dp) dp.style.display='none';
+  var db=document.getElementById('dupe-box'); if(db) db.style.display='none';
+  ['o-disputes','o-notes'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  ['o-eq-user','o-eq-pass','o-ex-user','o-ex-pass','o-ex-pin','o-ex-secq','o-ex-secq-text','o-tu-user','o-tu-pass'].forEach(function(id){sv(id,'');});
+  showStep(1);
+  document.getElementById('onb-overlay').className='overlay show';
+}
+function closeOnboarding(){ document.getElementById('onb-overlay').className='overlay'; oStep=1; oData={}; }
+function showStep(n){
+  for(var i=1;i<=6;i++){
+    var s=document.getElementById('os'+i); if(s) s.style.display=i===n?'block':'none';
+    var p=document.getElementById('sp'+i); if(p) p.className='step'+(i===n?' on':i<n?' done':'');
   }
-  // Also remove from pending
-  if (_pendingDocs[key]) {
-    if (Array.isArray(_pendingDocs[key])) {
-      _pendingDocs[key] = _pendingDocs[key].filter(function(d){ return d.name !== name; });
-    } else {
-      delete _pendingDocs[key];
+  oStep=n;
+  var back=document.getElementById('onb-back'); if(back) back.style.display=n>1?'block':'none';
+  var next=document.getElementById('onb-next'); if(next) next.textContent=n===6?'&#x2705; Create Client File':'Next &#8594;';
+}
+function oBack(){ if(oStep>1) showStep(oStep-1); }
+function oNext(){
+  if(oStep===1){
+    var name=gv('o-name');
+    if(!name){toast('Please enter the client name.','error');return;}
+    var dupes=findDupes(name,gv('o-email'),gv('o-phone'));
+    if(dupes.length&&!confirm('Possible duplicate:\n\n'+dupes.map(function(d){return d.c.name+' ('+d.c.id+') — '+d.reasons.join(', ');}).join('\n')+'\n\nContinue creating a new file?')) return;
+    oData.name=name;oData.dob=gv('o-dob');oData.email=gv('o-email');oData.phone=gv('o-phone');
+    oData.address=gv('o-address');oData.ssn=gv('o-ssn');oData.referral=gv('o-referral');
+    showStep(2); return;
+  }
+  if(oStep===2){
+    if(!gv('o-pkg')){toast('Please select a package.','error');return;}
+    oData.package=gv('o-pkg');oData.bureaus=gv('o-bureaus')||'All 3';
+    oData.startDate=gv('o-start')||new Date().toISOString().split('T')[0];
+    oData.payAmount=gv('o-pay-amt');oData.payMethod=gv('o-pay-meth');oData.score=gv('o-score');
+    showStep(3); return;
+  }
+  if(oStep===3){
+    oData.bureauLogins={
+      equifax:   {user:gv('o-eq-user'),pass:gv('o-eq-pass')},
+      experian:  {user:gv('o-ex-user'),pass:gv('o-ex-pass'),pin:gv('o-ex-pin'),secAnswer:gv('o-ex-secq'),secQuestion:gv('o-ex-secq-text')},
+      transunion:{user:gv('o-tu-user'),pass:gv('o-tu-pass')}
+    };
+    showStep(4); return;
+  }
+  if(oStep===4){
+    var dtxt=document.getElementById('o-disputes'); oData.disputes=dtxt?dtxt.value:'';
+    oData.ftc=gv('o-ftc'); oData.score=oData.score||gv('o-score2');
+    var ntxt=document.getElementById('o-notes'); oData.notes=ntxt?ntxt.value:'';
+    var anEl=document.getElementById('agree-name'); if(anEl) anEl.textContent=oData.name;
+    var smEl=document.getElementById('agree-summary');
+    if(smEl) smEl.innerHTML='<b>Client:</b> '+esc(oData.name)+'<br><b>Package:</b> '+esc(oData.package)+'<br><b>Bureaus:</b> '+esc(oData.bureaus)+'<br><b>Start Date:</b> '+esc(oData.startDate)+'<br><b>Payment:</b> '+esc(oData.payAmount||'TBD')+' via '+esc(oData.payMethod||'TBD')+'<br><b>Guarantee:</b> Money-back if no results delivered';
+    showStep(5); return;
+  }
+  if(oStep===5){
+    if(!gv('o-sig')){toast('Client signature name is required.','error');return;}
+    var ag=document.getElementById('o-agree'); if(!ag||!ag.checked){toast('Client must agree to terms.','error');return;}
+    oData.signature=gv('o-sig'); oData.signDate=gv('o-sign-date');
+    var newId=genId();
+    var smEl=document.getElementById('o-summary-table');
+    if(smEl) smEl.innerHTML=[
+      ['Client ID','<b style="font-family:monospace;">'+newId+'</b>'],
+      ['Name',esc(oData.name)],['Email',esc(oData.email)],['Phone',esc(oData.phone)],
+      ['Package',esc(oData.package)],['Bureaus',esc(oData.bureaus)],['Start',esc(oData.startDate)],
+      ['Payment',esc(oData.payAmount||'TBD')+' ('+esc(oData.payMethod||'TBD')+')'],
+      ['Portal Password','restore2026'],['Signed By',esc(oData.signature)]
+    ].map(function(r){return '<tr><td style="color:var(--gray);font-weight:600;width:120px;padding:5px 0;">'+r[0]+'</td><td style="padding:5px 0;">'+r[1]+'</td></tr>';}).join('');
+    oData._id=newId;
+    showStep(6); return;
+  }
+  if(oStep===6){ completeOnb(); }
+}
+function completeOnb(){
+  var arr=getClients();
+  arr.push({
+    id:oData._id,name:oData.name,email:oData.email,phone:oData.phone,dob:oData.dob,
+    address:oData.address,ssn:oData.ssn,referral:oData.referral,package:oData.package,
+    bureaus:oData.bureaus,startDate:oData.startDate,payAmount:oData.payAmount,payMethod:oData.payMethod,
+    score:oData.score,ftc:oData.ftc,disputes:oData.disputes,notes:oData.notes,
+    signature:oData.signature,signDate:oData.signDate,bureauLogins:oData.bureauLogins||{},
+    status:'Active',portalPwd:'restore2026',docs:{},createdAt:new Date().toISOString()
+  });
+  saveClients(arr);
+  closeOnboarding();
+  renderTable();
+  toast('Client '+oData._id+' — '+oData.name+' created!','success');
+}
+
+// ── DUPLICATE DETECTION ───────────────────────────────────────────
+function findDupes(name,email,phone){
+  var arr=getClients(); var matches=[];
+  var nl=(name||'').toLowerCase(); var el=(email||'').toLowerCase(); var pc=(phone||'').replace(/\D/g,'');
+  arr.forEach(function(c){
+    var score=0; var reasons=[];
+    if(el&&c.email&&c.email.toLowerCase()===el){score+=100;reasons.push('same email');}
+    if(pc&&c.phone&&c.phone.replace(/\D/g,'')===pc){score+=100;reasons.push('same phone');}
+    if(nl&&c.name){
+      var np=nl.split(' ').filter(Boolean); var cp=c.name.toLowerCase().split(' ').filter(Boolean);
+      var shared=np.filter(function(p){return cp.indexOf(p)!==-1;}).length;
+      if(shared>=2){score+=80;reasons.push('same name');}
     }
-  }
-  clients[idx] = c;
-  saveClients(clients);
-  // Reset drop zone
-  var dropEl = document.getElementById('drop-' + key);
-  var statusEl = document.getElementById('status-' + key);
-  var defaults = {dl:'Click or drag to upload',ssn:'Click or drag to upload',addr:'Utility bill, lease, or bank stmt',other:'Credit reports, letters, etc.'};
-  if (dropEl) { dropEl.style.borderColor='var(--border)'; dropEl.style.background=''; }
-  if (statusEl) statusEl.textContent = defaults[key] || 'Click to upload';
-  // Re-render
-  var merged = Object.assign({}, c.docs, _pendingDocs);
-  renderUploadedDocs(merged);
-  showToast('Document deleted.', 'success');
+    if(score>=80) matches.push({c:c,reasons:reasons});
+  });
+  return matches;
+}
+function checkDupe(){
+  var dupes=findDupes(gv('o-name'),gv('o-email'),gv('o-phone'));
+  var box=document.getElementById('dupe-box');
+  var list=document.getElementById('dupe-list');
+  if(dupes.length&&box&&list){
+    list.innerHTML=dupes.slice(0,3).map(function(d){return '<div class="dupe-item">&#9888; <b>'+esc(d.c.name)+'</b> ('+esc(d.c.id)+') — '+d.reasons.join(', ')+'</div>';}).join('');
+    box.style.display='block';
+  } else if(box){ box.style.display='none'; }
+}
+function pkgInfo(){
+  var pkg=gv('o-pkg');
+  var info={Standard:'$2,499 — All 3 bureaus — 120 business days — Money-back guarantee',Express:'$3,999 — All 3 bureaus — 60 business days — Money-back guarantee',Financing:'$750 down + $292/month x6 — All 3 bureaus',Single:'$1,000 — One bureau — 120 business days','Inquiries Only':'$45 per inquiry per bureau'};
+  var box=document.getElementById('pkg-info-box');
+  var payEl=document.getElementById('o-pay-amt');
+  if(box){if(pkg&&info[pkg]){box.textContent=info[pkg];box.style.display='block';}else box.style.display='none';}
+  var amounts={Standard:'$2,499',Express:'$3,999',Financing:'$750',Single:'$1,000'};
+  if(payEl&&amounts[pkg]) payEl.value=amounts[pkg];
 }
 
-function renderPendingDocs() {
-  var clients = getClients();
-  var c = clients.find(function(x){ return x.id === _editId; });
-  var merged = Object.assign({}, (c ? c.docs : {}), _pendingDocs);
-  renderUploadedDocs(merged);
-}
+// Close overlays on background click
+['view-overlay','edit-overlay','onb-overlay'].forEach(function(id){
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this) this.className='overlay';});
+});
 
-var _em = document.getElementById('edit-modal'); if(_em) _em.addEventListener('click', function(e){ if(e.target===this) closeEditModal(); });
-
+// Init
+seed();
+renderTable();
 </script>
-
-<div class="modal-overlay" id="edit-modal">
-  <div class="modal" style="max-width:680px;">
-    <div class="modal-head">
-      <div>
-        <div class="modal-title">Edit Client File</div>
-        <div style="font-size:12px;color:var(--gray);margin-top:2px;" id="edit-client-id-label"></div>
-      </div>
-      <button onclick="closeEditModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);">&#215;</button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;">
-        <button class="edit-tab active" id="etab-info"     onclick="showEditTab('info')">Personal Info</button>
-        <button class="edit-tab"        id="etab-service"  onclick="showEditTab('service')">Service</button>
-        <button class="edit-tab"        id="etab-bureaus"  onclick="showEditTab('bureaus')">Bureau Logins</button>
-        <button class="edit-tab"        id="etab-disputes" onclick="showEditTab('disputes')">Disputes</button>
-        <button class="edit-tab"        id="etab-docs"     onclick="showEditTab('docs')">Documents</button>
-        <button class="edit-tab"        id="etab-notes"    onclick="showEditTab('notes')">Notes</button>
-      </div>
-
-      <div id="edit-tab-info">
-        <div class="form-row">
-          <div class="form-field"><label>Full Name</label><input type="text" id="edit-name"></div>
-          <div class="form-field"><label>Date of Birth</label><input type="date" id="edit-dob"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Email</label><input type="email" id="edit-email"></div>
-          <div class="form-field"><label>Phone</label><input type="tel" id="edit-phone"></div>
-        </div>
-        <div class="form-field"><label>Home Address</label><input type="text" id="edit-address"></div>
-        <div class="form-row">
-          <div class="form-field"><label>SSN Last 4</label><input type="text" id="edit-ssn" maxlength="4"></div>
-          <div class="form-field"><label>Referred By</label><input type="text" id="edit-referral"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Status</label>
-            <select id="edit-status">
-              <option value="Active">Active</option>
-              <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div class="form-field"><label>Portal Password</label><input type="text" id="edit-portal-pwd"></div>
-        </div>
-      </div>
-
-      <div id="edit-tab-service" style="display:none;">
-        <div class="form-row">
-          <div class="form-field"><label>Package</label>
-            <select id="edit-package">
-              <option value="Standard">Standard - $2,499 / 120 Days</option>
-              <option value="Express">Express - $3,999 / 60 Days</option>
-              <option value="Financing">Financing - $750 down + $292x6</option>
-              <option value="Single Bureau">Single Bureau - $1,000</option>
-              <option value="Inquiries Only">Inquiries Only - $45/inquiry</option>
-            </select>
-          </div>
-          <div class="form-field"><label>Bureaus</label>
-            <select id="edit-bureaus">
-              <option value="All 3">All 3 Bureaus</option>
-              <option value="Equifax Only">Equifax Only</option>
-              <option value="Experian Only">Experian Only</option>
-              <option value="TransUnion Only">TransUnion Only</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Start Date</label><input type="date" id="edit-start-date"></div>
-          <div class="form-field"><label>Payment Amount</label><input type="text" id="edit-pay-amount"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Payment Method</label>
-            <select id="edit-pay-method">
-              <option value="">Select...</option>
-              <option value="Credit Card">Credit Card</option>
-              <option value="Debit Card">Debit Card</option>
-              <option value="Zelle">Zelle</option>
-              <option value="CashApp">CashApp</option>
-              <option value="Venmo">Venmo</option>
-              <option value="Check">Check</option>
-              <option value="Wire">Wire Transfer</option>
-            </select>
-          </div>
-          <div class="form-field"><label>Starting Score</label><input type="number" id="edit-score"></div>
-        </div>
-        <div class="form-field"><label>FTC Report Number</label><input type="text" id="edit-ftc"></div>
-      </div>
-
-      <div id="edit-tab-bureaus" style="display:none;">
-        <div style="font-size:13px;color:#1E40AF;background:#EFF4FF;border-radius:8px;padding:10px 14px;margin-bottom:16px;border-left:3px solid #1E40AF;">Update the client's credit bureau login credentials for live dispute calls.</div>
-
-        <div style="background:#FFF0F0;border-radius:12px;padding:16px;margin-bottom:14px;border-left:4px solid #991B1B;">
-          <div style="font-size:13px;font-weight:800;color:#991B1B;margin-bottom:14px;">&#x1F534; Equifax</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-            <div><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Username / Email</label><input type="text" id="edit-eq-user" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-            <div><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Password</label><input type="password" id="edit-eq-pass" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-          </div>
-        </div>
-
-        <div style="background:#EFF4FF;border-radius:12px;padding:16px;margin-bottom:14px;border-left:4px solid #1E40AF;">
-          <div style="font-size:13px;font-weight:800;color:#1E40AF;margin-bottom:14px;">&#x1F535; Experian</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-            <div><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Username / Email</label><input type="text" id="edit-ex-user" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-            <div><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Password</label><input type="password" id="edit-ex-pass" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-            <div><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">4-Digit PIN</label><input type="text" id="edit-ex-pin" maxlength="4" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-            <div><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Security Answer</label><input type="text" id="edit-ex-secq" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-          </div>
-          <div><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Security Question</label><input type="text" id="edit-ex-secq-text" placeholder="e.g. What was your first pet's name?" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-        </div>
-
-        <div style="background:#F0FFF4;border-radius:12px;padding:16px;margin-bottom:14px;border-left:4px solid #065F46;">
-          <div style="font-size:13px;font-weight:800;color:#065F46;margin-bottom:14px;">&#x1F7E2; TransUnion</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-            <div><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Username / Email</label><input type="text" id="edit-tu-user" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-            <div><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Password</label><input type="password" id="edit-tu-pass" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="edit-tab-disputes" style="display:none;">
-        <div class="form-field">
-          <label>Dispute Items</label>
-          <textarea id="edit-disputes" style="min-height:220px;" placeholder="List each negative item:&#10;- Collection: Midland Credit $1,240 (EQ, EX, TU)&#10;- Late Payment: Chase Visa (EQ, EX)&#10;- Hard Inquiry: Capital One (TU)"></textarea>
-        </div>
-      </div>
-
-      <div id="edit-tab-docs" style="display:none;">
-        <div class="alert alert-blue" style="margin-bottom:16px;">Files are stored in your browser. Max 5MB per file. Click Save Changes after uploading.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
-
-          <div id="drop-dl" onclick="document.getElementById('upl-dl').click()" ondragover="event.preventDefault();this.classList.add('drop-active')" ondragleave="this.classList.remove('drop-active')" ondrop="handleDrop(event,'dl')" style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;">
-            <div style="font-size:28px;margin-bottom:6px;">&#x1F43A;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--navy);">Driver's License</div>
-            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="status-dl">Click or drag to upload</div>
-            <input type="file" id="upl-dl" accept="image/*,.pdf" style="display:none" onchange="handleUpload('dl',this.files)">
-          </div>
-
-          <div id="drop-ssn" onclick="document.getElementById('upl-ssn').click()" ondragover="event.preventDefault();this.classList.add('drop-active')" ondragleave="this.classList.remove('drop-active')" ondrop="handleDrop(event,'ssn')" style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;">
-            <div style="font-size:28px;margin-bottom:6px;">&#x1F4CB;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--navy);">Social Security Card</div>
-            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="status-ssn">Click or drag to upload</div>
-            <input type="file" id="upl-ssn" accept="image/*,.pdf" style="display:none" onchange="handleUpload('ssn',this.files)">
-          </div>
-
-          <div id="drop-addr" onclick="document.getElementById('upl-addr').click()" ondragover="event.preventDefault();this.classList.add('drop-active')" ondragleave="this.classList.remove('drop-active')" ondrop="handleDrop(event,'addr')" style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;">
-            <div style="font-size:28px;margin-bottom:6px;">&#x1F3E0;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--navy);">Proof of Address</div>
-            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="status-addr">Utility bill, lease, or bank stmt</div>
-            <input type="file" id="upl-addr" accept="image/*,.pdf" style="display:none" onchange="handleUpload('addr',this.files)">
-          </div>
-
-          <div id="drop-other" onclick="document.getElementById('upl-other').click()" ondragover="event.preventDefault();this.classList.add('drop-active')" ondragleave="this.classList.remove('drop-active')" ondrop="handleDrop(event,'other')" style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;">
-            <div style="font-size:28px;margin-bottom:6px;">&#x1F4C1;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--navy);">Supporting Documents</div>
-            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="status-other">Credit reports, letters, etc.</div>
-            <input type="file" id="upl-other" accept="image/*,.pdf" multiple style="display:none" onchange="handleUpload('other',this.files)">
-          </div>
-
-        </div>
-        <div id="uploaded-docs-list"></div>
-      </div>
-
-      <div id="edit-tab-notes" style="display:none;">
-        <div class="form-field">
-          <label>Internal Notes (Team Only)</label>
-          <textarea id="edit-notes" style="min-height:220px;" placeholder="Internal notes -- not visible to client."></textarea>
-        </div>
-      </div>
-
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
-      <button class="btn btn-navy" onclick="saveEdits()">Save Changes</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
