@@ -533,7 +533,7 @@ function loadPortal() {
 
   // Greeting
   var hr = new Date().getHours();
-  var greet = hr<12?'Good morning':'hr<17?'Good afternoon':'Good evening';
+  var greet = hr<12 ? 'Good morning, ' : hr<17 ? 'Good afternoon, ' : 'Good evening, ';
   greet = hr<12?'Good morning, ':hr<17?'Good afternoon, ':'Good evening, ';
   set('dash-greeting', greet + c.name.split(' ')[0] + '! 👋');
 
