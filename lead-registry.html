@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Lead Registry</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--text:#1E293B;
+  --lb:#EFF4FF;--lg:#F0FFF4;--lgold:#FDF8EE;--lr:#FFF0F0;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.hdr{background:var(--navy);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.hdr-title{font-size:15px;font-weight:800;color:white;}
+.hdr-right{display:flex;gap:10px;align-items:center;}
+.btn{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-navy{background:var(--navy);color:white;}
+.btn-green{background:#166534;color:white;}
+.btn-outline{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;}
+.btn-sm{padding:5px 11px;font-size:11px;}
+.btn-red{background:var(--red);color:white;}
+.content{padding:20px;max-width:1200px;margin:0 auto;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.stat-value{font-size:24px;font-weight:800;color:var(--navy);}
+.stat-sub{font-size:11px;color:var(--gray);margin-top:3px;}
+.stat.green .stat-value{color:var(--green);}
+.stat.gold .stat-value{color:var(--gold);}
+.stat.red .stat-value{color:var(--red);}
+.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;}
+.card-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:800;color:var(--navy);}
+.badge{padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
+.badge-green{background:#D1FAE5;color:#065F46;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.badge-red{background:#FEE2E2;color:#991B1B;}
+.badge-gray{background:#F3F4F6;color:#374151;}
+.badge-purple{background:#E0E7FF;color:#3730A3;}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--border);align-items:center;}
+.filter-btn{padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);background:white;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--gray);transition:all .15s;}
+.filter-btn.active{background:var(--navy);color:white;border-color:var(--navy);}
+input[type=text],input[type=tel],input[type=email],select,textarea{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border .2s;color:var(--text);background:white;}
+input:focus,select:focus,textarea:focus{border-color:var(--navy);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--navy);}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:white;white-space:nowrap;}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+tbody tr:hover{background:var(--lb);}
+tbody tr.contacted td{background:#F0FFF4;}
+tbody tr.converted td{background:#EFF4FF;}
+.empty{text-align:center;padding:48px;color:var(--gray);font-size:13px;line-height:1.8;}
+
+/* ADD LEAD MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal{background:white;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:15px;font-weight:800;color:var(--navy);}
+.modal-body{padding:20px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-field{margin-bottom:12px;}
+.form-field label{display:block;font-size:11px;font-weight:700;color:var(--text);margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase;}
+.form-field input,.form-field select,.form-field textarea{width:100%;}
+.form-field textarea{resize:vertical;min-height:70px;}
+
+/* STATUS DOTS */
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;}
+.dot-new{background:#F59E0B;}
+.dot-contacted{background:#22c55e;}
+.dot-converted{background:#3B82F6;}
+.dot-lost{background:#EF4444;}
+.dot-callback{background:#8B5CF6;}
+
+/* ACTIONS */
+.action-btns{display:flex;gap:5px;flex-wrap:wrap;}
+
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-title">📋 Lead Registry — CP Restoration Services</div>
+  <div class="hdr-right">
+    <span id="lead-count-hdr" style="font-size:11px;color:rgba(255,255,255,.5);">0 leads</span>
+    <button class="btn btn-outline" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn btn-gold" onclick="openAddModal()">+ Add Lead</button>
+    <a href="/index.html" class="btn btn-outline">← Portal</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- STATS -->
+  <div class="stat-grid">
+    <div class="stat gold"><div class="stat-label">New Leads</div><div class="stat-value" id="stat-new">0</div><div class="stat-sub">Needs follow-up</div></div>
+    <div class="stat"><div class="stat-label">Callback Scheduled</div><div class="stat-value" id="stat-callback">0</div></div>
+    <div class="stat green"><div class="stat-label">Contacted</div><div class="stat-value" id="stat-contacted">0</div></div>
+    <div class="stat"><div class="stat-label">Converted</div><div class="stat-value" id="stat-converted">0</div><div class="stat-sub">Became clients</div></div>
+    <div class="stat red"><div class="stat-label">Not Interested</div><div class="stat-value" id="stat-lost">0</div></div>
+    <div class="stat"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-total">0</div><div class="stat-sub">All time</div></div>
+  </div>
+
+  <!-- LEAD TABLE -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">📞 All Leads</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="search-input" placeholder="Search name, phone, notes..." style="width:220px;padding:7px 12px;font-size:12px;" oninput="renderTable()">
+        <button class="btn btn-outline btn-sm" style="background:white;color:var(--text);border-color:var(--border);" onclick="renderTable()">↻</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <span style="font-size:11px;font-weight:700;color:var(--gray);">Filter:</span>
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('new',this)">🟡 New</button>
+      <button class="filter-btn" onclick="setFilter('callback',this)">🟣 Callback</button>
+      <button class="filter-btn" onclick="setFilter('contacted',this)">🟢 Contacted</button>
+      <button class="filter-btn" onclick="setFilter('converted',this)">🔵 Converted</button>
+      <button class="filter-btn" onclick="setFilter('lost',this)">🔴 Not Interested</button>
+      <button class="filter-btn" onclick="setFilter('aria',this)">🤖 From Aria</button>
+      <button class="filter-btn" onclick="setFilter('today',this)">📅 Today</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Date / Time</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Source</th>
+            <th>Interest</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leads-tbody">
+          <tr><td colspan="9" class="empty">No leads yet.<br><br>Leads appear here automatically when Aria collects caller information,<br>or you can add them manually using the <strong>+ Add Lead</strong> button.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ADD / EDIT LEAD MODAL -->
+<div class="modal-overlay" id="lead-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Add New Lead</div>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Full Name *</label>
+          <input type="text" id="lead-name" placeholder="First Last">
+        </div>
+        <div class="form-field">
+          <label>Phone *</label>
+          <input type="tel" id="lead-phone" placeholder="(555) 555-5555">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" id="lead-email" placeholder="email@example.com">
+        </div>
+        <div class="form-field">
+          <label>Source</label>
+          <select id="lead-source">
+            <option value="aria">Aria (Voice AI)</option>
+            <option value="phone">Phone Call</option>
+            <option value="email">Email</option>
+            <option value="referral">Referral</option>
+            <option value="website">Website</option>
+            <option value="social">Social Media</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Interest / Package</label>
+          <select id="lead-interest">
+            <option value="">Not specified</option>
+            <option value="Standard ($2,499)">Standard — $2,499</option>
+            <option value="Express ($3,999)">Express — $3,999</option>
+            <option value="Financing ($750 down)">Financing — $750 down</option>
+            <option value="Single Bureau ($1,000)">Single Bureau — $1,000</option>
+            <option value="Inquiries Only">Inquiries Only</option>
+            <option value="General Inquiry">General Inquiry</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Status</label>
+          <select id="lead-status">
+            <option value="new">🟡 New</option>
+            <option value="callback">🟣 Callback Scheduled</option>
+            <option value="contacted">🟢 Contacted</option>
+            <option value="converted">🔵 Converted to Client</option>
+            <option value="lost">🔴 Not Interested</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Assigned To</label>
+          <select id="lead-assigned">
+            <option value="">Unassigned</option>
+            <option value="Jason Crown">Jason Crown</option>
+            <option value="Queen Jearel Cruz">Queen Jearel Cruz</option>
+            <option value="Bukunmi Aina">Bukunmi Aina</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Callback Date</label>
+          <input type="date" id="lead-callback">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Notes</label>
+        <textarea id="lead-notes" placeholder="What did they ask about? What was their situation?"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
+        <button class="btn" style="background:var(--border);color:var(--text);" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-navy" onclick="saveLead()">Save Lead</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STORAGE ───────────────────────────────────────────────────────
+var LEADS_KEY = 'cp_leads';
+var currentFilter = 'all';
+var editingId = null;
+
+function getLeads() {
+  try { return JSON.parse(localStorage.getItem(LEADS_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveLeads(leads) {
+  try { localStorage.setItem(LEADS_KEY, JSON.stringify(leads)); }
+  catch(e) { alert('Could not save lead. Storage full.'); }
+}
+
+function genId() {
+  return 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+}
+
+// ── STATS ─────────────────────────────────────────────────────────
+function updateStats() {
+  var leads = getLeads();
+  var counts = { new:0, callback:0, contacted:0, converted:0, lost:0 };
+  leads.forEach(function(l){ if(counts[l.status]!==undefined) counts[l.status]++; });
+  set('stat-new',       counts.new);
+  set('stat-callback',  counts.callback);
+  set('stat-contacted', counts.contacted);
+  set('stat-converted', counts.converted);
+  set('stat-lost',      counts.lost);
+  set('stat-total',     leads.length);
+  set('lead-count-hdr', leads.length + ' lead' + (leads.length!==1?'s':''));
+}
+
+// ── FILTER ────────────────────────────────────────────────────────
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  renderTable();
+}
+
+// ── RENDER TABLE ──────────────────────────────────────────────────
+function renderTable() {
+  var leads  = getLeads();
+  var search = (document.getElementById('search-input')||{}).value || '';
+  search = search.toLowerCase().trim();
+  var now = new Date();
+  var todayStr = now.toISOString().split('T')[0];
+
+  var filtered = leads.filter(function(l) {
+    if (currentFilter === 'today')  return l.createdAt && l.createdAt.startsWith(todayStr);
+    if (currentFilter === 'aria')   return l.source === 'aria';
+    if (currentFilter !== 'all')    return l.status === currentFilter;
+    return true;
+  });
+
+  if (search) {
+    filtered = filtered.filter(function(l) {
+      return (l.name||'').toLowerCase().includes(search) ||
+             (l.phone||'').includes(search) ||
+             (l.notes||'').toLowerCase().includes(search) ||
+             (l.email||'').toLowerCase().includes(search);
+    });
+  }
+
+  // Newest first
+  filtered.sort(function(a,b){ return (b.createdAt||'').localeCompare(a.createdAt||''); });
+
+  var tbody = document.getElementById('leads-tbody');
+  if (!tbody) return;
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty">No leads match this filter.</td></tr>';
+    return;
+  }
+
+  var statusMap = {
+    new:       '<span class="status-dot dot-new"></span><span class="badge badge-gold">New</span>',
+    callback:  '<span class="status-dot dot-callback"></span><span class="badge badge-purple" style="background:#E0E7FF;color:#3730A3;">Callback</span>',
+    contacted: '<span class="status-dot dot-contacted"></span><span class="badge badge-green">Contacted</span>',
+    converted: '<span class="status-dot dot-converted"></span><span class="badge badge-blue">Converted ✅</span>',
+    lost:      '<span class="status-dot dot-lost"></span><span class="badge badge-red">Not Interested</span>'
+  };
+
+  var sourceMap = {
+    aria:     '🤖 Aria',
+    phone:    '📞 Phone',
+    email:    '📧 Email',
+    referral: '👥 Referral',
+    website:  '🌐 Website',
+    social:   '📱 Social',
+    other:    '📋 Other'
+  };
+
+  var rowClass = { contacted:'contacted', converted:'converted' };
+
+  tbody.innerHTML = filtered.map(function(l) {
+    var d = l.createdAt ? new Date(l.createdAt) : new Date();
+    var dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    var mins = Math.floor((now-d)/60000);
+    var ago = mins<1?'Just now':mins<60?mins+'m ago':mins<1440?Math.floor(mins/60)+'h ago':Math.floor(mins/1440)+'d ago';
+    return '<tr class="'+(rowClass[l.status]||'')+'">' +
+      '<td style="white-space:nowrap;"><div style="font-size:12px;">'+dateStr+'</div><div style="font-size:10px;color:var(--gray);">'+ago+'</div></td>' +
+      '<td style="font-weight:700;">' + esc(l.name||'—') + '</td>' +
+      '<td><a href="tel:'+esc(l.phone||'')+'" style="color:var(--navy);font-weight:600;text-decoration:none;">'+esc(l.phone||'—')+'</a></td>' +
+      '<td style="font-size:12px;">'+(sourceMap[l.source]||l.source||'—')+'</td>' +
+      '<td style="font-size:12px;">'+(l.interest||'—')+'</td>' +
+      '<td>'+(statusMap[l.status]||l.status)+'</td>' +
+      '<td style="font-size:12px;">'+(l.assigned||'<span style="color:var(--gray);">Unassigned</span>')+'</td>' +
+      '<td style="font-size:12px;max-width:200px;word-break:break-word;">'+(esc(l.notes||'').replace(/\n/g,'<br>')||'—')+'</td>' +
+      '<td><div class="action-btns">' +
+        '<button class="btn btn-sm btn-navy" onclick="editLead(\''+l.id+'\')">Edit</button>' +
+        '<button class="btn btn-sm btn-green" onclick="quickStatus(\''+l.id+'\',\'contacted\')">✓ Called</button>' +
+        '<button class="btn btn-sm" style="background:#E0E7FF;color:#3730A3;" onclick="quickStatus(\''+l.id+'\',\'converted\')">🔵 Won</button>' +
+        '<button class="btn btn-sm" style="background:#F3F4F6;color:var(--gray);" onclick="deleteLead(\''+l.id+'\')">✕</button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ── QUICK STATUS ──────────────────────────────────────────────────
+function quickStatus(id, status) {
+  var leads = getLeads();
+  var idx   = leads.findIndex(function(l){ return l.id===id; });
+  if (idx === -1) return;
+  leads[idx].status = status;
+  leads[idx].updatedAt = new Date().toISOString();
+  saveLeads(leads);
+  updateStats();
+  renderTable();
+  showToast(status === 'contacted' ? '✅ Marked as contacted' : '🔵 Marked as converted!');
+}
+
+// ── ADD / EDIT MODAL ──────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  set('modal-title', 'Add New Lead');
+  clearForm();
+  document.getElementById('lead-modal').style.display = 'flex';
+}
+
+function editLead(id) {
+  var leads = getLeads();
+  var lead  = leads.find(function(l){ return l.id===id; });
+  if (!lead) return;
+  editingId = id;
+  set('modal-title', 'Edit Lead');
+  val('lead-name',     lead.name||'');
+  val('lead-phone',    lead.phone||'');
+  val('lead-email',    lead.email||'');
+  val('lead-source',   lead.source||'other');
+  val('lead-interest', lead.interest||'');
+  val('lead-status',   lead.status||'new');
+  val('lead-assigned', lead.assigned||'');
+  val('lead-callback', lead.callbackDate||'');
+  val('lead-notes',    lead.notes||'');
+  document.getElementById('lead-modal').style.display = 'flex';
+}
+
+function clearForm() {
+  ['lead-name','lead-phone','lead-email','lead-notes','lead-callback'].forEach(function(id){ val(id,''); });
+  val('lead-source','aria');
+  val('lead-interest','');
+  val('lead-status','new');
+  val('lead-assigned','');
+}
+
+function saveLead() {
+  var name  = (document.getElementById('lead-name')||{}).value || '';
+  var phone = (document.getElementById('lead-phone')||{}).value || '';
+  if (!name.trim() || !phone.trim()) {
+    showToast('Name and phone are required.', 'error');
+    return;
+  }
+  var leads = getLeads();
+  var now   = new Date().toISOString();
+  if (editingId) {
+    var idx = leads.findIndex(function(l){ return l.id===editingId; });
+    if (idx !== -1) {
+      leads[idx] = Object.assign(leads[idx], {
+        name: name.trim(), phone: phone.trim(),
+        email:        (document.getElementById('lead-email')||{}).value||'',
+        source:       (document.getElementById('lead-source')||{}).value||'other',
+        interest:     (document.getElementById('lead-interest')||{}).value||'',
+        status:       (document.getElementById('lead-status')||{}).value||'new',
+        assigned:     (document.getElementById('lead-assigned')||{}).value||'',
+        callbackDate: (document.getElementById('lead-callback')||{}).value||'',
+        notes:        (document.getElementById('lead-notes')||{}).value||'',
+        updatedAt:    now
+      });
+    }
+  } else {
+    leads.unshift({
+      id: genId(),
+      name: name.trim(), phone: phone.trim(),
+      email:        (document.getElementById('lead-email')||{}).value||'',
+      source:       (document.getElementById('lead-source')||{}).value||'aria',
+      interest:     (document.getElementById('lead-interest')||{}).value||'',
+      status:       (document.getElementById('lead-status')||{}).value||'new',
+      assigned:     (document.getElementById('lead-assigned')||{}).value||'',
+      callbackDate: (document.getElementById('lead-callback')||{}).value||'',
+      notes:        (document.getElementById('lead-notes')||{}).value||'',
+      createdAt:    now,
+      updatedAt:    now
+    });
+  }
+  saveLeads(leads);
+  closeModal();
+  updateStats();
+  renderTable();
+  showToast(editingId ? 'Lead updated.' : 'Lead added!', 'success');
+}
+
+function deleteLead(id) {
+  if (!confirm('Delete this lead? This cannot be undone.')) return;
+  var leads = getLeads().filter(function(l){ return l.id!==id; });
+  saveLeads(leads);
+  updateStats();
+  renderTable();
+  showToast('Lead deleted.');
+}
+
+function closeModal() {
+  document.getElementById('lead-modal').style.display = 'none';
+  editingId = null;
+}
+
+// ── EXPORT CSV ───────────────────────────────────────────────────
+function exportCSV() {
+  var leads = getLeads();
+  if (!leads.length) { showToast('No leads to export.', 'error'); return; }
+  var headers = ['Date','Name','Phone','Email','Source','Interest','Status','Assigned To','Callback Date','Notes'];
+  var rows = leads.map(function(l) {
+    return [
+      l.createdAt ? new Date(l.createdAt).toLocaleDateString() : '',
+      l.name||'', l.phone||'', l.email||'', l.source||'',
+      l.interest||'', l.status||'', l.assigned||'',
+      l.callbackDate||'',
+      (l.notes||'').replace(/,/g,';').replace(/\n/g,' ')
+    ].map(function(v){ return '"'+v+'"'; }).join(',');
+  });
+  var csv = [headers.join(','), ...rows].join('\n');
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'cp_leads_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+// ── IMPORT ARIA LOGS ─────────────────────────────────────────────
+// Checks localStorage for any leads captured by Aria via client portal bridge
+function importAriaLeads() {
+  try {
+    var ariaLeads = JSON.parse(localStorage.getItem('cp_aria_leads') || '[]');
+    if (!ariaLeads.length) return;
+    var leads    = getLeads();
+    var existing = new Set(leads.map(function(l){ return l.phone; }));
+    var added    = 0;
+    ariaLeads.forEach(function(al) {
+      if (!existing.has(al.phone)) {
+        leads.unshift({
+          id: genId(),
+          name: al.name || 'Unknown',
+          phone: al.phone || '',
+          email: '',
+          source: 'aria',
+          interest: al.topic || '',
+          status: 'new',
+          assigned: '',
+          callbackDate: '',
+          notes: 'Collected by Aria on ' + (al.time ? new Date(al.time).toLocaleString() : 'unknown date'),
+          createdAt: al.time || new Date().toISOString(),
+          updatedAt: al.time || new Date().toISOString()
+        });
+        existing.add(al.phone);
+        added++;
+      }
+    });
+    if (added > 0) {
+      saveLeads(leads);
+      updateStats();
+      renderTable();
+      showToast(added + ' new lead' + (added>1?'s':'') + ' imported from Aria!', 'success');
+    }
+    // Clear imported leads
+    localStorage.removeItem('cp_aria_leads');
+  } catch(e) {}
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function set(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
+function val(id,v){   var el=document.getElementById(id); if(el) el.value=v; }
+function esc(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showToast(msg, type) {
+  var bg = type==='error'?'#8B1A1A':type==='success'?'#166534':'#1B3A6B';
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+bg+';color:white;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap;font-family:Inter,sans-serif;';
+  document.body.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },3000);
+}
+
+// Close modal on overlay click
+document.getElementById('lead-modal').addEventListener('click', function(e){
+  if (e.target === this) closeModal();
+});
+
+// ── INIT ─────────────────────────────────────────────────────────
+updateStats();
+renderTable();
+importAriaLeads();
+
+// Auto-refresh every 30 seconds to pick up new Aria leads
+setInterval(function(){
+  importAriaLeads();
+  updateStats();
+  renderTable();
+}, 30000);
+</script>
+</body>
+</html>
