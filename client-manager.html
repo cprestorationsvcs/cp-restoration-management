@@ -54,7 +54,7 @@ input[type=text],input[type=email],input[type=tel],input[type=date],input[type=n
 input:focus,select:focus,textarea:focus{border-color:var(--navy);}
 textarea{resize:vertical;min-height:80px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-.form-field{margin-bottom:14px;}
+.form-field{margin-bottom:14px;}.form-field input,.form-field select,.form-field textarea{width:100%;box-sizing:border-box;}
 .form-field label{display:block;font-size:11px;font-weight:700;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px;}
 .modal-overlay.open{display:flex;}
@@ -1021,18 +1021,66 @@ function renderUploadedDocs(docs) {
   Object.keys(docs).forEach(function(k) {
     var d = docs[k];
     var items = Array.isArray(d) ? d : [d];
-    items.forEach(function(item) {
+    items.forEach(function(item, itemIdx) {
       if (!item || !item.name) return;
       var sizeStr = item.size > 1024*1024 ? (item.size/1024/1024).toFixed(1)+'MB' : Math.round(item.size/1024)+'KB';
-      html += '<div class="doc-item">' +
+      html += '<div class="doc-item" data-doc-key="' + esc(k) + '" data-doc-name="' + esc(item.name) + '">' +
         '<span style="font-size:18px;">&#x1F4C4;</span>' +
         '<div style="flex:1;"><div style="font-size:12px;font-weight:700;">' + esc(item.name) + '</div>' +
         '<div style="font-size:10px;color:var(--gray);">' + (typeLabels[k]||k) + ' - ' + sizeStr + '</div></div>' +
-        (item.data ? '<a href="' + item.data + '" download="' + esc(item.name) + '" style="font-size:11px;color:var(--navy);font-weight:700;text-decoration:none;padding:3px 8px;background:var(--lb);border-radius:6px;white-space:nowrap;">Download</a>' : '') +
+        (item.data ? '<a href="' + item.data + '" download="' + esc(item.name) + '" style="font-size:11px;color:var(--navy);font-weight:700;text-decoration:none;padding:4px 10px;background:var(--lb);border-radius:6px;white-space:nowrap;margin-right:6px;">&#11015; Download</a>' : '') +
+        '<button class="doc-delete-btn" data-doc-key="' + esc(k) + '" data-doc-name="' + esc(item.name) + '" style="background:var(--lr);border:none;color:var(--red);font-size:11px;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;white-space:nowrap;">&#x1F5D1; Delete</button>' +
         '</div>';
     });
   });
-  el.innerHTML = html || '';
+  el.innerHTML = html || '<div style="color:var(--gray);font-size:12px;text-align:center;padding:12px;">No documents uploaded yet.</div>';
+
+  // Wire delete buttons
+  if (el) {
+    el.querySelectorAll('.doc-delete-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var key  = btn.getAttribute('data-doc-key');
+        var name = btn.getAttribute('data-doc-name');
+        deleteDoc(key, name);
+      });
+    });
+  }
+}
+
+function deleteDoc(key, name) {
+  if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
+  if (!_editId) return;
+  var clients = getClients();
+  var idx = clients.findIndex(function(c){ return c.id === _editId; });
+  if (idx === -1) return;
+  var c = clients[idx];
+  if (!c.docs) return;
+  if (Array.isArray(c.docs[key])) {
+    c.docs[key] = c.docs[key].filter(function(d){ return d.name !== name; });
+    if (!c.docs[key].length) delete c.docs[key];
+  } else {
+    delete c.docs[key];
+  }
+  // Also remove from pending
+  if (_pendingDocs[key]) {
+    if (Array.isArray(_pendingDocs[key])) {
+      _pendingDocs[key] = _pendingDocs[key].filter(function(d){ return d.name !== name; });
+    } else {
+      delete _pendingDocs[key];
+    }
+  }
+  clients[idx] = c;
+  saveClients(clients);
+  // Reset drop zone
+  var dropEl = document.getElementById('drop-' + key);
+  var statusEl = document.getElementById('status-' + key);
+  var defaults = {dl:'Click or drag to upload',ssn:'Click or drag to upload',addr:'Utility bill, lease, or bank stmt',other:'Credit reports, letters, etc.'};
+  if (dropEl) { dropEl.style.borderColor='var(--border)'; dropEl.style.background=''; }
+  if (statusEl) statusEl.textContent = defaults[key] || 'Click to upload';
+  // Re-render
+  var merged = Object.assign({}, c.docs, _pendingDocs);
+  renderUploadedDocs(merged);
+  showToast('Document deleted.', 'success');
 }
 
 function renderPendingDocs() {
