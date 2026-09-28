@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Client Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--text:#1E293B;
+  --lb:#EFF4FF;--lg:#F0FFF4;--lgold:#FDF8EE;--lr:#FFF0F0;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.hdr{background:var(--navy);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.hdr-title{font-size:15px;font-weight:800;color:white;}
+.hdr-right{display:flex;gap:10px;align-items:center;}
+.btn{padding:8px 16px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-navy{background:var(--navy);color:white;}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-green{background:#166534;color:white;}
+.btn-red{background:var(--red);color:white;}
+.btn-outline{background:white;border:1.5px solid var(--border);color:var(--text);}
+.btn-outline-white{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;}
+.btn-sm{padding:5px 12px;font-size:11px;}
+.content{padding:20px;max-width:1200px;margin:0 auto;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.stat-value{font-size:22px;font-weight:800;color:var(--navy);}
+.stat.green .stat-value{color:var(--green);}
+.stat.gold .stat-value{color:#92400E;}
+.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;}
+.card-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:800;color:var(--navy);}
+.badge{padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
+.badge-green{background:#D1FAE5;color:#065F46;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.badge-red{background:#FEE2E2;color:#991B1B;}
+.badge-gray{background:#F3F4F6;color:#374151;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--navy);}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:white;white-space:nowrap;}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:hover{background:var(--lb);}
+.empty{text-align:center;padding:48px;color:var(--gray);font-size:13px;line-height:1.8;}
+input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],select,textarea{
+  padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;
+  font-family:inherit;outline:none;transition:border .2s;color:var(--text);background:white;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--navy);}
+textarea{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.form-field{margin-bottom:14px;}
+.form-field label{display:block;font-size:11px;font-weight:700;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border-radius:16px;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;z-index:1;}
+.modal-title{font-size:16px;font-weight:800;color:var(--navy);}
+.modal-body{padding:22px;}
+.modal-foot{padding:16px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+.step-bar{display:flex;gap:0;margin-bottom:24px;}
+.step-item{flex:1;text-align:center;font-size:11px;font-weight:700;padding:8px 4px;border-bottom:3px solid var(--border);color:var(--gray);transition:all .2s;}
+.step-item.active{border-color:var(--navy);color:var(--navy);}
+.step-item.done{border-color:var(--green);color:var(--green);}
+.dupe-alert{background:var(--lgold);border:2px solid var(--gold);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:none;}
+.dupe-alert-title{font-size:13px;font-weight:800;color:#92400E;margin-bottom:6px;}
+.dupe-item{font-size:12px;color:#7A5F00;padding:4px 0;border-bottom:1px solid rgba(201,168,76,.3);}
+.dupe-item:last-child{border:none;}
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:14px;}
+.alert-blue{background:var(--lb);border-left:3px solid var(--navy);color:var(--navy);}
+.alert-green{background:var(--lg);border-left:3px solid var(--green);color:var(--green);}
+.alert-red{background:var(--lr);border-left:3px solid var(--red);color:var(--red);}
+.search-bar{display:flex;gap:10px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.search-bar input{flex:1;min-width:200px;}
+.search-bar select{width:160px;}
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-title">👥 Client Manager — CP Restoration Services</div>
+  <div class="hdr-right">
+    <span id="client-count-hdr" style="font-size:11px;color:rgba(255,255,255,.5);">0 clients</span>
+    <button class="btn btn-outline-white btn-sm" onclick="exportClients()">⬇ Export</button>
+    <button class="btn btn-gold" onclick="openOnboarding()">+ New Client</button>
+    <a href="/index.html" class="btn btn-outline-white btn-sm">← Portal</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- STATS -->
+  <div class="stat-grid">
+    <div class="stat green"><div class="stat-label">Active Clients</div><div class="stat-value" id="stat-active">0</div></div>
+    <div class="stat"><div class="stat-label">Total Clients</div><div class="stat-value" id="stat-total">0</div></div>
+    <div class="stat gold"><div class="stat-label">Pending</div><div class="stat-value" id="stat-pending">0</div></div>
+    <div class="stat"><div class="stat-label">Completed</div><div class="stat-value" id="stat-completed">0</div></div>
+  </div>
+
+  <!-- CLIENT TABLE -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">👥 All Clients</div>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="client-search" placeholder="🔍 Search by name, ID, email, or phone..." oninput="filterClients()">
+      <select id="status-filter" onchange="filterClients()">
+        <option value="">All Statuses</option>
+        <option value="Active">Active</option>
+        <option value="Pending">Pending</option>
+        <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+      <select id="package-filter" onchange="filterClients()">
+        <option value="">All Packages</option>
+        <option value="Standard">Standard</option>
+        <option value="Express">Express</option>
+        <option value="Financing">Financing</option>
+        <option value="Single Bureau">Single Bureau</option>
+        <option value="Inquiries Only">Inquiries Only</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Client ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Package</th>
+            <th>Start Date</th>
+            <th>Status</th>
+            <th>Portal Password</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="clients-tbody">
+          <tr><td colspan="9" class="empty">Loading clients...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ONBOARDING MODAL -->
+<div class="modal-overlay" id="onboarding-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="onb-modal-title">New Client Onboarding</div>
+      <button onclick="closeOnboarding()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);">×</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- STEP BAR -->
+      <div class="step-bar">
+        <div class="step-item active" id="step-dot-1">1. Personal</div>
+        <div class="step-item" id="step-dot-2">2. Package</div>
+        <div class="step-item" id="step-dot-3">3. Disputes</div>
+        <div class="step-item" id="step-dot-4">4. Agreement</div>
+        <div class="step-item" id="step-dot-5">5. Confirm</div>
+      </div>
+
+      <!-- DUPLICATE ALERT -->
+      <div class="dupe-alert" id="dupe-alert">
+        <div class="dupe-alert-title">⚠️ Possible Duplicate Client Detected</div>
+        <div id="dupe-list"></div>
+        <div style="margin-top:10px;font-size:12px;color:#92400E;">Review the existing client below before continuing. Click <strong>Continue Anyway</strong> to create a new file, or <strong>Cancel</strong> to go back.</div>
+      </div>
+
+      <!-- STEP 1: PERSONAL INFO -->
+      <div id="onb-step-1">
+        <div class="alert alert-blue">Enter the client's personal information. The system will automatically check for duplicate files.</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Full Name *</label>
+            <input type="text" id="onb-name" placeholder="First Last" oninput="checkDupes()">
+          </div>
+          <div class="form-field">
+            <label>Date of Birth</label>
+            <input type="date" id="onb-dob">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Email Address</label>
+            <input type="email" id="onb-email" placeholder="client@email.com" oninput="checkDupes()">
+          </div>
+          <div class="form-field">
+            <label>Phone Number</label>
+            <input type="tel" id="onb-phone" placeholder="(555) 555-5555" oninput="checkDupes()">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Home Address</label>
+          <input type="text" id="onb-address" placeholder="Street, City, State, ZIP">
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>SSN (Last 4 only)</label>
+            <input type="text" id="onb-ssn" placeholder="XXXX" maxlength="4">
+          </div>
+          <div class="form-field">
+            <label>Referred By</label>
+            <input type="text" id="onb-referral" placeholder="Name or source">
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: PACKAGE -->
+      <div id="onb-step-2" style="display:none;">
+        <div class="alert alert-blue">Select the service package and payment details.</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Service Package *</label>
+            <select id="onb-package" onchange="updatePackageInfo()">
+              <option value="">Select a package...</option>
+              <option value="Standard">Standard — $2,499 / 120 Business Days</option>
+              <option value="Express">Express — $3,999 / 60 Business Days</option>
+              <option value="Financing">Financing — $750 down + $292×6</option>
+              <option value="Single Bureau">Single Bureau — $1,000 / 120 Days</option>
+              <option value="Inquiries Only">Inquiries Only — $45/inquiry/bureau</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Bureaus Covered</label>
+            <select id="onb-bureaus">
+              <option value="All 3">All 3 Bureaus (EQ, EX, TU)</option>
+              <option value="Equifax Only">Equifax Only</option>
+              <option value="Experian Only">Experian Only</option>
+              <option value="TransUnion Only">TransUnion Only</option>
+            </select>
+          </div>
+        </div>
+        <div id="package-info-box" style="display:none;background:var(--lb);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--navy);line-height:1.7;"></div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Initial Payment Amount</label>
+            <input type="text" id="onb-pay-amount" placeholder="e.g. $2,499">
+          </div>
+          <div class="form-field">
+            <label>Payment Method</label>
+            <select id="onb-pay-method">
+              <option value="">Select...</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Debit Card">Debit Card</option>
+              <option value="Zelle">Zelle</option>
+              <option value="CashApp">CashApp</option>
+              <option value="Venmo">Venmo</option>
+              <option value="Check">Check</option>
+              <option value="Wire">Wire Transfer</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Start Date</label>
+          <input type="date" id="onb-start-date">
+        </div>
+      </div>
+
+      <!-- STEP 3: DISPUTES -->
+      <div id="onb-step-3" style="display:none;">
+        <div class="alert alert-blue">Document the negative items being disputed and any existing reports filed.</div>
+        <div class="form-field">
+          <label>Negative Items to Dispute</label>
+          <textarea id="onb-disputes" placeholder="List each item: type, creditor name, amount, which bureaus it appears on&#10;Example:&#10;- Collection: Midland Credit $1,240 (EQ, EX, TU)&#10;- Late Payment: Chase Visa (EQ, EX)&#10;- Hard Inquiry: Capital One (TU)"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>FTC Identity Theft Report #</label>
+            <input type="text" id="onb-ftc" placeholder="FTC report number (if applicable)">
+          </div>
+          <div class="form-field">
+            <label>Credit Score at Start (est.)</label>
+            <input type="number" id="onb-score" placeholder="e.g. 520">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Additional Notes</label>
+          <textarea id="onb-notes" placeholder="Any special circumstances, previous disputes, bankruptcy, etc."></textarea>
+        </div>
+      </div>
+
+      <!-- STEP 4: AGREEMENT -->
+      <div id="onb-step-4" style="display:none;">
+        <div class="alert alert-blue">Confirm the client has reviewed and agreed to the service agreement terms.</div>
+        <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:16px;font-size:12px;line-height:1.8;color:var(--text);">
+          <div style="font-weight:800;margin-bottom:8px;color:var(--navy);">CP Restoration Services — Service Agreement Summary</div>
+          <div id="agreement-summary">Package details will appear here after selection.</div>
+        </div>
+        <div class="form-field">
+          <label>Client Full Name (as signature) *</label>
+          <input type="text" id="onb-signature" placeholder="Type full legal name to sign">
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:14px;background:var(--lg);border-radius:8px;margin-bottom:14px;">
+          <input type="checkbox" id="onb-agree" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;">
+          <label for="onb-agree" style="font-size:12px;line-height:1.6;cursor:pointer;">
+            I confirm that <span id="agree-name">the client</span> has read, understood, and agreed to the CP Restoration Services terms and conditions, including the money-back guarantee policy, the service timeline, and the payment schedule.
+          </label>
+        </div>
+        <div class="form-field">
+          <label>Date Signed</label>
+          <input type="date" id="onb-sign-date">
+        </div>
+      </div>
+
+      <!-- STEP 5: CONFIRM -->
+      <div id="onb-step-5" style="display:none;">
+        <div class="alert alert-green">✅ Ready to create the client file. Review the summary below.</div>
+        <div id="onb-summary" style="font-size:13px;line-height:2;"></div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" id="onb-back-btn" onclick="onbBack()" style="display:none;">← Back</button>
+      <button class="btn btn-navy" id="onb-next-btn" onclick="onbNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT DETAIL MODAL -->
+<div class="modal-overlay" id="client-detail-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="detail-name">Client Name</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:2px;" id="detail-id">CPR-00000</div>
+      </div>
+      <button onclick="closeDetailModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="detail-content"></div>
+      <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+        <button class="btn btn-navy" onclick="editCurrentClient()">✏️ Edit</button>
+        <button class="btn btn-green" onclick="copyPortalCredentials()">🔑 Copy Portal Login</button>
+        <button class="btn btn-outline" onclick="closeDetailModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var CLIENTS_KEY = 'cp_clients_v2';
+var currentStep = 1;
+var onbData = {};
+var viewingClientId = null;
+
+// ── STORAGE ───────────────────────────────────────────────────────
+function getClients() {
+  try { return JSON.parse(localStorage.getItem(CLIENTS_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveClients(clients) {
+  try { localStorage.setItem(CLIENTS_KEY, JSON.stringify(clients)); }
+  catch(e) { showToast('Storage error', 'error'); }
+}
+
+function genId() {
+  var clients = getClients();
+  var nums = clients.map(function(c){ var m=(c.id||'').match(/CPR-(\d+)/); return m?parseInt(m[1]):0; });
+  var max = nums.length ? Math.max.apply(null,nums) : 0;
+  return 'CPR-' + String(max+1).padStart(5,'0');
+}
+
+// Seed initial clients
+function seedClients() {
+  var clients = getClients();
+  if (!clients.find(function(c){ return c.id==='CPR-00378'; })) {
+    clients.push({
+      id:'CPR-00378', name:'Ryan Felder', email:'r.felder1987@gmail.com', phone:'',
+      dob:'', address:'', ssn:'', referral:'', package:'Standard', bureaus:'All 3',
+      startDate:'2025-06-01', payAmount:'$2,499', payMethod:'', signDate:'2025-06-01',
+      disputes:'Collection Account (EQ, EX, TU)\nLate Payment (EQ, EX, TU)',
+      ftc:'', score:'', notes:'Portal login: CPR-00378 / restore2026',
+      status:'Active', portalPwd:'restore2026', createdAt:'2025-06-01T00:00:00.000Z'
+    });
+    saveClients(clients);
+  }
+}
+
+// ── DUPLICATE DETECTION ───────────────────────────────────────────
+function findDuplicates(name, email, phone) {
+  var clients = getClients();
+  var matches = [];
+  var nl = (name||'').toLowerCase().trim();
+  var el = (email||'').toLowerCase().trim();
+  var pc = (phone||'').replace(/\D/g,'');
+  clients.forEach(function(c) {
+    var score=0; var reasons=[];
+    if (el && c.email && c.email.toLowerCase()===el)   { score+=100; reasons.push('same email'); }
+    if (pc && c.phone && c.phone.replace(/\D/g,'')===pc) { score+=100; reasons.push('same phone'); }
+    if (nl && c.name) {
+      var np=nl.split(' ').filter(Boolean);
+      var cp=c.name.toLowerCase().split(' ').filter(Boolean);
+      var shared=np.filter(function(p){ return cp.indexOf(p)!==-1; }).length;
+      if (shared>=2) { score+=80; reasons.push('same name'); }
+      else if (shared===1 && nl.length>3) { score+=30; reasons.push('similar name'); }
+    }
+    if (score>=80) matches.push({client:c, score:score, reasons:reasons});
+  });
+  return matches.sort(function(a,b){ return b.score-a.score; });
+}
+
+var dupeConfirmed = false;
+
+function checkDupes() {
+  var name  = (document.getElementById('onb-name')||{}).value||'';
+  var email = (document.getElementById('onb-email')||{}).value||'';
+  var phone = (document.getElementById('onb-phone')||{}).value||'';
+  if (!name && !email && !phone) { hideDupeAlert(); return; }
+  var dupes = findDuplicates(name, email, phone);
+  if (dupes.length) {
+    showDupeAlert(dupes);
+    dupeConfirmed = false;
+  } else {
+    hideDupeAlert();
+    dupeConfirmed = true;
+  }
+}
+
+function showDupeAlert(dupes) {
+  var alertEl = document.getElementById('dupe-alert');
+  var listEl  = document.getElementById('dupe-list');
+  if (!alertEl || !listEl) return;
+  listEl.innerHTML = dupes.slice(0,3).map(function(d) {
+    return '<div class="dupe-item">⚠️ <strong>' + d.client.name + '</strong> (' + d.client.id + ') — ' +
+      d.reasons.join(', ') + ' — Status: ' + (d.client.status||'Active') + '</div>';
+  }).join('');
+  alertEl.style.display = 'block';
+}
+
+function hideDupeAlert() {
+  var alertEl = document.getElementById('dupe-alert');
+  if (alertEl) alertEl.style.display = 'none';
+}
+
+// ── ONBOARDING ────────────────────────────────────────────────────
+function openOnboarding() {
+  currentStep = 1;
+  onbData = {};
+  dupeConfirmed = false;
+  hideDupeAlert();
+  // Clear fields
+  ['onb-name','onb-email','onb-phone','onb-address','onb-dob','onb-ssn','onb-referral',
+   'onb-pay-amount','onb-ftc','onb-score','onb-notes','onb-signature'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  ['onb-package','onb-bureaus','onb-pay-method'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.selectedIndex=0;
+  });
+  var agreeEl = document.getElementById('onb-agree'); if(agreeEl) agreeEl.checked=false;
+  var startEl = document.getElementById('onb-start-date');
+  if (startEl) startEl.value = new Date().toISOString().split('T')[0];
+  var signEl = document.getElementById('onb-sign-date');
+  if (signEl) signEl.value = new Date().toISOString().split('T')[0];
+  var pkgInfo = document.getElementById('package-info-box'); if(pkgInfo) pkgInfo.style.display='none';
+  showStep(1);
+  document.getElementById('onboarding-modal').classList.add('open');
+}
+
+function closeOnboarding() {
+  document.getElementById('onboarding-modal').classList.remove('open');
+}
+
+function showStep(step) {
+  for (var i=1;i<=5;i++) {
+    var el = document.getElementById('onb-step-'+i);
+    if (el) el.style.display = i===step ? 'block' : 'none';
+    var dot = document.getElementById('step-dot-'+i);
+    if (dot) {
+      dot.className = 'step-item' + (i===step?' active':i<step?' done':'');
+    }
+  }
+  currentStep = step;
+  var backBtn = document.getElementById('onb-back-btn');
+  var nextBtn = document.getElementById('onb-next-btn');
+  if (backBtn) backBtn.style.display = step > 1 ? 'block' : 'none';
+  if (nextBtn) nextBtn.textContent = step === 5 ? '✅ Create Client File' : 'Next →';
+}
+
+function onbBack() { if (currentStep > 1) showStep(currentStep-1); }
+
+function onbNext() {
+  if (currentStep === 1) {
+    var name = (document.getElementById('onb-name')||{}).value || '';
+    if (!name.trim()) { showToast('Please enter the client name.', 'error'); return; }
+    // Check dupes — warn but allow to continue
+    var dupes = findDuplicates(
+      name,
+      (document.getElementById('onb-email')||{}).value||'',
+      (document.getElementById('onb-phone')||{}).value||''
+    );
+    if (dupes.length && !dupeConfirmed) {
+      showDupeAlert(dupes);
+      if (!confirm('Possible duplicate client detected:\n\n' + dupes.map(function(d){ return d.client.name + ' (' + d.client.id + ') — ' + d.reasons.join(', '); }).join('\n') + '\n\nContinue creating a new file anyway?')) return;
+      dupeConfirmed = true;
+    }
+    onbData.name     = name.trim();
+    onbData.email    = (document.getElementById('onb-email')||{}).value||'';
+    onbData.phone    = (document.getElementById('onb-phone')||{}).value||'';
+    onbData.address  = (document.getElementById('onb-address')||{}).value||'';
+    onbData.dob      = (document.getElementById('onb-dob')||{}).value||'';
+    onbData.ssn      = (document.getElementById('onb-ssn')||{}).value||'';
+    onbData.referral = (document.getElementById('onb-referral')||{}).value||'';
+    showStep(2);
+    return;
+  }
+
+  if (currentStep === 2) {
+    var pkg = (document.getElementById('onb-package')||{}).value||'';
+    if (!pkg) { showToast('Please select a package.', 'error'); return; }
+    onbData.package   = pkg;
+    onbData.bureaus   = (document.getElementById('onb-bureaus')||{}).value||'All 3';
+    onbData.payAmount = (document.getElementById('onb-pay-amount')||{}).value||'';
+    onbData.payMethod = (document.getElementById('onb-pay-method')||{}).value||'';
+    onbData.startDate = (document.getElementById('onb-start-date')||{}).value || new Date().toISOString().split('T')[0];
+    showStep(3);
+    return;
+  }
+
+  if (currentStep === 3) {
+    onbData.disputes = (document.getElementById('onb-disputes')||{}).value||'';
+    onbData.ftc      = (document.getElementById('onb-ftc')||{}).value||'';
+    onbData.score    = (document.getElementById('onb-score')||{}).value||'';
+    onbData.notes    = (document.getElementById('onb-notes')||{}).value||'';
+    // Update agreement summary
+    var summaryEl = document.getElementById('agreement-summary');
+    if (summaryEl) summaryEl.innerHTML =
+      '<strong>Client:</strong> ' + onbData.name + '<br>' +
+      '<strong>Package:</strong> ' + onbData.package + '<br>' +
+      '<strong>Bureaus:</strong> ' + onbData.bureaus + '<br>' +
+      '<strong>Start Date:</strong> ' + onbData.startDate + '<br>' +
+      '<strong>Payment:</strong> ' + (onbData.payAmount||'TBD') + ' via ' + (onbData.payMethod||'TBD') + '<br>' +
+      '<strong>Guarantee:</strong> Money-back if no results delivered';
+    var agreeNameEl = document.getElementById('agree-name');
+    if (agreeNameEl) agreeNameEl.textContent = onbData.name;
+    showStep(4);
+    return;
+  }
+
+  if (currentStep === 4) {
+    var sig = (document.getElementById('onb-signature')||{}).value||'';
+    var agreed = (document.getElementById('onb-agree')||{}).checked;
+    if (!sig.trim()) { showToast('Client signature name is required.', 'error'); return; }
+    if (!agreed) { showToast('Client must agree to the terms to proceed.', 'error'); return; }
+    onbData.signature = sig.trim();
+    onbData.signDate  = (document.getElementById('onb-sign-date')||{}).value||'';
+    // Build summary
+    var newId = genId();
+    onbData._previewId = newId;
+    var summEl = document.getElementById('onb-summary');
+    if (summEl) summEl.innerHTML =
+      '<table style="width:100%;font-size:13px;">' +
+      '<tr><td style="padding:4px 0;color:var(--gray);width:140px;">Client ID</td><td style="font-weight:700;font-family:monospace;">' + newId + '</td></tr>' +
+      '<tr><td style="padding:4px 0;color:var(--gray);">Name</td><td style="font-weight:700;">' + onbData.name + '</td></tr>' +
+      '<tr><td style="padding:4px 0;color:var(--gray);">Email</td><td>' + (onbData.email||'—') + '</td></tr>' +
+      '<tr><td style="padding:4px 0;color:var(--gray);">Phone</td><td>' + (onbData.phone||'—') + '</td></tr>' +
+      '<tr><td style="padding:4px 0;color:var(--gray);">Package</td><td>' + onbData.package + '</td></tr>' +
+      '<tr><td style="padding:4px 0;color:var(--gray);">Bureaus</td><td>' + onbData.bureaus + '</td></tr>' +
+      '<tr><td style="padding:4px 0;color:var(--gray);">Start Date</td><td>' + onbData.startDate + '</td></tr>' +
+      '<tr><td style="padding:4px 0;color:var(--gray);">Payment</td><td>' + (onbData.payAmount||'TBD') + ' (' + (onbData.payMethod||'TBD') + ')</td></tr>' +
+      '<tr><td style="padding:4px 0;color:var(--gray);">Portal Password</td><td style="font-family:monospace;">restore2026</td></tr>' +
+      '<tr><td style="padding:4px 0;color:var(--gray);">Signed By</td><td>' + onbData.signature + '</td></tr>' +
+      '</table>';
+    showStep(5);
+    return;
+  }
+
+  if (currentStep === 5) {
+    completeOnboarding();
+  }
+}
+
+function completeOnboarding() {
+  var clients = getClients();
+  var newId = genId();
+  clients.push({
+    id: newId, name: onbData.name, email: onbData.email, phone: onbData.phone,
+    dob: onbData.dob, address: onbData.address, ssn: onbData.ssn, referral: onbData.referral,
+    package: onbData.package, bureaus: onbData.bureaus, startDate: onbData.startDate,
+    payAmount: onbData.payAmount, payMethod: onbData.payMethod, signDate: onbData.signDate,
+    disputes: onbData.disputes, ftc: onbData.ftc, score: onbData.score,
+    notes: onbData.notes, signature: onbData.signature,
+    status: 'Active', portalPwd: 'restore2026',
+    createdAt: new Date().toISOString()
+  });
+  saveClients(clients);
+  closeOnboarding();
+  showToast('✅ Client ' + newId + ' — ' + onbData.name + ' created!', 'success');
+  renderTable(getClients());
+  updateStats();
+}
+
+// ── CLIENT TABLE ──────────────────────────────────────────────────
+function filterClients() {
+  var s   = ((document.getElementById('client-search')||{}).value||'').toLowerCase().trim();
+  var st  = (document.getElementById('status-filter')||{}).value||'';
+  var pkg = (document.getElementById('package-filter')||{}).value||'';
+  var clients = getClients();
+  var filtered = clients.filter(function(c) {
+    var matchS = !s ||
+      (c.name||'').toLowerCase().includes(s) ||
+      (c.id||'').toLowerCase().includes(s) ||
+      (c.email||'').toLowerCase().includes(s) ||
+      (c.phone||'').replace(/\D/g,'').includes(s.replace(/\D/g,''));
+    var matchSt  = !st  || (c.status||'Active')===st;
+    var matchPkg = !pkg || (c.package||'')=== pkg;
+    return matchS && matchSt && matchPkg;
+  });
+  renderTable(filtered);
+}
+
+function renderTable(clients) {
+  var tbody = document.getElementById('clients-tbody');
+  if (!tbody) return;
+  if (!clients || !clients.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty">No clients found.<br>Click <strong>+ New Client</strong> to add one.</td></tr>';
+    return;
+  }
+  var statusBadge = function(s) {
+    var map = { Active:'badge-green', Pending:'badge-gold', Completed:'badge-blue', Cancelled:'badge-red' };
+    return '<span class="badge '+(map[s]||'badge-gray')+'">'+(s||'Active')+'</span>';
+  };
+  tbody.innerHTML = clients.map(function(c) {
+    return '<tr>' +
+      '<td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--navy);">' + (c.id||'—') + '</td>' +
+      '<td style="font-weight:700;">' + esc(c.name||'—') + '</td>' +
+      '<td style="font-size:12px;">' + esc(c.email||'—') + '</td>' +
+      '<td style="font-size:12px;">' + esc(c.phone||'—') + '</td>' +
+      '<td style="font-size:12px;">' + esc(c.package||'—') + '</td>' +
+      '<td style="font-size:12px;">' + (c.startDate ? new Date(c.startDate).toLocaleDateString() : '—') + '</td>' +
+      '<td>' + statusBadge(c.status) + '</td>' +
+      '<td style="font-family:monospace;font-size:11px;">' + (c.portalPwd||'restore2026') + '</td>' +
+      '<td><div style="display:flex;gap:5px;">' +
+        '<button class="btn btn-sm btn-navy" onclick="viewClient(\'' + c.id + '\')">View</button>' +
+        '<button class="btn btn-sm btn-outline" onclick="deleteClient(\'' + c.id + '\')">✕</button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function updateStats() {
+  var clients = getClients();
+  var active    = clients.filter(function(c){ return (c.status||'Active')==='Active'; }).length;
+  var pending   = clients.filter(function(c){ return c.status==='Pending'; }).length;
+  var completed = clients.filter(function(c){ return c.status==='Completed'; }).length;
+  set('stat-active', active);
+  set('stat-total', clients.length);
+  set('stat-pending', pending);
+  set('stat-completed', completed);
+  set('client-count-hdr', clients.length + ' client' + (clients.length!==1?'s':''));
+}
+
+// ── VIEW CLIENT ───────────────────────────────────────────────────
+function viewClient(id) {
+  var clients = getClients();
+  var c = clients.find(function(x){ return x.id===id; });
+  if (!c) return;
+  viewingClientId = id;
+  set('detail-name', c.name||'—');
+  set('detail-id', (c.id||'—') + ' — ' + (c.package||'—') + ' — ' + (c.status||'Active'));
+  var rows = [
+    ['Client ID', '<span style="font-family:monospace;font-weight:700;">' + (c.id||'—') + '</span>'],
+    ['Full Name', c.name||'—'], ['Email', c.email||'—'], ['Phone', c.phone||'—'],
+    ['Date of Birth', c.dob||'—'], ['Address', c.address||'—'],
+    ['Package', c.package||'—'], ['Bureaus', c.bureaus||'—'],
+    ['Start Date', c.startDate ? new Date(c.startDate).toLocaleDateString() : '—'],
+    ['Payment', (c.payAmount||'—') + ' via ' + (c.payMethod||'—')],
+    ['Status', c.status||'Active'],
+    ['Portal Login', '<span style="font-family:monospace;">' + c.id + ' / ' + (c.portalPwd||'restore2026') + '</span>'],
+    ['FTC Report #', c.ftc||'—'], ['Starting Score', c.score||'—'],
+    ['Disputes', '<div style="white-space:pre-wrap;font-size:12px;">' + esc(c.disputes||'—') + '</div>'],
+    ['Notes', '<div style="white-space:pre-wrap;font-size:12px;">' + esc(c.notes||'—') + '</div>'],
+    ['Referred By', c.referral||'—'],
+    ['Created', c.createdAt ? new Date(c.createdAt).toLocaleString() : '—']
+  ];
+  var detailEl = document.getElementById('detail-content');
+  if (detailEl) {
+    detailEl.innerHTML = '<table style="width:100%;font-size:13px;">' +
+      rows.map(function(r) {
+        return '<tr><td style="padding:7px 0;color:var(--gray);font-weight:600;width:130px;vertical-align:top;">' + r[0] + '</td>' +
+               '<td style="padding:7px 0;">' + r[1] + '</td></tr>';
+      }).join('') + '</table>';
+  }
+  document.getElementById('client-detail-modal').classList.add('open');
+}
+
+function closeDetailModal() {
+  document.getElementById('client-detail-modal').classList.remove('open');
+  viewingClientId = null;
+}
+
+function copyPortalCredentials() {
+  if (!viewingClientId) return;
+  var clients = getClients();
+  var c = clients.find(function(x){ return x.id===viewingClientId; });
+  if (!c) return;
+  var text = 'Portal URL: https://portal-cprestorationsvcs.com/client-portal.html\nClient ID: ' + c.id + '\nPassword: ' + (c.portalPwd||'restore2026');
+  navigator.clipboard.writeText(text).then(function(){
+    showToast('Portal credentials copied!', 'success');
+  }).catch(function(){
+    prompt('Copy these credentials:', text);
+  });
+}
+
+function deleteClient(id) {
+  if (!confirm('Delete this client file? This cannot be undone.')) return;
+  var clients = getClients().filter(function(c){ return c.id!==id; });
+  saveClients(clients);
+  filterClients();
+  updateStats();
+  showToast('Client deleted.', 'success');
+}
+
+function updatePackageInfo() {
+  var pkg = (document.getElementById('onb-package')||{}).value||'';
+  var box = document.getElementById('package-info-box');
+  var info = {
+    'Standard':      '📋 $2,499 — All 3 bureaus — 120 business days — Money-back guarantee',
+    'Express':       '⚡ $3,999 — All 3 bureaus — 60 business days — Money-back guarantee',
+    'Financing':     '💳 $750 down + $292/month × 6 — All 3 bureaus — Money-back guarantee',
+    'Single Bureau': '1️⃣ $1,000 — One bureau — 120 business days (+$500 rush)',
+    'Inquiries Only':'🔍 $45 per inquiry per bureau — 120 business days'
+  };
+  if (box) {
+    if (pkg && info[pkg]) { box.textContent = info[pkg]; box.style.display='block'; }
+    else box.style.display='none';
+  }
+  // Auto-set payment amount
+  var payEl = document.getElementById('onb-pay-amount');
+  var amounts = { Standard:'$2,499', Express:'$3,999', Financing:'$750', 'Single Bureau':'$1,000' };
+  if (payEl && amounts[pkg]) payEl.value = amounts[pkg];
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────
+function exportClients() {
+  var clients = getClients();
+  if (!clients.length) { showToast('No clients to export.', 'error'); return; }
+  var headers = ['ID','Name','Email','Phone','Package','Start Date','Status','Portal Password','Notes'];
+  var rows = clients.map(function(c) {
+    return [c.id,c.name,c.email,c.phone,c.package,c.startDate,c.status,c.portalPwd||'restore2026',
+      (c.notes||'').replace(/,/g,';').replace(/\n/g,' ')
+    ].map(function(v){ return '"'+(v||'')+'"'; }).join(',');
+  });
+  var csv = [headers.join(',')].concat(rows).join('\n');
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'cp_clients_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function set(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
+function esc(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showToast(msg,type) {
+  var bg=type==='error'?'#8B1A1A':type==='success'?'#166534':'#1B3A6B';
+  var t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+bg+';color:white;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap;font-family:Inter,sans-serif;';
+  document.body.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },3000);
+}
+
+// Close modals on overlay click
+document.getElementById('onboarding-modal').addEventListener('click', function(e){ if(e.target===this) closeOnboarding(); });
+document.getElementById('client-detail-modal').addEventListener('click', function(e){ if(e.target===this) closeDetailModal(); });
+
+// ── INIT ─────────────────────────────────────────────────────────
+seedClients();
+filterClients();
+updateStats();
+</script>
+</body>
+</html>
