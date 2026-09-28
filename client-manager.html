@@ -276,45 +276,41 @@ textarea{resize:vertical;min-height:80px;}
       <!-- STEP 3: DISPUTES -->
       <!-- STEP 3: BUREAU LOGINS -->
       <div id="onb-step-3" style="display:none;">
-        <div class="alert alert-blue">Enter the client's login credentials for each credit bureau. These are used to make live calls on their behalf.</div>
+        <div style="font-size:13px;color:#1E40AF;background:#EFF4FF;border-radius:8px;padding:10px 14px;margin-bottom:16px;border-left:3px solid #1E40AF;">Enter the client's credit bureau login credentials. These are used to make live dispute calls on their behalf.</div>
 
         <!-- EQUIFAX -->
-        <div style="background:var(--lr);border-radius:12px;padding:16px;margin-bottom:16px;border-left:4px solid #991B1B;">
-          <div style="font-size:13px;font-weight:800;color:#991B1B;margin-bottom:12px;">&#x1F534; Equifax &mdash; equifax.com</div>
-          <div class="form-row">
-            <div class="form-field"><label>Username</label><input type="text" id="onb-eq-user" placeholder="Equifax username" autocomplete="off"></div>
-            <div class="form-field"><label>Password</label><input type="password" id="onb-eq-pass" placeholder="Equifax password" autocomplete="off"></div>
+        <div style="background:#FFF0F0;border-radius:12px;padding:16px;margin-bottom:14px;border-left:4px solid #991B1B;">
+          <div style="font-size:13px;font-weight:800;color:#991B1B;margin-bottom:14px;">&#x1F534; Equifax &mdash; equifax.com</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Username / Email</label><input type="text" id="onb-eq-user" placeholder="Equifax username" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
+            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Password</label><input type="password" id="onb-eq-pass" placeholder="Equifax password" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
           </div>
         </div>
 
         <!-- EXPERIAN -->
-        <div style="background:var(--lb);border-radius:12px;padding:16px;margin-bottom:16px;border-left:4px solid #1E40AF;">
-          <div style="font-size:13px;font-weight:800;color:#1E40AF;margin-bottom:12px;">&#x1F535; Experian &mdash; experian.com</div>
-          <div class="form-row">
-            <div class="form-field"><label>Username</label><input type="text" id="onb-ex-user" placeholder="Experian username" autocomplete="off"></div>
-            <div class="form-field"><label>Password</label><input type="password" id="onb-ex-pass" placeholder="Experian password" autocomplete="off"></div>
+        <div style="background:#EFF4FF;border-radius:12px;padding:16px;margin-bottom:14px;border-left:4px solid #1E40AF;">
+          <div style="font-size:13px;font-weight:800;color:#1E40AF;margin-bottom:14px;">&#x1F535; Experian &mdash; experian.com</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Username / Email</label><input type="text" id="onb-ex-user" placeholder="Experian username" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
+            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Password</label><input type="password" id="onb-ex-pass" placeholder="Experian password" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
           </div>
-          <div class="form-row">
-            <div class="form-field"><label>4-Digit PIN</label><input type="text" id="onb-ex-pin" placeholder="4-digit PIN" maxlength="4" autocomplete="off"></div>
-            <div class="form-field"><label>Security Question Answer</label><input type="text" id="onb-ex-secq" placeholder="Answer to security question" autocomplete="off"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;margin-top:14px;">
+            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">4-Digit PIN</label><input type="text" id="onb-ex-pin" placeholder="e.g. 1234" maxlength="4" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
+            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Security Question Answer</label><input type="text" id="onb-ex-secq" placeholder="Your answer" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
           </div>
-          <div class="form-field"><label>Security Question (optional)</label><input type="text" id="onb-ex-secq-text" placeholder="e.g. What was the name of your first pet?"></div>
+          <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Security Question (optional &mdash; write the question itself)</label><input type="text" id="onb-ex-secq-text" placeholder="e.g. What was the name of your first pet?" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
         </div>
 
         <!-- TRANSUNION -->
-        <div style="background:var(--lg);border-radius:12px;padding:16px;margin-bottom:16px;border-left:4px solid #065F46;">
-          <div style="font-size:13px;font-weight:800;color:#065F46;margin-bottom:12px;">&#x1F7E2; TransUnion &mdash; transunion.com</div>
-          <div class="form-row">
-            <div class="form-field"><label>Username</label><input type="text" id="onb-tu-user" placeholder="TransUnion username" autocomplete="off"></div>
-            <div class="form-field"><label>Password</label><input type="password" id="onb-tu-pass" placeholder="TransUnion password" autocomplete="off"></div>
+        <div style="background:#F0FFF4;border-radius:12px;padding:16px;margin-bottom:14px;border-left:4px solid #065F46;">
+          <div style="font-size:13px;font-weight:800;color:#065F46;margin-bottom:14px;">&#x1F7E2; TransUnion &mdash; transunion.com</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Username / Email</label><input type="text" id="onb-tu-user" placeholder="TransUnion username" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
+            <div style="margin-bottom:0;"><label style="display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;">Password</label><input type="password" id="onb-tu-pass" placeholder="TransUnion password" autocomplete="off" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;box-sizing:border-box;display:block;"></div>
           </div>
         </div>
 
-        <div style="background:var(--lgold);border-radius:8px;padding:10px 14px;font-size:12px;color:#7A5F00;">
-          &#x26A0;&#xFE0F; These credentials are stored securely and used only to make live dispute calls on behalf of your client. Never share these outside your team.
-        </div>
-      </div>
-
+        <div style="background:#FDF8EE;border-radius:8px;padding:10px 14px;font-size:12px;color:#7A5F00;">&#x26A0;&#xFE0F; Credentials are stored securely and used only for live bureau dispute calls. Never share outside your team.</div>
       <!-- STEP 4: DISPUTES (was step 3) -->
       <div id="onb-step-4" style="display:none;">
         <div class="alert alert-blue">Document the negative items being disputed and any existing reports filed.</div>
