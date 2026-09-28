@@ -714,6 +714,7 @@ function viewClient(id) {
       }).join('') + '</table>';
   }
   var _cdm = document.getElementById('client-detail-modal'); if(_cdm) _cdm.style.display='flex';
+  var _eb = document.getElementById('detail-edit-btn'); if(_eb) _eb.setAttribute('data-cid', id);
 }
 
 function closeDetailModal() {
@@ -722,7 +723,10 @@ function closeDetailModal() {
 }
 
 function copyPortalCredentials() {
-  if (!viewingClientId) return;
+  var btn = document.getElementById('detail-edit-btn');
+  var id = (btn ? btn.getAttribute('data-cid') : null) || viewingClientId;
+  if (!id) return;
+  viewingClientId = id;
   var clients = getClients();
   var c = clients.find(function(x){ return x.id===viewingClientId; });
   if (!c) return;
@@ -806,9 +810,12 @@ var _editId = null;
 var _pendingDocs = {};
 
 function editCurrentClient() {
-  if (!viewingClientId) return;
+  var btn = document.getElementById('detail-edit-btn');
+  var id = (btn ? btn.getAttribute('data-cid') : null) || viewingClientId;
+  if (!id) return;
+  viewingClientId = id;
   closeDetailModal();
-  _editId = viewingClientId;
+  _editId = id;
   var clients = getClients();
   var c = clients.find(function(x){ return x.id === _editId; });
   if (!c) return;
