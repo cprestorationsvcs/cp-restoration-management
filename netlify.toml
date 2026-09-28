@@ -1,20 +1,7 @@
 [build]
-  functions = "functions"
-
-[functions]
-  node_bundler = "zip"
+  publish = "."
 
 [[redirects]]
-  from = "/voice-webhook"
-  to = "/.netlify/functions/voice-webhook"
-  status = 200
-
-[[redirects]]
-  from = "/voice-webhook/*"
-  to = "/.netlify/functions/voice-webhook"
-  status = 200
-
-[[redirects]]
-  from = "/call-log"
-  to = "/.netlify/functions/call-log"
+  from = "/*"
+  to = "/:splat"
   status = 200
