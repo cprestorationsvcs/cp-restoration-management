@@ -82,6 +82,11 @@ textarea{resize:vertical;min-height:80px;}
   .form-row{grid-template-columns:1fr;}
   .stat-grid{grid-template-columns:1fr 1fr;}
 }
+
+.doc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:8px;margin-bottom:8px;border:1px solid var(--border);}
+.drop-active{border-color:var(--navy) !important;background:var(--lb) !important;}
+.edit-tab{padding:9px 18px;border:none;background:none;font-size:13px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;color:var(--gray);margin-bottom:-2px;font-family:inherit;transition:all .15s;}
+.edit-tab.active{border-bottom-color:var(--navy);color:var(--navy);}
 </style>
 </head>
 <body>
@@ -781,6 +786,329 @@ document.getElementById('client-detail-modal').addEventListener('click', functio
 seedClients();
 filterClients();
 updateStats();
+
+var _editId = null;
+var _pendingDocs = {};
+
+function editCurrentClient() {
+  if (!viewingClientId) return;
+  closeDetailModal();
+  _editId = viewingClientId;
+  var clients = getClients();
+  var c = clients.find(function(x){ return x.id === _editId; });
+  if (!c) return;
+  _pendingDocs = {};
+
+  var lbl = document.getElementById('edit-client-id-label');
+  if (lbl) lbl.textContent = c.id + ' -- ' + (c.name || '');
+
+  function fv(id, val) { var el=document.getElementById(id); if(el) el.value = val||''; }
+  fv('edit-name', c.name); fv('edit-dob', c.dob); fv('edit-email', c.email);
+  fv('edit-phone', c.phone); fv('edit-address', c.address); fv('edit-ssn', c.ssn);
+  fv('edit-referral', c.referral); fv('edit-status', c.status||'Active');
+  fv('edit-portal-pwd', c.portalPwd||'restore2026');
+  fv('edit-package', c.package); fv('edit-bureaus', c.bureaus||'All 3');
+  fv('edit-start-date', c.startDate); fv('edit-pay-amount', c.payAmount);
+  fv('edit-pay-method', c.payMethod); fv('edit-score', c.score); fv('edit-ftc', c.ftc);
+  fv('edit-disputes', c.disputes); fv('edit-notes', c.notes);
+
+  var docs = c.docs || {};
+  var docTypes = ['dl','ssn','addr','other'];
+  var docLabels = {dl:"Driver's License uploaded",ssn:'SSN Card uploaded',addr:'Address proof uploaded',other:' file(s) uploaded'};
+  docTypes.forEach(function(t) {
+    var d = docs[t];
+    var statusEl = document.getElementById('status-' + t);
+    var dropEl   = document.getElementById('drop-' + t);
+    if (d) {
+      var label = t === 'other' ? (Array.isArray(d) ? d.length : 1) + docLabels[t] : docLabels[t];
+      if (statusEl) statusEl.textContent = '✅ ' + label;
+      if (dropEl) { dropEl.style.borderColor='var(--green)'; dropEl.style.background='var(--lg)'; }
+    } else {
+      var defaults = {dl:'Click or drag to upload',ssn:'Click or drag to upload',addr:'Utility bill, lease, or bank stmt',other:'Credit reports, letters, etc.'};
+      if (statusEl) statusEl.textContent = defaults[t];
+      if (dropEl) { dropEl.style.borderColor='var(--border)'; dropEl.style.background=''; }
+    }
+  });
+
+  renderUploadedDocs(c.docs || {});
+  showEditTab('info');
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+  _editId = null; _pendingDocs = {};
+}
+
+function showEditTab(tab) {
+  var tabs = ['info','service','disputes','docs','notes'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById('edit-tab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+    var btn = document.getElementById('etab-' + t);
+    if (btn) { btn.classList.toggle('active', t === tab); }
+  });
+}
+
+function saveEdits() {
+  if (!_editId) return;
+  var clients = getClients();
+  var idx = clients.findIndex(function(c){ return c.id === _editId; });
+  if (idx === -1) return;
+  var c = clients[idx];
+  function gv(id) { var el=document.getElementById(id); return el ? el.value.trim() : ''; }
+  c.name      = gv('edit-name')      || c.name;
+  c.dob       = gv('edit-dob')       || c.dob;
+  c.email     = gv('edit-email')     || c.email;
+  c.phone     = gv('edit-phone')     || c.phone;
+  c.address   = gv('edit-address');
+  c.ssn       = gv('edit-ssn');
+  c.referral  = gv('edit-referral');
+  c.status    = gv('edit-status')    || c.status;
+  c.portalPwd = gv('edit-portal-pwd')|| c.portalPwd;
+  c.package   = gv('edit-package')   || c.package;
+  c.bureaus   = gv('edit-bureaus')   || c.bureaus;
+  c.startDate = gv('edit-start-date')|| c.startDate;
+  c.payAmount = gv('edit-pay-amount');
+  c.payMethod = gv('edit-pay-method');
+  c.score     = gv('edit-score');
+  c.ftc       = gv('edit-ftc');
+  c.disputes  = document.getElementById('edit-disputes') ? document.getElementById('edit-disputes').value : c.disputes;
+  c.notes     = document.getElementById('edit-notes')    ? document.getElementById('edit-notes').value    : c.notes;
+  c.updatedAt = new Date().toISOString();
+  if (!c.docs) c.docs = {};
+  Object.keys(_pendingDocs).forEach(function(k){ c.docs[k] = _pendingDocs[k]; });
+  clients[idx] = c;
+  saveClients(clients);
+  closeEditModal();
+  filterClients();
+  updateStats();
+  showToast('Client file saved!', 'success');
+}
+
+function handleUpload(type, files) {
+  if (!files || !files.length) return;
+  if (type === 'other') {
+    var arr = []; var done = 0;
+    Array.from(files).forEach(function(f) {
+      if (f.size > 5*1024*1024) { showToast(f.name + ' too large (max 5MB)', 'error'); done++; return; }
+      var fr = new FileReader();
+      fr.onload = function(e) {
+        arr.push({name:f.name, size:f.size, type:f.type, data:e.target.result});
+        done++;
+        if (done === files.length) {
+          _pendingDocs['other'] = arr;
+          var st = document.getElementById('status-other');
+          if (st) st.textContent = '✅ ' + arr.length + ' file(s) ready';
+          var dp = document.getElementById('drop-other');
+          if (dp) { dp.style.borderColor='var(--green)'; dp.style.background='var(--lg)'; }
+          showToast(arr.length + ' file(s) ready. Click Save Changes.', 'success');
+          renderPendingDocs();
+        }
+      };
+      fr.readAsDataURL(f);
+    });
+  } else {
+    var f = files[0];
+    if (f.size > 5*1024*1024) { showToast('File too large (max 5MB)', 'error'); return; }
+    var fr = new FileReader();
+    fr.onload = function(e) {
+      _pendingDocs[type] = {name:f.name, size:f.size, type:f.type, data:e.target.result};
+      var st = document.getElementById('status-' + type);
+      if (st) st.textContent = '✅ ' + f.name;
+      var dp = document.getElementById('drop-' + type);
+      if (dp) { dp.style.borderColor='var(--green)'; dp.style.background='var(--lg)'; }
+      showToast(f.name + ' ready. Click Save Changes.', 'success');
+      renderPendingDocs();
+    };
+    fr.readAsDataURL(f);
+  }
+}
+
+function handleDrop(event, type) {
+  event.preventDefault();
+  var dp = document.getElementById('drop-' + type);
+  if (dp) dp.classList.remove('drop-active');
+  handleUpload(type, event.dataTransfer.files);
+}
+
+function renderUploadedDocs(docs) {
+  var el = document.getElementById('uploaded-docs-list');
+  if (!el) return;
+  var typeLabels = {dl:"Driver's License", ssn:'Social Security Card', addr:'Proof of Address', other:'Supporting Docs'};
+  var html = '';
+  Object.keys(docs).forEach(function(k) {
+    var d = docs[k];
+    var items = Array.isArray(d) ? d : [d];
+    items.forEach(function(item) {
+      if (!item || !item.name) return;
+      var sizeStr = item.size > 1024*1024 ? (item.size/1024/1024).toFixed(1)+'MB' : Math.round(item.size/1024)+'KB';
+      html += '<div class="doc-item">' +
+        '<span style="font-size:18px;">&#x1F4C4;</span>' +
+        '<div style="flex:1;"><div style="font-size:12px;font-weight:700;">' + esc(item.name) + '</div>' +
+        '<div style="font-size:10px;color:var(--gray);">' + (typeLabels[k]||k) + ' - ' + sizeStr + '</div></div>' +
+        (item.data ? '<a href="' + item.data + '" download="' + esc(item.name) + '" style="font-size:11px;color:var(--navy);font-weight:700;text-decoration:none;padding:3px 8px;background:var(--lb);border-radius:6px;white-space:nowrap;">Download</a>' : '') +
+        '</div>';
+    });
+  });
+  el.innerHTML = html || '';
+}
+
+function renderPendingDocs() {
+  var clients = getClients();
+  var c = clients.find(function(x){ return x.id === _editId; });
+  var merged = Object.assign({}, (c ? c.docs : {}), _pendingDocs);
+  renderUploadedDocs(merged);
+}
+
+document.getElementById('edit-modal').addEventListener('click', function(e){ if(e.target===this) closeEditModal(); });
+
 </script>
+
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Edit Client File</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:2px;" id="edit-client-id-label"></div>
+      </div>
+      <button onclick="closeEditModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;">
+        <button class="edit-tab active" id="etab-info"     onclick="showEditTab('info')">Personal Info</button>
+        <button class="edit-tab"        id="etab-service"  onclick="showEditTab('service')">Service</button>
+        <button class="edit-tab"        id="etab-disputes" onclick="showEditTab('disputes')">Disputes</button>
+        <button class="edit-tab"        id="etab-docs"     onclick="showEditTab('docs')">Documents</button>
+        <button class="edit-tab"        id="etab-notes"    onclick="showEditTab('notes')">Notes</button>
+      </div>
+
+      <div id="edit-tab-info">
+        <div class="form-row">
+          <div class="form-field"><label>Full Name</label><input type="text" id="edit-name"></div>
+          <div class="form-field"><label>Date of Birth</label><input type="date" id="edit-dob"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Email</label><input type="email" id="edit-email"></div>
+          <div class="form-field"><label>Phone</label><input type="tel" id="edit-phone"></div>
+        </div>
+        <div class="form-field"><label>Home Address</label><input type="text" id="edit-address"></div>
+        <div class="form-row">
+          <div class="form-field"><label>SSN Last 4</label><input type="text" id="edit-ssn" maxlength="4"></div>
+          <div class="form-field"><label>Referred By</label><input type="text" id="edit-referral"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Status</label>
+            <select id="edit-status">
+              <option value="Active">Active</option>
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Portal Password</label><input type="text" id="edit-portal-pwd"></div>
+        </div>
+      </div>
+
+      <div id="edit-tab-service" style="display:none;">
+        <div class="form-row">
+          <div class="form-field"><label>Package</label>
+            <select id="edit-package">
+              <option value="Standard">Standard - $2,499 / 120 Days</option>
+              <option value="Express">Express - $3,999 / 60 Days</option>
+              <option value="Financing">Financing - $750 down + $292x6</option>
+              <option value="Single Bureau">Single Bureau - $1,000</option>
+              <option value="Inquiries Only">Inquiries Only - $45/inquiry</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Bureaus</label>
+            <select id="edit-bureaus">
+              <option value="All 3">All 3 Bureaus</option>
+              <option value="Equifax Only">Equifax Only</option>
+              <option value="Experian Only">Experian Only</option>
+              <option value="TransUnion Only">TransUnion Only</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Start Date</label><input type="date" id="edit-start-date"></div>
+          <div class="form-field"><label>Payment Amount</label><input type="text" id="edit-pay-amount"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Payment Method</label>
+            <select id="edit-pay-method">
+              <option value="">Select...</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Debit Card">Debit Card</option>
+              <option value="Zelle">Zelle</option>
+              <option value="CashApp">CashApp</option>
+              <option value="Venmo">Venmo</option>
+              <option value="Check">Check</option>
+              <option value="Wire">Wire Transfer</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Starting Score</label><input type="number" id="edit-score"></div>
+        </div>
+        <div class="form-field"><label>FTC Report Number</label><input type="text" id="edit-ftc"></div>
+      </div>
+
+      <div id="edit-tab-disputes" style="display:none;">
+        <div class="form-field">
+          <label>Dispute Items</label>
+          <textarea id="edit-disputes" style="min-height:220px;" placeholder="List each negative item:&#10;- Collection: Midland Credit $1,240 (EQ, EX, TU)&#10;- Late Payment: Chase Visa (EQ, EX)&#10;- Hard Inquiry: Capital One (TU)"></textarea>
+        </div>
+      </div>
+
+      <div id="edit-tab-docs" style="display:none;">
+        <div class="alert alert-blue" style="margin-bottom:16px;">Files are stored in your browser. Max 5MB per file. Click Save Changes after uploading.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+
+          <div id="drop-dl" onclick="document.getElementById('upl-dl').click()" ondragover="event.preventDefault();this.classList.add('drop-active')" ondragleave="this.classList.remove('drop-active')" ondrop="handleDrop(event,'dl')" style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;">
+            <div style="font-size:28px;margin-bottom:6px;">&#x1F43A;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">Driver's License</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="status-dl">Click or drag to upload</div>
+            <input type="file" id="upl-dl" accept="image/*,.pdf" style="display:none" onchange="handleUpload('dl',this.files)">
+          </div>
+
+          <div id="drop-ssn" onclick="document.getElementById('upl-ssn').click()" ondragover="event.preventDefault();this.classList.add('drop-active')" ondragleave="this.classList.remove('drop-active')" ondrop="handleDrop(event,'ssn')" style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;">
+            <div style="font-size:28px;margin-bottom:6px;">&#x1F4CB;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">Social Security Card</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="status-ssn">Click or drag to upload</div>
+            <input type="file" id="upl-ssn" accept="image/*,.pdf" style="display:none" onchange="handleUpload('ssn',this.files)">
+          </div>
+
+          <div id="drop-addr" onclick="document.getElementById('upl-addr').click()" ondragover="event.preventDefault();this.classList.add('drop-active')" ondragleave="this.classList.remove('drop-active')" ondrop="handleDrop(event,'addr')" style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;">
+            <div style="font-size:28px;margin-bottom:6px;">&#x1F3E0;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">Proof of Address</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="status-addr">Utility bill, lease, or bank stmt</div>
+            <input type="file" id="upl-addr" accept="image/*,.pdf" style="display:none" onchange="handleUpload('addr',this.files)">
+          </div>
+
+          <div id="drop-other" onclick="document.getElementById('upl-other').click()" ondragover="event.preventDefault();this.classList.add('drop-active')" ondragleave="this.classList.remove('drop-active')" ondrop="handleDrop(event,'other')" style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;">
+            <div style="font-size:28px;margin-bottom:6px;">&#x1F4C1;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);">Supporting Documents</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:4px;" id="status-other">Credit reports, letters, etc.</div>
+            <input type="file" id="upl-other" accept="image/*,.pdf" multiple style="display:none" onchange="handleUpload('other',this.files)">
+          </div>
+
+        </div>
+        <div id="uploaded-docs-list"></div>
+      </div>
+
+      <div id="edit-tab-notes" style="display:none;">
+        <div class="form-field">
+          <label>Internal Notes (Team Only)</label>
+          <textarea id="edit-notes" style="min-height:220px;" placeholder="Internal notes -- not visible to client."></textarea>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-navy" onclick="saveEdits()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
