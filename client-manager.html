@@ -635,25 +635,40 @@ function renderTable(clients) {
   }
   var statusBadge = function(s) {
     var map = { Active:'badge-green', Pending:'badge-gold', Completed:'badge-blue', Cancelled:'badge-red' };
-    return '<span class="badge '+(map[s]||'badge-gray')+'">'+(s||'Active')+'</span>';
+    return '<span class="badge ' + (map[s] || 'badge-gray') + '">' + (s || 'Active') + '</span>';
   };
-  tbody.innerHTML = clients.map(function(c) {
-    return '<tr>' +
-      '<td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--navy);">' + (c.id||'—') + '</td>' +
-      '<td style="font-weight:700;">' + esc(c.name||'—') + '</td>' +
-      '<td style="font-size:12px;">' + esc(c.email||'—') + '</td>' +
-      '<td style="font-size:12px;">' + esc(c.phone||'—') + '</td>' +
-      '<td style="font-size:12px;">' + esc(c.package||'—') + '</td>' +
-      '<td style="font-size:12px;">' + (c.startDate ? new Date(c.startDate).toLocaleDateString() : '—') + '</td>' +
+  var html = '';
+  clients.forEach(function(c) {
+    html += '<tr data-id="' + esc(c.id||'') + '">' +
+      '<td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--navy);">' + esc(c.id||'') + '</td>' +
+      '<td style="font-weight:700;">' + esc(c.name||'') + '</td>' +
+      '<td style="font-size:12px;">' + esc(c.email||'') + '</td>' +
+      '<td style="font-size:12px;">' + esc(c.phone||'') + '</td>' +
+      '<td style="font-size:12px;">' + esc(c.package||'') + '</td>' +
+      '<td style="font-size:12px;">' + (c.startDate ? new Date(c.startDate).toLocaleDateString() : '') + '</td>' +
       '<td>' + statusBadge(c.status) + '</td>' +
-      '<td style="font-family:monospace;font-size:11px;">' + (c.portalPwd||'restore2026') + '</td>' +
+      '<td style="font-family:monospace;font-size:11px;">' + esc(c.portalPwd||'restore2026') + '</td>' +
       '<td><div style="display:flex;gap:5px;">' +
-        '<button class="btn btn-sm btn-navy" onclick="viewClient(\'' + c.id + '\')">View</button>' +
-        '<button class="btn btn-sm btn-outline" onclick="deleteClient(\'' + c.id + '\')">✕</button>' +
+        '<button class="btn btn-sm btn-navy" data-action="view" data-id="' + esc(c.id||'') + '">View</button>' +
+        '<button class="btn btn-sm btn-outline" data-action="del" data-id="' + esc(c.id||'') + '">&#10005;</button>' +
       '</div></td>' +
     '</tr>';
-  }).join('');
+  });
+  tbody.innerHTML = html;
 }
+
+
+
+// Table button event delegation
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  var action = btn.getAttribute('data-action');
+  var id = btn.getAttribute('data-id');
+  if (!id) return;
+  if (action === 'view') viewClient(id);
+  if (action === 'del')  deleteClient(id);
+});
 
 function updateStats() {
   var clients = getClients();
