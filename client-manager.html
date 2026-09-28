@@ -779,8 +779,8 @@ function showToast(msg,type) {
 }
 
 // Close modals on overlay click
-document.getElementById('onboarding-modal').addEventListener('click', function(e){ if(e.target===this) closeOnboarding(); });
-document.getElementById('client-detail-modal').addEventListener('click', function(e){ if(e.target===this) closeDetailModal(); });
+(document.getElementById('onboarding-modal')||{addEventListener:function(){}}).addEventListener('click', function(e){ if(e.target===this) closeOnboarding(); });
+var _cdm = document.getElementById('client-detail-modal'); if(_cdm) _cdm.addEventListener('click', function(e){ if(e.target===this) closeDetailModal(); });
 
 // ── INIT ─────────────────────────────────────────────────────────
 seedClients();
@@ -961,7 +961,7 @@ function renderPendingDocs() {
   renderUploadedDocs(merged);
 }
 
-document.getElementById('edit-modal').addEventListener('click', function(e){ if(e.target===this) closeEditModal(); });
+var _em = document.getElementById('edit-modal'); if(_em) _em.addEventListener('click', function(e){ if(e.target===this) closeEditModal(); });
 
 </script>
 
