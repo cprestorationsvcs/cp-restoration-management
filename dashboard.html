@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--text:#1E293B;
+  --lb:#EFF4FF;--lg:#F0FFF4;--lgold:#FDF8EE;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,var(--navy) 0%,#2d5ca6 100%);}
+.login-card{background:white;border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo-icon{width:64px;height:64px;background:var(--navy);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;}
+.login-logo-title{font-size:20px;font-weight:800;color:var(--navy);}
+.login-logo-sub{font-size:12px;color:var(--gray);margin-top:3px;}
+.form-field{margin-bottom:16px;}
+.form-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;color:var(--text);}
+.form-field input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border .2s;}
+.form-field input:focus{border-color:var(--navy);}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:44px;}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--gray);}
+.btn-login{width:100%;padding:14px;background:var(--navy);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;}
+.btn-login:hover{background:#142d55;}
+.login-error{color:var(--red);font-size:12px;font-weight:600;padding:10px 14px;background:#FFF0F0;border-radius:8px;margin-bottom:14px;display:none;border-left:3px solid var(--red);}
+
+/* APP */
+#app{display:none;}
+.hdr{background:var(--navy);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.hdr-avatar{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--navy);}
+.hdr-name{font-size:14px;font-weight:700;color:white;}
+.hdr-role{font-size:11px;color:rgba(255,255,255,.5);}
+.hdr-right{display:flex;gap:10px;}
+.btn-hdr{padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;}
+
+.content{padding:24px;max-width:1200px;margin:0 auto;}
+
+/* WELCOME */
+.welcome{margin-bottom:28px;}
+.welcome-title{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.welcome-sub{font-size:14px;color:var(--gray);}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px;}
+.stat{background:white;border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.stat:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.stat-icon{font-size:24px;margin-bottom:8px;}
+.stat-value{font-size:26px;font-weight:800;color:var(--navy);margin-bottom:2px;}
+.stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;}
+.stat-sub{font-size:11px;color:var(--gray);margin-top:3px;}
+.stat.green .stat-value{color:var(--green);}
+.stat.gold .stat-value{color:#92400E;}
+.stat.red .stat-value{color:var(--red);}
+
+/* TOOL GRID */
+.section-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:14px;}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px;}
+.tool-card{background:white;border-radius:14px;padding:22px;box-shadow:0 1px 3px rgba(0,0,0,.06);text-decoration:none;color:var(--text);display:block;transition:transform .15s,box-shadow .15s;border:2px solid transparent;}
+.tool-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:var(--navy);}
+.tool-icon{font-size:32px;margin-bottom:12px;}
+.tool-name{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:5px;}
+.tool-desc{font-size:12px;color:var(--gray);line-height:1.6;}
+.tool-badge{display:inline-block;margin-top:10px;padding:3px 9px;background:var(--lb);border-radius:8px;font-size:10px;font-weight:700;color:var(--navy);}
+.tool-card.gold-border{border-color:var(--gold);}
+.tool-card.green-border:hover{border-color:var(--green);}
+
+/* QUICK ACTIONS */
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:28px;}
+.quick-btn{display:flex;align-items:center;gap:12px;padding:14px 16px;background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);text-decoration:none;color:var(--text);cursor:pointer;border:none;font-family:inherit;width:100%;transition:all .15s;}
+.quick-btn:hover{background:var(--lb);transform:translateX(2px);}
+.quick-btn-icon{font-size:20px;flex-shrink:0;}
+.quick-btn-text{font-size:13px;font-weight:700;color:var(--navy);}
+.quick-btn-sub{font-size:11px;color:var(--gray);}
+
+/* ONLINE WIDGET */
+.online-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;}
+.card{background:white;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:800;color:var(--navy);}
+.card-body{padding:16px;}
+.online-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;margin-right:6px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.person-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.person-row:last-child{border:none;}
+.avatar{width:32px;height:32px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--gold);flex-shrink:0;}
+.empty-sm{color:var(--gray);font-size:12px;text-align:center;padding:16px;}
+.badge{padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700;display:inline-block;}
+.badge-green{background:#D1FAE5;color:#065F46;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+
+@media(max-width:600px){
+  .online-grid,.tool-grid{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .quick-grid{grid-template-columns:1fr 1fr;}
+  .login-card{padding:28px 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🏢</div>
+      <div class="login-logo-title">CP Restoration Services</div>
+      <div class="login-logo-sub">Management Command Center</div>
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <div class="form-field">
+      <label>Work Email</label>
+      <input type="email" id="login-email" placeholder="you@mycprteam.com" autocomplete="username">
+    </div>
+    <div class="form-field">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="login-pw" placeholder="Your password" autocomplete="current-password">
+        <button class="pw-eye" onclick="togglePw()" id="pw-eye-btn">👁</button>
+      </div>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-avatar" id="hdr-avatar">?</div>
+      <div>
+        <div class="hdr-name" id="hdr-name">Loading...</div>
+        <div class="hdr-role" id="hdr-role">CP Restoration Services</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span id="hdr-time" style="font-size:11px;color:rgba(255,255,255,.4);margin-right:4px;"></span>
+      <button class="btn-hdr" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- WELCOME -->
+    <div class="welcome">
+      <div class="welcome-title" id="welcome-title">Good morning! 👋</div>
+      <div class="welcome-sub">Here is your CP Restoration command center. All systems are live.</div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stat-grid">
+      <div class="stat green" onclick="window.open('client-manager.html','_self')">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value" id="stat-clients">—</div>
+        <div class="stat-label">Active Clients</div>
+        <div class="stat-sub">Click to manage</div>
+      </div>
+      <div class="stat gold" onclick="window.open('lead-registry.html','_self')">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value" id="stat-leads">—</div>
+        <div class="stat-label">New Leads</div>
+        <div class="stat-sub">Needs follow-up</div>
+      </div>
+      <div class="stat" onclick="window.open('activity-log.html','_self')">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-value" id="stat-online">—</div>
+        <div class="stat-label">Online Now</div>
+        <div class="stat-sub">Team + Clients</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">📞</div>
+        <div class="stat-value" id="stat-calls">Aria</div>
+        <div class="stat-label">AI Receptionist</div>
+        <div class="stat-sub" style="color:var(--green);font-weight:700;">● Live 24/7</div>
+      </div>
+    </div>
+
+    <!-- WHO'S ONLINE -->
+    <div class="section-title">🟢 Who's Online Now</div>
+    <div class="online-grid">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="online-dot"></span>Team Members</div>
+          <a href="activity-log.html" style="font-size:11px;color:var(--navy);font-weight:700;text-decoration:none;">View All →</a>
+        </div>
+        <div class="card-body" id="team-online-widget">
+          <div class="empty-sm">No team members online right now.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="online-dot"></span>Recent Client Logins</div>
+          <a href="activity-log.html" style="font-size:11px;color:var(--navy);font-weight:700;text-decoration:none;">View All →</a>
+        </div>
+        <div class="card-body" id="client-activity-widget">
+          <div class="empty-sm">No client logins yet today.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TOOLS -->
+    <div class="section-title">🛠️ Management Tools</div>
+    <div class="tool-grid">
+      <a href="client-manager.html" class="tool-card">
+        <div class="tool-icon">👥</div>
+        <div class="tool-name">Client Manager</div>
+        <div class="tool-desc">Search all clients, onboard new clients with 5-step flow, duplicate detection, view full client files.</div>
+        <span class="tool-badge">✅ Fully Working</span>
+      </a>
+      <a href="lead-registry.html" class="tool-card">
+        <div class="tool-icon">📋</div>
+        <div class="tool-name">Lead Registry</div>
+        <div class="tool-desc">All leads from Aria and manual entry. Track status, assign to team, add notes, export CSV.</div>
+        <span class="tool-badge">✅ Fully Working</span>
+      </a>
+      <a href="client-portal.html" class="tool-card">
+        <div class="tool-icon">🔐</div>
+        <div class="tool-name">Client Portal</div>
+        <div class="tool-desc">Where clients log in to view their file, disputes, updates, and message the team.</div>
+        <span class="tool-badge">✅ Live for Clients</span>
+      </a>
+      <a href="activity-log.html" class="tool-card">
+        <div class="tool-icon">👁️</div>
+        <div class="tool-name">Activity Log</div>
+        <div class="tool-desc">See who is online right now — team and clients. Full activity history with page views and logins.</div>
+        <span class="tool-badge">✅ Real-time</span>
+      </a>
+      <a href="accounting.html" class="tool-card">
+        <div class="tool-icon">💰</div>
+        <div class="tool-name">Accounting</div>
+        <div class="tool-desc">Income, expenses, payroll, P&L, balance sheet, cash flow, and payroll reserve calculator.</div>
+        <span class="tool-badge">✅ Fully Working</span>
+      </a>
+      <a href="contractor-portal.html" class="tool-card">
+        <div class="tool-icon">📄</div>
+        <div class="tool-name">Contractor Portal</div>
+        <div class="tool-desc">Team pay stubs, payment history, 1099-NEC tracker, W-9 info for Queen and Bukunmi.</div>
+        <span class="tool-badge">✅ Fully Working</span>
+      </a>
+      <a href="dispute-center.html" class="tool-card">
+        <div class="tool-icon">⚖️</div>
+        <div class="tool-name">Dispute Center</div>
+        <div class="tool-desc">Track bureau disputes, file new disputes, log bureau calls and responses.</div>
+        <span class="tool-badge">✅ Fully Working</span>
+      </a>
+      <a href="training.html" class="tool-card">
+        <div class="tool-icon">🎓</div>
+        <div class="tool-name">Training Center</div>
+        <div class="tool-desc">Team training materials, SOPs, scripts, and onboarding guides for new staff.</div>
+        <span class="tool-badge">✅ Fully Working</span>
+      </a>
+      <a href="ai-receptionist.html" class="tool-card gold-border">
+        <div class="tool-icon">🤖</div>
+        <div class="tool-name">Aria AI Dashboard</div>
+        <div class="tool-desc">Monitor your AI receptionist. View call logs, leads captured, and Aria call analytics.</div>
+        <span class="tool-badge" style="background:var(--lgold);color:#92400E;">🔊 Live 24/7</span>
+      </a>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="section-title">⚡ Quick Actions</div>
+    <div class="quick-grid">
+      <a href="client-manager.html" class="quick-btn" style="text-decoration:none;">
+        <span class="quick-btn-icon">➕</span>
+        <div><div class="quick-btn-text">New Client</div><div class="quick-btn-sub">Open onboarding</div></div>
+      </a>
+      <a href="lead-registry.html" class="quick-btn" style="text-decoration:none;">
+        <span class="quick-btn-icon">📞</span>
+        <div><div class="quick-btn-text">Add Lead</div><div class="quick-btn-sub">Manual lead entry</div></div>
+      </a>
+      <a href="client-portal.html" class="quick-btn" style="text-decoration:none;">
+        <span class="quick-btn-icon">🔑</span>
+        <div><div class="quick-btn-text">Client Portal</div><div class="quick-btn-sub">Send clients here</div></div>
+      </a>
+      <a href="activity-log.html" class="quick-btn" style="text-decoration:none;">
+        <span class="quick-btn-icon">👁️</span>
+        <div><div class="quick-btn-text">Activity Log</div><div class="quick-btn-sub">Who's online</div></div>
+      </a>
+      <a href="accounting.html" class="quick-btn" style="text-decoration:none;">
+        <span class="quick-btn-icon">💰</span>
+        <div><div class="quick-btn-text">Accounting</div><div class="quick-btn-sub">View financials</div></div>
+      </a>
+      <a href="client-tutorials.html" class="quick-btn" style="text-decoration:none;">
+        <span class="quick-btn-icon">🎥</span>
+        <div><div class="quick-btn-text">Client Tutorials</div><div class="quick-btn-sub">Send to clients</div></div>
+      </a>
+    </div>
+
+    <!-- TEAM CREDENTIALS -->
+    <div class="section-title" id="creds-section" style="display:none;">🔑 Team Login Credentials</div>
+    <div id="creds-grid" style="display:none;display:none;"></div>
+
+    <div style="text-align:center;padding:24px 0;font-size:12px;color:var(--gray);">
+      CP Restoration Services — Management System — Built for Jason Crown<br>
+      <a href="https://35daycreditrepair.com" style="color:var(--navy);">35daycreditrepair.com</a> · cprestorationsvcs@gmail.com · (878) 777-4923
+    </div>
+
+  </div>
+</div>
+
+<script>
+var EMPLOYEES = {
+  'jason@mycprteam.com':   { password:'CPRAdmin2026',  name:'Jason Crown',        role:'admin',  label:'Admin',       initials:'JC' },
+  'queen@mycprteam.com':   { password:'CPRQueen2026',  name:'Queen Jearel Cruz',  role:'compliance', label:'Compliance', initials:'QC' },
+  'bukunmi@mycprteam.com': { password:'CPRBuku2026',   name:'Bukunmi Aina',       role:'sales',  label:'Sales',       initials:'BA' }
+};
+
+var currentUser = null;
+
+// ── LOGIN ─────────────────────────────────────────────────────────
+function doLogin() {
+  var email = ((document.getElementById('login-email')||{}).value||'').trim().toLowerCase();
+  var pw    = ((document.getElementById('login-pw')||{}).value||'').trim();
+  var errEl = document.getElementById('login-error');
+  if (errEl) { errEl.textContent=''; errEl.style.display='none'; }
+  if (!email || !pw) {
+    if (errEl) { errEl.textContent='Please enter your email and password.'; errEl.style.display='block'; }
+    return;
+  }
+  var emp = EMPLOYEES[email];
+  if (!emp || emp.password !== pw) {
+    if (errEl) { errEl.textContent='Incorrect email or password.'; errEl.style.display='block'; }
+    var pwEl = document.getElementById('login-pw'); if(pwEl) pwEl.value='';
+    return;
+  }
+  currentUser = email;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  // Set header
+  set('hdr-avatar', emp.initials);
+  set('hdr-name', emp.name);
+  set('hdr-role', emp.label + ' — CP Restoration Services');
+  // Greeting
+  var hr = new Date().getHours();
+  var greet = hr<12?'Good morning':'hr<17?'Good afternoon':'Good evening';
+  greet = hr<12?'Good morning, ':hr<17?'Good afternoon, ':'Good evening, ';
+  set('welcome-title', greet + emp.name.split(' ')[0] + '! 👋');
+  // Show creds for admin
+  if (emp.role==='admin') {
+    document.getElementById('creds-section').style.display='block';
+    document.getElementById('creds-grid').style.display='grid';
+  }
+  trackSession(emp);
+  loadDashboard();
+  startClock();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  var em = document.getElementById('login-email');
+  var pw = document.getElementById('login-pw');
+  if(em) em.value='';
+  if(pw) { pw.value=''; pw.type='password'; }
+  var eyeBtn = document.getElementById('pw-eye-btn');
+  if(eyeBtn) eyeBtn.textContent='👁';
+}
+
+function togglePw() {
+  var input = document.getElementById('login-pw');
+  var btn   = document.getElementById('pw-eye-btn');
+  if(!input) return;
+  if(input.type==='password'){ input.type='text'; if(btn) btn.textContent='🙈'; }
+  else { input.type='password'; if(btn) btn.textContent='👁'; }
+}
+
+// ── CLOCK ─────────────────────────────────────────────────────────
+function startClock() {
+  function tick() {
+    var now = new Date();
+    set('hdr-time', now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ── DASHBOARD DATA ─────────────────────────────────────────────────
+function loadDashboard() {
+  try {
+    // Client stats
+    var clients = JSON.parse(localStorage.getItem('cp_clients_v2')||'[]');
+    var active = clients.filter(function(c){ return (c.status||'Active')==='Active'; }).length;
+    set('stat-clients', active || clients.length || '0');
+
+    // Lead stats
+    var leads = JSON.parse(localStorage.getItem('cp_leads')||'[]');
+    var newLeads = leads.filter(function(l){ return l.status==='new'; }).length;
+    set('stat-leads', newLeads);
+
+    // Online now
+    var sessions = JSON.parse(localStorage.getItem('cp_team_sessions')||'{}');
+    var clientLog = JSON.parse(localStorage.getItem('cp_activity_log')||'[]');
+    var now = new Date();
+    var teamOnline = Object.values(sessions).filter(function(s){ return (now-new Date(s.lastSeen))<5*60*1000; }).length;
+    var clientsOnline = new Set(clientLog.filter(function(r){ return (now-new Date(r.time))<5*60*1000; }).map(function(r){ return r.id; })).size;
+    set('stat-online', teamOnline + clientsOnline);
+
+    // Team online widget
+    var teamEl = document.getElementById('team-online-widget');
+    if (teamEl) {
+      var online = Object.values(sessions).filter(function(s){ return (now-new Date(s.lastSeen))<5*60*1000; });
+      teamEl.innerHTML = online.length ? online.map(function(s) {
+        var initials = (s.name||'?').split(' ').map(function(n){ return n[0]; }).join('').substring(0,2).toUpperCase();
+        var mins = Math.floor((now-new Date(s.lastSeen))/60000);
+        return '<div class="person-row">' +
+          '<div class="avatar">'+initials+'</div>' +
+          '<div style="flex:1;"><div style="font-size:13px;font-weight:700;">'+s.name+'</div>' +
+          '<div style="font-size:11px;color:var(--gray);">'+s.role+' — '+s.page+'</div></div>' +
+          '<div style="font-size:10px;color:var(--green);font-weight:700;">'+(mins===0?'Now':mins+'m')+'</div>' +
+        '</div>';
+      }).join('') : '<div class="empty-sm">No team members online.<br>Ask Queen to log in.</div>';
+    }
+
+    // Client activity widget
+    var clientEl = document.getElementById('client-activity-widget');
+    if (clientEl) {
+      var recent = clientLog.filter(function(r){ return r.type==='login'; }).slice(0,4);
+      clientEl.innerHTML = recent.length ? recent.map(function(r) {
+        var mins = Math.floor((now-new Date(r.time))/60000);
+        var ago = mins<1?'Just now':mins<60?mins+'m ago':Math.floor(mins/60)+'h ago';
+        return '<div class="person-row">' +
+          '<div class="avatar" style="background:#1A5C38;font-size:10px;">' + (r.id||'?').replace('CPR-','') + '</div>' +
+          '<div style="flex:1;"><div style="font-size:12px;font-weight:700;">'+(r.name||r.id)+'</div>' +
+          '<div style="font-size:11px;color:var(--gray);">Viewed: '+(r.page||'Portal')+'</div></div>' +
+          '<div style="font-size:10px;color:var(--gray);">'+ago+'</div>' +
+        '</div>';
+      }).join('') : '<div class="empty-sm">No client logins yet today.</div>';
+    }
+
+  } catch(e) {}
+}
+
+// ── SESSION TRACKING ───────────────────────────────────────────────
+function trackSession(emp) {
+  if (!currentUser) return;
+  try {
+    var sessions = JSON.parse(localStorage.getItem('cp_team_sessions')||'{}');
+    sessions[currentUser] = {
+      email: currentUser, name: emp.name, role: emp.label,
+      lastSeen: new Date().toISOString(), page: 'Dashboard'
+    };
+    localStorage.setItem('cp_team_sessions', JSON.stringify(sessions));
+  } catch(e) {}
+  // Refresh every 60s
+  setInterval(function(){
+    if (!currentUser) return;
+    try {
+      var sessions = JSON.parse(localStorage.getItem('cp_team_sessions')||'{}');
+      if (sessions[currentUser]) {
+        sessions[currentUser].lastSeen = new Date().toISOString();
+        localStorage.setItem('cp_team_sessions', JSON.stringify(sessions));
+      }
+    } catch(e) {}
+    loadDashboard();
+  }, 60000);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function set(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
+
+// Enter key on login
+document.addEventListener('keydown', function(e){
+  if (e.key==='Enter' && document.getElementById('login-screen').style.display!=='none') doLogin();
+});
+
+// Init
+window.addEventListener('load', function(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  // Refresh dashboard every 30s when logged in
+  setInterval(function(){ if(currentUser) loadDashboard(); }, 30000);
+});
+</script>
+</body>
+</html>
