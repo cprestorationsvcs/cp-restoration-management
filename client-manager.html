@@ -471,11 +471,11 @@ function openOnboarding() {
   if (signEl) signEl.value = new Date().toISOString().split('T')[0];
   var pkgInfo = document.getElementById('package-info-box'); if(pkgInfo) pkgInfo.style.display='none';
   showStep(1);
-  document.getElementById('onboarding-modal').classList.add('open');
+  var _om = document.getElementById('onboarding-modal'); if(_om) _om.style.display='flex';
 }
 
 function closeOnboarding() {
-  document.getElementById('onboarding-modal').classList.remove('open');
+  var _om2 = document.getElementById('onboarding-modal'); if(_om2) _om2.style.display='none';
 }
 
 function showStep(step) {
@@ -713,11 +713,11 @@ function viewClient(id) {
                '<td style="padding:7px 0;">' + r[1] + '</td></tr>';
       }).join('') + '</table>';
   }
-  document.getElementById('client-detail-modal').classList.add('open');
+  var _cdm = document.getElementById('client-detail-modal'); if(_cdm) _cdm.style.display='flex';
 }
 
 function closeDetailModal() {
-  document.getElementById('client-detail-modal').classList.remove('open');
+  var _cdm2 = document.getElementById('client-detail-modal'); if(_cdm2) _cdm2.style.display='none';
   viewingClientId = null;
 }
 
@@ -847,11 +847,11 @@ function editCurrentClient() {
 
   renderUploadedDocs(c.docs || {});
   showEditTab('info');
-  document.getElementById('edit-modal').classList.add('open');
+  var _em = document.getElementById('edit-modal'); if(_em) _em.style.display='flex';
 }
 
 function closeEditModal() {
-  document.getElementById('edit-modal').classList.remove('open');
+  var _em2 = document.getElementById('edit-modal'); if(_em2) _em2.style.display='none';
   _editId = null; _pendingDocs = {};
 }
 
