@@ -577,6 +577,16 @@ function onbNext() {
   }
 
   if (currentStep === 3) {
+    onbData.bureauLogins = {
+      equifax:    { user: (document.getElementById('onb-eq-user')||{}).value||'', pass: (document.getElementById('onb-eq-pass')||{}).value||'' },
+      experian:   { user: (document.getElementById('onb-ex-user')||{}).value||'', pass: (document.getElementById('onb-ex-pass')||{}).value||'', pin: (document.getElementById('onb-ex-pin')||{}).value||'', secAnswer: (document.getElementById('onb-ex-secq')||{}).value||'', secQuestion: (document.getElementById('onb-ex-secq-text')||{}).value||'' },
+      transunion: { user: (document.getElementById('onb-tu-user')||{}).value||'', pass: (document.getElementById('onb-tu-pass')||{}).value||'' }
+    };
+    showStep(4);
+    return;
+  }
+
+  if (currentStep === 4) {
     onbData.disputes = (document.getElementById('onb-disputes')||{}).value||'';
     onbData.ftc      = (document.getElementById('onb-ftc')||{}).value||'';
     onbData.score    = (document.getElementById('onb-score')||{}).value||'';
