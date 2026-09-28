@@ -274,7 +274,49 @@ textarea{resize:vertical;min-height:80px;}
       </div>
 
       <!-- STEP 3: DISPUTES -->
+      <!-- STEP 3: BUREAU LOGINS -->
       <div id="onb-step-3" style="display:none;">
+        <div class="alert alert-blue">Enter the client's login credentials for each credit bureau. These are used to make live calls on their behalf.</div>
+
+        <!-- EQUIFAX -->
+        <div style="background:var(--lr);border-radius:12px;padding:16px;margin-bottom:16px;border-left:4px solid #991B1B;">
+          <div style="font-size:13px;font-weight:800;color:#991B1B;margin-bottom:12px;">&#x1F534; Equifax &mdash; equifax.com</div>
+          <div class="form-row">
+            <div class="form-field"><label>Username</label><input type="text" id="onb-eq-user" placeholder="Equifax username" autocomplete="off"></div>
+            <div class="form-field"><label>Password</label><input type="password" id="onb-eq-pass" placeholder="Equifax password" autocomplete="off"></div>
+          </div>
+        </div>
+
+        <!-- EXPERIAN -->
+        <div style="background:var(--lb);border-radius:12px;padding:16px;margin-bottom:16px;border-left:4px solid #1E40AF;">
+          <div style="font-size:13px;font-weight:800;color:#1E40AF;margin-bottom:12px;">&#x1F535; Experian &mdash; experian.com</div>
+          <div class="form-row">
+            <div class="form-field"><label>Username</label><input type="text" id="onb-ex-user" placeholder="Experian username" autocomplete="off"></div>
+            <div class="form-field"><label>Password</label><input type="password" id="onb-ex-pass" placeholder="Experian password" autocomplete="off"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>4-Digit PIN</label><input type="text" id="onb-ex-pin" placeholder="4-digit PIN" maxlength="4" autocomplete="off"></div>
+            <div class="form-field"><label>Security Question Answer</label><input type="text" id="onb-ex-secq" placeholder="Answer to security question" autocomplete="off"></div>
+          </div>
+          <div class="form-field"><label>Security Question (optional)</label><input type="text" id="onb-ex-secq-text" placeholder="e.g. What was the name of your first pet?"></div>
+        </div>
+
+        <!-- TRANSUNION -->
+        <div style="background:var(--lg);border-radius:12px;padding:16px;margin-bottom:16px;border-left:4px solid #065F46;">
+          <div style="font-size:13px;font-weight:800;color:#065F46;margin-bottom:12px;">&#x1F7E2; TransUnion &mdash; transunion.com</div>
+          <div class="form-row">
+            <div class="form-field"><label>Username</label><input type="text" id="onb-tu-user" placeholder="TransUnion username" autocomplete="off"></div>
+            <div class="form-field"><label>Password</label><input type="password" id="onb-tu-pass" placeholder="TransUnion password" autocomplete="off"></div>
+          </div>
+        </div>
+
+        <div style="background:var(--lgold);border-radius:8px;padding:10px 14px;font-size:12px;color:#7A5F00;">
+          &#x26A0;&#xFE0F; These credentials are stored securely and used only to make live dispute calls on behalf of your client. Never share these outside your team.
+        </div>
+      </div>
+
+      <!-- STEP 4: DISPUTES (was step 3) -->
+      <div id="onb-step-4" style="display:none;">
         <div class="alert alert-blue">Document the negative items being disputed and any existing reports filed.</div>
         <div class="form-field">
           <label>Negative Items to Dispute</label>
@@ -479,7 +521,7 @@ function closeOnboarding() {
 }
 
 function showStep(step) {
-  for (var i=1;i<=5;i++) {
+  for (var i=1;i<=6;i++) {
     var el = document.getElementById('onb-step-'+i);
     if (el) el.style.display = i===step ? 'block' : 'none';
     var dot = document.getElementById('step-dot-'+i);
@@ -550,11 +592,11 @@ function onbNext() {
       '<strong>Guarantee:</strong> Money-back if no results delivered';
     var agreeNameEl = document.getElementById('agree-name');
     if (agreeNameEl) agreeNameEl.textContent = onbData.name;
-    showStep(4);
+    showStep(5);
     return;
   }
 
-  if (currentStep === 4) {
+  if (currentStep === 5) {
     var sig = (document.getElementById('onb-signature')||{}).value||'';
     var agreed = (document.getElementById('onb-agree')||{}).checked;
     if (!sig.trim()) { showToast('Client signature name is required.', 'error'); return; }
@@ -578,11 +620,11 @@ function onbNext() {
       '<tr><td style="padding:4px 0;color:var(--gray);">Portal Password</td><td style="font-family:monospace;">restore2026</td></tr>' +
       '<tr><td style="padding:4px 0;color:var(--gray);">Signed By</td><td>' + onbData.signature + '</td></tr>' +
       '</table>';
-    showStep(5);
+    showStep(6);
     return;
   }
 
-  if (currentStep === 5) {
+  if (currentStep === 6) {
     completeOnboarding();
   }
 }
@@ -597,6 +639,7 @@ function completeOnboarding() {
     payAmount: onbData.payAmount, payMethod: onbData.payMethod, signDate: onbData.signDate,
     disputes: onbData.disputes, ftc: onbData.ftc, score: onbData.score,
     notes: onbData.notes, signature: onbData.signature,
+    bureauLogins: onbData.bureauLogins || {},
     status: 'Active', portalPwd: 'restore2026',
     createdAt: new Date().toISOString()
   });
@@ -863,7 +906,7 @@ function closeEditModal() {
 }
 
 function showEditTab(tab) {
-  var tabs = ['info','service','disputes','docs','notes'];
+  var tabs = ['info','service','bureaus','disputes','docs','notes'];
   tabs.forEach(function(t) {
     var el = document.getElementById('edit-tab-' + t);
     if (el) el.style.display = t === tab ? 'block' : 'none';
@@ -898,6 +941,12 @@ function saveEdits() {
   c.disputes  = document.getElementById('edit-disputes') ? document.getElementById('edit-disputes').value : c.disputes;
   c.notes     = document.getElementById('edit-notes')    ? document.getElementById('edit-notes').value    : c.notes;
   c.updatedAt = new Date().toISOString();
+  // Bureau logins
+  if (!c.bureauLogins) c.bureauLogins = {};
+  var gv2 = function(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; };
+  c.bureauLogins.equifax   = { user: gv2('edit-eq-user'), pass: gv2('edit-eq-pass') };
+  c.bureauLogins.experian  = { user: gv2('edit-ex-user'), pass: gv2('edit-ex-pass'), pin: gv2('edit-ex-pin'), secAnswer: gv2('edit-ex-secq'), secQuestion: gv2('edit-ex-secq-text') };
+  c.bureauLogins.transunion= { user: gv2('edit-tu-user'), pass: gv2('edit-tu-pass') };
   if (!c.docs) c.docs = {};
   Object.keys(_pendingDocs).forEach(function(k){ c.docs[k] = _pendingDocs[k]; });
   clients[idx] = c;
@@ -1000,6 +1049,7 @@ var _em = document.getElementById('edit-modal'); if(_em) _em.addEventListener('c
       <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;">
         <button class="edit-tab active" id="etab-info"     onclick="showEditTab('info')">Personal Info</button>
         <button class="edit-tab"        id="etab-service"  onclick="showEditTab('service')">Service</button>
+        <button class="edit-tab"        id="etab-bureaus"  onclick="showEditTab('bureaus')">Bureau Logins</button>
         <button class="edit-tab"        id="etab-disputes" onclick="showEditTab('disputes')">Disputes</button>
         <button class="edit-tab"        id="etab-docs"     onclick="showEditTab('docs')">Documents</button>
         <button class="edit-tab"        id="etab-notes"    onclick="showEditTab('notes')">Notes</button>
