@@ -1,4 +1,4 @@
-// CP Restoration Management System — Core JavaScript
+// CP Restoration Management System — Core JavaScript v3
 // app.js — loaded by index.html
 
 // ── EMPLOYEES ──────────────────────────────────────────────────────
@@ -11,11 +11,42 @@ var EMPLOYEES = {
 var currentUser = null;
 var currentRole = null;
 
+// ── PASSWORD TOGGLE ────────────────────────────────────────────────
+function togglePwdVisibility() {
+  var input = document.getElementById('admin-pass');
+  var btn   = document.getElementById('pwd-toggle-btn');
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (btn) btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    if (btn) btn.textContent = '👁';
+  }
+}
+
+// ── LOGIN TABS ─────────────────────────────────────────────────────
+function setLoginType(type) {
+  var adminForm  = document.getElementById('login-form-admin');
+  var clientForm = document.getElementById('login-form-client');
+  var tabs       = document.querySelectorAll('.login-tab');
+  tabs.forEach(function(t, i) {
+    t.classList.toggle('active', (i === 0 && type === 'admin') || (i === 1 && type === 'client'));
+  });
+  if (adminForm)  adminForm.style.display  = type === 'admin'  ? 'block' : 'none';
+  if (clientForm) clientForm.style.display = type === 'client' ? 'block' : 'none';
+}
+
 // ── LOGIN ──────────────────────────────────────────────────────────
 function loginAdmin() {
-  var email = ((document.getElementById('admin-email')||{}).value||'').trim().toLowerCase();
-  var pass  = ((document.getElementById('admin-password')||{}).value||'').trim();
-  var errEl = document.getElementById('login-error');
+  var emailEl = document.getElementById('admin-email');
+  var passEl  = document.getElementById('admin-pass');
+  var errEl   = document.getElementById('login-error');
+
+  var email = ((emailEl||{}).value||'').trim().toLowerCase();
+  var pass  = ((passEl||{}).value||'').trim();
+
+  if (errEl) { errEl.textContent=''; errEl.style.display='none'; }
 
   if (!email || !pass) {
     if (errEl) { errEl.textContent='Please enter your email and password.'; errEl.style.display='block'; }
@@ -24,89 +55,95 @@ function loginAdmin() {
 
   var emp = EMPLOYEES[email];
   if (!emp || emp.password !== pass) {
-    if (errEl) { errEl.textContent='Incorrect email or password. Contact Jason Crown to reset.'; errEl.style.display='block'; }
-    var pw = document.getElementById('admin-password'); if(pw) pw.value='';
+    if (errEl) { errEl.textContent='Incorrect email or password. Contact Jason at cprestorationsvcs@gmail.com'; errEl.style.display='block'; }
+    if (passEl) passEl.value = '';
     return;
   }
 
   currentUser = email;
   currentRole = emp.role;
 
-  if (errEl) errEl.style.display='none';
+  if (errEl) errEl.style.display = 'none';
 
   var loginScreen = document.getElementById('login-screen');
   var app = document.getElementById('app');
-  if (loginScreen) loginScreen.style.display='none';
-  if (app) app.style.display='block';
+  if (loginScreen) loginScreen.style.display = 'none';
+  if (app) app.style.display = 'block';
 
-  // Set header
+  // Set header name/role
   var nameEl = document.getElementById('current-user-name');
-  if (nameEl) nameEl.textContent = emp.name;
   var roleEl = document.getElementById('current-user-role');
+  if (nameEl) nameEl.textContent = emp.name;
   if (roleEl) roleEl.textContent = emp.label;
 
-  setupNavForRole(emp.role);
+  // Show/hide admin-only nav items
+  document.querySelectorAll('.admin-only').forEach(function(el) {
+    el.style.display = emp.role === 'admin' ? '' : 'none';
+  });
+
   showPage('dashboard');
   trackTeamSession();
 }
 
 function logoutAdmin() {
-  currentUser = null; currentRole = null;
+  currentUser = null;
+  currentRole = null;
   var loginScreen = document.getElementById('login-screen');
   var app = document.getElementById('app');
-  if (loginScreen) loginScreen.style.display='flex';
-  if (app) app.style.display='none';
-  var em = document.getElementById('admin-email'); if(em) em.value='';
-  var pw = document.getElementById('admin-password'); if(pw) pw.value='';
+  if (loginScreen) loginScreen.style.display = 'flex';
+  if (app) app.style.display = 'none';
+  var em = document.getElementById('admin-email');
+  var pw = document.getElementById('admin-pass');
+  if (em) em.value = '';
+  if (pw) { pw.value = ''; pw.type = 'password'; }
+  var btn = document.getElementById('pwd-toggle-btn');
+  if (btn) btn.textContent = '👁';
 }
 
-// ── NAVIGATION ──────────────────────────────────────────────────────
+// ── NAVIGATION ─────────────────────────────────────────────────────
 function showPage(name) {
-  document.querySelectorAll('.page').forEach(function(p){
-    p.style.display='none'; p.classList.remove('active');
+  document.querySelectorAll('.page').forEach(function(p) {
+    p.style.display = 'none';
+    p.classList.remove('active');
   });
-  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
-  var el = document.getElementById('page-'+name);
-  if (el) { el.style.display='block'; el.classList.add('active'); }
+  document.querySelectorAll('.nav-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  var el = document.getElementById('page-' + name);
+  if (el) { el.style.display = 'block'; el.classList.add('active'); }
   var btns = document.querySelectorAll('.nav-btn');
-  for (var i=0;i<btns.length;i++){
-    var oc = btns[i].getAttribute('onclick')||'';
-    if (oc.indexOf("'"+name+"'")!==-1){ btns[i].classList.add('active'); break; }
+  for (var i = 0; i < btns.length; i++) {
+    var oc = btns[i].getAttribute('onclick') || '';
+    if (oc.indexOf("'" + name + "'") !== -1) { btns[i].classList.add('active'); break; }
   }
-  window.scrollTo(0,0);
-  if (name==='clients')    { if(typeof loadClientsTable==='function') loadClientsTable(); }
-  if (name==='disputes')   { if(typeof loadDisputesTable==='function') loadDisputesTable(); }
-  if (name==='passwords')  { if(typeof renderPwdTable==='function') renderPwdTable(); }
-  if (name==='broadcast')  { if(typeof updateBCAudience==='function') updateBCAudience(); }
-  if (name==='activity')   { if(typeof loadActivityLog==='function') loadActivityLog(); }
-  if (name==='payroll')    { if(typeof renderPayrollTable==='function') renderPayrollTable(); }
-}
-
-// ── ROLE NAV SETUP ─────────────────────────────────────────────────
-function setupNavForRole(role) {
-  var adminOnly = document.querySelectorAll('.admin-only');
-  adminOnly.forEach(function(el){
-    el.style.display = role==='admin' ? '' : 'none';
-  });
-}
-
-// ── TOAST ──────────────────────────────────────────────────────────
-function showToast(msg) {
-  var t = document.createElement('div');
-  t.textContent = msg;
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1B3A6B;color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.3);white-space:nowrap;';
-  document.body.appendChild(t);
-  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 3000);
+  window.scrollTo(0, 0);
+  trackTeamSession();
+  if (name === 'clients')   { if (typeof loadClientsTable  === 'function') loadClientsTable(); }
+  if (name === 'disputes')  { if (typeof loadDisputesTable === 'function') loadDisputesTable(); }
+  if (name === 'broadcast') { if (typeof updateBCAudience  === 'function') updateBCAudience(); }
+  if (name === 'activity')  { if (typeof loadActivityLog   === 'function') loadActivityLog(); }
+  if (name === 'payroll')   { if (typeof renderPayrollTable === 'function') renderPayrollTable(); }
+  if (name === 'accounting'){ if (typeof renderAccountingPage === 'function') renderAccountingPage(); }
 }
 
 // ── MODAL ──────────────────────────────────────────────────────────
 function openModal(id) {
   var m = document.getElementById(id);
-  if (m) { m.style.display='flex'; m.classList.add('open'); }
+  if (m) { m.style.display = 'flex'; }
 }
 function closeModal(id) {
   var m = document.getElementById(id);
-  if (m) { m.style.display='none'; m.classList.remove('open'); }
+  if (m) { m.style.display = 'none'; }
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────
+function showToast(msg, type) {
+  var bg = type === 'error' ? '#8B1A1A' : type === 'success' ? '#1A5C38' : '#1B3A6B';
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + bg + ';color:white;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap;font-family:Inter,sans-serif;';
+  document.body.appendChild(t);
+  setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 3000);
 }
 
 // ── ACTIVITY TRACKING ──────────────────────────────────────────────
@@ -114,11 +151,14 @@ function trackTeamSession() {
   if (!currentUser) return;
   try {
     var emp = EMPLOYEES[currentUser] || {};
-    var sessions = JSON.parse(localStorage.getItem('cp_team_sessions')||'{}');
+    var sessions = JSON.parse(localStorage.getItem('cp_team_sessions') || '{}');
+    var activePage = document.querySelector('.nav-btn.active');
     sessions[currentUser] = {
-      email: currentUser, name: emp.name||currentUser, role: emp.label||'',
+      email: currentUser,
+      name: emp.name || currentUser,
+      role: emp.label || '',
       lastSeen: new Date().toISOString(),
-      page: (document.querySelector('.nav-btn.active')||{}).textContent||'Dashboard'
+      page: activePage ? activePage.textContent.trim() : 'Dashboard'
     };
     localStorage.setItem('cp_team_sessions', JSON.stringify(sessions));
   } catch(e) {}
@@ -126,19 +166,17 @@ function trackTeamSession() {
 
 function loadActivityLog() {
   try {
-    var clientLog = JSON.parse(localStorage.getItem('cp_activity_log')||'[]');
+    var clientLog = JSON.parse(localStorage.getItem('cp_activity_log') || '[]');
     var now = new Date();
-    var todayStr = now.toISOString().split('T')[0];
-    var loginsToday = new Set(clientLog.filter(function(r){ return r.type==='login'&&r.time.startsWith(todayStr); }).map(function(r){ return r.id; })).size;
     var previewEl = document.getElementById('client-activity-preview');
     if (previewEl) {
-      var recent = clientLog.filter(function(r){ return r.type==='login'; }).slice(0,5);
-      previewEl.innerHTML = recent.length ? recent.map(function(r){
-        var mins = Math.floor((now-new Date(r.time))/60000);
-        var ago = mins<1?'Just now':mins<60?mins+'m ago':Math.floor(mins/60)+'h ago';
-        return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #E2E8F0;font-size:12px;">'+
-          '<span><strong>'+(r.name||r.id)+'</strong> logged in</span>'+
-          '<span style="color:#6B7280;">'+ago+'</span></div>';
+      var recent = clientLog.filter(function(r) { return r.type === 'login'; }).slice(0, 5);
+      previewEl.innerHTML = recent.length ? recent.map(function(r) {
+        var mins = Math.floor((now - new Date(r.time)) / 60000);
+        var ago = mins < 1 ? 'Just now' : mins < 60 ? mins + 'm ago' : Math.floor(mins/60) + 'h ago';
+        return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #E2E8F0;font-size:12px;">' +
+          '<span><strong>' + (r.name || r.id) + '</strong> logged in</span>' +
+          '<span style="color:#6B7280;">' + ago + '</span></div>';
       }).join('') : '<div style="font-size:13px;color:#6B7280;text-align:center;padding:8px;">No client logins yet.</div>';
     }
   } catch(e) {}
@@ -146,23 +184,33 @@ function loadActivityLog() {
 
 // ── INIT ───────────────────────────────────────────────────────────
 window.addEventListener('load', function() {
-  // Show login screen
+  // Show login, hide app
   var ls = document.getElementById('login-screen');
   var app = document.getElementById('app');
-  if (ls) ls.style.display='flex';
-  if (app) app.style.display='none';
+  if (ls) ls.style.display = 'flex';
+  if (app) app.style.display = 'none';
 
-  // Hide all pages
-  document.querySelectorAll('.page').forEach(function(p){ p.style.display='none'; });
+  // Hide all pages initially
+  document.querySelectorAll('.page').forEach(function(p) { p.style.display = 'none'; });
 
-  // Enter key on login
-  ['admin-email','admin-password'].forEach(function(id){
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('keydown', function(e){ if(e.key==='Enter') loginAdmin(); });
-  });
+  // Wire up eye icon — find the button next to admin-pass
+  var passInput = document.getElementById('admin-pass');
+  if (passInput) {
+    var eyeBtn = passInput.parentNode ? passInput.parentNode.querySelector('button') : null;
+    if (eyeBtn) {
+      eyeBtn.id = 'pwd-toggle-btn';
+      eyeBtn.onclick = togglePwdVisibility;
+    }
+  }
 
-  // Refresh activity every 60 seconds
-  setInterval(function(){
+  // Enter key triggers login
+  var emailEl = document.getElementById('admin-email');
+  var passEl  = document.getElementById('admin-pass');
+  if (emailEl) emailEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') loginAdmin(); });
+  if (passEl)  passEl.addEventListener('keydown',  function(e) { if (e.key === 'Enter') loginAdmin(); });
+
+  // Refresh team session every 60 seconds
+  setInterval(function() {
     trackTeamSession();
     loadActivityLog();
   }, 60000);
