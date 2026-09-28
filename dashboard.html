@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CP Restoration — Command Center</title>
+<title>CP Restoration -- Command Center</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -162,19 +162,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="stat-grid">
       <div class="stat green" onclick="window.open('client-manager.html','_self')">
         <div class="stat-icon">👥</div>
-        <div class="stat-value" id="stat-clients">—</div>
+        <div class="stat-value" id="stat-clients">--</div>
         <div class="stat-label">Active Clients</div>
         <div class="stat-sub">Click to manage</div>
       </div>
       <div class="stat gold" onclick="window.open('lead-registry.html','_self')">
         <div class="stat-icon">📋</div>
-        <div class="stat-value" id="stat-leads">—</div>
+        <div class="stat-value" id="stat-leads">--</div>
         <div class="stat-label">New Leads</div>
         <div class="stat-sub">Needs follow-up</div>
       </div>
       <div class="stat" onclick="window.open('activity-log.html','_self')">
         <div class="stat-icon">🟢</div>
-        <div class="stat-value" id="stat-online">—</div>
+        <div class="stat-value" id="stat-online">--</div>
         <div class="stat-label">Online Now</div>
         <div class="stat-sub">Team + Clients</div>
       </div>
@@ -233,7 +233,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <a href="activity-log.html" class="tool-card">
         <div class="tool-icon">👁️</div>
         <div class="tool-name">Activity Log</div>
-        <div class="tool-desc">See who is online right now — team and clients. Full activity history with page views and logins.</div>
+        <div class="tool-desc">See who is online right now -- team and clients. Full activity history with page views and logins.</div>
         <span class="tool-badge">✅ Real-time</span>
       </a>
       <a href="accounting.html" class="tool-card">
@@ -302,7 +302,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div id="creds-grid" style="display:none;display:none;"></div>
 
     <div style="text-align:center;padding:24px 0;font-size:12px;color:var(--gray);">
-      CP Restoration Services — Management System — Built for Jason Crown<br>
+      CP Restoration Services -- Management System -- Built for Jason Crown<br>
       <a href="https://35daycreditrepair.com" style="color:var(--navy);">35daycreditrepair.com</a> · cprestorationsvcs@gmail.com · (878) 777-4923
     </div>
 
@@ -340,7 +340,7 @@ function doLogin() {
   // Set header
   set('hdr-avatar', emp.initials);
   set('hdr-name', emp.name);
-  set('hdr-role', emp.label + ' — CP Restoration Services');
+  set('hdr-role', emp.label + ' -- CP Restoration Services');
   // Greeting
   var hr = new Date().getHours();
   var greet = hr<12 ? 'Good morning, ' : hr<17 ? 'Good afternoon, ' : 'Good evening, ';
@@ -416,7 +416,7 @@ function loadDashboard() {
         return '<div class="person-row">' +
           '<div class="avatar">'+initials+'</div>' +
           '<div style="flex:1;"><div style="font-size:13px;font-weight:700;">'+s.name+'</div>' +
-          '<div style="font-size:11px;color:var(--gray);">'+s.role+' — '+s.page+'</div></div>' +
+          '<div style="font-size:11px;color:var(--gray);">'+s.role+' -- '+s.page+'</div></div>' +
           '<div style="font-size:10px;color:var(--green);font-weight:700;">'+(mins===0?'Now':mins+'m')+'</div>' +
         '</div>';
       }).join('') : '<div class="empty-sm">No team members online.<br>Ask Queen to log in.</div>';
