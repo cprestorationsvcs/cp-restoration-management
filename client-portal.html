@@ -487,6 +487,7 @@ function doLogin() {
   document.getElementById('app').style.display = 'block';
 
   loadPortal();
+  startActivityTracking();
   window.scrollTo(0,0);
 }
 
@@ -494,6 +495,7 @@ function doLogout() {
   currentClient = null; currentClientId = null; currentDisputes = [];
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
+  stopActivityTracking();
   showPage('dashboard', true);
   var idEl = document.getElementById('login-id'); if(idEl) idEl.value='';
   var pwEl = document.getElementById('login-pw'); if(pwEl) pwEl.value='';
@@ -713,6 +715,52 @@ window.addEventListener('load', function() {
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
 });
+
+// Track client activity — ping every 60 seconds while logged in
+var activityInterval = null;
+
+function startActivityTracking() {
+  if (!currentClientId) return;
+  logActivity('login');
+  activityInterval = setInterval(function() {
+    if (currentClientId) logActivity('active');
+  }, 60000);
+}
+
+function stopActivityTracking() {
+  if (activityInterval) { clearInterval(activityInterval); activityInterval = null; }
+  if (currentClientId) logActivity('logout');
+}
+
+function logActivity(type) {
+  try {
+    var record = {
+      id:        currentClientId,
+      name:      currentClient ? currentClient.name : 'Unknown',
+      type:      type,  // login, active, logout, page_view
+      page:      document.querySelector('.nav-btn.active') ? document.querySelector('.nav-btn.active').textContent.trim() : 'Dashboard',
+      time:      new Date().toISOString(),
+      userAgent: navigator.userAgent.indexOf('Mobile') !== -1 ? 'Mobile' : 'Desktop'
+    };
+    // Store in localStorage
+    var log = JSON.parse(localStorage.getItem('cp_activity_log') || '[]');
+    log.unshift(record);
+    if (log.length > 500) log = log.slice(0, 500);
+    localStorage.setItem('cp_activity_log', JSON.stringify(log));
+    // Also store current session
+    localStorage.setItem('cp_current_session', JSON.stringify({
+      id: currentClientId, name: currentClient ? currentClient.name : '',
+      lastSeen: new Date().toISOString(), page: record.page
+    }));
+  } catch(e) {}
+}
+
+// Track page views
+var _origShowPage = showPage;
+showPage = function(name, silent) {
+  _origShowPage(name, silent);
+  if (currentClientId && !silent) logActivity('page_view');
+};
 </script>
 </body>
 </html>
