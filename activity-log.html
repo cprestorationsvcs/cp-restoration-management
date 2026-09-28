@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<!-- CP Restoration Activity Log v1.0 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Activity Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
+  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--white:#fff;--text:#1E293B;
+  --lb:#EFF4FF;--lg:#F0FFF4;--lgold:#FDF8EE;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.hdr{background:var(--navy);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;}
+.hdr-title{font-size:15px;font-weight:800;color:white;}
+.hdr-right{display:flex;gap:10px;align-items:center;}
+.btn{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-outline{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;}
+.content{padding:20px;max-width:1100px;margin:0 auto;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.stat-value{font-size:24px;font-weight:800;color:var(--navy);}
+.stat-sub{font-size:11px;color:var(--gray);margin-top:3px;}
+.stat.green .stat-value{color:var(--green);}
+.stat.gold .stat-value{color:var(--gold);}
+.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;}
+.card-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:800;color:var(--navy);}
+.card-body{padding:16px;}
+.badge{padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
+.badge-green{background:#D1FAE5;color:#065F46;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+.badge-gray{background:#F3F4F6;color:#374151;}
+.badge-purple{background:#E0E7FF;color:#3730A3;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--navy);}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:white;white-space:nowrap;}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border);}
+tbody tr:hover{background:var(--lb);}
+.online-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.filter-btn{padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);background:white;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--gray);transition:all .15s;}
+.filter-btn.active{background:var(--navy);color:white;border-color:var(--navy);}
+.online-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.person-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.person-row:last-child{border:none;}
+.person-avatar{width:32px;height:32px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--gold);flex-shrink:0;}
+.person-name{font-size:13px;font-weight:700;}
+.person-detail{font-size:11px;color:var(--gray);margin-top:1px;}
+.empty{text-align:center;padding:32px;color:var(--gray);font-size:13px;}
+.refresh-note{font-size:11px;color:var(--gray);text-align:right;margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-title">👁️ Activity Log — CP Restoration Services</div>
+  </div>
+  <div class="hdr-right">
+    <span id="last-refresh" style="font-size:11px;color:rgba(255,255,255,.5);">Loading...</span>
+    <button class="btn btn-outline" onclick="loadAll()">↻ Refresh</button>
+    <a href="/index.html" class="btn btn-gold">← Back to Portal</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- STATS -->
+  <div class="stat-grid">
+    <div class="stat green"><div class="stat-label">Client Logins Today</div><div class="stat-value" id="stat-logins-today">0</div><div class="stat-sub">Unique clients</div></div>
+    <div class="stat"><div class="stat-label">Clients Online Now</div><div class="stat-value" id="stat-online-now">0</div><div class="stat-sub">Last 5 minutes</div></div>
+    <div class="stat gold"><div class="stat-label">Active This Week</div><div class="stat-value" id="stat-week">0</div><div class="stat-sub">Unique clients</div></div>
+    <div class="stat"><div class="stat-label">Total Page Views</div><div class="stat-value" id="stat-views">0</div><div class="stat-sub">All time</div></div>
+    <div class="stat"><div class="stat-label">Most Viewed Page</div><div class="stat-value" style="font-size:14px;" id="stat-top-page">—</div></div>
+    <div class="stat"><div class="stat-label">Team Online</div><div class="stat-value" id="stat-team-online">0</div><div class="stat-sub">Staff members</div></div>
+  </div>
+
+  <!-- WHO'S ONLINE NOW -->
+  <div class="online-grid">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title"><span class="online-dot"></span>Team Members Online</div>
+      </div>
+      <div class="card-body" id="team-online-list">
+        <div class="empty">No team members currently online.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title"><span class="online-dot"></span>Clients Online Now</div>
+      </div>
+      <div class="card-body" id="clients-online-list">
+        <div class="empty">No clients currently logged into the portal.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY LOG -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">📋 Client Activity Log</div>
+      <div style="font-size:12px;color:var(--gray);" id="log-count">0 records</div>
+    </div>
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all',this)">All Activity</button>
+        <button class="filter-btn" onclick="setFilter('login',this)">🔑 Logins</button>
+        <button class="filter-btn" onclick="setFilter('page_view',this)">👁 Page Views</button>
+        <button class="filter-btn" onclick="setFilter('logout',this)">🚪 Logouts</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Date / Time</th><th>Client ID</th><th>Name</th><th>Action</th><th>Page / Detail</th><th>Device</th></tr></thead>
+        <tbody id="activity-tbody">
+          <tr><td colspan="6" class="empty">No activity logged yet.<br><br>Activity appears here automatically when clients log into their portal at<br><strong>portal-cprestorationsvcs.com/client-portal.html</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TEAM ACTIVITY -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">👥 Team Login History</div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Time</th><th>Staff Member</th><th>Role</th><th>Page</th><th>Last Seen</th></tr></thead>
+        <tbody id="team-tbody">
+          <tr><td colspan="5" class="empty">Team activity will appear here as staff log into the management portal.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var currentFilter = 'all';
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  renderActivityTable();
+}
+
+function loadAll() {
+  loadClientActivity();
+  loadTeamActivity();
+  var el = document.getElementById('last-refresh');
+  if(el) el.textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+function loadClientActivity() {
+  try {
+    var log = JSON.parse(localStorage.getItem('cp_activity_log') || '[]');
+    var now = new Date();
+    var todayStr = now.toISOString().split('T')[0];
+    var weekAgo = new Date(now - 7*24*60*60*1000);
+
+    // Stats
+    var loginsToday = new Set(log.filter(function(r){ return r.type==='login' && r.time.startsWith(todayStr); }).map(function(r){ return r.id; })).size;
+    var activeWeek  = new Set(log.filter(function(r){ return r.type==='login' && new Date(r.time) > weekAgo; }).map(function(r){ return r.id; })).size;
+    var pageViews   = log.filter(function(r){ return r.type==='page_view'; }).length;
+    var pageCounts  = {};
+    log.filter(function(r){ return r.type==='page_view'; }).forEach(function(r){ pageCounts[r.page]=(pageCounts[r.page]||0)+1; });
+    var topPage = Object.keys(pageCounts).sort(function(a,b){ return pageCounts[b]-pageCounts[a]; })[0] || '—';
+
+    // Online now (last 5 min)
+    var onlineMap = {};
+    log.filter(function(r){ return (now - new Date(r.time)) < 5*60*1000; }).forEach(function(r){ onlineMap[r.id] = r; });
+    var onlineList = Object.values(onlineMap);
+
+    set('stat-logins-today', loginsToday);
+    set('stat-online-now', onlineList.length);
+    set('stat-week', activeWeek);
+    set('stat-views', pageViews);
+    set('stat-top-page', topPage);
+    set('log-count', log.length.toLocaleString() + ' records');
+
+    // Clients online now
+    var onlineEl = document.getElementById('clients-online-list');
+    if(onlineEl) {
+      if(!onlineList.length) {
+        onlineEl.innerHTML = '<div class="empty">No clients currently logged in.</div>';
+      } else {
+        onlineEl.innerHTML = onlineList.map(function(s){
+          var initials = (s.name||'?').split(' ').map(function(n){ return n[0]; }).join('').substring(0,2).toUpperCase();
+          var mins = Math.floor((now - new Date(s.time))/60000);
+          return '<div class="person-row">' +
+            '<div class="person-avatar">' + initials + '</div>' +
+            '<div style="flex:1;">' +
+              '<div class="person-name">' + (s.name||s.id) + '</div>' +
+              '<div class="person-detail">' + s.id + ' — ' + (s.page||'Portal') + '</div>' +
+            '</div>' +
+            '<div style="font-size:11px;color:var(--gray);">' + (mins===0?'Just now':mins+'m ago') + '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    // Store for table render
+    window._clientLog = log;
+    renderActivityTable();
+
+  } catch(e) {
+    console.error('Client activity error:', e);
+    document.getElementById('activity-tbody').innerHTML = '<tr><td colspan="6" class="empty">Could not load activity data.</td></tr>';
+  }
+}
+
+function renderActivityTable() {
+  var log = window._clientLog || [];
+  var filtered = currentFilter === 'all' ? log : log.filter(function(r){ return r.type===currentFilter; });
+  var tbody = document.getElementById('activity-tbody');
+  if(!tbody) return;
+  if(!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No ' + (currentFilter==='all'?'activity':currentFilter) + ' records yet.</td></tr>';
+    return;
+  }
+  var typeBadge = {
+    login:     '<span class="badge badge-green">Login</span>',
+    logout:    '<span class="badge badge-gray">Logout</span>',
+    active:    '<span class="badge badge-blue">Active</span>',
+    page_view: '<span class="badge badge-purple">Page View</span>'
+  };
+  tbody.innerHTML = filtered.slice(0,200).map(function(r) {
+    var d = new Date(r.time);
+    return '<tr>' +
+      '<td style="font-size:12px;color:var(--gray);white-space:nowrap;">' + d.toLocaleDateString() + ' ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + '</td>' +
+      '<td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--navy);">' + (r.id||'—') + '</td>' +
+      '<td style="font-weight:600;">' + (r.name||'—') + '</td>' +
+      '<td>' + (typeBadge[r.type]||'<span class="badge badge-gray">'+r.type+'</span>') + '</td>' +
+      '<td style="font-size:12px;">' + (r.page||'—') + '</td>' +
+      '<td style="font-size:11px;color:var(--gray);">' + (r.userAgent||'—') + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function loadTeamActivity() {
+  try {
+    var sessions = JSON.parse(localStorage.getItem('cp_team_sessions') || '{}');
+    var now = new Date();
+    var teamList = Object.values(sessions).sort(function(a,b){ return (b.lastSeen||'').localeCompare(a.lastSeen||''); });
+
+    // Team online
+    var onlineTeam = teamList.filter(function(s){ return (now - new Date(s.lastSeen)) < 5*60*1000; });
+    set('stat-team-online', onlineTeam.length);
+
+    var teamOnlineEl = document.getElementById('team-online-list');
+    if(teamOnlineEl) {
+      if(!onlineTeam.length) {
+        teamOnlineEl.innerHTML = '<div class="empty">No team members currently online.</div>';
+      } else {
+        teamOnlineEl.innerHTML = onlineTeam.map(function(s){
+          var initials = (s.name||'?').split(' ').map(function(n){ return n[0]; }).join('').substring(0,2).toUpperCase();
+          var mins = Math.floor((now - new Date(s.lastSeen))/60000);
+          return '<div class="person-row">' +
+            '<div class="person-avatar">' + initials + '</div>' +
+            '<div style="flex:1;">' +
+              '<div class="person-name">' + (s.name||s.email) + '</div>' +
+              '<div class="person-detail">' + (s.role||'Staff') + ' — ' + (s.page||'Portal') + '</div>' +
+            '</div>' +
+            '<div style="font-size:11px;color:var(--gray);">' + (mins===0?'Just now':mins+'m ago') + '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    // Team log table
+    var tbody = document.getElementById('team-tbody');
+    if(tbody) {
+      if(!teamList.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">No team activity yet.</td></tr>';
+      } else {
+        tbody.innerHTML = teamList.map(function(s){
+          var d = new Date(s.lastSeen);
+          var mins = Math.floor((now - d)/60000);
+          var ago = mins < 1 ? 'Online now' : mins < 60 ? mins+'m ago' : Math.floor(mins/60)+'h ago';
+          var isOnline = mins < 5;
+          return '<tr>' +
+            '<td style="font-size:12px;">' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + ' ' + d.toLocaleDateString() + '</td>' +
+            '<td style="font-weight:700;">' + (isOnline?'<span class="online-dot"></span>':'') + (s.name||s.email) + '</td>' +
+            '<td style="font-size:12px;">' + (s.role||'—') + '</td>' +
+            '<td style="font-size:12px;">' + (s.page||'—') + '</td>' +
+            '<td style="font-size:12px;color:'+(isOnline?'var(--green)':'var(--gray)')+';">' + ago + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    }
+
+  } catch(e) {
+    console.error('Team activity error:', e);
+  }
+}
+
+function set(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
+
+// Load on start, refresh every 30 seconds
+loadAll();
+setInterval(loadAll, 30000);
+</script>
+</body>
+</html>
