@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>CP Restoration — Lead Capture</title></head>
+<body>
+<script>
+(function() {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var lead = {
+      id:        'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      name:      decodeURIComponent(params.get('name')  || ''),
+      phone:     decodeURIComponent(params.get('phone') || ''),
+      dept:      decodeURIComponent(params.get('dept')  || ''),
+      reason:    decodeURIComponent(params.get('reason')|| ''),
+      source:    'aria',
+      interest:  decodeURIComponent(params.get('interest') || ''),
+      status:    'new',
+      assigned:  params.get('dept') === 'sales' ? 'Bukunmi Aina' : params.get('dept') === 'service' ? 'Queen Jearel Cruz' : '',
+      notes:     'Dept: ' + (params.get('dept')||'general') + (params.get('reason') ? '. Reason: ' + decodeURIComponent(params.get('reason')) : '') + '. Captured by Aria.',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    if (lead.name || lead.phone) {
+      var leads = JSON.parse(localStorage.getItem('cp_leads') || '[]');
+      // Avoid duplicates by phone
+      var exists = leads.some(function(l) { return l.phone && l.phone === lead.phone && (Date.now() - new Date(l.createdAt).getTime()) < 60000; });
+      if (!exists) {
+        leads.unshift(lead);
+        localStorage.setItem('cp_leads', JSON.stringify(leads));
+      }
+    }
+  } catch(e) {}
+  // Close window after saving
+  setTimeout(function() { window.close(); }, 500);
+})();
+</script>
+<p style="font-family:sans-serif;color:#666;text-align:center;margin-top:40px;">Processing...</p>
+</body>
+</html>
