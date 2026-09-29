@@ -259,7 +259,7 @@ function getLeads() {
 
 function syncFromSheet() {
   // Read published CSV from Google Sheet — no CORS issues
-  var CSV_URL = 'https://docs.google.com/spreadsheets/d/1MXQwhJpf7INYb8OzUj6wPZ_8DI77Sam23u3gCcsMfLo/pub?gid=0&single=true&output=csv&cachebust=' + Date.now();
+  var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkWS-5_3ndhXRW1gINWGcRHbddhTQzFUB0r2HTtXxQFPHiBVKkIz1pF9Bb39POmCvKIJtcjAuea9I0/pub?gid=0&single=true&output=csv&cachebust=' + Date.now();
   
   fetch(CSV_URL)
     .then(function(r) { return r.text(); })
