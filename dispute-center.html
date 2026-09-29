@@ -75,7 +75,7 @@ tr:hover td{background:#FAFAFA;}
 .bureau-tu{background:#E8F5E9;color:#2E7D32;border-color:#2E7D32;}
 .bureau-pill.selected{filter:brightness(.85);}
 /* LETTER PREVIEW */
-.letter-preview{font-size:13px;line-height:1.8;color:#1F2937;padding:28px 36px;background:white;border:1px solid var(--border);border-radius:4px;min-height:400px;white-space:pre-wrap;}
+.letter-preview{font-size:13px;line-height:1.8;color:#1F2937;padding:28px 36px;background:white;border:1px solid var(--border);border-radius:4px;min-height:400px;white-space:pre-wrap;outline:none;cursor:text;}.letter-preview:focus{border-color:#1B3A6B;box-shadow:0 0 0 3px rgba(27,58,107,.15);}.letter-preview[contenteditable]:empty:before{content:"Click to edit...";color:#9CA3AF;}
 /* TIMELINE */
 .timeline{position:relative;padding-left:32px;}
 .timeline::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:var(--border);}
@@ -323,9 +323,21 @@ tr:hover td{background:#FAFAFA;}
         </div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <button class="btn btn-blue" onclick="generateLetters()" id="gen-btn">
-          ✨ Generate Dispute Letters + FTC Report
-        </button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-blue" onclick="generateLetters()" id="gen-btn">
+            ✨ Generate Dispute Letters + FTC Report
+          </button>
+          <button class="btn btn-outline" onclick="saveDraft()" style="border-color:#C9A84C;color:#7A5F00;">
+            💾 Save Draft
+          </button>
+          <button class="btn btn-outline" onclick="loadDraft()" style="border-color:#1A5C38;color:#1A5C38;">
+            📂 Load Draft
+          </button>
+          <button class="btn btn-outline" onclick="clearDraft()" style="border-color:#8B1A1A;color:#8B1A1A;font-size:11px;">
+            🗑 Clear Draft
+          </button>
+          <span id="draft-status" style="font-size:11px;color:#6B7280;"></span>
+        </div>
         <button class="btn btn-outline" onclick="randomizeStyle()">🎲 Randomize Style</button>
       </div>
       <div id="gen-status" style="margin-top:10px;font-size:13px;color:var(--gray);"></div>
@@ -2657,6 +2669,134 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // updateStats -- no auto hooks
+
+
+// ── DRAFT SAVE / LOAD ────────────────────────────────────────────
+var DRAFT_KEY = 'cp_dispute_draft';
+
+function saveDraft() {
+  try {
+    var draft = {
+      savedAt:     new Date().toISOString(),
+      clientName:  (document.getElementById('d-client-name')||{}).value||'',
+      clientId:    (document.getElementById('d-client-id')||{}).value||'',
+      clientEmail: (document.getElementById('d-client-email')||{}).value||'',
+      clientPhone: (document.getElementById('d-client-phone')||{}).value||'',
+      clientAddr:  (document.getElementById('d-client-addr')||{}).value||'',
+      clientSSN:   (document.getElementById('d-client-ssn')||{}).value||'',
+      clientDOB:   (document.getElementById('d-client-dob')||{}).value||'',
+      bureaus:     {},
+      items:       []
+    };
+
+    // Save bureau checkboxes
+    ['eq','ex','tu'].forEach(function(b) {
+      var el = document.getElementById('bureau-' + b);
+      if (el) draft.bureaus[b] = el.checked;
+    });
+
+    // Save dispute items
+    var rows = document.querySelectorAll('.dispute-item-row');
+    rows.forEach(function(row) {
+      var item = {};
+      row.querySelectorAll('input,select,textarea').forEach(function(el) {
+        if (el.id || el.name) item[el.id||el.name] = el.value;
+      });
+      draft.items.push(item);
+    });
+
+    // Save any generated letter text (editable)
+    var letters = {};
+    document.querySelectorAll('.letter-preview').forEach(function(el, i) {
+      letters['letter_' + i] = el.innerText || el.textContent;
+    });
+    draft.letters = letters;
+
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    var st = document.getElementById('draft-status');
+    if (st) st.textContent = '✅ Draft saved ' + new Date().toLocaleTimeString();
+    showToastDraft('Draft saved successfully!', 'success');
+  } catch(e) {
+    showToastDraft('Could not save draft: ' + e.message, 'error');
+  }
+}
+
+function loadDraft() {
+  try {
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) { showToastDraft('No saved draft found.', 'error'); return; }
+    var draft = JSON.parse(raw);
+
+    var fields = {
+      'd-client-name':  draft.clientName,
+      'd-client-id':    draft.clientId,
+      'd-client-email': draft.clientEmail,
+      'd-client-phone': draft.clientPhone,
+      'd-client-addr':  draft.clientAddr,
+      'd-client-ssn':   draft.clientSSN,
+      'd-client-dob':   draft.clientDOB
+    };
+    Object.keys(fields).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && fields[id]) el.value = fields[id];
+    });
+
+    // Restore bureau checkboxes
+    if (draft.bureaus) {
+      ['eq','ex','tu'].forEach(function(b) {
+        var el = document.getElementById('bureau-' + b);
+        if (el && draft.bureaus[b] !== undefined) el.checked = draft.bureaus[b];
+      });
+    }
+
+    var savedTime = draft.savedAt ? new Date(draft.savedAt).toLocaleString() : 'unknown';
+    var st = document.getElementById('draft-status');
+    if (st) st.textContent = '📂 Loaded draft from ' + savedTime;
+    showToastDraft('Draft loaded! Saved on ' + savedTime, 'success');
+  } catch(e) {
+    showToastDraft('Could not load draft.', 'error');
+  }
+}
+
+function clearDraft() {
+  if (!confirm('Clear the saved draft? This cannot be undone.')) return;
+  localStorage.removeItem(DRAFT_KEY);
+  var st = document.getElementById('draft-status');
+  if (st) st.textContent = '';
+  showToastDraft('Draft cleared.', 'success');
+}
+
+function showToastDraft(msg, type) {
+  var bg = type === 'error' ? '#8B1A1A' : type === 'success' ? '#1A5C38' : '#1B3A6B';
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + bg + ';color:white;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.3);font-family:inherit;white-space:nowrap;';
+  document.body.appendChild(t);
+  setTimeout(function() { t.parentNode && t.parentNode.removeChild(t); }, 3000);
+}
+
+// Auto-save draft every 2 minutes
+setInterval(function() {
+  var name = (document.getElementById('d-client-name')||{}).value||'';
+  if (name) {
+    saveDraft();
+    var st = document.getElementById('draft-status');
+    if (st) st.textContent = '✅ Auto-saved ' + new Date().toLocaleTimeString();
+  }
+}, 120000);
+
+// Check for existing draft on load
+window.addEventListener('load', function() {
+  try {
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if (raw) {
+      var draft = JSON.parse(raw);
+      var savedTime = new Date(draft.savedAt).toLocaleString();
+      var st = document.getElementById('draft-status');
+      if (st) st.textContent = '💾 Draft available from ' + savedTime + ' — click Load Draft to restore';
+    }
+  } catch(e) {}
+});
 
 </script>
 </body>
