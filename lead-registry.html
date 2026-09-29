@@ -258,10 +258,16 @@ function getLeads() {
 }
 
 function syncFromSheet() {
-  fetch(SHEET_URL + '?nocache=' + Date.now())
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.leads || !data.leads.length) return;
+  // Use JSONP to bypass CORS on Google Apps Script
+  var callbackName = 'cpSheetSync_' + Date.now();
+  var script = document.createElement('script');
+  
+  window[callbackName] = function(data) {
+    try {
+      if (!data.leads || !data.leads.length) {
+        showToast('No new leads from Aria yet.', 'info');
+        return;
+      }
       var local = getLeads();
       var localIds = local.map(function(l) { return l.id; });
       var added = 0;
@@ -288,9 +294,21 @@ function syncFromSheet() {
         localStorage.setItem(LEADS_KEY, JSON.stringify(local));
         renderLeads();
         showToast(added + ' new Aria lead(s) synced!', 'success');
+      } else {
+        showToast('Lead registry is up to date.', 'info');
       }
-    })
-    .catch(function(e) { console.log('Sheet sync failed:', e); });
+    } catch(e) { console.log('Sync error:', e); }
+    // Clean up
+    delete window[callbackName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  };
+
+  script.src = SHEET_URL + '?callback=' + callbackName + '&nocache=' + Date.now();
+  script.onerror = function() {
+    showToast('Could not reach Google Sheet. Check your connection.', 'error');
+    delete window[callbackName];
+  };
+  document.head.appendChild(script);
 }
 
 function saveLeads(leads) {
