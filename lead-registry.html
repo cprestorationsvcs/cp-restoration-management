@@ -93,7 +93,8 @@ tbody tr.converted td{background:#EFF4FF;}
   <div class="hdr-title">📋 Lead Registry — CP Restoration Services</div>
   <div class="hdr-right">
     <span id="lead-count-hdr" style="font-size:11px;color:rgba(255,255,255,.5);">0 leads</span>
-    <button class="btn btn-outline" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn btn-outline" onclick="syncFromSheet();showToast('Syncing from Aria...','success')" style="margin-right:8px;">&#x1F504; Sync Aria Leads</button>
+    <button onclick="exportCSV()">⬇ Export CSV</button>
     <button class="btn btn-gold" onclick="openAddModal()">+ Add Lead</button>
     <a href="/index.html" class="btn btn-outline">← Portal</a>
   </div>
