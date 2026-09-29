@@ -258,38 +258,58 @@ function getLeads() {
 }
 
 function syncFromSheet() {
-  // Use JSONP to bypass CORS on Google Apps Script
-  var callbackName = 'cpSheetSync_' + Date.now();
-  var script = document.createElement('script');
+  // Read published CSV from Google Sheet — no CORS issues
+  var CSV_URL = 'https://docs.google.com/spreadsheets/d/1MXQwhJpf7INYb8OzUj6wPZ_8DI77Sam23u3gCcsMfLo/pub?gid=0&single=true&output=csv&cachebust=' + Date.now();
   
-  window[callbackName] = function(data) {
-    try {
-      if (!data.leads || !data.leads.length) {
-        showToast('No new leads from Aria yet.', 'info');
-        return;
-      }
+  fetch(CSV_URL)
+    .then(function(r) { return r.text(); })
+    .then(function(csv) {
+      var lines = csv.trim().split('\n');
+      if (lines.length < 2) { showToast('No leads in sheet yet.', 'info'); return; }
+      
+      // Parse CSV headers from row 1
+      var headers = lines[0].split(',').map(function(h) { return h.trim().toLowerCase().replace(/"/g,''); });
+      
       var local = getLeads();
       var localIds = local.map(function(l) { return l.id; });
       var added = 0;
-      data.leads.forEach(function(row) {
-        var id = String(row.id || '');
-        if (id && localIds.indexOf(id) === -1) {
-          local.unshift({
-            id:        id,
-            name:      String(row.name || ''),
-            phone:     String(row.phone || ''),
-            dept:      String(row.department || row.dept || ''),
-            reason:    String(row.reason || ''),
-            status:    String(row.status || 'new'),
-            assigned:  String(row.assigned || ''),
-            source:    String(row.source || 'aria'),
-            notes:     String(row.notes || ''),
-            createdAt: String(row.created || row.createdat || new Date().toISOString()),
-            updatedAt: new Date().toISOString()
-          });
-          added++;
+      
+      lines.slice(1).forEach(function(line) {
+        if (!line.trim()) return;
+        // Simple CSV parse
+        var vals = [];
+        var cur = ''; var inQ = false;
+        for (var i = 0; i < line.length; i++) {
+          var c = line[i];
+          if (c === '"') { inQ = !inQ; }
+          else if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+          else { cur += c; }
         }
+        vals.push(cur.trim());
+        
+        var row = {};
+        headers.forEach(function(h, i) { row[h] = vals[i] || ''; });
+        
+        var id = row.id || '';
+        if (!id) return;
+        if (localIds.indexOf(id) !== -1) return;
+        
+        local.unshift({
+          id:        id,
+          name:      row.name || '',
+          phone:     row.phone || '',
+          dept:      row.department || row.dept || '',
+          reason:    row.reason || '',
+          status:    row.status || 'new',
+          assigned:  row.assigned || '',
+          source:    row.source || 'aria',
+          notes:     row.notes || '',
+          createdAt: row.created || new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+        added++;
       });
+      
       if (added > 0) {
         localStorage.setItem(LEADS_KEY, JSON.stringify(local));
         renderLeads();
@@ -297,18 +317,11 @@ function syncFromSheet() {
       } else {
         showToast('Lead registry is up to date.', 'info');
       }
-    } catch(e) { console.log('Sync error:', e); }
-    // Clean up
-    delete window[callbackName];
-    if (script.parentNode) script.parentNode.removeChild(script);
-  };
-
-  script.src = SHEET_URL + '?callback=' + callbackName + '&nocache=' + Date.now();
-  script.onerror = function() {
-    showToast('Could not reach Google Sheet. Check your connection.', 'error');
-    delete window[callbackName];
-  };
-  document.head.appendChild(script);
+    })
+    .catch(function(e) {
+      console.log('CSV sync error:', e);
+      showToast('Sync failed — make sure sheet is published to web.', 'error');
+    });
 }
 
 function saveLeads(leads) {
