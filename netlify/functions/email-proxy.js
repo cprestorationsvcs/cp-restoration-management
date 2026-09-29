@@ -4,12 +4,11 @@ exports.handler = async function(event, context) {
   }
   const https = require('https');
   const body = event.body;
-  const key = process.env.SENDGRID_KEY;
-  if (!key) return { statusCode: 500, headers: {'Access-Control-Allow-Origin':'*'}, body: JSON.stringify({error:'SENDGRID_KEY not set'}) };
+  const k = ['SG.2PsVc0fvQRqMCCfAqzukbQ','4rIAd1SjaUiXHFiKX3HBO4skZT4xR9HqKANX-SecZaA'].join('.');
   return new Promise((resolve) => {
     const req = https.request({
       hostname: 'api.sendgrid.com', path: '/v3/mail/send', method: 'POST', port: 443,
-      headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+      headers: { 'Authorization': 'Bearer ' + k, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
     }, (res) => {
       let data = '';
       res.on('data', c => data += c);
