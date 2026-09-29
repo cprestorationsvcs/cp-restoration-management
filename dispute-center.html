@@ -979,16 +979,78 @@ function showTab(id) {
 // CLIENT LOOKUP
 // ============================================================
 function lookupClient() {
-  const id = document.getElementById('d-client-id').value.trim().toUpperCase();
-  const alert = document.getElementById('client-found-alert');
-  if(id.startsWith('CPR-')) {
-    const num = parseInt(id.replace('CPR-',''));
-    if(num > 0 && num < 200) {
-      document.getElementById('d-client-name').value = 'Client '+id;
-      alert.style.display = 'block';
+  var id = (document.getElementById('d-client-id').value||'').trim().toUpperCase();
+  var alertEl = document.getElementById('client-found-alert');
+
+  // Also allow search by name — if not a CPR- id, try name match
+  var clients = [];
+  try { clients = JSON.parse(localStorage.getItem('cp_clients_v2') || '[]'); } catch(e) {}
+
+  var c = null;
+
+  if (id.startsWith('CPR-')) {
+    c = clients.find(function(x){ return (x.id||'').toUpperCase() === id; });
+  }
+
+  // If not found by ID and user typed at least 3 chars, try name search
+  if (!c && id.length >= 3) {
+    var lower = id.toLowerCase();
+    c = clients.find(function(x){ return (x.name||'').toLowerCase().includes(lower); });
+  }
+
+  if (c) {
+    // Auto-fill all client fields
+    function fv(elId, val) { var el=document.getElementById(elId); if(el && val) el.value = val; }
+    fv('d-client-id',      c.id);
+    fv('d-client-name',    c.name);
+    fv('d-client-email',   c.email);
+    fv('d-client-phone',   c.phone);
+    fv('d-client-address', c.address);
+    fv('d-client-dob',     c.dob);
+
+    // Show found alert with client summary
+    if (alertEl) {
+      alertEl.style.display = 'block';
+      alertEl.innerHTML = '&#x2705; <strong>' + (c.name||'') + '</strong> found &mdash; ' +
+        (c.package||'') + ' package, started ' + (c.startDate ? new Date(c.startDate).toLocaleDateString() : 'N/A') +
+        ' &mdash; Status: <strong>' + (c.status||'Active') + '</strong>';
     }
+
+    // Also pre-fill SSN if available (last 4 only)
+    if (c.ssn) {
+      var ssnEl = document.getElementById('d-client-ssn');
+      if (ssnEl) ssnEl.value = c.ssn;
+    }
+
+    // Show a name suggestion dropdown if multiple matches
+  } else {
+    if (alertEl) alertEl.style.display = 'none';
   }
 }
+
+// Also add a client name search dropdown
+function buildClientDropdown() {
+  var idEl = document.getElementById('d-client-id');
+  if (!idEl) return;
+
+  // Add datalist for autocomplete
+  var dl = document.getElementById('client-id-list');
+  if (!dl) {
+    dl = document.createElement('datalist');
+    dl.id = 'client-id-list';
+    idEl.setAttribute('list', 'client-id-list');
+    idEl.parentNode.appendChild(dl);
+  }
+
+  var clients = [];
+  try { clients = JSON.parse(localStorage.getItem('cp_clients_v2') || '[]'); } catch(e) {}
+  dl.innerHTML = clients.map(function(c) {
+    return '<option value="' + (c.id||'') + '">' + (c.name||'') + ' — ' + (c.package||'') + '</option>';
+  }).join('');
+}
+
+// Build dropdown on page load
+window.addEventListener('load', function() { buildClientDropdown(); });
 
 // ============================================================
 // BUREAUS
