@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CP Restoration Services — Client Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;}
+
+.hdr{background:#1B3A6B;padding:16px 20px;text-align:center;}
+.hdr-logo{font-size:20px;font-weight:800;color:white;letter-spacing:-.3px;}
+.hdr-sub{font-size:12px;color:rgba(255,255,255,.6);margin-top:3px;}
+
+.hero{background:linear-gradient(135deg,#1B3A6B 0%,#2D5A9E 100%);padding:40px 20px;text-align:center;color:white;}
+.hero h1{font-size:26px;font-weight:800;margin-bottom:10px;}
+.hero p{font-size:14px;opacity:.85;max-width:500px;margin:0 auto;}
+
+.container{max-width:680px;margin:0 auto;padding:24px 16px 60px;}
+
+.step-bar{display:flex;margin:24px 0;overflow-x:auto;}
+.step{flex:1;text-align:center;padding:8px 4px;font-size:11px;font-weight:700;border-bottom:3px solid #E2E8F0;color:#94A3B8;white-space:nowrap;min-width:80px;}
+.step.on{border-bottom-color:#1B3A6B;color:#1B3A6B;}
+.step.done{border-bottom-color:#1A5C38;color:#1A5C38;}
+
+.card{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:16px;overflow:hidden;}
+.card-head{padding:16px 20px;border-bottom:1px solid #E2E8F0;background:#F8FAFC;}
+.card-title{font-size:15px;font-weight:800;color:#1B3A6B;}
+.card-sub{font-size:12px;color:#64748B;margin-top:2px;}
+.card-body{padding:20px;}
+
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.fld{margin-bottom:14px;}
+.fld label{display:block;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
+.fld input,.fld select,.fld textarea{width:100%;padding:11px 13px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:white;}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:#1B3A6B;box-shadow:0 0 0 3px rgba(27,58,107,.1);}
+.fld textarea{resize:vertical;min-height:80px;}
+.req{color:#8B1A1A;}
+
+.btn{padding:12px 24px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-navy{background:#1B3A6B;color:white;}
+.btn-navy:hover{background:#142d54;}
+.btn-outline{background:white;border:2px solid #1B3A6B;color:#1B3A6B;}
+.btn-gold{background:#C9A84C;color:#1B3A6B;}
+.btn-green{background:#166534;color:white;}
+
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:16px;}
+.alert-blue{background:#EFF4FF;border-left:3px solid #1B3A6B;color:#1E3A5F;}
+.alert-green{background:#F0FFF4;border-left:3px solid #166534;color:#14532D;}
+.alert-gold{background:#FDF8EE;border-left:3px solid #C9A84C;color:#7A5F00;}
+.alert-red{background:#FFF0F0;border-left:3px solid #991B1B;color:#7F1D1D;}
+
+.pkg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.pkg-card{border:2px solid #E2E8F0;border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;}
+.pkg-card:hover{border-color:#1B3A6B;}
+.pkg-card.selected{border-color:#1B3A6B;background:#EFF4FF;}
+.pkg-card input{display:none;}
+.pkg-name{font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:4px;}
+.pkg-price{font-size:18px;font-weight:800;color:#1B3A6B;}
+.pkg-detail{font-size:11px;color:#64748B;margin-top:4px;line-height:1.5;}
+
+.bureau-box{border-radius:12px;padding:16px;margin-bottom:14px;}
+.bureau-eq{background:#FFF0F0;border-left:4px solid #991B1B;}
+.bureau-ex{background:#EFF4FF;border-left:4px solid #1E40AF;}
+.bureau-tu{background:#F0FFF4;border-left:4px solid #065F46;}
+.bureau-title{font-size:13px;font-weight:800;margin-bottom:4px;}
+.bureau-eq .bureau-title{color:#991B1B;}
+.bureau-ex .bureau-title{color:#1E40AF;}
+.bureau-tu .bureau-title{color:#065F46;}
+.bureau-url{font-size:11px;color:#64748B;margin-bottom:12px;}
+
+.email-box{background:#1B3A6B;border-radius:10px;padding:14px 18px;margin:12px 0;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.email-box-label{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;margin-bottom:2px;}
+.email-box-value{font-size:15px;font-weight:800;color:white;font-family:monospace;letter-spacing:.5px;}
+.copy-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:white;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.copy-btn:hover{background:rgba(255,255,255,.25);}
+
+.steps-list{counter-reset:steps;padding:0;}
+.steps-list li{counter-increment:steps;display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #F1F5F9;font-size:13px;line-height:1.5;}
+.steps-list li:last-child{border-bottom:none;}
+.steps-list li::before{content:counter(steps);background:#1B3A6B;color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px;}
+
+.summary-table{width:100%;font-size:13px;}
+.summary-table td{padding:8px 0;border-bottom:1px solid #F1F5F9;vertical-align:top;}
+.summary-table td:first-child{color:#64748B;font-weight:600;width:140px;}
+
+.progress-bar{height:6px;background:#E2E8F0;border-radius:3px;margin-bottom:24px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#1B3A6B,#C9A84C);border-radius:3px;transition:width .4s ease;}
+
+.nav-btns{display:flex;justify-content:space-between;align-items:center;margin-top:24px;}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;}
+.badge-green{background:#D1FAE5;color:#065F46;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+
+@media(max-width:560px){
+  .frow,.pkg-grid{grid-template-columns:1fr;}
+  .hero h1{font-size:20px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">&#9989; CP Restoration Services</div>
+  <div class="hdr-sub">Secure Client Onboarding Portal</div>
+</div>
+
+<div class="hero">
+  <h1>Welcome — Let's Get Started</h1>
+  <p>Complete this secure form to activate your credit restoration service. Takes about 5 minutes.</p>
+</div>
+
+<div class="container">
+
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:16%;"></div></div>
+
+  <div class="step-bar">
+    <div class="step on"  id="sp1">1. Personal</div>
+    <div class="step"     id="sp2">2. Package</div>
+    <div class="step"     id="sp3">3. Bureau Setup</div>
+    <div class="step"     id="sp4">4. Protocol</div>
+    <div class="step"     id="sp5">5. Agreement</div>
+    <div class="step"     id="sp6">6. Confirm</div>
+  </div>
+
+  <!-- ── STEP 1: PERSONAL ───────────────────────────────────────── -->
+  <div id="os1">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">&#128100; Personal Information</div>
+        <div class="card-sub">Please enter your information exactly as it appears on your government-issued ID.</div>
+      </div>
+      <div class="card-body">
+        <div class="frow">
+          <div class="fld"><label>First Name <span class="req">*</span></label><input id="o-first" placeholder="First name"></div>
+          <div class="fld"><label>Last Name <span class="req">*</span></label><input id="o-last" placeholder="Last name"></div>
+        </div>
+        <div class="frow">
+          <div class="fld"><label>Email Address <span class="req">*</span></label><input type="email" id="o-email" placeholder="your@email.com"></div>
+          <div class="fld"><label>Phone Number <span class="req">*</span></label><input type="tel" id="o-phone" placeholder="(555) 555-5555"></div>
+        </div>
+        <div class="fld"><label>Home Address <span class="req">*</span></label><input id="o-address" placeholder="Street, City, State, ZIP"></div>
+        <div class="frow">
+          <div class="fld"><label>Date of Birth <span class="req">*</span></label><input type="date" id="o-dob"></div>
+          <div class="fld"><label>SSN Last 4 Digits <span class="req">*</span></label><input id="o-ssn" maxlength="4" placeholder="XXXX"></div>
+        </div>
+        <div class="fld"><label>Referred By</label><input id="o-referral" placeholder="Name or source"></div>
+        <div class="alert alert-blue">&#128274; Your information is encrypted and stored securely. We never sell or share your personal data.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: PACKAGE ───────────────────────────────────────── -->
+  <div id="os2" style="display:none;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">&#128179; Select Your Package</div>
+        <div class="card-sub">All packages include all 3 bureaus unless otherwise noted.</div>
+      </div>
+      <div class="card-body">
+        <div class="pkg-grid">
+          <label class="pkg-card" onclick="selectPkg(this,'Standard')">
+            <input type="radio" name="pkg" value="Standard">
+            <div class="pkg-name">Standard</div>
+            <div class="pkg-price">$2,499</div>
+            <div class="pkg-detail">120 business days<br>All 3 bureaus<br>Money-back guarantee</div>
+          </label>
+          <label class="pkg-card" onclick="selectPkg(this,'Express')">
+            <input type="radio" name="pkg" value="Express">
+            <div class="pkg-name">Express &#9889;</div>
+            <div class="pkg-price">$3,999</div>
+            <div class="pkg-detail">60 business days<br>All 3 bureaus<br>Priority processing</div>
+          </label>
+          <label class="pkg-card" onclick="selectPkg(this,'Financing')">
+            <input type="radio" name="pkg" value="Financing">
+            <div class="pkg-name">Financing</div>
+            <div class="pkg-price">$750 <span style="font-size:12px;font-weight:500;">down</span></div>
+            <div class="pkg-detail">+ $292/month x6<br>All 3 bureaus<br>Low entry cost</div>
+          </label>
+          <label class="pkg-card" onclick="selectPkg(this,'Single Bureau')">
+            <input type="radio" name="pkg" value="Single Bureau">
+            <div class="pkg-name">Single Bureau</div>
+            <div class="pkg-price">$1,000</div>
+            <div class="pkg-detail">120 business days<br>1 bureau of your choice</div>
+          </label>
+        </div>
+        <div id="pkg-selected-info" class="alert alert-blue" style="display:none;"></div>
+        <div class="frow">
+          <div class="fld"><label>Payment Method</label>
+            <select id="o-pay-meth">
+              <option value="">Select...</option>
+              <option>Credit Card</option><option>Debit Card</option>
+              <option>Zelle</option><option>CashApp</option>
+              <option>Venmo</option><option>Check</option><option>Wire</option>
+            </select>
+          </div>
+          <div class="fld"><label>Starting Credit Score (optional)</label><input type="number" id="o-score" placeholder="e.g. 520"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: BUREAU EMAIL SETUP ───────────────────────────── -->
+  <div id="os3" style="display:none;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">&#128231; Your Dedicated Bureau Email</div>
+        <div class="card-sub">CP Restoration assigns you a unique secure email for bureau access.</div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-gold">&#9888; <strong>Important:</strong> To dispute items on your behalf, CP Restoration needs access to your credit bureau accounts. We assign you a <strong>unique, dedicated email address</strong> that only your team uses — this keeps your bureaus from flagging activity as fraud.</div>
+
+        <div style="margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:8px;">Your assigned CP Restoration email:</div>
+          <div class="email-box">
+            <div>
+              <div class="email-box-label">USE THIS EMAIL FOR ALL 3 BUREAUS</div>
+              <div class="email-box-value" id="assigned-email">cpr.firstname.0000@mycprteam.com</div>
+            </div>
+            <button class="copy-btn" onclick="copyEmail()">&#128203; Copy</button>
+          </div>
+          <div style="font-size:11px;color:#64748B;margin-top:6px;">This email is unique to you. All verification codes from the bureaus will go to CP Restoration's secure inbox and be entered on your behalf.</div>
+        </div>
+
+        <div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:12px;">Your assigned password for all bureaus:</div>
+        <div class="email-box" style="background:#1A5C38;">
+          <div>
+            <div class="email-box-label">USE THIS PASSWORD FOR ALL 3 BUREAUS</div>
+            <div class="email-box-value" id="assigned-password">CPR#Secure2026!</div>
+          </div>
+          <button class="copy-btn" onclick="copyPassword()">&#128203; Copy</button>
+        </div>
+
+        <div style="margin-top:20px;font-size:13px;font-weight:700;color:#1E293B;margin-bottom:12px;">You will need to update your login on all 3 bureaus:</div>
+
+        <div class="bureau-box bureau-eq">
+          <div class="bureau-title">&#x1F534; Equifax</div>
+          <div class="bureau-url">equifax.com &#8594; Log In &#8594; Settings &#8594; Change Email &amp; Password</div>
+          <ol class="steps-list">
+            <li>Go to <strong>equifax.com</strong> and log into your existing account</li>
+            <li>Click your name/profile &#8594; <strong>Account Settings</strong></li>
+            <li>Change your email to your assigned CP Restoration email above</li>
+            <li>Change your password to the assigned password above</li>
+            <li>Enter the verification code sent to your <em>current</em> email to confirm</li>
+          </ol>
+        </div>
+
+        <div class="bureau-box bureau-ex">
+          <div class="bureau-title">&#x1F535; Experian</div>
+          <div class="bureau-url">experian.com &#8594; Log In &#8594; Settings &#8594; Change Email &amp; Password</div>
+          <ol class="steps-list">
+            <li>Go to <strong>experian.com</strong> and log into your existing account</li>
+            <li>Click your name &#8594; <strong>Profile &amp; Settings</strong></li>
+            <li>Change your email to your assigned CP Restoration email above</li>
+            <li>Change your password to the assigned password above</li>
+            <li>Experian also requires a <strong>4-digit PIN</strong> — set it to: <strong id="experian-pin">0000</strong></li>
+          </ol>
+        </div>
+
+        <div class="bureau-box bureau-tu">
+          <div class="bureau-title">&#x1F7E2; TransUnion</div>
+          <div class="bureau-url">transunion.com &#8594; Log In &#8594; Settings &#8594; Change Email &amp; Password</div>
+          <ol class="steps-list">
+            <li>Go to <strong>transunion.com</strong> and log into your existing account</li>
+            <li>Click your name &#8594; <strong>Account Settings</strong></li>
+            <li>Change your email to your assigned CP Restoration email above</li>
+            <li>Change your password to the assigned password above</li>
+            <li>Enter the verification code sent to your <em>current</em> email to confirm</li>
+          </ol>
+        </div>
+
+        <div class="alert alert-green">&#x2705; Once you update all 3 bureaus, CP Restoration can begin filing disputes immediately on your behalf. You do <strong>not</strong> need to do anything else — we handle everything from here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: PROTOCOL CONFIRMATION ────────────────────────── -->
+  <div id="os4" style="display:none;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">&#128221; Bureau Access Protocol</div>
+        <div class="card-sub">Please confirm you understand and agree to the following.</div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-blue">This step confirms you authorize CP Restoration Services to access your credit bureau accounts on your behalf for the purpose of filing disputes and monitoring your credit restoration progress.</div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#F8FAFC;border-radius:8px;cursor:pointer;border:1.5px solid #E2E8F0;">
+            <input type="checkbox" id="ack1" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;">
+            <span style="font-size:13px;line-height:1.6;">I have updated or will update my login email and password on <strong>Equifax, Experian, and TransUnion</strong> to the CP Restoration assigned credentials provided in the previous step.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#F8FAFC;border-radius:8px;cursor:pointer;border:1.5px solid #E2E8F0;">
+            <input type="checkbox" id="ack2" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;">
+            <span style="font-size:13px;line-height:1.6;">I authorize CP Restoration Services to log into my credit bureau accounts using the assigned credentials for the sole purpose of filing disputes and checking dispute results on my behalf.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#F8FAFC;border-radius:8px;cursor:pointer;border:1.5px solid #E2E8F0;">
+            <input type="checkbox" id="ack3" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;">
+            <span style="font-size:13px;line-height:1.6;">I understand that CP Restoration will receive all verification codes and emails sent to my assigned bureau email (<span id="protocol-email" style="font-family:monospace;font-weight:700;color:#1B3A6B;"></span>) and will use them only to complete the dispute process.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#F8FAFC;border-radius:8px;cursor:pointer;border:1.5px solid #E2E8F0;">
+            <input type="checkbox" id="ack4" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;">
+            <span style="font-size:13px;line-height:1.6;">I understand I should <strong>not</strong> contact the credit bureaus directly or make any changes to my bureau accounts while my disputes are in progress, as this can interfere with the dispute process.</span>
+          </label>
+        </div>
+
+        <div class="alert alert-gold">&#9888; <strong>Note:</strong> After your service is complete, CP Restoration will assist you in changing your bureau login email and password back to your personal credentials at no additional charge.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 5: AGREEMENT ─────────────────────────────────────── -->
+  <div id="os5" style="display:none;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">&#128221; Service Agreement</div>
+        <div class="card-sub">Please review and sign below to activate your service.</div>
+      </div>
+      <div class="card-body">
+        <div id="agreement-summary" style="background:#F8FAFC;border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8;border:1px solid #E2E8F0;"></div>
+
+        <div style="background:white;border:1px solid #E2E8F0;border-radius:8px;padding:16px;font-size:12px;line-height:1.8;color:#374151;max-height:200px;overflow-y:auto;margin-bottom:16px;">
+          <strong>CP Restoration Services — Client Service Agreement</strong><br><br>
+          By signing below, you ("Client") agree to engage CP Restoration Services ("Company") to perform credit restoration services as outlined in the selected package. The Company will dispute inaccurate, unverifiable, or obsolete negative items on your credit reports with Equifax, Experian, and/or TransUnion on your behalf.<br><br>
+          <strong>Authorization:</strong> You authorize the Company to access your credit bureau accounts using the assigned credentials for the sole purpose of filing disputes and monitoring results.<br><br>
+          <strong>Timeline:</strong> Results vary. The Company commits to filing disputes within the agreed timeline. Credit bureaus have 30-45 days to respond per the Fair Credit Reporting Act (FCRA).<br><br>
+          <strong>Money-Back Guarantee:</strong> If no negative items are removed from your credit reports during the service period, you are entitled to a full refund of amounts paid.<br><br>
+          <strong>Client Obligations:</strong> You agree to provide accurate information, complete the bureau access setup as instructed, and not interfere with the dispute process by contacting bureaus directly while disputes are pending.<br><br>
+          <strong>Cancellation:</strong> Either party may cancel with 7 days written notice. Refunds for work completed are not available unless the money-back guarantee applies.
+        </div>
+
+        <div class="fld"><label>Full Legal Name (as signature) <span class="req">*</span></label><input id="o-sig" placeholder="Type your full legal name to sign"></div>
+        <label style="display:flex;align-items:flex-start;gap:10px;padding:14px;background:#F0FFF4;border-radius:8px;margin-bottom:16px;cursor:pointer;">
+          <input type="checkbox" id="o-agree" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;">
+          <span style="font-size:12px;line-height:1.6;">I have read, understood, and agree to the CP Restoration Services Client Service Agreement above, including the bureau access authorization and money-back guarantee terms.</span>
+        </label>
+        <div class="fld"><label>Date</label><input type="date" id="o-sign-date"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 6: CONFIRM ───────────────────────────────────────── -->
+  <div id="os6" style="display:none;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">&#x2705; Review &amp; Submit</div>
+        <div class="card-sub">Please confirm your information is correct before submitting.</div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-green">Almost done! Review your information below and click <strong>Submit &amp; Activate</strong> to start your credit restoration.</div>
+        <table class="summary-table" id="summary-table"></table>
+        <div style="margin-top:20px;padding:16px;background:#FDF8EE;border-radius:10px;border:1px solid #C9A84C;">
+          <div style="font-size:12px;font-weight:700;color:#7A5F00;margin-bottom:8px;">&#128231; YOUR ASSIGNED BUREAU EMAIL</div>
+          <div style="font-family:monospace;font-size:15px;font-weight:800;color:#1B3A6B;" id="summary-email"></div>
+          <div style="font-size:11px;color:#7A5F00;margin-top:4px;">Save this — you will need it to update your bureau accounts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success-screen" style="display:none;text-align:center;padding:40px 20px;">
+    <div style="font-size:60px;margin-bottom:16px;">&#127881;</div>
+    <div style="font-size:24px;font-weight:800;color:#1B3A6B;margin-bottom:10px;">You're officially enrolled!</div>
+    <div style="font-size:14px;color:#64748B;max-width:440px;margin:0 auto 24px;line-height:1.7;">Your file has been created and our team has been notified. We will begin reviewing your credit reports within 1 business day.</div>
+    <div style="background:#F0FFF4;border-radius:12px;padding:20px;max-width:400px;margin:0 auto 24px;text-align:left;">
+      <div style="font-size:12px;font-weight:700;color:#065F46;margin-bottom:8px;">YOUR PORTAL LOGIN</div>
+      <div style="font-size:13px;color:#1E293B;line-height:1.8;">
+        <strong>URL:</strong> portal-cprestorationsvcs.com/client-portal.html<br>
+        <strong>Client ID:</strong> <span id="success-id" style="font-family:monospace;font-weight:800;color:#1B3A6B;"></span><br>
+        <strong>Password:</strong> restore2026<br>
+      </div>
+    </div>
+    <div style="background:#FDF8EE;border-radius:12px;padding:20px;max-width:400px;margin:0 auto 24px;text-align:left;">
+      <div style="font-size:12px;font-weight:700;color:#7A5F00;margin-bottom:8px;">YOUR NEXT STEP</div>
+      <div style="font-size:13px;color:#1E293B;line-height:1.8;">Update your login email and password on all 3 credit bureaus to:<br>
+        <strong style="font-family:monospace;color:#1B3A6B;" id="success-email"></strong><br>
+        Password: <strong>CPR#Secure2026!</strong>
+      </div>
+    </div>
+    <a href="/client-portal.html" class="btn btn-navy" style="display:inline-block;text-decoration:none;">View My Portal &#8594;</a>
+  </div>
+
+  <!-- NAV BUTTONS -->
+  <div class="nav-btns" id="nav-btns">
+    <button class="btn btn-outline" id="btn-back" onclick="oBack()" style="display:none;">&#8592; Back</button>
+    <button class="btn btn-navy" id="btn-next" onclick="oNext()">Next &#8594;</button>
+  </div>
+
+</div>
+
+<script>
+var oStep = 1;
+var oData = {};
+var TOTAL_STEPS = 6;
+
+function gv(id){ var e=document.getElementById(id); return e?(e.value||'').trim():''; }
+function sv(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; }
+
+function genEmail(first, ssn) {
+  var f = (first||'').toLowerCase().replace(/[^a-z]/g,'');
+  var s = (ssn||'0000').replace(/\D/g,'').slice(-4).padStart(4,'0');
+  return 'cpr.' + f + '.' + s + '@mycprteam.com';
+}
+
+function genPin(ssn) {
+  // Use last 4 of SSN as PIN
+  return (ssn||'0000').replace(/\D/g,'').slice(-4).padStart(4,'0');
+}
+
+function genId() {
+  try {
+    var arr = JSON.parse(localStorage.getItem('cp_clients_v2')||'[]');
+    var max = arr.reduce(function(m,c){ var n=parseInt((c.id||'CPR-00000').replace('CPR-',''),10); return n>m?n:m; },0);
+    return 'CPR-' + String(max+1).padStart(5,'0');
+  } catch(e){ return 'CPR-' + String(Math.floor(Math.random()*90000)+10000); }
+}
+
+function showStep(n) {
+  for(var i=1;i<=TOTAL_STEPS;i++){
+    var el=document.getElementById('os'+i); if(el) el.style.display=i===n?'block':'none';
+    var sp=document.getElementById('sp'+i); if(sp) sp.className='step'+(i===n?' on':i<n?' done':'');
+  }
+  oStep=n;
+  var pct = Math.round((n/TOTAL_STEPS)*100);
+  var pf=document.getElementById('progress'); if(pf) pf.style.width=pct+'%';
+  var back=document.getElementById('btn-back'); if(back) back.style.display=n>1?'block':'none';
+  var next=document.getElementById('btn-next');
+  if(next) next.textContent = n===TOTAL_STEPS ? '&#x2705; Submit & Activate' : 'Next &#8594;';
+  window.scrollTo(0,0);
+}
+
+function selectPkg(el, pkg) {
+  document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+  oData.package = pkg;
+  var info={
+    Standard:'$2,499 one-time payment — 120 business days — all 3 bureaus — money-back guarantee',
+    Express:'$3,999 one-time payment — 60 business days — all 3 bureaus — priority processing',
+    Financing:'$750 down + $292/month x6 = $2,502 total — all 3 bureaus',
+    'Single Bureau':'$1,000 one-time payment — 120 business days — 1 bureau of your choice'
+  };
+  var box=document.getElementById('pkg-selected-info');
+  if(box){ box.style.display='block'; box.textContent='Selected: '+info[pkg]; }
+}
+
+function copyEmail(){
+  var el=document.getElementById('assigned-email');
+  navigator.clipboard.writeText(el.textContent).then(function(){ toast('Email copied!'); }).catch(function(){ prompt('Copy:',el.textContent); });
+}
+function copyPassword(){
+  navigator.clipboard.writeText('CPR#Secure2026!').then(function(){ toast('Password copied!'); }).catch(function(){ prompt('Copy:','CPR#Secure2026!'); });
+}
+
+function toast(msg){
+  var t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1B3A6B;color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;font-family:inherit;';
+  document.body.appendChild(t);
+  setTimeout(function(){t.parentNode&&t.parentNode.removeChild(t);},2500);
+}
+
+function oBack(){ if(oStep>1) showStep(oStep-1); }
+
+function oNext(){
+  if(oStep===1){
+    var first=gv('o-first'), last=gv('o-last'), email=gv('o-email'), phone=gv('o-phone'), addr=gv('o-address'), dob=gv('o-dob'), ssn=gv('o-ssn');
+    if(!first||!last){ toast('Please enter your full name.'); return; }
+    if(!email){ toast('Please enter your email.'); return; }
+    if(!phone){ toast('Please enter your phone number.'); return; }
+    if(!addr){ toast('Please enter your address.'); return; }
+    if(!ssn||ssn.length!==4){ toast('Please enter the last 4 digits of your SSN.'); return; }
+    oData.firstName=first; oData.lastName=last; oData.name=first+' '+last;
+    oData.email=email; oData.phone=phone; oData.address=addr; oData.dob=dob; oData.ssn=ssn;
+    oData.referral=gv('o-referral');
+    oData.assignedEmail=genEmail(first,ssn);
+    oData.assignedPin=genPin(ssn);
+    showStep(2); return;
+  }
+  if(oStep===2){
+    if(!oData.package){ toast('Please select a package.'); return; }
+    oData.payMethod=gv('o-pay-meth');
+    oData.score=gv('o-score');
+    // Set assigned email on step 3
+    var ae=document.getElementById('assigned-email'); if(ae) ae.textContent=oData.assignedEmail;
+    var ap=document.getElementById('experian-pin');   if(ap) ap.textContent=oData.assignedPin;
+    var pe=document.getElementById('protocol-email'); if(pe) pe.textContent=oData.assignedEmail;
+    showStep(3); return;
+  }
+  if(oStep===3){
+    showStep(4); return;
+  }
+  if(oStep===4){
+    var a1=document.getElementById('ack1'), a2=document.getElementById('ack2'),
+        a3=document.getElementById('ack3'), a4=document.getElementById('ack4');
+    if(!a1.checked||!a2.checked||!a3.checked||!a4.checked){
+      toast('Please check all boxes to confirm you understand the protocol.'); return;
+    }
+    // Build agreement summary
+    var payAmt={Standard:'$2,499',Express:'$3,999',Financing:'$750 down + $292x6','Single Bureau':'$1,000'};
+    var days={Standard:'120 business days',Express:'60 business days',Financing:'120 business days','Single Bureau':'120 business days'};
+    var sm=document.getElementById('agreement-summary');
+    if(sm) sm.innerHTML='<strong>Client:</strong> '+oData.name+'<br>'+
+      '<strong>Email:</strong> '+oData.email+'<br>'+
+      '<strong>Package:</strong> '+oData.package+' — '+(payAmt[oData.package]||'')+' — '+(days[oData.package]||'')+'<br>'+
+      '<strong>Payment Method:</strong> '+(oData.payMethod||'TBD')+'<br>'+
+      '<strong>Bureaus:</strong> All 3 (Equifax, Experian, TransUnion)<br>'+
+      '<strong>Assigned Bureau Email:</strong> '+oData.assignedEmail+'<br>'+
+      '<strong>Money-Back Guarantee:</strong> Included';
+    sv('o-sign-date', new Date().toISOString().split('T')[0]);
+    showStep(5); return;
+  }
+  if(oStep===5){
+    var sig=gv('o-sig'), agreed=document.getElementById('o-agree').checked;
+    if(!sig){ toast('Please type your full name as signature.'); return; }
+    if(!agreed){ toast('Please agree to the service agreement.'); return; }
+    oData.signature=sig; oData.signDate=gv('o-sign-date');
+    oData.clientId=genId();
+    // Build summary table
+    var rows=[
+      ['Client ID','<strong style="font-family:monospace;color:#1B3A6B;">'+oData.clientId+'</strong>'],
+      ['Name',oData.name],['Email',oData.email],['Phone',oData.phone],
+      ['Package',oData.package],['Payment',oData.payMethod||'TBD'],
+      ['Bureau Email','<span style="font-family:monospace;color:#1B3A6B;font-size:12px;">'+oData.assignedEmail+'</span>'],
+      ['Bureau PIN',oData.assignedPin],
+      ['Signed',oData.signature+' — '+oData.signDate]
+    ];
+    var st=document.getElementById('summary-table');
+    if(st) st.innerHTML=rows.map(function(r){return '<tr><td style="color:#64748B;font-weight:600;width:130px;padding:8px 0;border-bottom:1px solid #F1F5F9;vertical-align:top;">'+r[0]+'</td><td style="padding:8px 0;border-bottom:1px solid #F1F5F9;">'+r[1]+'</td></tr>';}).join('');
+    var se=document.getElementById('summary-email'); if(se) se.textContent=oData.assignedEmail;
+    showStep(6); return;
+  }
+  if(oStep===6){
+    submitOnboarding(); return;
+  }
+}
+
+function submitOnboarding(){
+  var btn=document.getElementById('btn-next');
+  if(btn){ btn.textContent='Submitting...'; btn.disabled=true; }
+
+  var payAmt={Standard:'$2,499',Express:'$3,999',Financing:'$750',  'Single Bureau':'$1,000'};
+  var client = {
+    id:          oData.clientId,
+    name:        oData.name,
+    email:       oData.email,
+    phone:       oData.phone,
+    dob:         oData.dob,
+    address:     oData.address,
+    ssn:         oData.ssn,
+    referral:    oData.referral,
+    package:     oData.package,
+    bureaus:     'All 3',
+    payMethod:   oData.payMethod,
+    payAmount:   payAmt[oData.package]||'',
+    score:       oData.score,
+    signature:   oData.signature,
+    signDate:    oData.signDate,
+    status:      'Active',
+    portalPwd:   'restore2026',
+    assignedEmail: oData.assignedEmail,
+    assignedPin:   oData.assignedPin,
+    bureauLogins:{
+      equifax:   { user: oData.assignedEmail, pass: 'CPR#Secure2026!' },
+      experian:  { user: oData.assignedEmail, pass: 'CPR#Secure2026!', pin: oData.assignedPin },
+      transunion:{ user: oData.assignedEmail, pass: 'CPR#Secure2026!' }
+    },
+    notes:       'Self-onboarded via portal on ' + new Date().toLocaleDateString() + '. Bureau email assigned: ' + oData.assignedEmail,
+    disputes:    '',
+    docs:        {},
+    startDate:   new Date().toISOString().split('T')[0],
+    createdAt:   new Date().toISOString()
+  };
+
+  // Save to client manager localStorage
+  try {
+    var arr = JSON.parse(localStorage.getItem('cp_clients_v2')||'[]');
+    arr.unshift(client);
+    localStorage.setItem('cp_clients_v2', JSON.stringify(arr));
+  } catch(e){}
+
+  // Show success
+  document.getElementById('nav-btns').style.display='none';
+  for(var i=1;i<=6;i++){var el=document.getElementById('os'+i);if(el)el.style.display='none';}
+  document.getElementById('success-screen').style.display='block';
+  var si=document.getElementById('success-id'); if(si) si.textContent=oData.clientId;
+  var se=document.getElementById('success-email'); if(se) se.textContent=oData.assignedEmail;
+  document.getElementById('progress').style.width='100%';
+  document.querySelectorAll('.step').forEach(function(s){s.className='step done';});
+}
+
+// Init
+showStep(1);
+</script>
+</body>
+</html>
