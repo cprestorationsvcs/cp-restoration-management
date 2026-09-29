@@ -250,9 +250,47 @@ var LEADS_KEY = 'cp_leads';
 var currentFilter = 'all';
 var editingId = null;
 
+var SHEET_URL = 'https://script.google.com/macros/s/AKfycbwzqGmdxHmtqMbK-WgagIB6wqBj4sjBarljCesbmmUaLom4jon3Wb5_uUk3AaG7redt/exec';
+
 function getLeads() {
   try { return JSON.parse(localStorage.getItem(LEADS_KEY) || '[]'); }
   catch(e) { return []; }
+}
+
+function syncFromSheet() {
+  fetch(SHEET_URL + '?nocache=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.leads || !data.leads.length) return;
+      var local = getLeads();
+      var localIds = local.map(function(l) { return l.id; });
+      var added = 0;
+      data.leads.forEach(function(row) {
+        var id = String(row.id || '');
+        if (id && localIds.indexOf(id) === -1) {
+          local.unshift({
+            id:        id,
+            name:      String(row.name || ''),
+            phone:     String(row.phone || ''),
+            dept:      String(row.department || row.dept || ''),
+            reason:    String(row.reason || ''),
+            status:    String(row.status || 'new'),
+            assigned:  String(row.assigned || ''),
+            source:    String(row.source || 'aria'),
+            notes:     String(row.notes || ''),
+            createdAt: String(row.created || row.createdat || new Date().toISOString()),
+            updatedAt: new Date().toISOString()
+          });
+          added++;
+        }
+      });
+      if (added > 0) {
+        localStorage.setItem(LEADS_KEY, JSON.stringify(local));
+        renderLeads();
+        showToast(added + ' new Aria lead(s) synced!', 'success');
+      }
+    })
+    .catch(function(e) { console.log('Sheet sync failed:', e); });
 }
 
 function saveLeads(leads) {
