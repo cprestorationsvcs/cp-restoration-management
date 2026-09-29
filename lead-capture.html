@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><title>CP Restoration — Lead Capture</title></head>
+<head><meta charset="UTF-8"><title>CP Restoration -- Lead Capture</title></head>
 <body>
 <script>
 (function() {
+  var SHEET = 'https://script.google.com/macros/s/AKfycbwzqGmdxHmtqMbK-WgagIB6wqBj4sjBarljCesbmmUaLom4jon3Wb5_uUk3AaG7redt/exec';
   try {
     var params = new URLSearchParams(window.location.search);
     var lead = {
       id:        'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
-      name:      decodeURIComponent(params.get('name')  || ''),
-      phone:     decodeURIComponent(params.get('phone') || ''),
-      dept:      decodeURIComponent(params.get('dept')  || ''),
-      reason:    decodeURIComponent(params.get('reason')|| ''),
+      name:      decodeURIComponent(params.get('name')   || ''),
+      phone:     decodeURIComponent(params.get('phone')  || ''),
+      dept:      decodeURIComponent(params.get('dept')   || ''),
+      reason:    decodeURIComponent(params.get('reason') || ''),
       source:    'aria',
       interest:  decodeURIComponent(params.get('interest') || ''),
       status:    'new',
@@ -22,19 +23,25 @@
     };
 
     if (lead.name || lead.phone) {
-      var leads = JSON.parse(localStorage.getItem('cp_leads') || '[]');
-      // Avoid duplicates by phone
-      var exists = leads.some(function(l) { return l.phone && l.phone === lead.phone && (Date.now() - new Date(l.createdAt).getTime()) < 60000; });
-      if (!exists) {
-        leads.unshift(lead);
-        localStorage.setItem('cp_leads', JSON.stringify(leads));
-      }
+      // Save to Google Sheet (shared across all browsers)
+      fetch(SHEET, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(lead)
+      });
+
+      // Also save to localStorage as backup
+      try {
+        var leads = JSON.parse(localStorage.getItem('cp_leads') || '[]');
+        var exists = leads.some(function(l) { return l.phone && l.phone === lead.phone && (Date.now() - new Date(l.createdAt).getTime()) < 60000; });
+        if (!exists) { leads.unshift(lead); localStorage.setItem('cp_leads', JSON.stringify(leads)); }
+      } catch(e) {}
     }
   } catch(e) {}
-  // Close window after saving
-  setTimeout(function() { window.close(); }, 500);
+  setTimeout(function() { window.close(); }, 1000);
 })();
 </script>
-<p style="font-family:sans-serif;color:#666;text-align:center;margin-top:40px;">Processing...</p>
+<p style="font-family:sans-serif;color:#666;text-align:center;margin-top:40px;">Saving lead... please wait.</p>
 </body>
 </html>
