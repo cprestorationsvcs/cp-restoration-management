@@ -490,6 +490,8 @@ function getClientsLocal(){
     return all;
   }catch(e){return[];}
 }
+function getCached(){return _clientCache||getClientsLocal();}
+
 function getClients(){
   try{
     // Fast path 1: single merged cache
@@ -530,7 +532,7 @@ function saveClients(arr){
   localStorage.removeItem('cp_clients_merged');
 }
 function genId(){
-  var arr = getClients();
+  var arr = getCached();
   var max = arr.reduce(function(m,c){ var n=parseInt((c.id||'CPR-00000').replace('CPR-',''),10); return n>m?n:m; },0);
   return 'CPR-'+String(max+1).padStart(5,'0');
 }
@@ -558,7 +560,7 @@ function toast(msg,type){
 
 // Seed Ryan Felder
 function seed(){
-  var arr=getClients();
+  var arr=getCached();
   // Always update Ryan Felder with latest data
   arr=arr.filter(function(c){return c.id!=='CPR-00378';});
   if(true){
@@ -628,7 +630,7 @@ function delClient(id){
 }
 
 function exportCSV(){
-  var arr=getClients();
+  var arr=getCached();
   if(!arr.length){toast('No clients to export.','error');return;}
   var h='ID,Name,Email,Phone,Package,Start Date,Status,Portal Password,Notes';
   var rows=arr.map(function(c){return [c.id,c.name,c.email,c.phone,c.package,c.startDate,c.status,c.portalPwd||'restore2026',(c.notes||'').replace(/,/g,';').replace(/\n/g,' ')].map(function(v){return '"'+(v||'')+'"';}).join(',');});
@@ -669,7 +671,7 @@ function openView(id){
 function closeView(){ document.getElementById('view-overlay').className='overlay'; viewId=null; }
 function copyLogin(){
   if(!viewId) return;
-  var c=getClients().find(function(x){return x.id===viewId;});
+  var c=getCached().find(function(x){return x.id===viewId;});
   if(!c) return;
   var txt='Portal: https://portal-cprestorationsvcs.com/client-portal.html\nClient ID: '+c.id+'\nPassword: '+(c.portalPwd||'restore2026');
   navigator.clipboard.writeText(txt).then(function(){toast('Portal login copied!','success');}).catch(function(){prompt('Copy these:',txt);});
@@ -709,7 +711,7 @@ function eTab(tab,btn){
 }
 async function saveEdit(){
   if(!editId) return;
-  var arr=getClients(); var idx=arr.findIndex(function(c){return c.id===editId;});
+  var arr=getCached(); var idx=arr.findIndex(function(c){return c.id===editId;});
   if(idx===-1){toast('Client not found','error');return;}
   var c=arr[idx];
   c.name=gv('e-name')||c.name; c.dob=gv('e-dob'); c.email=gv('e-email'); c.phone=gv('e-phone');
@@ -758,7 +760,7 @@ function doUpload(type,files){
 }
 function mergedDocs(){
   if(!editId) return pendingDocs;
-  var c=getClients().find(function(x){return x.id===editId;});
+  var c=getCached().find(function(x){return x.id===editId;});
   return Object.assign({},c?c.docs||{}:{},pendingDocs);
 }
 function setDocStatus(type,msg){var e=document.getElementById('st-'+type);if(e)e.textContent=msg;}
@@ -797,7 +799,7 @@ function loadDocList(docs){
 function deleteDoc(key,name){
   if(!confirm('Delete "'+name+'"?')) return;
   if(!editId) return;
-  var arr=getClients(); var idx=arr.findIndex(function(c){return c.id===editId;});
+  var arr=getCached(); var idx=arr.findIndex(function(c){return c.id===editId;});
   if(idx===-1) return;
   var c=arr[idx]; if(!c.docs) return;
   if(Array.isArray(c.docs[key])){ c.docs[key]=c.docs[key].filter(function(d){return d.name!==name;}); if(!c.docs[key].length) delete c.docs[key]; }
@@ -891,7 +893,7 @@ function oNext(){
   if(oStep===6){ completeOnb(); }
 }
 function completeOnb(){
-  var arr=getClients();
+  var arr=getCached();
   arr.push({
     id:oData._id,name:oData.name,email:oData.email,phone:oData.phone,dob:oData.dob,
     address:oData.address,ssn:oData.ssn,referral:oData.referral,package:oData.package,
@@ -908,7 +910,7 @@ function completeOnb(){
 
 // ── DUPLICATE DETECTION ───────────────────────────────────────────
 function findDupes(name,email,phone){
-  var arr=getClients(); var matches=[];
+  var arr=getCached(); var matches=[];
   var nl=(name||'').toLowerCase(); var el=(email||'').toLowerCase(); var pc=(phone||'').replace(/\D/g,'');
   arr.forEach(function(c){
     var score=0; var reasons=[];
