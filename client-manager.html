@@ -423,30 +423,36 @@ tbody tr:hover{background:#EFF4FF;}
 var KEY = 'cp_clients_v2';
 function getClients(){
   try{
-    // Try reading merged cache first (fast path)
+    // Fast path 1: single merged cache
     var merged = localStorage.getItem('cp_clients_merged');
-    if (merged) {
-      return JSON.parse(merged);
+    if (merged) return JSON.parse(merged);
+    // Fast path 2: split merged cache (2 halves)
+    var split = localStorage.getItem('cp_clients_merged_split');
+    if (split) {
+      var parts = parseInt(split);
+      var all = [];
+      for(var p=0;p<parts;p++){
+        var half = JSON.parse(localStorage.getItem('cp_clients_merged_'+p)||'[]');
+        all = all.concat(half);
+      }
+      return all;
     }
-    // Fall back to base storage
+    // Slow path: read base + chunks
     var base = JSON.parse(localStorage.getItem(KEY)||'[]');
-    // Check if chunks exist
     var idxData = localStorage.getItem('cp_clients_index');
     if (!idxData) return base;
     var info = JSON.parse(idxData);
-    var all = base.slice();
+    var all2 = base.slice();
     var seen = new Set(base.map(function(c){return c.id;}));
-    for (var i = 0; i < info.chunks; i++) {
+    for (var i=0;i<info.chunks;i++){
       var raw = localStorage.getItem('cp_clients_chunk_'+i);
       if (!raw) continue;
-      var chunk = JSON.parse(raw);
-      chunk.forEach(function(c){
-        if (!seen.has(c.id)) { all.push(c); seen.add(c.id); }
+      JSON.parse(raw).forEach(function(c){
+        if (!seen.has(c.id)){all2.push(c);seen.add(c.id);}
       });
     }
-    // Cache the merged result for fast future reads
-    try { localStorage.setItem('cp_clients_merged', JSON.stringify(all)); } catch(e){}
-    return all;
+    try{localStorage.setItem('cp_clients_merged',JSON.stringify(all2));}catch(e){}
+    return all2;
   }catch(e){ return []; }
 }
 function saveClients(arr){
