@@ -220,7 +220,6 @@ tbody tr:hover{background:#EFF4FF;}
       <div class="tabs">
         <button class="tab-btn on" onclick="eTab('info',this)">Personal</button>
         <button class="tab-btn" onclick="eTab('service',this)">Service</button>
-        <button class="tab-btn" onclick="eTab('bureaus',this)">Bureau Logins</button>
         <button class="tab-btn" onclick="eTab('bureaus-tab',this)">Bureau Logins</button>
         <button class="tab-btn" onclick="eTab('disputes',this)">Disputes</button>
         <button class="tab-btn" onclick="eTab('docs',this)">Documents</button>
@@ -704,7 +703,7 @@ function openEdit(){
 }
 function closeEdit(){ document.getElementById('edit-overlay').className='overlay'; editId=null; pendingDocs={}; }
 function eTab(tab,btn){
-  ['info','service','bureaus-tab','disputes','docs','notes'].forEach(function(t){ var e=document.getElementById('e-'+t); if(e) e.style.display='none'; });
+  ['info','service','bureaus','bureaus-tab','disputes','docs','notes'].forEach(function(t){ var e=document.getElementById('e-'+t); if(e) e.style.display='none'; });
   var el=document.getElementById('e-'+tab); if(el) el.style.display='block';
   document.querySelectorAll('#edit-overlay .tab-btn').forEach(function(b){b.classList.remove('on');});
   if(btn) btn.classList.add('on');
