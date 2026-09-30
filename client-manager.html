@@ -778,7 +778,7 @@ function loadDocList(docs){
       var sz=item.size>1024*1024?(item.size/1024/1024).toFixed(1)+'MB':Math.round(item.size/1024)+'KB';
       var row=document.createElement('div');
       row.style.cssText='background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;';
-      var icon=document.createElement('span');icon.style.fontSize='24px';icon.textContent='&#x1F4C4;';row.appendChild(icon);
+      var icon=document.createElement('span');icon.style.fontSize='24px';icon.innerHTML='&#x1F4C4;';row.appendChild(icon);
       var info=document.createElement('div');info.style.cssText='flex:1;min-width:0;';
       var nm=document.createElement('div');nm.style.cssText='font-size:13px;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';nm.textContent=item.name;info.appendChild(nm);
       var mt=document.createElement('div');mt.style.cssText='font-size:11px;color:#64748B;';mt.innerHTML=(labels[k]||k)+' &mdash; '+sz+' &mdash; <span style="color:#166534;font-weight:700;">&#10003; Uploaded</span>';info.appendChild(mt);
