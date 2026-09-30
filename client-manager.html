@@ -465,6 +465,16 @@ function genId(){
   var max = arr.reduce(function(m,c){ var n=parseInt((c.id||'CPR-00000').replace('CPR-',''),10); return n>m?n:m; },0);
   return 'CPR-'+String(max+1).padStart(5,'0');
 }
+function fmtDate(d){
+  if(!d) return '';
+  try{
+    var parts = d.split('-');
+    if(parts.length===3) return parts[1]+'/'+parts[2]+'/'+parts[0];
+    var dt = new Date(d);
+    if(isNaN(dt)) return '';
+    return (dt.getMonth()+1)+'/'+(dt.getDate())+'/'+dt.getFullYear();
+  }catch(e){return '';}
+}
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function gv(id){ var e=document.getElementById(id); return e ? e.value.trim() : ''; }
 function sv(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; }
@@ -510,7 +520,7 @@ function renderTable(){
       '<td style="font-size:12px;">'+esc(c.email||'')+'</td>'+
       '<td style="font-size:12px;">'+esc(c.phone||'')+'</td>'+
       '<td style="font-size:12px;">'+esc(c.package||'')+'</td>'+
-      '<td style="font-size:12px;">'+(c.startDate?new Date(c.startDate).toLocaleDateString():'')+'</td>'+
+      '<td style="font-size:12px;">'+(c.startDate?fmtDate(c.startDate):'')+'</td>'+
       '<td><span class="badge '+(bmap[c.status||'Active']||'badge-gray')+'">'+(c.status||'Active')+'</span></td>'+
       '<td style="font-family:monospace;font-size:11px;">'+esc(c.portalPwd||'restore2026')+'</td>'+
       '<td><div style="display:flex;gap:5px;">'+
@@ -573,7 +583,7 @@ function openView(id){
     ['Date of Birth',esc(c.dob||'')],['Address',esc(c.address||'')],
     ['SSN Last 4',c.ssn?'****'+c.ssn:''],
     ['Package',esc(c.package||'')],['Bureaus',esc(c.bureaus||'')],
-    ['Start Date',c.startDate?new Date(c.startDate).toLocaleDateString():''],
+    ['Start Date',c.startDate?fmtDate(c.startDate):''],
     ['Payment',(c.payAmount||'')+(c.payMethod?' via '+c.payMethod:'')],
     ['Status',c.status||'Active'],
     ['Portal Login','<span style="font-family:monospace;">'+esc(c.id||'')+' / '+(c.portalPwd||'restore2026')+'</span>'],
