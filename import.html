@@ -1,88 +1,51 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><title>Fix — Add Des Ann</title>
-<style>body{font-family:Arial,sans-serif;background:#F8FAFC;padding:30px;} .card{background:white;border-radius:12px;padding:24px;max-width:500px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.07);} h2{color:#1B3A6B;margin-bottom:16px;} .btn{padding:12px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin:6px 6px 6px 0;} .btn-navy{background:#1B3A6B;color:white;} .btn-green{background:#166534;color:white;} #status{margin-top:16px;font-size:14px;font-weight:600;}</style>
+<head><meta charset="UTF-8"><title>Verify Supabase</title>
+<style>body{font-family:Arial,sans-serif;background:#F8FAFC;padding:30px;} .card{background:white;border-radius:12px;padding:24px;max-width:600px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.07);} h2{color:#1B3A6B;margin-bottom:16px;} .btn{padding:12px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin:6px 6px 6px 0;} .btn-navy{background:#1B3A6B;color:white;} .btn-green{background:#166534;color:white;} #log{background:#0F172A;color:#94A3B8;border-radius:8px;padding:14px;height:300px;overflow-y:auto;font-size:12px;font-family:monospace;margin-top:14px;}</style>
 </head>
 <body>
 <div class="card">
-  <h2>&#128295; Add Des Ann to Cloud</h2>
-  <p style="font-size:13px;color:#64748B;margin-bottom:16px;">Adds Des Ann Natasha Johnson (CPR-00380) directly to Supabase so she shows up for everyone.</p>
-  <button class="btn btn-navy" onclick="addClient()">&#9654; Add Des Ann to Supabase</button>
-  <button class="btn btn-green" onclick="window.location='/client-manager.html'">&#8594; Go to Client Manager</button>
-  <div id="status"></div>
+  <h2>&#128270; Supabase Verification</h2>
+  <button class="btn btn-navy" onclick="verify()">&#9654; Check Des Ann in Supabase</button>
+  <button class="btn btn-navy" onclick="countAll()">Count All Clients</button>
+  <button class="btn btn-green" onclick="window.location='/client-manager.html'">&#8594; Client Manager</button>
+  <div id="log">Ready.
+</div>
 </div>
 <script>
 var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients';
 var KEY = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
+var H = {'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY};
 
-async function addClient(){
-  document.getElementById('status').textContent = 'Adding...';
+function log(msg,c){var el=document.getElementById('log');var d=document.createElement('div');d.style.color=c||'#94A3B8';d.textContent='['+new Date().toLocaleTimeString()+'] '+msg;el.appendChild(d);el.scrollTop=el.scrollHeight;}
 
-  // First check localStorage for her full record
-  var desAnn = null;
-  var sources = ['cp_clients_v2'];
-  for(var s=0;s<sources.length;s++){
-    try{
-      var arr = JSON.parse(localStorage.getItem(sources[s])||'[]');
-      var found = arr.find(function(c){return c.id==='CPR-00380' || (c.name&&c.name.toLowerCase().includes('des ann'));});
-      if(found){desAnn=found;break;}
-    }catch(e){}
-  }
-
-  // Build her record — use localStorage data if found, otherwise basic info
-  var row = desAnn ? {
-    id: desAnn.id||'CPR-00380',
-    name: desAnn.name||'Des Ann Natasha Johnson',
-    email: desAnn.email||'',
-    phone: desAnn.phone||'',
-    address: desAnn.address||'',
-    ssn: desAnn.ssn||'',
-    dob: desAnn.dob||'',
-    status: desAnn.status||'Active',
-    package: desAnn.package||'Standard',
-    bureaus: desAnn.bureaus||'All 3',
-    start_date: desAnn.startDate||new Date().toISOString().split('T')[0],
-    portal_pwd: desAnn.portalPwd||'restore2026',
-    assigned_email: desAnn.assignedEmail||'',
-    sales_agent: desAnn.salesAgent||'',
-    notes: desAnn.notes||'',
-    disputes: '',
-    bureau_logins: desAnn.bureauLogins||{},
-    docs: {},
-    updated_at: new Date().toISOString()
-  } : {
-    id: 'CPR-00380',
-    name: 'Des Ann Natasha Johnson',
-    status: 'Active',
-    package: 'Standard',
-    bureaus: 'All 3',
-    portal_pwd: 'restore2026',
-    start_date: new Date().toISOString().split('T')[0],
-    bureau_logins: {},
-    docs: {},
-    updated_at: new Date().toISOString()
-  };
-
+async function verify(){
+  log('Searching Supabase for Des Ann...','#60A5FA');
   try{
-    var resp = await fetch(SUPA, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': KEY,
-        'Authorization': 'Bearer ' + KEY,
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify(row)
-    });
-    if(resp.ok||resp.status===201){
-      document.getElementById('status').innerHTML = '<span style="color:#166534;">&#10003; Des Ann Natasha Johnson (CPR-00380) added to Supabase! She will now show up in the Client Manager for everyone.</span>';
-    } else {
-      var t = await resp.text();
-      document.getElementById('status').innerHTML = '<span style="color:#991B1B;">Error: '+t+'</span>';
-    }
-  }catch(e){
-    document.getElementById('status').innerHTML = '<span style="color:#991B1B;">Error: '+e.message+'</span>';
-  }
+    // Search by ID
+    var r1=await fetch(SUPA+'?id=eq.CPR-00380',{headers:H});
+    var d1=await r1.json();
+    log('By ID CPR-00380: '+JSON.stringify(d1),'#4ADE80');
+
+    // Search by name
+    var r2=await fetch(SUPA+'?name=ilike.*Des*Ann*&limit=5',{headers:H});
+    var d2=await r2.json();
+    log('By name "Des Ann": '+JSON.stringify(d2),'#4ADE80');
+
+    // Search by name variant
+    var r3=await fetch(SUPA+'?name=ilike.*johnson*&limit=5',{headers:H});
+    var d3=await r3.json();
+    log('By name "johnson" (first 5): '+JSON.stringify(d3.slice(0,3)),'#4ADE80');
+  }catch(e){log('Error: '+e.message,'#F87171');}
+}
+
+async function countAll(){
+  try{
+    var r=await fetch(SUPA+'?select=id',{headers:Object.assign({},H,{'Prefer':'count=exact'})});
+    var count=r.headers.get('content-range');
+    var data=await r.json();
+    log('Total clients in Supabase: '+(count||data.length),'#4ADE80');
+  }catch(e){log('Error: '+e.message,'#F87171');}
 }
 </script>
 </body>
