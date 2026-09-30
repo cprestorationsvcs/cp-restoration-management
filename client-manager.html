@@ -429,9 +429,23 @@ var _clientCache=null,_cacheTime=0;
 async function dbGetClients(){
   if(_clientCache&&(Date.now()-_cacheTime)<60000) return _clientCache;
   try{
-    var r=await fetch(SUPA_API+'?select=*&order=name.asc&limit=10000',{headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    var data=await r.json();
+    // Fetch all clients with pagination (Supabase max 1000/request)
+    var allData=[];
+    var pageSize=1000;
+    var offset=0;
+    var keepFetching=true;
+    while(keepFetching){
+      var pageResp=await fetch(SUPA_API+'?select=*&order=name.asc&limit='+pageSize+'&offset='+offset,{
+        headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Range-Unit':'items','Range':offset+'-'+(offset+pageSize-1),'Prefer':'count=exact'}
+      });
+      if(!pageResp.ok) throw new Error('HTTP '+pageResp.status);
+      var pageData=await pageResp.json();
+      allData=allData.concat(pageData);
+      if(pageData.length<pageSize){keepFetching=false;}
+      else{offset+=pageSize;}
+    }
+    var r={ok:true}; var data=allData;
+    // data already set above
     var supaClients=data.map(function(row){return{id:row.id,name:row.name,email:row.email,phone:row.phone,address:row.address,ssn:row.ssn,dob:row.dob,status:row.status||'Active',package:row.package||'Standard',bureaus:row.bureaus||'All 3',startDate:row.start_date||'',portalPwd:row.portal_pwd||'restore2026',assignedEmail:row.assigned_email||'',salesAgent:row.sales_agent||'',notes:row.notes||'',disputes:row.disputes||'',bureauLogins:row.bureau_logins||{},docs:row.docs||{}};});
     // Merge any locally added clients not yet in Supabase
     var localClients = getClientsLocal();
