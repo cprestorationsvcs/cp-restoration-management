@@ -449,40 +449,87 @@ var currentClientId = null;
 var currentDisputes = [];
 
 // ── LOGIN ─────────────────────────────────────────────────────────
-function doLogin() {
+var _PORTAL_SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients';
+var _PORTAL_KEY = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
+
+async function doLogin() {
   var id  = ((document.getElementById('login-id')||{}).value||'').trim().toUpperCase();
   var pw  = ((document.getElementById('login-pw')||{}).value||'').trim();
   var err = document.getElementById('login-error');
+  var btn = document.getElementById('login-btn');
 
   if (!id || !pw) { if(err){err.textContent='Please enter your Client ID and password.';err.style.display='block';} return; }
 
-  // Check exact match first
+  if(btn) btn.textContent = 'Checking...';
+
+  // First check local CLIENT_DB (hardcoded clients like Ryan Felder)
   var client = CLIENT_DB[id];
 
-  // If not found, try generating a default client record for any CPR-XXXXX
-  if (!client && /^CPR-\d{5}$/.test(id) && pw === 'restore2026') {
+  // If not found locally, check Supabase
+  if (!client) {
+    try {
+      var r = await fetch(_PORTAL_SUPA+'?id=eq.'+encodeURIComponent(id)+'&limit=1', {
+        headers: {'apikey': _PORTAL_KEY, 'Authorization': 'Bearer '+_PORTAL_KEY}
+      });
+      var data = await r.json();
+      if (data && data.length > 0) {
+        var row = data[0];
+        var portalPwd = row.portal_pwd || 'restore2026';
+        if (pw !== portalPwd) {
+          if(err){err.textContent='Incorrect password. Contact cprestorationsvcs@gmail.com for help.';err.style.display='block';}
+          if(btn) btn.textContent='Sign In';
+          var pwEl=document.getElementById('login-pw'); if(pwEl) pwEl.value='';
+          return;
+        }
+        // Build client object from Supabase record
+        client = {
+          password: portalPwd,
+          name: row.name || 'Valued Client',
+          email: row.email || '',
+          phone: row.phone || '',
+          package: row.package || 'Standard',
+          timeline: '120 Business Days',
+          bureaus: row.bureaus || 'Equifax, Experian, TransUnion',
+          startDate: row.start_date || '',
+          disputes: [],
+          updates: row.notes ? [
+            { date: row.updated_at ? row.updated_at.split('T')[0] : new Date().toISOString().split('T')[0],
+               title: 'Dispute Status Update',
+               body: row.notes,
+               type: 'green' }
+          ] : [
+            { date: '2026-09-27', title: 'Portal Access Granted',
+               body: 'Welcome to your CP Restoration client portal. Your file is active. Contact us at cprestorationsvcs@gmail.com for updates.',
+               type: 'green' }
+          ],
+          messages: [
+            { from: 'team', text: 'Welcome to the CP Restoration client portal. Your file is active and we are working on your behalf.', date: '2026-09-27' }
+          ]
+        };
+      }
+    } catch(e) {
+      console.error('Supabase login check failed', e);
+    }
+  }
+
+  // Fallback: allow any CPR- ID with restore2026
+  if (!client && id.startsWith('CPR-') && pw === 'restore2026') {
     client = {
       password: 'restore2026',
       name: 'Valued Client',
-      email: '',
-      phone: '',
-      package: 'Standard',
+      email: '', phone: '', package: 'Standard',
       timeline: '120 Business Days',
       bureaus: 'Equifax, Experian, TransUnion',
-      startDate: '2026-01-01',
-      disputes: [],
-      updates: [
-        { date: '2026-09-27', title: 'Portal Access Granted', body: 'Welcome to your new CP Restoration client portal. Your file is active and your disputes are ongoing. Your full dispute details will be updated here shortly. Contact us at cprestorationsvcs@gmail.com for a detailed status update.', type: 'green' }
-      ],
-      messages: [
-        { from: 'team', text: 'Welcome to the CP Restoration client portal. Your file is active and we are working on your behalf. Please message us if you have any questions.', date: '2026-09-27' }
-      ]
+      startDate: '2026-01-01', disputes: [],
+      updates: [{ date: '2026-09-27', title: 'Portal Access Granted', body: 'Welcome to your CP Restoration client portal. Your file is active. Contact us at cprestorationsvcs@gmail.com for updates.', type: 'green' }],
+      messages: [{ from: 'team', text: 'Welcome to the CP Restoration client portal.', date: '2026-09-27' }]
     };
   }
 
-  if (!client || client.password !== pw) {
-    if(err){err.textContent='Incorrect Client ID or password. Contact cprestorationsvcs@gmail.com for help.';err.style.display='block';}
-    var pwEl = document.getElementById('login-pw'); if(pwEl) pwEl.value='';
+  if (!client) {
+    if(err){err.textContent='Client ID not found. Contact cprestorationsvcs@gmail.com for help.';err.style.display='block';}
+    if(btn) btn.textContent='Sign In';
+    var pwEl=document.getElementById('login-pw'); if(pwEl) pwEl.value='';
     return;
   }
 
@@ -491,6 +538,7 @@ function doLogin() {
   currentDisputes = client.disputes || [];
 
   if(err) err.style.display='none';
+  if(btn) btn.textContent='Sign In';
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
