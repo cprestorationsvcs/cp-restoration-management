@@ -2733,53 +2733,64 @@ document.addEventListener('DOMContentLoaded', () => {
 // updateStats -- no auto hooks
 
 
-// ── DRAFT SAVE / LOAD ────────────────────────────────────────────
+// ── DRAFT SAVE / LOAD (AUTO-SAVE) ──────────────────────────────
 var DRAFT_KEY = 'cp_dispute_draft';
+var _autoSaveTimer = null;
+var _lastSaved = null;
+
+function getAllFormData() {
+  var data = {
+    savedAt:     new Date().toISOString(),
+    clientId:    (document.getElementById('d-client-id')||{}).value||'',
+    clientName:  (document.getElementById('d-client-name')||{}).value||'',
+    clientEmail: (document.getElementById('d-client-email')||{}).value||'',
+    clientPhone: (document.getElementById('d-client-phone')||{}).value||'',
+    clientAddr:  (document.getElementById('d-client-address')||{}).value||'',
+    clientSSN:   (document.getElementById('d-client-ssn')||{}).value||'',
+    clientDOB:   (document.getElementById('d-client-dob')||{}).value||'',
+    bureaus:     {},
+    items:       [],
+    letters:     {}
+  };
+  // Bureau checkboxes
+  ['eq','ex','tu'].forEach(function(b) {
+    var el = document.getElementById('bureau-' + b);
+    if (el) data.bureaus[b] = el.checked;
+  });
+  // All input/select/textarea values on page
+  document.querySelectorAll('input[id], select[id], textarea[id]').forEach(function(el) {
+    if (!data[el.id] && el.id.startsWith('d-') || el.id.startsWith('item-') || el.id.startsWith('bureau-')) {
+      data['_field_' + el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    }
+  });
+  // Dispute item rows
+  document.querySelectorAll('.dispute-item-row, .dispute-row, [class*="dispute"]').forEach(function(row, i) {
+    var item = {};
+    row.querySelectorAll('input,select,textarea').forEach(function(el) {
+      if (el.id || el.name) item[el.id || el.name] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    if (Object.keys(item).length) data.items.push(item);
+  });
+  // Generated letter text (editable)
+  document.querySelectorAll('.letter-preview').forEach(function(el, i) {
+    var txt = el.innerText || el.textContent || '';
+    if (txt.trim()) data.letters['letter_' + i] = txt;
+  });
+  return data;
+}
 
 function saveDraft() {
   try {
-    var draft = {
-      savedAt:     new Date().toISOString(),
-      clientName:  (document.getElementById('d-client-name')||{}).value||'',
-      clientId:    (document.getElementById('d-client-id')||{}).value||'',
-      clientEmail: (document.getElementById('d-client-email')||{}).value||'',
-      clientPhone: (document.getElementById('d-client-phone')||{}).value||'',
-      clientAddr:  (document.getElementById('d-client-addr')||{}).value||'',
-      clientSSN:   (document.getElementById('d-client-ssn')||{}).value||'',
-      clientDOB:   (document.getElementById('d-client-dob')||{}).value||'',
-      bureaus:     {},
-      items:       []
-    };
-
-    // Save bureau checkboxes
-    ['eq','ex','tu'].forEach(function(b) {
-      var el = document.getElementById('bureau-' + b);
-      if (el) draft.bureaus[b] = el.checked;
-    });
-
-    // Save dispute items
-    var rows = document.querySelectorAll('.dispute-item-row');
-    rows.forEach(function(row) {
-      var item = {};
-      row.querySelectorAll('input,select,textarea').forEach(function(el) {
-        if (el.id || el.name) item[el.id||el.name] = el.value;
-      });
-      draft.items.push(item);
-    });
-
-    // Save any generated letter text (editable)
-    var letters = {};
-    document.querySelectorAll('.letter-preview').forEach(function(el, i) {
-      letters['letter_' + i] = el.innerText || el.textContent;
-    });
-    draft.letters = letters;
-
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    var data = getAllFormData();
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    _lastSaved = new Date();
     var st = document.getElementById('draft-status');
-    if (st) st.textContent = '✅ Draft saved ' + new Date().toLocaleTimeString();
-    showToastDraft('Draft saved successfully!', 'success');
+    if (st) st.textContent = '✅ Saved ' + _lastSaved.toLocaleTimeString();
+    return true;
   } catch(e) {
-    showToastDraft('Could not save draft: ' + e.message, 'error');
+    var st = document.getElementById('draft-status');
+    if (st) st.textContent = '❌ Save failed';
+    return false;
   }
 }
 
@@ -2787,36 +2798,48 @@ function loadDraft() {
   try {
     var raw = localStorage.getItem(DRAFT_KEY);
     if (!raw) { showToastDraft('No saved draft found.', 'error'); return; }
-    var draft = JSON.parse(raw);
-
-    var fields = {
-      'd-client-name':  draft.clientName,
-      'd-client-id':    draft.clientId,
-      'd-client-email': draft.clientEmail,
-      'd-client-phone': draft.clientPhone,
-      'd-client-addr':  draft.clientAddr,
-      'd-client-ssn':   draft.clientSSN,
-      'd-client-dob':   draft.clientDOB
+    var data = JSON.parse(raw);
+    // Restore all standard fields
+    var fieldMap = {
+      'd-client-id':      data.clientId,
+      'd-client-name':    data.clientName,
+      'd-client-email':   data.clientEmail,
+      'd-client-phone':   data.clientPhone,
+      'd-client-address': data.clientAddr,
+      'd-client-ssn':     data.clientSSN,
+      'd-client-dob':     data.clientDOB
     };
-    Object.keys(fields).forEach(function(id) {
+    Object.keys(fieldMap).forEach(function(id) {
       var el = document.getElementById(id);
-      if (el && fields[id]) el.value = fields[id];
+      if (el && fieldMap[id]) el.value = fieldMap[id];
     });
-
     // Restore bureau checkboxes
-    if (draft.bureaus) {
+    if (data.bureaus) {
       ['eq','ex','tu'].forEach(function(b) {
         var el = document.getElementById('bureau-' + b);
-        if (el && draft.bureaus[b] !== undefined) el.checked = draft.bureaus[b];
+        if (el && data.bureaus[b] !== undefined) el.checked = data.bureaus[b];
       });
     }
-
-    var savedTime = draft.savedAt ? new Date(draft.savedAt).toLocaleString() : 'unknown';
+    // Restore any other saved fields
+    Object.keys(data).forEach(function(key) {
+      if (key.startsWith('_field_')) {
+        var id = key.replace('_field_','');
+        var el = document.getElementById(id);
+        if (el) {
+          if (el.type === 'checkbox') el.checked = data[key];
+          else el.value = data[key];
+        }
+      }
+    });
+    // Trigger lookupClient to fill other fields
+    var cid = document.getElementById('d-client-id');
+    if (cid && cid.value) { if(typeof lookupClient === 'function') lookupClient(); }
+    var savedTime = data.savedAt ? new Date(data.savedAt).toLocaleString() : 'unknown';
     var st = document.getElementById('draft-status');
-    if (st) st.textContent = '📂 Loaded draft from ' + savedTime;
-    showToastDraft('Draft loaded! Saved on ' + savedTime, 'success');
+    if (st) st.textContent = '&#128194; Draft from ' + savedTime;
+    showToastDraft('Draft restored from ' + savedTime, 'success');
   } catch(e) {
-    showToastDraft('Could not load draft.', 'error');
+    showToastDraft('Could not load draft: ' + e.message, 'error');
   }
 }
 
@@ -2837,28 +2860,67 @@ function showToastDraft(msg, type) {
   setTimeout(function() { t.parentNode && t.parentNode.removeChild(t); }, 3000);
 }
 
-// Auto-save draft every 2 minutes
-setInterval(function() {
-  var name = (document.getElementById('d-client-name')||{}).value||'';
-  if (name) {
-    saveDraft();
-    var st = document.getElementById('draft-status');
-    if (st) st.textContent = '✅ Auto-saved ' + new Date().toLocaleTimeString();
-  }
-}, 120000);
+// ── AUTO-SAVE SETUP ──────────────────────────────────────────────
+function initAutoSave() {
+  // Auto-save on any input change (debounced 2 seconds)
+  document.addEventListener('input', function() {
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(function() {
+      var hasData = (document.getElementById('d-client-name')||{}).value ||
+                    (document.getElementById('d-client-id')||{}).value;
+      if (hasData) {
+        saveDraft();
+      }
+    }, 2000);
+  });
 
-// Check for existing draft on load
-window.addEventListener('load', function() {
+  // Auto-save every 30 seconds if there's data
+  setInterval(function() {
+    var hasData = (document.getElementById('d-client-name')||{}).value ||
+                  (document.getElementById('d-client-id')||{}).value;
+    if (hasData) saveDraft();
+  }, 30000);
+
+  // Auto-load draft on page load if one exists
   try {
     var raw = localStorage.getItem(DRAFT_KEY);
     if (raw) {
-      var draft = JSON.parse(raw);
-      var savedTime = new Date(draft.savedAt).toLocaleString();
+      var data = JSON.parse(raw);
+      var savedTime = data.savedAt ? new Date(data.savedAt).toLocaleString() : '';
       var st = document.getElementById('draft-status');
-      if (st) st.textContent = '💾 Draft available from ' + savedTime + ' — click Load Draft to restore';
+      if (st && savedTime) {
+        st.textContent = '&#128190; Draft available from ' + savedTime + ' -- click Load Draft to restore';
+        st.style.color = '#1A5C38';
+        st.style.fontWeight = '700';
+      }
+      // Auto-restore if draft was saved within last 2 hours
+      var age = data.savedAt ? (Date.now() - new Date(data.savedAt).getTime()) : Infinity;
+      if (age < 2 * 60 * 60 * 1000) {
+        // Auto-restore silently
+        setTimeout(function() {
+          loadDraft();
+          showToastDraft('&#128190; Draft auto-restored from ' + savedTime, 'success');
+        }, 500);
+      }
     }
   } catch(e) {}
-});
+
+  // Warn before leaving page if there is unsaved data
+  window.addEventListener('beforeunload', function(e) {
+    var hasData = (document.getElementById('d-client-name')||{}).value ||
+                  (document.getElementById('d-client-id')||{}).value;
+    if (hasData) {
+      saveDraft(); // Auto-save before leaving
+    }
+  });
+}
+
+// Initialize auto-save when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAutoSave);
+} else {
+  initAutoSave();
+}
 
 </script>
 </body>
