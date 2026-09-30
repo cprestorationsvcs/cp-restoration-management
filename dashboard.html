@@ -154,7 +154,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
     <!-- WELCOME -->
     <div class="welcome">
-      <div class="welcome-title" id="welcome-title">Good morning! 👋</div>
+      <div class="welcome-title" id="welcome-title">Good morning! &#128075;</div>
       <div class="welcome-sub">Here is your CP Restoration command center. All systems are live.</div>
     </div>
 
@@ -344,7 +344,7 @@ function doLogin() {
   // Greeting
   var hr = new Date().getHours();
   var greet = hr<12 ? 'Good morning, ' : hr<17 ? 'Good afternoon, ' : 'Good evening, ';
-  set('welcome-title', greet + emp.name.split(' ')[0] + '! 👋');
+  set('welcome-title', greet + emp.name.split(' ')[0] + '! &#128075;');
   // Show creds for admin
   if (emp.role==='admin') {
     document.getElementById('creds-section').style.display='block';
@@ -356,6 +356,7 @@ function doLogin() {
 }
 
 function doLogout() {
+  localStorage.removeItem('cp_logged_in_user');
   currentUser = null;
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
@@ -476,9 +477,40 @@ document.addEventListener('keydown', function(e){
 
 // Init
 window.addEventListener('load', function(){
-  document.getElementById('login-screen').style.display='flex';
-  document.getElementById('app').style.display='none';
-  // Refresh dashboard every 30s when logged in
+  var savedUser = localStorage.getItem('cp_logged_in_user');
+  if (savedUser) {
+    var TEAM2 = {
+      'jason@mycprteam.com':   { name:'Jason Crown',       role:'admin',      label:'Owner & Admin',       initials:'JC', pass:'CPRAdmin2026' },
+      'queen@mycprteam.com':   { name:'Queen Jearel Cruz', role:'compliance', label:'Compliance Officer',  initials:'QC', pass:'CPRQueen2026' },
+      'bukunmi@mycprteam.com': { name:'Bukunmi Aina',      role:'sales',      label:'Sales Representative',initials:'BA', pass:'CPRBuku2026' }
+    };
+    var emp2 = TEAM2[savedUser];
+    if (emp2) {
+      currentUser = savedUser;
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('app').style.display='block';
+      set('hdr-avatar', emp2.initials);
+      set('hdr-name', emp2.name);
+      set('hdr-role', emp2.label + ' -- CP Restoration Services');
+      var hr2 = new Date().getHours();
+      var greet2 = hr2<12 ? 'Good morning, ' : hr2<17 ? 'Good afternoon, ' : 'Good evening, ';
+      set('welcome-title', greet2 + emp2.name.split(' ')[0] + '! &#128075;');
+      if (emp2.role==='admin') {
+        document.getElementById('creds-section').style.display='block';
+        document.getElementById('creds-grid').style.display='grid';
+      }
+      trackSession(emp2);
+      loadDashboard();
+      startClock();
+    } else {
+      localStorage.removeItem('cp_logged_in_user');
+      document.getElementById('login-screen').style.display='flex';
+      document.getElementById('app').style.display='none';
+    }
+  } else {
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('app').style.display='none';
+  }
   setInterval(function(){ if(currentUser) loadDashboard(); }, 30000);
 });
 </script>
