@@ -482,6 +482,15 @@ async function doLogin() {
           return;
         }
         // Build client object from Supabase record
+        // Parse structured disputes from Supabase
+        var parsedDisputes = [];
+        if (row.disputes) {
+          try {
+            var d = typeof row.disputes === 'string' ? JSON.parse(row.disputes) : row.disputes;
+            if (Array.isArray(d)) parsedDisputes = d;
+          } catch(e) {}
+        }
+
         client = {
           password: portalPwd,
           name: row.name || 'Valued Client',
@@ -491,7 +500,7 @@ async function doLogin() {
           timeline: '120 Business Days',
           bureaus: row.bureaus || 'Equifax, Experian, TransUnion',
           startDate: row.start_date || '',
-          disputes: [],
+          disputes: parsedDisputes,
           updates: row.notes ? [
             { date: row.updated_at ? row.updated_at.split('T')[0] : new Date().toISOString().split('T')[0],
                title: 'Dispute Status Update',
