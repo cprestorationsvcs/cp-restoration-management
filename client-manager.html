@@ -500,8 +500,8 @@ function seed(){
 }
 
 // ── TABLE ─────────────────────────────────────────────────────────
-function renderTable(){
-  var arr=getClients();
+async function renderTable(){
+  var arr=await dbGetClients();
   var s=gv('srch').toLowerCase();
   var st=gv('srch-status');
   var pk=gv('srch-pkg');
@@ -639,7 +639,7 @@ function eTab(tab,btn){
   document.querySelectorAll('#edit-overlay .tab-btn').forEach(function(b){b.classList.remove('on');});
   if(btn) btn.classList.add('on');
 }
-function saveEdit(){
+async function saveEdit(){
   if(!editId) return;
   var arr=getClients(); var idx=arr.findIndex(function(c){return c.id===editId;});
   if(idx===-1){toast('Client not found','error');return;}
@@ -661,9 +661,9 @@ function saveEdit(){
   Object.keys(pendingDocs).forEach(function(k){c.docs[k]=pendingDocs[k];});
   c.updatedAt=new Date().toISOString();
   c.updatedAt=new Date().toISOString();
-  saveOneClient(c);
+  var ok = await dbSaveOne(c);
   closeEdit(); renderTable();
-  toast('Client file saved!','success');
+  toast(ok ? 'Client file saved!' : 'Saved locally (offline mode)','success');
 }
 
 // ── DOCUMENTS ─────────────────────────────────────────────────────
