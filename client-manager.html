@@ -749,25 +749,36 @@ function mergedDocs(){
 }
 function setDocStatus(type,msg){var e=document.getElementById('st-'+type);if(e)e.textContent=msg;}
 function setDzUploaded(id,on){var e=document.getElementById(id);if(e){e.className='drop-zone'+(on?' uploaded':'');}}
+function viewDoc(data,name){try{var arr=data.split(','),mime=arr[0].match(/:(.*?);/)[1],bstr=atob(arr[1]),n=bstr.length,u8=new Uint8Array(n);while(n--){u8[n]=bstr.charCodeAt(n);}var url=URL.createObjectURL(new Blob([u8],{type:mime}));window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},10000);}catch(e){toast('Cannot preview this file','error');}}
+function downloadDoc(data,name){try{var arr=data.split(','),mime=arr[0].match(/:(.*?);/)[1],bstr=atob(arr[1]),n=bstr.length,u8=new Uint8Array(n);while(n--){u8[n]=bstr.charCodeAt(n);}var url=URL.createObjectURL(new Blob([u8],{type:mime})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(url);},5000);}catch(e){toast('Download failed','error');}}
 function loadDocList(docs){
   var el=document.getElementById('doc-list'); if(!el) return;
   var labels={dl:"Driver's License",ssn:'Social Security Card',addr:'Proof of Address',other:'Supporting Docs'};
-  var html='';
+  el.innerHTML='';
   Object.keys(docs).forEach(function(k){
     var d=docs[k]; var items=Array.isArray(d)?d:[d];
     items.forEach(function(item){
       if(!item||!item.name) return;
       var sz=item.size>1024*1024?(item.size/1024/1024).toFixed(1)+'MB':Math.round(item.size/1024)+'KB';
-      html+='<div class="doc-item">'+
-        '<span style="font-size:18px;">&#x1F4C4;</span>'+
-        '<div style="flex:1;"><div style="font-size:12px;font-weight:700;">'+esc(item.name)+'</div>'+
-        '<div style="font-size:10px;color:var(--gray);">'+(labels[k]||k)+' &mdash; '+sz+'</div></div>'+
-        (item.data?'<a href="'+item.data+'" download="'+esc(item.name)+'" style="font-size:11px;color:var(--navy);font-weight:700;text-decoration:none;padding:4px 10px;background:#EFF4FF;border-radius:6px;white-space:nowrap;margin-right:6px;">&#11015; Download</a>':'')+
-        '<button onclick="deleteDoc(\''+esc(k)+'\',\''+esc(item.name)+'\')" style="background:#FEE2E2;border:none;color:#991B1B;font-size:11px;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;white-space:nowrap;">&#x1F5D1; Delete</button>'+
-      '</div>';
+      var row=document.createElement('div');
+      row.style.cssText='background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;';
+      var icon=document.createElement('span');icon.style.fontSize='24px';icon.textContent='&#x1F4C4;';row.appendChild(icon);
+      var info=document.createElement('div');info.style.cssText='flex:1;min-width:0;';
+      var nm=document.createElement('div');nm.style.cssText='font-size:13px;font-weight:700;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';nm.textContent=item.name;info.appendChild(nm);
+      var mt=document.createElement('div');mt.style.cssText='font-size:11px;color:#64748B;';mt.innerHTML=(labels[k]||k)+' &mdash; '+sz+' &mdash; <span style="color:#166534;font-weight:700;">&#10003; Uploaded</span>';info.appendChild(mt);
+      row.appendChild(info);
+      if(item.data){
+        var vb=document.createElement('button');vb.innerHTML='&#128065; View';vb.style.cssText='background:#EFF4FF;border:none;color:#1B3A6B;font-size:11px;font-weight:700;cursor:pointer;padding:6px 12px;border-radius:6px;white-space:nowrap;margin-right:4px;';
+        (function(dat,nm2){vb.onclick=function(){viewDoc(dat,nm2);};})(item.data,item.name);row.appendChild(vb);
+        var db=document.createElement('button');db.innerHTML='&#11015; Download';db.style.cssText='background:#F0FFF4;border:none;color:#166534;font-size:11px;font-weight:700;cursor:pointer;padding:6px 12px;border-radius:6px;white-space:nowrap;margin-right:4px;';
+        (function(dat,nm2){db.onclick=function(){downloadDoc(dat,nm2);};})(item.data,item.name);row.appendChild(db);
+      }
+      var del=document.createElement('button');del.innerHTML='&#x1F5D1;';del.style.cssText='background:#FEE2E2;border:none;color:#991B1B;font-size:11px;font-weight:700;cursor:pointer;padding:6px 12px;border-radius:6px;';
+      (function(key,nm2){del.onclick=function(){deleteDoc(key,nm2);};})(k,item.name);row.appendChild(del);
+      el.appendChild(row);
     });
   });
-  el.innerHTML=html||'<div style="color:var(--gray);font-size:12px;text-align:center;padding:12px;">No documents uploaded yet.</div>';
+  if(!el.children.length) el.innerHTML='<div style="color:#64748B;font-size:12px;text-align:center;padding:20px;">No documents uploaded yet.</div>';
 }
 function deleteDoc(key,name){
   if(!confirm('Delete "'+name+'"?')) return;
