@@ -761,23 +761,41 @@ function renderDisputes(filter) {
     return;
   }
 
-  var bureauLabels = { EQ:'Equifax', EX:'Experian', TU:'TransUnion' };
-  var bureauClasses = { EQ:'dot-eq', EX:'dot-eq', TU:'dot-tu' };
-  var statusMap = { filed:'Filed', pending:'Pending Response', removed:'Removed ✅' };
-  var statusBadge = { filed:'badge-blue', pending:'badge-gold', removed:'badge-green' };
-  var itemClass = { filed:'filed', pending:'pending', removed:'removed' };
+  var statusMap = { filed:'Filed', pending:'Pending Response', removed:'Removed ✅', 'in-progress':'In Progress' };
+  var statusBadge = { filed:'badge-blue', pending:'badge-gold', removed:'badge-green', 'in-progress':'badge-blue' };
+  var itemClass = { filed:'filed', pending:'pending', removed:'removed', 'in-progress':'filed' };
+
+  // Normalize bureau — handle string ('equifax') or array (['EQ'])
+  function getBureauLabel(bureau) {
+    if (!bureau) return '';
+    var b = typeof bureau === 'string' ? bureau.toLowerCase() : '';
+    if (b === 'equifax' || b === 'eq') return '<span class="bureau-dot dot-filed" style="background:#E53E3E;color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">Equifax</span>';
+    if (b === 'experian' || b === 'ex') return '<span class="bureau-dot" style="background:#1B3A6B;color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">Experian</span>';
+    if (b === 'transunion' || b === 'tu') return '<span class="bureau-dot" style="background:#166534;color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">TransUnion</span>';
+    // Handle array format
+    if (Array.isArray(bureau)) {
+      return bureau.map(function(b2){
+        var bl = b2.toUpperCase();
+        if(bl==='EQ') return '<span style="background:#E53E3E;color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">Equifax</span>';
+        if(bl==='EX') return '<span style="background:#1B3A6B;color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">Experian</span>';
+        if(bl==='TU') return '<span style="background:#166534;color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;">TransUnion</span>';
+        return b2;
+      }).join(' ');
+    }
+    return bureau;
+  }
 
   list.innerHTML = filtered.map(function(d) {
-    var bureaus = d.bureau.map(function(b){
-      return '<span class="bureau-dot dot-filed">'+bureauLabels[b]+'</span>';
-    }).join('');
-    return '<div class="dispute-item '+itemClass[d.status]+'">' +
-      '<div>' +
-        '<div class="dispute-name">'+d.name+'</div>' +
-        '<div class="dispute-detail">'+d.type+(d.amount?' -- '+d.amount:'')+'  •  Filed '+new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'</div>' +
-        '<div class="bureau-dots">'+bureaus+'</div>' +
+    var status = d.status || 'pending';
+    var dateStr = '';
+    try { dateStr = d.date ? new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''; } catch(e){}
+    return '<div class="dispute-item '+(itemClass[status]||'pending')+'">' +
+      '<div style="flex:1;">' +
+        '<div class="dispute-name">'+esc(d.name||'')+'</div>' +
+        '<div class="dispute-detail">'+(d.type||'Account')+(d.amount?' &mdash; '+d.amount:'')+(dateStr?' &bull; Filed '+dateStr:'')+'</div>' +
+        '<div style="margin-top:6px;">'+getBureauLabel(d.bureau)+'</div>' +
       '</div>' +
-      '<span class="badge '+statusBadge[d.status]+'">'+statusMap[d.status]+'</span>' +
+      '<span class="badge '+(statusBadge[status]||'badge-gold')+'">'+((statusMap[status])||status)+'</span>' +
     '</div>';
   }).join('');
 }
