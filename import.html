@@ -1,41 +1,50 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>Update Alshane Disputes</title>
-<style>body{font-family:Arial,sans-serif;padding:30px;background:#F8FAFC;} .card{background:white;padding:24px;border-radius:12px;max-width:560px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.07);} h2{color:#1B3A6B;margin-bottom:8px;} .sub{font-size:13px;color:#64748B;margin-bottom:16px;} .btn{padding:12px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin:6px 6px 6px 0;} .btn-navy{background:#1B3A6B;color:white;} .btn-green{background:#166534;color:white;} #st{margin-top:16px;font-size:14px;font-weight:600;}</style>
+<html><head><meta charset="UTF-8"><title>Update Des Ann Logins</title>
+<style>body{font-family:Arial,sans-serif;padding:30px;background:#F8FAFC;} .card{background:white;padding:24px;border-radius:12px;max-width:560px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.07);} h2{color:#1B3A6B;margin-bottom:8px;} .sub{font-size:13px;color:#64748B;margin-bottom:16px;} .btn{padding:12px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin:6px 6px 6px 0;} .btn-navy{background:#1B3A6B;color:white;} .btn-green{background:#166534;color:white;} #st{margin-top:16px;font-size:14px;font-weight:600;} .info{background:#EFF4FF;padding:12px;border-radius:8px;font-size:12px;margin-bottom:16px;line-height:1.8;}</style>
 </head><body>
 <div class="card">
-  <h2>&#128295; Update Alshane Dispute Records</h2>
-  <div class="sub">Saves 32 structured dispute items to Supabase so the client portal shows correct progress stats.</div>
-  <div style="background:#EFF4FF;padding:12px;border-radius:8px;font-size:12px;margin-bottom:16px;">
-    <b>Equifax:</b> 8 removed, 7 pending &nbsp;|&nbsp; <b>TransUnion:</b> 11 removed, 1 pending &nbsp;|&nbsp; <b>Experian:</b> pending phone verification
+  <h2>&#128295; Update Des Ann Johnson — Bureau Logins</h2>
+  <div class="sub">Updates both CPR-00379 and CPR-00380 with new working credentials</div>
+  <div class="info">
+    <b>Working Login (all bureaus):</b><br>
+    Email: desannddtaxpros@gmail.com<br>
+    Password: Sunshineandrainbows99!<br><br>
+    <b>Backup:</b> desannjohnson@gmail.com / Jan519944 (password changed)<br>
+    <b>Source:</b> Janelle Anderson, The Otto Firm (9/29/2026)
   </div>
-  <button class="btn btn-navy" onclick="saveDisputes()">&#9654; Save Dispute Data</button>
+  <button class="btn btn-navy" onclick="updateLogins()">&#9654; Update Bureau Logins</button>
   <button class="btn btn-green" onclick="window.location='/client-manager.html'">&#8594; Client Manager</button>
   <div id="st"></div>
 </div>
 <script>
 var SUPA='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients';
 var KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
-var DISPUTES = [{"bureau": "equifax", "name": "Capital One Auto Finance", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Credit One Bank", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Bank of America", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Barclays Bank Delaware", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Credit One Bank #2", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Comenity Capital/Burlington", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Dept of Education #1", "type": "Account", "status": "pending", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Dept of Education #2", "type": "Account", "status": "pending", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Dept of Education #3", "type": "Account", "status": "pending", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Dept of Education #4", "type": "Account", "status": "pending", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Dept of Education #5", "type": "Account", "status": "pending", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Dept of Education #6", "type": "Account", "status": "pending", "date": "2026-09-30"}, {"bureau": "equifax", "name": "CIC Mortgage Credit (Mar 2026)", "type": "Hard Inquiry", "status": "pending", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Factual Data (Mar 2025)", "type": "Hard Inquiry", "status": "removed", "date": "2026-09-30"}, {"bureau": "equifax", "name": "Sunrise Credit Services Group", "type": "Collection", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Cap One Auto (Dec 2023)", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Credit One Bank (Jul 2015)", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Bank of America (Mar 2023)", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Barclays Bank DE (Dec 2022)", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Credit One Bank (Aug 2022)", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "CCB/Burlington (Feb 2023)", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Dept of Education/Nelnet (Aug 2016)", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Dept of Education/Nelnet (Sep 2014) #1", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Dept of Education/Nelnet (Sep 2014) #2", "type": "Account", "status": "pending", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Dept of Education/Nelnet (Aug 2016) #2", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Dept of Education/Nelnet (Sep 2015) #1", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Dept of Education/Nelnet (Sep 2015) #2", "type": "Account", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Coast 2 Coast (Mar 2026)", "type": "Hard Inquiry", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "American Eagle (Aug 2025)", "type": "Hard Inquiry", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "DHI Mortgage (Mar 2025)", "type": "Hard Inquiry", "status": "removed", "date": "2026-09-30"}, {"bureau": "transunion", "name": "Sunrise Credit Services Group", "type": "Collection", "status": "removed", "date": "2026-09-30"}, {"bureau": "experian", "name": "Experian File (Phone Verification Required)", "type": "Account", "status": "pending", "date": "2026-09-30"}];
+var HEADERS={'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'resolution=merge-duplicates'};
+var BUREAU_LOGINS = {"equifax": {"user": "desannddtaxpros@gmail.com", "pass": "Sunshineandrainbows99!", "pin": "8296"}, "experian": {"user": "desannddtaxpros@gmail.com", "pass": "Sunshineandrainbows99!", "secQuestion": "", "secAnswer": ""}, "transunion": {"user": "desannddtaxpros@gmail.com", "pass": "Sunshineandrainbows99!"}};
+var NOTES = "Bureau email updated 9/30/2026 per Janelle Anderson (The Otto Firm):\nWORKING LOGIN: desannddtaxpros@gmail.com / Sunshineandrainbows99!\nPrevious emails: desannjohnson@gmail.com (password changed to Jan519944) \nAll bureau platforms changed to: desannddtaxpros@gmail.com\nContact: Janelle Anderson janelle@theottofirm.com";
 
-async function saveDisputes(){
-  document.getElementById('st').textContent='Saving...';
-  try{
-    var r=await fetch(SUPA,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'resolution=merge-duplicates'},
-      body:JSON.stringify({
-        id:'CPR-CP17359',
-        disputes: JSON.stringify(DISPUTES),
-        updated_at: new Date().toISOString()
-      })
-    });
-    if(r.ok||r.status===201){
-      document.getElementById('st').innerHTML='<span style="color:#166534;">&#10003; 32 dispute items saved! Client portal will now show correct progress for Alshane.</span>';
-    }else{
-      var t=await r.text();
-      document.getElementById('st').innerHTML='<span style="color:#991B1B;">Error: '+t+'</span>';
+async function updateOne(id) {
+  var r = await fetch(SUPA, {
+    method:'POST',
+    headers:HEADERS,
+    body:JSON.stringify({id:id, bureau_logins:BUREAU_LOGINS, notes:NOTES, updated_at:new Date().toISOString()})
+  });
+  return r.ok || r.status===201;
+}
+
+async function updateLogins() {
+  document.getElementById('st').textContent = 'Updating...';
+  try {
+    var r1 = await updateOne('CPR-00379');
+    var r2 = await updateOne('CPR-00380');
+    if(r1 && r2) {
+      document.getElementById('st').innerHTML = '<span style="color:#166534;">&#10003; Both CPR-00379 and CPR-00380 updated with new bureau login: desannddtaxpros@gmail.com</span>';
+    } else {
+      document.getElementById('st').innerHTML = '<span style="color:#991B1B;">Partial update. Check console for errors.</span>';
     }
-  }catch(e){document.getElementById('st').innerHTML='<span style="color:#991B1B;">Error: '+e.message+'</span>';}
+  } catch(e) {
+    document.getElementById('st').innerHTML = '<span style="color:#991B1B;">Error: '+e.message+'</span>';
+  }
 }
 </script>
 </body></html>
