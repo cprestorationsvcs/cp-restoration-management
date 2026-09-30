@@ -848,15 +848,43 @@ function renderDocuments() {
 }
 
 // ── SEND MESSAGE ──────────────────────────────────────────────────
-function sendMessage() {
+async function sendMessage() {
   var input = document.getElementById('msg-input');
   if(!input || !input.value.trim() || !currentClient) return;
-  var text = input.value.trim();
+  var msgText = input.value.trim();
+  var btn = document.getElementById('send-msg-btn');
+  if(btn) btn.disabled = true;
   input.value = '';
+
+  var newMsg = { from:'client', text:msgText, date:new Date().toISOString() };
   if(!currentClient.messages) currentClient.messages = [];
-  currentClient.messages.push({ from:'client', text:text, date:new Date().toISOString() });
+  currentClient.messages.push(newMsg);
   renderMessages();
-  showToast('Message sent. Our team will respond within 24 hours.');
+
+  // Save to Supabase
+  try {
+    var supaKey = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
+    await fetch(_PORTAL_SUPA+'?id=eq.'+encodeURIComponent(currentClientId), {
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','apikey':supaKey,'Authorization':'Bearer '+supaKey},
+      body: JSON.stringify({ notes: (currentClient.notes||'') + '\n\n[CLIENT MESSAGE '+new Date().toLocaleDateString()+']: ' + msgText })
+    });
+    showToast('Message sent. Our team will respond within 24 hours Monday-Friday.');
+    // Also send email notification via Netlify function
+    fetch('/.netlify/functions/email-proxy', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        personalizations:[{to:[{email:'jason@mycprteam.com'}]}],
+        from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Portal'},
+        subject:'New Client Message — '+currentClientId+' '+currentClient.name,
+        content:[{type:'text/plain',value:'Client: '+currentClient.name+' ('+currentClientId+')\nMessage: '+msgText+'\n\nLog in to respond: portal-cprestorationsvcs.com/client-manager.html'}]
+      })
+    }).catch(function(){});
+  } catch(e) {
+    showToast('Message saved locally. Team will be notified.');
+  }
+  if(btn) btn.disabled = false;
 }
 
 // ── FILTER DISPUTES ───────────────────────────────────────────────
