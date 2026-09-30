@@ -636,12 +636,28 @@ function loadPortal() {
   if(bar) bar.style.width = pct + '%';
 
   // Bureau counts
-  var eq = currentDisputes.filter(function(d){ return d.bureau.indexOf('EQ')!==-1 && d.status!=='removed'; }).length;
-  var ex = currentDisputes.filter(function(d){ return d.bureau.indexOf('EX')!==-1 && d.status!=='removed'; }).length;
-  var tu = currentDisputes.filter(function(d){ return d.bureau.indexOf('TU')!==-1 && d.status!=='removed'; }).length;
-  set('bureau-eq-count', eq);
-  set('bureau-ex-count', ex);
-  set('bureau-tu-count', tu);
+  // Bureau removed counts — match lowercase bureau names
+  function bureauRemoved(b) {
+    return currentDisputes.filter(function(d){
+      var bur = (d.bureau||'').toLowerCase();
+      return bur.indexOf(b) !== -1 && d.status === 'removed';
+    }).length;
+  }
+  function bureauTotal(b) {
+    return currentDisputes.filter(function(d){
+      var bur = (d.bureau||'').toLowerCase();
+      return bur.indexOf(b) !== -1;
+    }).length;
+  }
+  var eq = bureauRemoved('equifax') || bureauRemoved('eq');
+  var ex = bureauRemoved('experian') || bureauRemoved('ex');
+  var tu = bureauRemoved('transunion') || bureauRemoved('tu');
+  var eqT = bureauTotal('equifax') || bureauTotal('eq');
+  var exT = bureauTotal('experian') || bureauTotal('ex');
+  var tuT = bureauTotal('transunion') || bureauTotal('tu');
+  set('bureau-eq-count', eq + ' of ' + eqT);
+  set('bureau-ex-count', ex + ' of ' + exT);
+  set('bureau-tu-count', tu + ' of ' + tuT);
 
   // Latest update on dashboard
   var updates = c.updates || [];
