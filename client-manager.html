@@ -613,7 +613,7 @@ document.getElementById('tbl-body').addEventListener('click',function(e){
 });
 
 function updateStats(){
-  var arr=getClients();
+  var arr=_clientCache||getClientsLocal();
   document.getElementById('s-active').textContent=arr.filter(function(c){return (c.status||'Active')==='Active';}).length;
   document.getElementById('s-total').textContent=arr.length;
   document.getElementById('s-pending').textContent=arr.filter(function(c){return c.status==='Pending';}).length;
@@ -641,8 +641,8 @@ function exportCSV(){
 // ── VIEW MODAL ────────────────────────────────────────────────────
 var viewId=null;
 function openView(id){
-  var arr=getClients(); var c=arr.find(function(x){return x.id===id;});
-  if(!c) return;
+  var arr=_clientCache||getClientsLocal(); var c=arr.find(function(x){return x.id===id;});
+  if(!c){toast('Client not found — try refreshing','error');return;}
   viewId=id;
   document.getElementById('v-name').textContent=c.name||'';
   document.getElementById('v-sub').textContent=(c.id||'')+'  —  '+(c.package||'')+'  —  '+(c.status||'Active');
@@ -679,7 +679,7 @@ function copyLogin(){
 var editId=null; var pendingDocs={};
 function openEdit(){
   if(!viewId) return;
-  var c=getClients().find(function(x){return x.id===viewId;});
+  var arr=_clientCache||getClientsLocal(); var c=arr.find(function(x){return x.id===viewId;});
   if(!c){toast('Client not found','error');return;}
   editId=viewId; pendingDocs={};
   closeView();
