@@ -345,7 +345,7 @@ function doLogin() {
   // Greeting
   var hr = new Date().getHours();
   var greet = hr<12 ? 'Good morning, ' : hr<17 ? 'Good afternoon, ' : 'Good evening, ';
-  set('welcome-title', greet + emp.name.split(' ')[0] + '! &#128075;');
+  set('welcome-title', greet + emp.name.split(' ')[0] + ' 👋');
   // Show creds for admin
   if (emp.role==='admin') {
     document.getElementById('creds-section').style.display='block';
@@ -495,7 +495,7 @@ window.addEventListener('load', function(){
       set('hdr-role', emp2.label + ' -- CP Restoration Services');
       var hr2 = new Date().getHours();
       var greet2 = hr2<12 ? 'Good morning, ' : hr2<17 ? 'Good afternoon, ' : 'Good evening, ';
-      set('welcome-title', greet2 + emp2.name.split(' ')[0] + '! &#128075;');
+      set('welcome-title', greet2 + emp2.name.split(' ')[0] + ' 👋');
       if (emp2.role==='admin') {
         document.getElementById('creds-section').style.display='block';
         document.getElementById('creds-grid').style.display='grid';
