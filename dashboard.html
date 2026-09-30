@@ -335,6 +335,7 @@ function doLogin() {
     return;
   }
   currentUser = email;
+  localStorage.setItem('cp_logged_in_user', email);
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   // Set header
