@@ -423,24 +423,37 @@ tbody tr:hover{background:#EFF4FF;}
 var KEY = 'cp_clients_v2';
 function getClients(){
   try{
-    // Read base clients
+    // Try reading merged cache first (fast path)
+    var merged = localStorage.getItem('cp_clients_merged');
+    if (merged) {
+      return JSON.parse(merged);
+    }
+    // Fall back to base storage
     var base = JSON.parse(localStorage.getItem(KEY)||'[]');
-    // Also read chunked imports
-    var idx = localStorage.getItem('cp_clients_index');
-    if (!idx) return base;
-    var info = JSON.parse(idx);
+    // Check if chunks exist
+    var idxData = localStorage.getItem('cp_clients_index');
+    if (!idxData) return base;
+    var info = JSON.parse(idxData);
     var all = base.slice();
     var seen = new Set(base.map(function(c){return c.id;}));
     for (var i = 0; i < info.chunks; i++) {
-      var chunk = JSON.parse(localStorage.getItem('cp_clients_chunk_'+i)||'[]');
+      var raw = localStorage.getItem('cp_clients_chunk_'+i);
+      if (!raw) continue;
+      var chunk = JSON.parse(raw);
       chunk.forEach(function(c){
         if (!seen.has(c.id)) { all.push(c); seen.add(c.id); }
       });
     }
+    // Cache the merged result for fast future reads
+    try { localStorage.setItem('cp_clients_merged', JSON.stringify(all)); } catch(e){}
     return all;
   }catch(e){ return []; }
 }
-function saveClients(arr){ localStorage.setItem(KEY, JSON.stringify(arr)); }
+function saveClients(arr){
+  localStorage.setItem(KEY, JSON.stringify(arr));
+  // Invalidate merged cache so next getClients rebuilds it
+  localStorage.removeItem('cp_clients_merged');
+}
 function genId(){
   var arr = getClients();
   var max = arr.reduce(function(m,c){ var n=parseInt((c.id||'CPR-00000').replace('CPR-',''),10); return n>m?n:m; },0);
