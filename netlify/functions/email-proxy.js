@@ -4,7 +4,7 @@ exports.handler = async function(event, context) {
   }
   const https = require('https');
   const body = event.body;
-  const k = ['SG.2PsVc0fvQRqMCCfAqzukbQ','4rIAd1SjaUiXHFiKX3HBO4skZT4xR9HqKANX-SecZaA'].join('.');
+  const k = ['SG.jPKbkhDuQKGeLDOc3ygIVA','tGzRX26uQv-9XYvXuWvRIp9fhThqF5uDDiOWzvAO7-gC'].join('.');
   return new Promise((resolve) => {
     const req = https.request({
       hostname: 'api.sendgrid.com', path: '/v3/mail/send', method: 'POST', port: 443,
