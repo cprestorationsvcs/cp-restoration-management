@@ -422,13 +422,14 @@ tbody tr:hover{background:#EFF4FF;}
 <script>
 // ── STORAGE ───────────────────────────────────────────────────────
 var KEY = 'cp_clients_v2';
-var SUPA_API='/api/supabase/rest/v1/clients';
+var SUPA_API='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients';
+var SUPA_KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
 var _clientCache=null,_cacheTime=0;
 
 async function dbGetClients(){
   if(_clientCache&&(Date.now()-_cacheTime)<60000) return _clientCache;
   try{
-    var r=await fetch(SUPA_API+'?select=*&order=name.asc&limit=10000',{headers:{'Content-Type':'application/json'}});
+    var r=await fetch(SUPA_API+'?select=*&order=name.asc&limit=10000',{headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
     if(!r.ok) throw new Error('HTTP '+r.status);
     var data=await r.json();
     _clientCache=data.map(function(row){return{id:row.id,name:row.name,email:row.email,phone:row.phone,address:row.address,ssn:row.ssn,dob:row.dob,status:row.status||'Active',package:row.package||'Standard',bureaus:row.bureaus||'All 3',startDate:row.start_date||'',portalPwd:row.portal_pwd||'restore2026',assignedEmail:row.assigned_email||'',salesAgent:row.sales_agent||'',notes:row.notes||'',disputes:row.disputes||'',bureauLogins:row.bureau_logins||{},docs:row.docs||{}};});
@@ -444,14 +445,14 @@ async function dbSaveOne(c){
   _clientCache=null;
   var row={id:c.id,name:c.name,email:c.email,phone:c.phone,address:c.address||'',ssn:c.ssn||'',dob:c.dob||'',status:c.status||'Active',package:c.package||'Standard',bureaus:c.bureaus||'All 3',start_date:c.startDate||'',portal_pwd:c.portalPwd||'restore2026',assigned_email:c.assignedEmail||'',sales_agent:c.salesAgent||'',notes:c.notes||'',disputes:c.disputes||'',bureau_logins:c.bureauLogins||{},docs:c.docs||{},updated_at:new Date().toISOString()};
   try{
-    var r=await fetch(SUPA_API,{method:'POST',headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify(row)});
+    var r=await fetch(SUPA_API,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify(row)});
     return r.ok||r.status===201;
   }catch(e){saveOneClient(c);return false;}
 }
 
 async function dbDeleteOne(id){
   _clientCache=null;
-  try{var r=await fetch(SUPA_API+'?id=eq.'+encodeURIComponent(id),{method:'DELETE'});return r.ok;}catch(e){return false;}
+  try{var r=await fetch(SUPA_API+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});return r.ok;}catch(e){return false;}
 }
 
 function getClientsLocal(){
