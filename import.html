@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>Upsert Alshane</title>
-<style>body{font-family:Arial,sans-serif;padding:30px;background:#F8FAFC;} .card{background:white;padding:24px;border-radius:12px;max-width:500px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.07);} h2{color:#1B3A6B;margin-bottom:16px;} .btn{padding:12px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin:6px 6px 6px 0;} .btn-navy{background:#1B3A6B;color:white;} .btn-green{background:#166534;color:white;} #st{margin-top:16px;font-size:14px;font-weight:600;}</style>
+<html><head><meta charset="UTF-8"><title>Update Alshane</title>
+<style>body{font-family:Arial,sans-serif;padding:30px;background:#F8FAFC;} .card{background:white;padding:24px;border-radius:12px;max-width:500px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.07);} h2{color:#1B3A6B;margin-bottom:8px;} .sub{font-size:13px;color:#64748B;margin-bottom:16px;} .btn{padding:12px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin:6px 6px 6px 0;} .btn-navy{background:#1B3A6B;color:white;} .btn-green{background:#166534;color:white;} #st{margin-top:16px;font-size:14px;font-weight:600;}</style>
 </head><body>
 <div class="card">
-  <h2>&#128295; Upsert Alshane Linton to Supabase</h2>
-  <button class="btn btn-navy" onclick="upsert()">&#9654; Save to Cloud</button>
+  <h2>&#128295; Update Alshane Linton</h2>
+  <div class="sub">Updates TransUnion status — all 7 accounts now DELETED. CPR-CP17359</div>
+  <button class="btn btn-navy" onclick="upsert()">&#9654; Save Updated Record</button>
   <button class="btn btn-green" onclick="window.location='/client-manager.html'">&#8594; Client Manager</button>
   <div id="st"></div>
 </div>
@@ -25,8 +26,8 @@ var CLIENT = {
   start_date:'2026-03-19',
   portal_pwd:'restore2026',
   assigned_email:'cpr.alshane.9119@mycprteam.com',
-  notes:"EQUIFAX UPDATE \u2014 Score: 655 (as of 9/30/2026)\nACCOUNTS:\n\u2705 Capital One Auto Finance \u2014 DELETED\n\u2705 Credit One Bank \u2014 DELETED\n\u2705 Bank of America \u2014 DELETED\n\u2705 Barclays Bank Delaware \u2014 DELETED\n\u2705 Credit One Bank \u2014 DELETED\n\u2705 Comenity Capital/Burlington \u2014 DELETED\n\u23f3 Dept of Education (x6) \u2014 PENDING\n\nHARD INQUIRIES:\n\u23f3 CIC Mortgage Credit (Mar 3, 2026) \u2014 PENDING\n\u2705 Factual Data (Mar 3, 2025) \u2014 DELETED\n\nCOLLECTIONS:\n\u2705 Sunrise Credit Services Group \u2014 DELETED\n\n---\nTRANSUNION UPDATE \u2014 As of 9/30/2026\nACCOUNTS:\n\u2705 Cap One Auto (Dec 7, 2023) \u2014 $0\n\u2705 Credit One Bank (Jul 31, 2015) \u2014 $8\n\u2705 Bank of America (Mar 14, 2023) \u2014 $0\n\u2705 Barclays Bank DE (Dec 11, 2022) \u2014 $85\n\u26a0\ufe0f Credit One Bank (Aug 1, 2022) \u2014 $1,024 (91% utilization \u2014 needs to go below $420)\n\u2705 CCB/Burlington (Feb 13, 2023) \u2014 $0\n\u23f3 Dept of Education/Nelnet (Aug 25, 2016) \u2014 $7,081\n\u2705 Dept of Education/Nelnet (Sep 17, 2014) \u2014 DELETED\n\u23f3 Dept of Education/Nelnet (Sep 17, 2014) \u2014 PENDING\n\u2705 Dept of Education/Nelnet (Aug 25, 2016) \u2014 DELETED\n\u2705 Dept of Education/Nelnet (Sep 3, 2015) \u2014 DELETED\n\u2705 Dept of Education/Nelnet (Sep 3, 2015) \u2014 DELETED\n\nHARD INQUIRIES:\n\u2705 Coast 2 Coast (Mar 3, 2026) \u2014 DELETED\n\u2705 American Eagle (Aug 9, 2025) \u2014 DELETED\n\u2705 DHI Mortgage (Mar 3, 2025) \u2014 DELETED\n\nCOLLECTIONS:\n\u2705 Sunrise Credit Services Group \u2014 DELETED\n\n---\nEXPERIAN: Now requires phone verification. Client to call Marcus at (251) 405-8196 Mon-Fri 9-5 EST.\n\n---\nSCORE TIP: Credit One card $1,279/$1,400 limit = 91% utilization. Pay down to $420 or less for score boost.\n---\nSigned up: 3/19/2026 | Paid: $1,600 via Zelle | Package: Standard (120 business days)",
-  disputes:'Equifax score 655 as of 9/30/26. Multiple deletions. 6x Dept of Ed pending. TransUnion multiple deletions. Experian phone verification required.',
+  notes:"EQUIFAX UPDATE \u2014 Score: 655 (as of 9/30/2026)\nACCOUNTS:\n\u2705 Capital One Auto Finance \u2014 DELETED\n\u2705 Credit One Bank \u2014 DELETED\n\u2705 Bank of America \u2014 DELETED\n\u2705 Barclays Bank Delaware \u2014 DELETED\n\u2705 Credit One Bank \u2014 DELETED\n\u2705 Comenity Capital/Burlington \u2014 DELETED\n\u23f3 Dept of Education (x6) \u2014 PENDING\n\nHARD INQUIRIES:\n\u23f3 CIC Mortgage Credit (Mar 3, 2026) \u2014 PENDING\n\u2705 Factual Data (Mar 3, 2025) \u2014 DELETED\n\nCOLLECTIONS:\n\u2705 Sunrise Credit Services Group \u2014 DELETED\n\n---\nTRANSUNION UPDATE \u2014 As of 9/30/2026\nACCOUNTS:\n\u2705 Cap One Auto (Dec 7, 2023) \u2014 DELETED\n\u2705 Credit One Bank (Jul 31, 2015) \u2014 DELETED\n\u2705 Bank of America (Mar 14, 2023) \u2014 DELETED\n\u2705 Barclays Bank DE (Dec 11, 2022) \u2014 DELETED\n\u2705 Credit One Bank (Aug 1, 2022) \u2014 DELETED\n\u2705 CCB/Burlington (Feb 13, 2023) \u2014 DELETED\n\u2705 Dept of Education/Nelnet (Aug 25, 2016) \u2014 DELETED\n\u2705 Dept of Education/Nelnet (Sep 17, 2014) \u2014 DELETED\n\u23f3 Dept of Education/Nelnet (Sep 17, 2014) \u2014 PENDING\n\u2705 Dept of Education/Nelnet (Aug 25, 2016) \u2014 DELETED\n\u2705 Dept of Education/Nelnet (Sep 3, 2015) \u2014 DELETED\n\u2705 Dept of Education/Nelnet (Sep 3, 2015) \u2014 DELETED\n\nHARD INQUIRIES:\n\u2705 Coast 2 Coast (Mar 3, 2026) \u2014 DELETED\n\u2705 American Eagle (Aug 9, 2025) \u2014 DELETED\n\u2705 DHI Mortgage (Mar 3, 2025) \u2014 DELETED\n\nCOLLECTIONS:\n\u2705 Sunrise Credit Services Group \u2014 DELETED\n\n---\nEXPERIAN: Now requires phone verification. Client to call Marcus at (251) 405-8196 Mon-Fri 9-5 EST.\n\n---\nSCORE TIP: Credit One card previously at 91% utilization \u2014 account now deleted on TransUnion.\n---\nSigned up: 3/19/2026 | Paid: $1,600 via Zelle | Package: Standard (120 business days)\nLast updated: 9/30/2026",
+  disputes:'Equifax score 655 as of 9/30/26. TransUnion: ALL accounts deleted. 1x Dept of Ed pending on TU. Experian phone verification required.',
   bureau_logins:{
     equifax:{user:'alshanelinton@gmail.com',pass:'Rocnacion@31',pin:'9119'},
     experian:{user:'Ashanelinton@gmail.com',pass:'Rocnacion@31',secQuestion:''},
@@ -45,7 +46,7 @@ async function upsert(){
       body:JSON.stringify(CLIENT)
     });
     if(r.ok||r.status===201){
-      document.getElementById('st').innerHTML='<span style="color:#166534;">&#10003; Alshane Linton (CPR-CP17359) saved to cloud with full dispute update!</span>';
+      document.getElementById('st').innerHTML='<span style="color:#166534;">&#10003; Alshane updated — all TransUnion accounts now marked DELETED!</span>';
     }else{
       var t=await r.text();
       document.getElementById('st').innerHTML='<span style="color:#991B1B;">Error: '+t+'</span>';
