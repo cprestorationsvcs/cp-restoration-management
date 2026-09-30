@@ -573,7 +573,42 @@ function submitOnboarding(){
     createdAt:   new Date().toISOString()
   };
 
-  // Save to client manager localStorage
+  // Save to Supabase cloud database
+  var supaKey = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
+  var supaRow = {
+    id:             client.id,
+    name:           client.name,
+    email:          client.email,
+    phone:          client.phone,
+    address:        client.address||'',
+    ssn:            client.ssn||'',
+    dob:            client.dob||'',
+    status:         client.status||'Active',
+    package:        client.package||'Standard',
+    bureaus:        client.bureaus||'All 3',
+    start_date:     client.startDate||'',
+    portal_pwd:     client.portalPwd||'restore2026',
+    assigned_email: client.assignedEmail||'',
+    sales_agent:    client.salesAgent||'',
+    notes:          client.notes||'',
+    disputes:       '',
+    bureau_logins:  client.bureauLogins||{},
+    docs:           {}
+  };
+  fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': supaKey,
+      'Authorization': 'Bearer ' + supaKey,
+      'Prefer': 'resolution=merge-duplicates'
+    },
+    body: JSON.stringify(supaRow)
+  }).then(function(r){
+    if(r.ok||r.status===201) console.log('Client saved to Supabase');
+    else r.text().then(function(t){console.error('Supabase error:',t);});
+  }).catch(function(e){console.error('Supabase save failed:',e);});
+  // Also save to localStorage as backup
   try {
     var arr = JSON.parse(localStorage.getItem('cp_clients_v2')||'[]');
     arr.unshift(client);
