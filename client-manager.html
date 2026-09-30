@@ -660,7 +660,8 @@ function saveEdit(){
   if(!c.docs) c.docs={};
   Object.keys(pendingDocs).forEach(function(k){c.docs[k]=pendingDocs[k];});
   c.updatedAt=new Date().toISOString();
-  arr[idx]=c; saveClients(arr);
+  c.updatedAt=new Date().toISOString();
+  saveOneClient(c);
   closeEdit(); renderTable();
   toast('Client file saved!','success');
 }
