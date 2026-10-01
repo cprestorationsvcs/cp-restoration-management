@@ -2795,32 +2795,52 @@ function getAllFormData() {
     clientDOB:   (document.getElementById('d-client-dob')||{}).value||'',
     bureaus:     {},
     items:       [],
-    letters:     {}
+    letters:     {},
+    docs:        {},
+    disputeRows: []
   };
+
   // Bureau checkboxes
   ['eq','ex','tu'].forEach(function(b) {
     var el = document.getElementById('bureau-' + b);
     if (el) data.bureaus[b] = el.checked;
   });
-  // All input/select/textarea values on page
+
+  // All d- prefixed inputs
   document.querySelectorAll('input[id], select[id], textarea[id]').forEach(function(el) {
-    if (!data[el.id] && el.id.startsWith('d-') || el.id.startsWith('item-') || el.id.startsWith('bureau-')) {
+    if (el.id.startsWith('d-') || el.id.startsWith('item-') || el.id.startsWith('bureau-')) {
       data['_field_' + el.id] = el.type === 'checkbox' ? el.checked : el.value;
     }
   });
-  // Dispute item rows
-  document.querySelectorAll('.dispute-item-row, .dispute-row, [class*="dispute"]').forEach(function(row, i) {
-    var item = {};
-    row.querySelectorAll('input,select,textarea').forEach(function(el) {
-      if (el.id || el.name) item[el.id || el.name] = el.type === 'checkbox' ? el.checked : el.value;
-    });
-    if (Object.keys(item).length) data.items.push(item);
-  });
-  // Generated letter text (editable)
+
+  // Save dispute items from the dispute list (structured)
+  try {
+    if (typeof disputeItems !== 'undefined' && disputeItems.length) {
+      data.disputeRows = disputeItems.map(function(item) { return Object.assign({}, item); });
+    }
+  } catch(e) {}
+
+  // Save uploaded documents (names only — not base64 data, too large)
+  try {
+    if (typeof uploadedDocs !== 'undefined') {
+      Object.keys(uploadedDocs).forEach(function(k) {
+        var d = uploadedDocs[k];
+        var items = Array.isArray(d) ? d : [d];
+        data.docs[k] = items.map(function(item) {
+          return { name: item.name, size: item.size, type: item.type };
+          // Note: we save doc metadata only — base64 data too large for localStorage
+          // Full doc data saved separately in cp_dispute_docs key
+        });
+      });
+    }
+  } catch(e) {}
+
+  // Generated letter text
   document.querySelectorAll('.letter-preview').forEach(function(el, i) {
     var txt = el.innerText || el.textContent || '';
     if (txt.trim()) data.letters['letter_' + i] = txt;
   });
+
   return data;
 }
 
@@ -2878,9 +2898,32 @@ function loadDraft() {
         }
       }
     });
-    // Trigger lookupClient to fill other fields
+    // Restore dispute items
+    if (data.disputeRows && data.disputeRows.length) {
+      try {
+        disputeItems = data.disputeRows;
+        if (typeof renderDisputeItems === 'function') renderDisputeItems();
+      } catch(e) {}
+    }
+
+    // Trigger lookupClient to fill bureau fields
     var cid = document.getElementById('d-client-id');
-    if (cid && cid.value) { if(typeof lookupClient === 'function') lookupClient(); }
+    if (cid && cid.value) {
+      if(typeof lookupClient === 'function') lookupClient();
+    }
+
+    // Show doc names that were saved (remind user to re-upload)
+    if (data.docs && Object.keys(data.docs).length) {
+      var docNames = [];
+      Object.keys(data.docs).forEach(function(k) {
+        var items = data.docs[k];
+        items.forEach(function(item) { docNames.push(item.name); });
+      });
+      if (docNames.length) {
+        showToastDraft('Note: Please re-upload ' + docNames.length + ' document(s): ' + docNames.join(', '), 'info');
+      }
+    }
+
     var savedTime = data.savedAt ? new Date(data.savedAt).toLocaleString() : 'unknown';
     var st = document.getElementById('draft-status');
     if (st) st.textContent = '&#128194; Draft from ' + savedTime;
