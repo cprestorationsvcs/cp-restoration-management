@@ -278,10 +278,7 @@ body{font-family:'Inter',sans-serif;background:#F8FAFC;color:#1E293B;min-height:
                   <input id="o-ex-sec-q" placeholder="e.g. Mother's maiden name" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;">
                 </div>
               </div>
-              <div>
-                <label style="font-size:11px;font-weight:600;color:#475569;display:block;margin-bottom:4px;">Security Answer</label>
-                <input id="o-ex-sec-a" placeholder="Your answer to the security question" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;">
-              </div>
+
             </div>
           </div>
         </div>
@@ -598,7 +595,6 @@ function submitOnboarding(){
         prevPass:   gv('o-ex-pass'),
         prevPin:    gv('o-ex-pin'),
         secQuestion:gv('o-ex-sec-q'),
-        secAnswer:  gv('o-ex-sec-a')
       },
       transunion:{ user: oData.assignedEmail, pass: 'CPR#Secure2026!' }
     },
