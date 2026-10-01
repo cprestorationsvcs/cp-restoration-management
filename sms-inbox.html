@@ -210,7 +210,13 @@ async function loadMessages() {
   var num = getFTCNumber();
   try {
     var resp = await fetch('/.netlify/functions/twilio-sms?to='+encodeURIComponent(num));
-    var data = await resp.json();
+    var wrapper = await resp.json();
+    // Handle debug wrapper format
+    var data = wrapper.parsed || wrapper;
+    if (wrapper.twilio_status && wrapper.twilio_status !== 200) {
+      document.getElementById('sms-inbox').innerHTML = '<div class="empty">&#10060; Twilio error '+wrapper.twilio_status+': '+JSON.stringify(data)+'</div>';
+      return;
+    }
     var msgs = data.messages || [];
     var inbox = document.getElementById('sms-inbox');
 
