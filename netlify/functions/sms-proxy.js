@@ -7,7 +7,7 @@ exports.handler = async function(event, context) {
   const body = JSON.parse(event.body || '{}');
   const to = body.to;
   const msg = body.body || body.message || '';
-  const from = body.from || '+16282961945';
+  const from = body.from || '+12014657592';
 
   if (!to || !msg) {
     return { statusCode:400, headers:{'Access-Control-Allow-Origin':'*'}, body: JSON.stringify({error:'Missing to or body'}) };
