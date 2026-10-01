@@ -1,10 +1,8 @@
 exports.handler = async function(event, context) {
   const https = require('https');
   const sid = 'ACb88dd703acfcc52652e628cfa99a7a47';
-  const tok = ['18e3bab9b2e','2a4a7021572f693f5898a'].join('');
+  const tok = ['005dfc3ae748','7d25fe51b772bc10a218'].join('');
   const to = (event.queryStringParameters && event.queryStringParameters.to) || '+16282961945';
-
-  // Fetch ALL recent messages (inbound to our number)
   const path = '/2010-04-01/Accounts/' + sid + '/Messages.json?PageSize=20&To=' + encodeURIComponent(to);
 
   return new Promise((resolve) => {
@@ -20,16 +18,11 @@ exports.handler = async function(event, context) {
       let data = '';
       res.on('data', c => data += c);
       res.on('end', () => {
-        // Parse and return with status code from Twilio
         resolve({
           statusCode: 200,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json'
-          },
+          headers: {'Access-Control-Allow-Origin':'*','Content-Type':'application/json'},
           body: JSON.stringify({
             twilio_status: res.statusCode,
-            raw: data,
             parsed: (() => { try { return JSON.parse(data); } catch(e) { return {error: e.message}; } })()
           })
         });
