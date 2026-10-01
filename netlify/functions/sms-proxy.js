@@ -8,7 +8,7 @@ exports.handler = async function(event, context) {
   const to   = body.to;
   const msg  = body.body || body.message || '';
   // Use test-enabled number until campaign is approved
-  const from = '+12014298918';
+  const from = '+12014657592';
 
   if (!to || !msg) {
     return { statusCode:400, headers:{'Access-Control-Allow-Origin':'*'}, body: JSON.stringify({error:'Missing to or body'}) };
