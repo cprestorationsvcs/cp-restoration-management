@@ -935,6 +935,7 @@ cprestorationsvcs@gmail.com
 let disputes = [];
 let notificationLog = [];
 let disputeItems = [];
+let inquiryItems = [];
 let selectedBureaus = {eq:true, ex:true, tu:true};
 let generatedLetters = {};
 let generatedFTC = '';
@@ -1156,6 +1157,47 @@ function addDisputeItem() {
     </div>
     <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeItem('${id}')">✕</button>`;
   list.appendChild(row);
+}
+
+function addInquiryItem() {
+  const id = 'inq-' + Date.now();
+  inquiryItems.push(id);
+  const list = document.getElementById('inquiry-items-list');
+  const row = document.createElement('div');
+  row.className = 'dispute-item-row';
+  row.id = id;
+  row.innerHTML = `
+    <div class="field"><label>Creditor / Company Name</label><input type="text" placeholder="Capital One Auto Finance" id="${id}-name"></div>
+    <div class="field"><label>Date of Inquiry</label><input type="date" id="${id}-date"></div>
+    <div class="field"><label>Dispute Reason</label>
+      <select id="${id}-reason">
+        <option>Unauthorized inquiry — did not apply for credit</option>
+        <option>Inquiry over 2 years old</option>
+        <option>Identity theft / fraud</option>
+        <option>Duplicate inquiry</option>
+        <option>Permissible purpose not established</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field"><label>Bureau(s)</label>
+      <select id="${id}-bureaus">
+        <option>All Bureaus</option>
+        <option>Equifax Only</option>
+        <option>Experian Only</option>
+        <option>TransUnion Only</option>
+        <option>Equifax + Experian</option>
+        <option>Equifax + TransUnion</option>
+        <option>Experian + TransUnion</option>
+      </select>
+    </div>
+    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeInquiry('${id}')">&#x2715;</button>`;
+  list.appendChild(row);
+}
+
+function removeInquiry(id) {
+  var el = document.getElementById(id);
+  if (el) el.remove();
+  inquiryItems = inquiryItems.filter(function(i){ return i !== id; });
 }
 
 function removeItem(id) {
@@ -2813,11 +2855,29 @@ function getAllFormData() {
     }
   });
 
-  // Save dispute items from the dispute list (structured)
+  // Save dispute items
   try {
-    if (typeof disputeItems !== 'undefined' && disputeItems.length) {
-      data.disputeRows = disputeItems.map(function(item) { return Object.assign({}, item); });
-    }
+    data.disputeRows = disputeItems.filter(function(id){ return document.getElementById(id); }).map(function(id) {
+      return {
+        id: id,
+        name:    (document.getElementById(id+'-name')||{}).value||'',
+        acct:    (document.getElementById(id+'-acct')||{}).value||'',
+        reason:  (document.getElementById(id+'-reason')||{}).value||'',
+        bureaus: (document.getElementById(id+'-bureaus')||{}).value||''
+      };
+    });
+  } catch(e) {}
+  // Save inquiry items
+  try {
+    data.inquiryRows = inquiryItems.filter(function(id){ return document.getElementById(id); }).map(function(id) {
+      return {
+        id: id,
+        name:    (document.getElementById(id+'-name')||{}).value||'',
+        date:    (document.getElementById(id+'-date')||{}).value||'',
+        reason:  (document.getElementById(id+'-reason')||{}).value||'',
+        bureaus: (document.getElementById(id+'-bureaus')||{}).value||''
+      };
+    });
   } catch(e) {}
 
   // Save uploaded documents (names only — not base64 data, too large)
@@ -2901,8 +2961,33 @@ function loadDraft() {
     // Restore dispute items
     if (data.disputeRows && data.disputeRows.length) {
       try {
-        disputeItems = data.disputeRows;
-        if (typeof renderDisputeItems === 'function') renderDisputeItems();
+        var dlist = document.getElementById('dispute-items-list');
+        if(dlist) dlist.innerHTML = '';
+        disputeItems = [];
+        data.disputeRows.forEach(function(row) {
+          addDisputeItem();
+          var id = disputeItems[disputeItems.length-1];
+          if(row.name) (document.getElementById(id+'-name')||{}).value = row.name;
+          if(row.acct) (document.getElementById(id+'-acct')||{}).value = row.acct;
+          if(row.reason){ var el=document.getElementById(id+'-reason'); if(el) el.value=row.reason; }
+          if(row.bureaus){ var el=document.getElementById(id+'-bureaus'); if(el) el.value=row.bureaus; }
+        });
+      } catch(e) {}
+    }
+    // Restore inquiry items
+    if (data.inquiryRows && data.inquiryRows.length) {
+      try {
+        var ilist = document.getElementById('inquiry-items-list');
+        if(ilist) ilist.innerHTML = '';
+        inquiryItems = [];
+        data.inquiryRows.forEach(function(row) {
+          addInquiryItem();
+          var id = inquiryItems[inquiryItems.length-1];
+          if(row.name) (document.getElementById(id+'-name')||{}).value = row.name;
+          if(row.date) (document.getElementById(id+'-date')||{}).value = row.date;
+          if(row.reason){ var el=document.getElementById(id+'-reason'); if(el) el.value=row.reason; }
+          if(row.bureaus){ var el=document.getElementById(id+'-bureaus'); if(el) el.value=row.bureaus; }
+        });
       } catch(e) {}
     }
 
