@@ -334,6 +334,68 @@ body{font-family:'Inter',sans-serif;background:#F8FAFC;color:#1E293B;min-height:
     </div>
   </div>
 
+  <!-- ── STEP 4.5: DOCUMENT UPLOAD ───────────────────────────────────────── -->
+  <div id="os45" style="display:none;">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">&#128196; Upload Supporting Documents</div>
+        <div class="card-sub">Your documents are stored securely in the CP Restoration team Google Drive — not on any personal device.</div>
+      </div>
+      <div class="card-body">
+        <div style="background:#F0FFF4;border:1.5px solid #166534;border-radius:10px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:#166534;margin-bottom:6px;">&#9989; Required Documents</div>
+          <div style="font-size:13px;color:#166534;line-height:2;">
+            &#10003; Government-issued Photo ID (Driver's License or Passport)<br>
+            &#10003; Social Security Card or SSN document<br>
+            &#10003; Proof of Current Address (utility bill, bank statement, lease — dated within 60 days)<br>
+            &#10003; Any additional supporting documents
+          </div>
+        </div>
+
+        <div style="background:#EFF4FF;border:1.5px solid #1B3A6B;border-radius:10px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;">&#128196; Upload to CP Restoration Secure Drive</div>
+          <div style="font-size:12px;color:#475569;margin-bottom:12px;">Click the button below to open the secure CP Restoration Google Drive upload folder. Your files will go directly to our team — not to anyone's personal computer.</div>
+          <a href="https://drive.google.com/drive/folders/1CPRestoration_ClientDocs" target="_blank" 
+             id="gdrive-upload-btn"
+             style="display:inline-flex;align-items:center;gap:8px;background:#1B3A6B;color:white;padding:12px 20px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;margin-bottom:12px;">
+            &#128196; Open Secure Upload Folder
+          </a>
+          <div style="font-size:11px;color:#64748B;">You will need a Google account to upload. Files are accessible only to the CP Restoration team.</div>
+        </div>
+
+        <div style="background:#FDF8EE;border:1.5px solid #C9A84C;border-radius:10px;padding:14px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:6px;">&#128247; Prefer to take photos?</div>
+          <div style="font-size:12px;color:#92400E;line-height:1.8;">
+            You can also email your documents directly to:<br>
+            <strong>cprestorationsvcs@gmail.com</strong><br>
+            Subject: <strong>Documents — [Your Full Name]</strong>
+          </div>
+        </div>
+
+        <div class="fld">
+          <label>Confirm Documents Uploaded</label>
+          <select id="o-docs-confirmed">
+            <option value="">-- Select --</option>
+            <option value="uploaded-drive">&#9989; Uploaded to Google Drive</option>
+            <option value="emailed">&#9993; Emailed to cprestorationsvcs@gmail.com</option>
+            <option value="will-send">&#128338; Will send within 24 hours</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label>Notes (optional)</label>
+          <input id="o-docs-notes" placeholder="e.g. ID expires soon, only have passport, etc.">
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:8px;">
+          <button class="btn btn-outline" onclick="goStep(4)">&#8592; Back</button>
+          <button class="btn btn-navy" onclick="goStep(5)">Next: Review &amp; Sign &#8594;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
   <!-- ── STEP 5: AGREEMENT ─────────────────────────────────────── -->
   <div id="os5" style="display:none;">
     <div class="card">
