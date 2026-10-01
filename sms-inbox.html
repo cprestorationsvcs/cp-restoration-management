@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CP Restoration — SMS Inbox</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',Arial,sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;}
+.topbar{background:#1B3A6B;padding:14px 24px;display:flex;align-items:center;gap:16px;}
+.topbar h1{color:white;font-size:16px;font-weight:800;}
+.topbar a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
+.container{max-width:800px;margin:0 auto;padding:24px;}
+.card{background:white;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:20px;overflow:hidden;}
+.card-header{padding:16px 20px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:15px;font-weight:700;color:#1B3A6B;}
+.card-sub{font-size:12px;color:#64748B;margin-top:2px;}
+.btn{padding:9px 18px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-navy{background:#1B3A6B;color:white;}
+.btn-green{background:#166534;color:white;}
+.btn-outline{background:white;color:#1B3A6B;border:1.5px solid #1B3A6B;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-gold{background:#FDF8EE;color:#92400E;}
+.badge-blue{background:#EFF4FF;color:#1B3A6B;}
+.number-box{background:#EFF4FF;border:2px solid #1B3A6B;border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.number-display{font-size:24px;font-weight:800;color:#1B3A6B;letter-spacing:2px;}
+.sms-item{padding:16px 20px;border-bottom:1px solid #F1F5F9;display:flex;gap:14px;}
+.sms-item:last-child{border-bottom:none;}
+.sms-item.new{background:#F0FFF4;border-left:4px solid #166534;}
+.sms-from{font-size:11px;font-weight:700;color:#64748B;margin-bottom:4px;}
+.sms-body{font-size:14px;color:#1E293B;line-height:1.5;}
+.sms-code{font-size:28px;font-weight:800;color:#1B3A6B;letter-spacing:4px;background:#EFF4FF;padding:8px 16px;border-radius:8px;display:inline-block;margin:8px 0;}
+.sms-time{font-size:11px;color:#94A3B8;margin-top:4px;}
+.sms-icon{width:40px;height:40px;border-radius:50%;background:#EFF4FF;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.empty{text-align:center;padding:40px;color:#94A3B8;font-size:14px;}
+.pulse{animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+.guide-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #F1F5F9;}
+.guide-step:last-child{border-bottom:none;}
+.step-num{width:28px;height:28px;border-radius:50%;background:#1B3A6B;color:white;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.alert-gold{background:#FDF8EE;border:1.5px solid #C9A84C;border-radius:10px;padding:14px 16px;font-size:13px;color:#7A5F00;margin-bottom:16px;}
+.alert-green{background:#F0FFF4;border:1.5px solid #166534;border-radius:10px;padding:14px 16px;font-size:13px;color:#166534;margin-bottom:16px;}
+.refresh-indicator{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748B;}
+.dot{width:8px;height:8px;border-radius:50%;background:#166534;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>&#128241; CP Restoration — SMS Inbox</h1>
+  <a href="/dispute-center.html">&#8592; Back to Dispute Center</a>
+</div>
+
+<div class="container">
+
+  <!-- FTC NUMBER BOX -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">&#127381; Your FTC Verification Number</div>
+        <div class="card-sub">Give this number to the FTC when filing at IdentityTheft.gov — SMS codes arrive below</div>
+      </div>
+      <a href="https://www.identitytheft.gov/" target="_blank" class="btn btn-navy btn-sm">Open IdentityTheft.gov &#8599;</a>
+    </div>
+    <div style="padding:20px;">
+      <div class="number-box">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:4px;">FTC VERIFICATION NUMBER</div>
+          <div class="number-display" id="ftc-number">Loading...</div>
+          <div style="font-size:11px;color:#64748B;margin-top:4px;">Use this number when the FTC asks for a phone number</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="btn btn-navy" onclick="copyNumber()">&#128203; Copy Number</button>
+          <button class="btn btn-outline btn-sm" onclick="checkNumbers()">&#128260; Change Number</button>
+        </div>
+      </div>
+      <div class="alert-green">
+        &#9989; <strong>How it works:</strong> When the FTC sends an SMS code to this number, it appears in the inbox below within seconds. The page auto-refreshes every 10 seconds.
+      </div>
+    </div>
+  </div>
+
+  <!-- SMS INBOX -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">&#128messagebox; Incoming SMS Messages</div>
+        <div class="card-sub">Auto-refreshes every 10 seconds — FTC codes appear here instantly</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="refresh-indicator">
+          <div class="dot pulse"></div>
+          <span id="refresh-status">Live</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="loadMessages()">&#128260; Refresh Now</button>
+      </div>
+    </div>
+    <div id="sms-inbox">
+      <div class="empty">&#128241; Loading messages...</div>
+    </div>
+  </div>
+
+  <!-- HOW TO BUY A NUMBER -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">&#127775; Buy a Dedicated FTC Number on Twilio</div>
+        <div class="card-sub">One-time setup — takes 2 minutes — costs $1/month</div>
+      </div>
+    </div>
+    <div style="padding:20px;">
+      <div class="alert-gold">
+        &#9888; <strong>Recommended:</strong> Buy a dedicated phone number just for FTC filings so it never conflicts with your main business line.
+      </div>
+      <div class="guide-step">
+        <div class="step-num">1</div>
+        <div><strong>Go to Twilio Console</strong><br><a href="https://console.twilio.com/us1/develop/phone-numbers/manage/search" target="_blank" style="color:#1B3A6B;">console.twilio.com → Phone Numbers → Buy a Number</a></div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">2</div>
+        <div><strong>Search for a number</strong><br>Select <strong>United States</strong>, check <strong>SMS</strong> capability, choose any number (~$1.15/month)</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">3</div>
+        <div><strong>Buy the number</strong><br>Click <strong>Buy</strong> — it's active immediately</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">4</div>
+        <div><strong>Enter it below</strong><br>Type the new number and save — it will be used as your FTC verification number going forward</div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <input id="new-number-input" placeholder="+1 (XXX) XXX-XXXX" style="flex:1;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:14px;font-family:inherit;">
+        <button class="btn btn-green" onclick="saveNumber()">&#10003; Save Number</button>
+      </div>
+      <div id="save-status" style="margin-top:8px;font-size:12px;color:#166534;"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Default to your existing Twilio SMS number until a dedicated one is set
+var DEFAULT_NUMBER = '+17542660042';
+var FTC_NUMBER_KEY = 'cp_ftc_sms_number';
+
+function getFTCNumber() {
+  return localStorage.getItem(FTC_NUMBER_KEY) || DEFAULT_NUMBER;
+}
+
+function formatNumber(n) {
+  var d = n.replace(/\D/g,'');
+  if(d.length===11) d=d.slice(1);
+  if(d.length===10) return '('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6);
+  return n;
+}
+
+function toE164(n) {
+  var d = n.replace(/\D/g,'');
+  if(d.length===10) return '+1'+d;
+  if(d.length===11) return '+'+d;
+  return n;
+}
+
+function displayNumber() {
+  var num = getFTCNumber();
+  document.getElementById('ftc-number').textContent = formatNumber(num);
+}
+
+function copyNumber() {
+  var num = getFTCNumber();
+  navigator.clipboard.writeText(formatNumber(num)).then(function(){
+    showToast('Number copied to clipboard!');
+  });
+}
+
+function saveNumber() {
+  var input = document.getElementById('new-number-input').value.trim();
+  if(!input){ showToast('Please enter a phone number','error'); return; }
+  var e164 = toE164(input);
+  localStorage.setItem(FTC_NUMBER_KEY, e164);
+  displayNumber();
+  document.getElementById('save-status').textContent = '✅ Number saved: ' + formatNumber(e164);
+  loadMessages();
+}
+
+function checkNumbers() {
+  window.open('https://console.twilio.com/us1/develop/phone-numbers/manage/incoming','_blank');
+}
+
+// Extract code from SMS body
+function extractCode(body) {
+  // Look for 4-8 digit codes
+  var matches = body.match(/\b(\d{4,8})\b/g);
+  if(matches) return matches[0];
+  return null;
+}
+
+function timeAgo(dateStr) {
+  var d = new Date(dateStr);
+  var diff = Math.floor((Date.now() - d.getTime())/1000);
+  if(diff < 60) return diff + 's ago';
+  if(diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if(diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return d.toLocaleDateString();
+}
+
+async function loadMessages() {
+  var num = getFTCNumber();
+  try {
+    var resp = await fetch('/.netlify/functions/twilio-sms?to='+encodeURIComponent(num));
+    var data = await resp.json();
+    var msgs = data.messages || [];
+    var inbox = document.getElementById('sms-inbox');
+
+    if(!msgs.length) {
+      inbox.innerHTML = '<div class="empty">&#128241; No messages yet. The FTC code will appear here within seconds of sending.</div>';
+      return;
+    }
+
+    var html = msgs.map(function(m, i) {
+      var code = extractCode(m.body || '');
+      var isNew = i === 0;
+      var isRecent = (Date.now() - new Date(m.date_created).getTime()) < 300000; // 5 min
+      return '<div class="sms-item ' + (isNew && isRecent ? 'new' : '') + '">' +
+        '<div class="sms-icon">' + (code ? '&#128272;' : '&#128241;') + '</div>' +
+        '<div style="flex:1;">' +
+          '<div class="sms-from">From: ' + (m.from || 'Unknown') + (isNew && isRecent ? ' &nbsp;<span class="badge badge-green">NEW</span>' : '') + '</div>' +
+          (code ? '<div class="sms-code">' + code + '</div>' : '') +
+          '<div class="sms-body">' + (m.body || '') + '</div>' +
+          '<div class="sms-time">' + timeAgo(m.date_created) + ' &mdash; ' + new Date(m.date_created).toLocaleString() + '</div>' +
+        '</div>' +
+        (code ? '<button onclick="copyCode(\''+code+'\')" class="btn btn-green btn-sm" style="align-self:center;">&#128203; Copy Code</button>' : '') +
+      '</div>';
+    }).join('');
+
+    inbox.innerHTML = html;
+    document.getElementById('refresh-status').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('sms-inbox').innerHTML = '<div class="empty">&#10060; Error loading messages: ' + e.message + '</div>';
+  }
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(function(){
+    showToast('Code ' + code + ' copied! Paste it into the FTC form.');
+  });
+}
+
+function showToast(msg, type) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + (type==='error'?'#8B1A1A':'#166534') + ';color:white;padding:12px 24px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap;';
+  document.body.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 3000);
+}
+
+// Init
+displayNumber();
+loadMessages();
+
+// Auto-refresh every 10 seconds
+setInterval(loadMessages, 10000);
+</script>
+</body>
+</html>
