@@ -191,9 +191,16 @@ function checkNumbers() {
 
 // Extract code from SMS body
 function extractCode(body) {
-  // Look for 4-8 digit codes
+  if (!body) return null;
+  // Look for "code is XXXXXX" pattern first
+  var codeIs = body.match(/code is[:\s]+([\d]{4,8})/i);
+  if (codeIs) return codeIs[1];
+  // Look for "verification code: XXXXXX"
+  var verCode = body.match(/(?:code|pin|otp)[:\s]+([\d]{4,8})/i);
+  if (verCode) return verCode[1];
+  // Look for standalone 4-8 digit number
   var matches = body.match(/\b(\d{4,8})\b/g);
-  if(matches) return matches[0];
+  if (matches) return matches[0];
   return null;
 }
 
@@ -234,7 +241,7 @@ async function loadMessages() {
         '<div style="flex:1;">' +
           '<div class="sms-from">From: ' + (m.from || 'Unknown') + (isNew && isRecent ? ' &nbsp;<span class="badge badge-green">NEW</span>' : '') + '</div>' +
           (code ? '<div class="sms-code">' + code + '</div>' : '') +
-          '<div class="sms-body">' + (m.body || '') + '</div>' +
+          '<div class="sms-body" style="white-space:pre-wrap;word-break:break-word;">' + (m.body || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' +
           '<div class="sms-time">' + timeAgo(m.date_created) + ' &mdash; ' + new Date(m.date_created).toLocaleString() + '</div>' +
         '</div>' +
         (code ? '<button onclick="copyCode(\''+code+'\')" class="btn btn-green btn-sm" style="align-self:center;">&#128203; Copy Code</button>' : '') +
