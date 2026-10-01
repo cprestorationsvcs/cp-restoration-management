@@ -365,7 +365,7 @@ tr:hover td{background:#FAFAFA;}
         </div>
 
         <div id="letter-bureau-tabs" style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;"></div>
-        <div id="letter-display" class="letter-preview"></div>
+        <div id="letter-display" class="letter-preview" contenteditable="true" style="outline:none;cursor:text;white-space:pre-wrap;font-family:monospace;font-size:13px;line-height:1.7;" spellcheck="true"></div>
       </div>
 
       <!-- FTC REPORT -->
@@ -1383,7 +1383,8 @@ Write ONLY the report, no explanation.`;
 function buildTemplateLetter(name, clientId, addr, dob, bureauCode, items, today, docs, style) {
   const bureau = BUREAU_NAMES[bureauCode];
   const bureauAddr = BUREAU_ADDRS[bureauCode];
-  const docList = Object.keys(docs).length > 0 ? Object.values(docs).join('\n  - ') : 'Government-issued photo ID\n  - Social Security card\n  - Proof of current address';
+  const baseDocList = Object.keys(docs).length > 0 ? Object.values(docs).join('\n  - ') : 'Government-issued photo ID\n  - Social Security card\n  - Proof of current address';
+  const docList = baseDocList + '\n  - FTC Identity Theft Report';
   const itemsText = items.map((item, i) =>
     `${i+1}. ${item.name}${item.acct ? ' — Account No. ending in '+item.acct : ''}\n   Dispute Reason: ${item.reason}\n   This item is disputed as inaccurate and/or unverifiable under 15 U.S.C. § 1681i.`
   ).join('\n\n');
@@ -1391,8 +1392,7 @@ function buildTemplateLetter(name, clientId, addr, dob, bureauCode, items, today
   return `${today}
 
 ${name}
-${addr || 'Address on file with CP Restoration Services'}
-Client ID: ${clientId}
+${addr || 'Address on file'}
 ${dob ? 'Date of Birth: '+dob : ''}
 
 
@@ -1407,6 +1407,8 @@ RE: FORMAL NOTICE OF DISPUTE — REQUEST FOR INVESTIGATION AND CORRECTION
 To Whom It May Concern:
 
 I am writing to formally dispute the accuracy of certain information currently appearing on my credit report maintained by ${bureau}. Pursuant to my rights under Section 611 of the Fair Credit Reporting Act (FCRA), 15 U.S.C. § 1681i, I am requesting a prompt investigation of the following items, which I believe to be inaccurate, incomplete, or otherwise in violation of the FCRA.
+
+Please note that an FTC Identity Theft Report is enclosed with this dispute as additional supporting documentation.
 
 
 DISPUTED ITEMS:
