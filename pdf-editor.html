@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CP Restoration — PDF Editor</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',Arial,sans-serif;background:#F8FAFC;color:#1E293B;height:100vh;display:flex;flex-direction:column;}
+.topbar{background:#1B3A6B;padding:12px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap;}
+.topbar h1{color:white;font-size:15px;font-weight:800;flex:1;}
+.topbar a{color:rgba(255,255,255,.75);font-size:12px;text-decoration:none;white-space:nowrap;}
+.toolbar{background:white;border-bottom:1px solid #E2E8F0;padding:10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
+.btn{padding:8px 14px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.btn-navy{background:#1B3A6B;color:white;}
+.btn-gold{background:#C9A84C;color:white;}
+.btn-green{background:#166534;color:white;}
+.btn-red{background:#8B1A1A;color:white;}
+.btn-outline{background:white;color:#1B3A6B;border:1.5px solid #1B3A6B;}
+.btn-outline.active{background:#1B3A6B;color:white;}
+.sep{width:1px;height:24px;background:#E2E8F0;margin:0 4px;}
+.tool-label{font-size:11px;color:#64748B;font-weight:600;}
+select.toolbar-select{padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;background:white;cursor:pointer;}
+input.toolbar-input{padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;width:80px;}
+.color-btn{width:28px;height:28px;border-radius:50%;border:2px solid #E2E8F0;cursor:pointer;}
+.color-btn.active{border-color:#1B3A6B;transform:scale(1.15);}
+.main{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:220px;background:white;border-right:1px solid #E2E8F0;padding:16px;overflow-y:auto;flex-shrink:0;}
+.sidebar h3{font-size:12px;font-weight:700;color:#1B3A6B;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
+.upload-zone{border:2px dashed #CBD5E1;border-radius:10px;padding:24px 12px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:16px;}
+.upload-zone:hover{border-color:#1B3A6B;background:#EFF4FF;}
+.upload-zone input{display:none;}
+.upload-icon{font-size:28px;margin-bottom:8px;}
+.upload-text{font-size:12px;color:#64748B;line-height:1.5;}
+.page-thumb{border:2px solid transparent;border-radius:6px;cursor:pointer;margin-bottom:8px;overflow:hidden;transition:.2s;}
+.page-thumb:hover{border-color:#93C5FD;}
+.page-thumb.active{border-color:#1B3A6B;}
+.page-thumb canvas{width:100%;display:block;}
+.page-label{font-size:10px;color:#64748B;text-align:center;padding:3px 0;}
+.canvas-wrap{flex:1;overflow:auto;background:#94A3B8;display:flex;align-items:flex-start;justify-content:center;padding:24px;position:relative;}
+#canvas-container{position:relative;display:inline-block;box-shadow:0 4px 32px rgba(0,0,0,.25);}
+#pdf-canvas{display:block;}
+#annotation-canvas{position:absolute;top:0;left:0;cursor:crosshair;}
+.page-nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:white;border-radius:30px;padding:8px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:100;}
+.page-nav button{padding:6px 14px;border-radius:20px;border:none;background:#1B3A6B;color:white;font-size:13px;font-weight:700;cursor:pointer;}
+.page-nav button:disabled{background:#CBD5E1;cursor:default;}
+#page-info{font-size:13px;font-weight:700;color:#1B3A6B;}
+.text-overlay{position:absolute;border:2px dashed #1B3A6B;padding:4px 8px;font-size:14px;cursor:move;background:rgba(255,255,255,.9);min-width:80px;min-height:28px;outline:none;z-index:50;border-radius:4px;}
+.text-overlay:focus{border-color:#C9A84C;background:white;}
+.sig-overlay{position:absolute;cursor:move;z-index:50;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#166534;color:white;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none;}
+.drop-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+.drop-hint-icon{font-size:64px;margin-bottom:16px;}
+.drop-hint-text{font-size:18px;font-weight:700;color:#94A3B8;}
+.drop-hint-sub{font-size:13px;color:#CBD5E1;margin-top:6px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>&#128196; CP Restoration — PDF Editor</h1>
+  <a href="/dispute-center.html">&#8592; Dispute Center</a>
+  <a href="/dashboard.html">&#8962; Dashboard</a>
+</div>
+
+<div class="toolbar" id="toolbar">
+  <!-- Upload -->
+  <button class="btn btn-navy" onclick="document.getElementById('file-input').click()">&#128196; Open PDF</button>
+  <input type="file" id="file-input" accept=".pdf" style="display:none" onchange="loadPDF(this)">
+  <div class="sep"></div>
+
+  <!-- Tools -->
+  <span class="tool-label">TOOL:</span>
+  <button class="btn btn-outline active" id="tool-select" onclick="setTool('select')">&#128072; Select</button>
+  <button class="btn btn-outline" id="tool-text" onclick="setTool('text')">&#128464; Add Text</button>
+  <button class="btn btn-outline" id="tool-draw" onclick="setTool('draw')">&#9999; Draw</button>
+  <button class="btn btn-outline" id="tool-highlight" onclick="setTool('highlight')">&#127775; Highlight</button>
+  <button class="btn btn-outline" id="tool-sign" onclick="setTool('sign')">&#9998; Signature</button>
+  <button class="btn btn-outline" id="tool-erase" onclick="setTool('erase')">&#10006; Erase</button>
+  <div class="sep"></div>
+
+  <!-- Color -->
+  <span class="tool-label">COLOR:</span>
+  <div class="color-btn active" style="background:#1B3A6B;" onclick="setColor('#1B3A6B',this)" title="Navy"></div>
+  <div class="color-btn" style="background:#000000;" onclick="setColor('#000000',this)" title="Black"></div>
+  <div class="color-btn" style="background:#8B1A1A;" onclick="setColor('#8B1A1A',this)" title="Red"></div>
+  <div class="color-btn" style="background:#166534;" onclick="setColor('#166534',this)" title="Green"></div>
+  <div class="color-btn" style="background:#FBBF24;" onclick="setColor('#FBBF24',this)" title="Yellow"></div>
+  <div class="sep"></div>
+
+  <!-- Size -->
+  <span class="tool-label">SIZE:</span>
+  <select class="toolbar-select" id="font-size" onchange="currentFontSize=parseInt(this.value)">
+    <option value="10">10</option>
+    <option value="12" selected>12</option>
+    <option value="14">14</option>
+    <option value="16">16</option>
+    <option value="18">18</option>
+    <option value="20">20</option>
+    <option value="24">24</option>
+  </select>
+  <select class="toolbar-select" id="brush-size" onchange="currentBrushSize=parseInt(this.value)">
+    <option value="2">Thin</option>
+    <option value="4" selected>Medium</option>
+    <option value="8">Thick</option>
+    <option value="16">Bold</option>
+  </select>
+  <div class="sep"></div>
+
+  <!-- Actions -->
+  <button class="btn btn-outline" onclick="undoLast()" title="Undo">&#8617; Undo</button>
+  <button class="btn btn-outline" onclick="clearAnnotations()" title="Clear all annotations">&#128465; Clear</button>
+  <div class="sep"></div>
+  <button class="btn btn-green" onclick="savePDF()">&#11015; Save PDF</button>
+  <button class="btn btn-gold" onclick="printPDF()">&#128424; Print</button>
+</div>
+
+<div class="main">
+  <!-- Sidebar: page thumbnails -->
+  <div class="sidebar">
+    <h3>&#128196; Pages</h3>
+    <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+      <input type="file" id="file-input2" accept=".pdf" onchange="loadPDF(this)" style="display:none">
+      <div class="upload-icon">&#128229;</div>
+      <div class="upload-text">Click or drag a PDF here to open it</div>
+    </div>
+    <div id="page-thumbnails"></div>
+  </div>
+
+  <!-- Main canvas area -->
+  <div class="canvas-wrap" id="canvas-wrap">
+    <div id="drop-hint" class="drop-hint">
+      <div class="drop-hint-icon">&#128196;</div>
+      <div class="drop-hint-text">Open a PDF to get started</div>
+      <div class="drop-hint-sub">Click "Open PDF" or drag a file here</div>
+    </div>
+    <div id="canvas-container" style="display:none;">
+      <canvas id="pdf-canvas"></canvas>
+      <canvas id="annotation-canvas"></canvas>
+      <div id="text-layer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Page navigation -->
+<div class="page-nav" id="page-nav" style="display:none;">
+  <button onclick="changePage(-1)" id="prev-btn">&#9664; Prev</button>
+  <span id="page-info">Page 1 of 1</span>
+  <button onclick="changePage(1)" id="next-btn">Next &#9654;</button>
+</div>
+
+<!-- Signature modal -->
+<div id="sig-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:14px;padding:24px;width:480px;max-width:95vw;">
+    <h3 style="color:#1B3A6B;margin-bottom:12px;">&#9998; Draw Your Signature</h3>
+    <canvas id="sig-canvas" width="432" height="160" style="border:2px solid #E2E8F0;border-radius:8px;cursor:crosshair;touch-action:none;"></canvas>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="btn btn-navy" onclick="applySig()">&#10003; Apply Signature</button>
+      <button class="btn btn-outline" onclick="clearSig()">&#128465; Clear</button>
+      <button class="btn btn-outline" onclick="closeSigModal()">&#10006; Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script>
+// ── State ──
+var pdfjsLib = window['pdfjs-dist/build/pdf'];
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+var pdfDoc = null, pdfLibDoc = null, currentPage = 1, totalPages = 0;
+var currentTool = 'select';
+var currentColor = '#1B3A6B';
+var currentFontSize = 12;
+var currentBrushSize = 4;
+var isDrawing = false;
+var drawHistory = []; // per page: {page, imageData}
+var annotations = {}; // per page canvas state
+var originalFile = null;
+
+var pdfCanvas = document.getElementById('pdf-canvas');
+var annCanvas = document.getElementById('annotation-canvas');
+var pdfCtx = pdfCanvas.getContext('2d');
+var annCtx = annCanvas.getContext('2d');
+var lastX, lastY;
+
+// ── Load PDF ──
+async function loadPDF(input) {
+  var file = input.files[0];
+  if (!file) return;
+  originalFile = file;
+  document.getElementById('drop-hint').style.display = 'none';
+  document.getElementById('canvas-container').style.display = 'inline-block';
+  document.getElementById('page-nav').style.display = 'flex';
+
+  var arrayBuffer = await file.arrayBuffer();
+  pdfDoc = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+  pdfLibDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+  totalPages = pdfDoc.numPages;
+  currentPage = 1;
+  annotations = {};
+  drawHistory = [];
+  await renderPage(currentPage);
+  await buildThumbnails();
+  showToast('PDF loaded — ' + totalPages + ' page' + (totalPages!==1?'s':''));
+}
+
+async function renderPage(num) {
+  var page = await pdfDoc.getPage(num);
+  var viewport = page.getViewport({scale: 1.5});
+  pdfCanvas.width  = viewport.width;
+  pdfCanvas.height = viewport.height;
+  annCanvas.width  = viewport.width;
+  annCanvas.height = viewport.height;
+
+  await page.render({canvasContext: pdfCtx, viewport: viewport}).promise;
+
+  // Restore annotations for this page
+  if (annotations[num]) {
+    var img = new Image();
+    img.onload = function() { annCtx.drawImage(img, 0, 0); };
+    img.src = annotations[num];
+  } else {
+    annCtx.clearRect(0, 0, annCanvas.width, annCanvas.height);
+  }
+
+  updatePageNav();
+  highlightThumb(num);
+}
+
+function updatePageNav() {
+  document.getElementById('page-info').textContent = 'Page ' + currentPage + ' of ' + totalPages;
+  document.getElementById('prev-btn').disabled = currentPage <= 1;
+  document.getElementById('next-btn').disabled = currentPage >= totalPages;
+}
+
+async function changePage(delta) {
+  saveAnnotations();
+  currentPage = Math.max(1, Math.min(totalPages, currentPage + delta));
+  await renderPage(currentPage);
+}
+
+function saveAnnotations() {
+  if (pdfDoc) annotations[currentPage] = annCanvas.toDataURL();
+}
+
+// ── Tools ──
+function setTool(tool) {
+  currentTool = tool;
+  document.querySelectorAll('[id^="tool-"]').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('tool-'+tool);
+  if (btn) btn.classList.add('active');
+  annCanvas.style.cursor = tool==='select'?'default':tool==='text'?'text':tool==='erase'?'cell':'crosshair';
+  if (tool === 'sign') openSigModal();
+}
+
+function setColor(color, el) {
+  currentColor = color;
+  document.querySelectorAll('.color-btn').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+// ── Drawing ──
+annCanvas.addEventListener('mousedown', startAction);
+annCanvas.addEventListener('mousemove', doAction);
+annCanvas.addEventListener('mouseup', endAction);
+annCanvas.addEventListener('mouseleave', endAction);
+
+// Touch support
+annCanvas.addEventListener('touchstart', function(e){ e.preventDefault(); startAction(e.touches[0]); },{passive:false});
+annCanvas.addEventListener('touchmove', function(e){ e.preventDefault(); doAction(e.touches[0]); },{passive:false});
+annCanvas.addEventListener('touchend', function(e){ e.preventDefault(); endAction(); },{passive:false});
+
+function getPos(e) {
+  var rect = annCanvas.getBoundingClientRect();
+  var scaleX = annCanvas.width / rect.width;
+  var scaleY = annCanvas.height / rect.height;
+  return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+}
+
+function startAction(e) {
+  if (!pdfDoc) return;
+  var pos = getPos(e);
+  lastX = pos.x; lastY = pos.y;
+
+  if (currentTool === 'text') {
+    addTextBox(pos.x, pos.y);
+    return;
+  }
+  if (currentTool === 'draw' || currentTool === 'highlight' || currentTool === 'erase') {
+    isDrawing = true;
+    // Save state for undo
+    drawHistory.push({page: currentPage, data: annCanvas.toDataURL()});
+    annCtx.beginPath();
+    annCtx.moveTo(pos.x, pos.y);
+  }
+}
+
+function doAction(e) {
+  if (!isDrawing || !pdfDoc) return;
+  var pos = getPos(e);
+  annCtx.lineWidth   = currentTool==='highlight' ? currentBrushSize*4 : currentTool==='erase' ? currentBrushSize*6 : currentBrushSize;
+  annCtx.lineCap     = 'round';
+  annCtx.lineJoin    = 'round';
+  annCtx.strokeStyle = currentTool==='highlight' ? hexToRgba(currentColor, 0.3) : currentTool==='erase' ? 'rgba(0,0,0,1)' : currentColor;
+  annCtx.globalCompositeOperation = currentTool==='erase' ? 'destination-out' : 'source-over';
+  annCtx.lineTo(pos.x, pos.y);
+  annCtx.stroke();
+  lastX = pos.x; lastY = pos.y;
+}
+
+function endAction() {
+  isDrawing = false;
+  annCtx.globalCompositeOperation = 'source-over';
+}
+
+function hexToRgba(hex, alpha) {
+  var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+alpha+')';
+}
+
+// ── Text Box ──
+function addTextBox(x, y) {
+  var wrap = document.getElementById('canvas-container');
+  var rect = annCanvas.getBoundingClientRect();
+  var scaleX = rect.width / annCanvas.width;
+  var scaleY = rect.height / annCanvas.height;
+  var div = document.createElement('div');
+  div.className = 'text-overlay';
+  div.contentEditable = true;
+  div.style.left = (x * scaleX) + 'px';
+  div.style.top  = (y * scaleY) + 'px';
+  div.style.fontSize = currentFontSize + 'px';
+  div.style.color = currentColor;
+  div.textContent = 'Type here...';
+  div.onclick = function(e){ e.stopPropagation(); };
+  div.ondblclick = function(){ this.style.border='2px solid #C9A84C'; };
+  // Drag
+  makeDraggable(div);
+  wrap.appendChild(div);
+  setTimeout(function(){ div.focus(); document.execCommand('selectAll'); }, 50);
+}
+
+function makeDraggable(el) {
+  var ox=0,oy=0,sx=0,sy=0;
+  el.addEventListener('mousedown', function(e) {
+    if (e.target !== el) return;
+    e.preventDefault();
+    sx=e.clientX; sy=e.clientY;
+    ox=el.offsetLeft; oy=el.offsetTop;
+    function move(e2) { el.style.left=(ox+e2.clientX-sx)+'px'; el.style.top=(oy+e2.clientY-sy)+'px'; }
+    function up() { document.removeEventListener('mousemove',move); document.removeEventListener('mouseup',up); }
+    document.addEventListener('mousemove',move);
+    document.addEventListener('mouseup',up);
+  });
+}
+
+// ── Undo ──
+function undoLast() {
+  if (drawHistory.length === 0) return;
+  var last = drawHistory.pop();
+  if (last.page !== currentPage) { drawHistory.push(last); return; }
+  var img = new Image();
+  img.onload = function() {
+    annCtx.clearRect(0,0,annCanvas.width,annCanvas.height);
+    annCtx.drawImage(img,0,0);
+  };
+  img.src = last.data;
+}
+
+function clearAnnotations() {
+  if (!confirm('Clear all annotations on this page?')) return;
+  annCtx.clearRect(0,0,annCanvas.width,annCanvas.height);
+  drawHistory = drawHistory.filter(function(h){ return h.page !== currentPage; });
+  // Remove text boxes
+  document.querySelectorAll('.text-overlay, .sig-overlay').forEach(function(el){ el.remove(); });
+  showToast('Annotations cleared');
+}
+
+// ── Signature ──
+var sigCanvas = document.getElementById('sig-canvas');
+var sigCtx = sigCanvas.getContext('2d');
+var sigDrawing = false;
+
+function openSigModal() {
+  document.getElementById('sig-modal').style.display='flex';
+  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
+  sigCtx.strokeStyle='#1B3A6B'; sigCtx.lineWidth=2.5; sigCtx.lineCap='round';
+}
+
+function closeSigModal() {
+  document.getElementById('sig-modal').style.display='none';
+  setTool('select');
+}
+
+sigCanvas.addEventListener('mousedown', function(e){ sigDrawing=true; var p=getSigPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); });
+sigCanvas.addEventListener('mousemove', function(e){ if(!sigDrawing) return; var p=getSigPos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); });
+sigCanvas.addEventListener('mouseup', function(){ sigDrawing=false; });
+sigCanvas.addEventListener('touchstart', function(e){ e.preventDefault(); sigDrawing=true; var p=getSigPos(e.touches[0]); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); },{passive:false});
+sigCanvas.addEventListener('touchmove', function(e){ e.preventDefault(); if(!sigDrawing) return; var p=getSigPos(e.touches[0]); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); },{passive:false});
+sigCanvas.addEventListener('touchend', function(){ sigDrawing=false; });
+
+function getSigPos(e) {
+  var rect=sigCanvas.getBoundingClientRect();
+  return {x:e.clientX-rect.left, y:e.clientY-rect.top};
+}
+
+function clearSig() { sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height); }
+
+function applySig() {
+  var dataUrl = sigCanvas.toDataURL();
+  var wrap = document.getElementById('canvas-container');
+  var img = document.createElement('img');
+  img.src = dataUrl;
+  img.className = 'sig-overlay';
+  img.style.left = '60px'; img.style.top = '60px';
+  img.style.width = '220px'; img.style.opacity = '0.9';
+  makeDraggable(img);
+  wrap.appendChild(img);
+  closeSigModal();
+  showToast('Signature placed — drag to position it');
+}
+
+// ── Save PDF ──
+async function savePDF() {
+  if (!pdfLibDoc) { showToast('No PDF loaded', 'error'); return; }
+  saveAnnotations();
+  showToast('Preparing PDF...');
+
+  try {
+    // Flatten all pages — draw canvas annotations onto each page
+    var pages = pdfLibDoc.getPages();
+    for (var i=1; i<=totalPages; i++) {
+      if (!annotations[i]) continue;
+      var page = pages[i-1];
+      var {width, height} = page.getSize();
+
+      // Convert canvas annotation to image
+      var imgBytes = await fetch(annotations[i]).then(function(r){ return r.arrayBuffer(); });
+      var pngImage = await pdfLibDoc.embedPng(imgBytes);
+      page.drawImage(pngImage, {x:0, y:0, width:width, height:height});
+    }
+
+    // Also flatten text overlays on current page
+    var textBoxes = document.querySelectorAll('.text-overlay');
+    if (textBoxes.length > 0) {
+      var currentPdfPage = pages[currentPage-1];
+      var {width:pw, height:ph} = currentPdfPage.getSize();
+      var canvasRect = pdfCanvas.getBoundingClientRect();
+      textBoxes.forEach(function(tb) {
+        var left = parseFloat(tb.style.left);
+        var top  = parseFloat(tb.style.top);
+        var text = tb.textContent || '';
+        if (!text || text==='Type here...') return;
+        var xRatio = left / canvasRect.width;
+        var yRatio = top  / canvasRect.height;
+        var pdfX = xRatio * pw;
+        var pdfY = ph - (yRatio * ph) - 20;
+        currentPdfPage.drawText(text, {
+          x: pdfX, y: pdfY,
+          size: parseInt((tb.style.fontSize)||'12'),
+          color: PDFLib.rgb(0.1, 0.22, 0.42)
+        });
+      });
+    }
+
+    var pdfBytes = await pdfLibDoc.save();
+    var blob = new Blob([pdfBytes], {type:'application/pdf'});
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href   = url;
+    a.download = (originalFile ? originalFile.name.replace('.pdf','') : 'document') + '_edited.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('PDF saved successfully!');
+  } catch(e) {
+    showToast('Save error: '+e.message, 'error');
+    console.error(e);
+  }
+}
+
+function printPDF() {
+  if (!pdfDoc) { showToast('No PDF loaded','error'); return; }
+  window.print();
+}
+
+// ── Thumbnails ──
+async function buildThumbnails() {
+  var container = document.getElementById('page-thumbnails');
+  container.innerHTML = '';
+  for (var i=1; i<=totalPages; i++) {
+    var page = await pdfDoc.getPage(i);
+    var viewport = page.getViewport({scale:0.2});
+    var thumb = document.createElement('canvas');
+    thumb.width  = viewport.width;
+    thumb.height = viewport.height;
+    await page.render({canvasContext:thumb.getContext('2d'), viewport:viewport}).promise;
+    var wrap = document.createElement('div');
+    wrap.className = 'page-thumb' + (i===1?' active':'');
+    wrap.id = 'thumb-'+i;
+    var label = document.createElement('div');
+    label.className = 'page-label';
+    label.textContent = 'Page '+i;
+    wrap.appendChild(thumb);
+    wrap.appendChild(label);
+    ;(function(pageNum){ wrap.onclick = async function(){ saveAnnotations(); currentPage=pageNum; await renderPage(pageNum); }; })(i);
+    container.appendChild(wrap);
+  }
+}
+
+function highlightThumb(num) {
+  document.querySelectorAll('.page-thumb').forEach(function(t){ t.classList.remove('active'); });
+  var t = document.getElementById('thumb-'+num);
+  if (t) { t.classList.add('active'); t.scrollIntoView({block:'nearest'}); }
+}
+
+// ── Toast ──
+function showToast(msg, type) {
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  t.style.background = type==='error'?'#8B1A1A':'#166534';
+  document.body.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 3000);
+}
+
+// ── Drag & drop ──
+var wrap = document.getElementById('canvas-wrap');
+wrap.addEventListener('dragover', function(e){ e.preventDefault(); });
+wrap.addEventListener('drop', function(e){
+  e.preventDefault();
+  var file = e.dataTransfer.files[0];
+  if (file && file.type==='application/pdf') {
+    var dt = new DataTransfer();
+    dt.items.add(file);
+    var inp = document.getElementById('file-input');
+    inp.files = dt.files;
+    loadPDF(inp);
+  }
+});
+</script>
+</body>
+</html>
