@@ -889,18 +889,34 @@ cprestorationsvcs@gmail.com
   ============================================================ -->
   <div class="tab-pane" id="tab-settings">
     <div class="card">
-      <div class="card-title">Notification Settings</div>
-      <div class="card-sub">Connect SMS and email providers to enable automated notifications.</div>
-      <div class="alert alert-blue">SMS notifications require a Twilio account. Sign up at <strong>twilio.com</strong> — costs approximately $0.0075 per SMS sent. Email can be sent free via Gmail SMTP or SendGrid.</div>
-
-      <div style="margin-bottom:20px;">
-        <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px;">📱 Twilio SMS Setup</div>
-        <div class="form-grid three">
-          <div class="field"><label>Twilio Account SID</label><input type="text" id="twilio-sid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
-          <div class="field"><label>Twilio Auth Token</label><input type="password" id="twilio-token" placeholder="Your Twilio auth token"></div>
-          <div class="field"><label>Twilio From Number</label><input type="tel" id="twilio-from" placeholder="+18555551234"></div>
-        </div>
+      <div class="card-head">
+        <div class="card-title">&#128241; SMS &amp; Email Notifications</div>
+        <div class="card-sub">Notifications are sent automatically via SignalWire (SMS) and SendGrid (Email) when a dispute is filed.</div>
       </div>
+      <div class="card-body">
+        <div style="background:#F0FFF4;border:1.5px solid #166534;border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;color:#166534;margin-bottom:6px;">&#9989; SignalWire SMS Active</div>
+          <div style="font-size:12px;color:#166534;line-height:1.8;">
+            Outbound SMS: <strong>(201) 465-7592</strong><br>
+            FTC Inbox: <strong>(628) 296-1945</strong><br>
+            Provider: SignalWire (no OTP filter)
+          </div>
+        </div>
+        <div style="background:#EFF4FF;border:1.5px solid #1B3A6B;border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:6px;">&#9993; SendGrid Email Active</div>
+          <div style="font-size:12px;color:#1B3A6B;line-height:1.8;">
+            From: <strong>cprestorationsvcs@gmail.com</strong><br>
+            Provider: SendGrid
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+          <input type="checkbox" id="auto-sms" checked> Auto-send SMS to client when dispute is filed
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:8px;">
+          <input type="checkbox" id="auto-email" checked> Auto-send Email to client when dispute is filed
+        </label>
+      </div>
+    </div>
 
       <div style="margin-bottom:20px;">
         <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px;">📧 Email Setup (SendGrid)</div>
@@ -1274,123 +1290,42 @@ function getStyle() {
 // ============================================================
 async function generateLetters() {
   const clientName = document.getElementById('d-client-name').value.trim();
-  const clientId = document.getElementById('d-client-id').value.trim();
-  const clientEmail = document.getElementById('d-client-email').value.trim();
-  const clientPhone = document.getElementById('d-client-phone').value.trim();
+  const clientId   = document.getElementById('d-client-id').value.trim();
   const clientAddr = document.getElementById('d-client-address').value.trim();
-  const clientDOB = document.getElementById('d-client-dob').value.trim();
-  const notes = document.getElementById('d-notes').value.trim();
-  const items = getDisputeItemsData();
+  const clientDOB  = document.getElementById('d-client-dob').value.trim();
+  const notes      = document.getElementById('d-notes').value.trim();
+  const items      = getDisputeItemsData();
 
-  if(!clientName || !clientId) { alert('Please enter Client ID and Client Name before generating letters.'); return; }
-  if(items.length === 0) { alert('Please add at least one dispute item.'); return; }
-  if(!Object.values(selectedBureaus).some(Boolean)) { alert('Please select at least one credit bureau.'); return; }
+  if (!clientName || !clientId) { alert('Please enter Client ID and Client Name before generating letters.'); return; }
+  if (items.length === 0)       { alert('Please add at least one dispute item.'); return; }
+  if (!Object.values(selectedBureaus).some(Boolean)) { alert('Please select at least one credit bureau.'); return; }
 
-  const style = getStyle();
-  const bureaus = Object.entries(selectedBureaus).filter(([,v])=>v).map(([k])=>k);
-  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const style    = getStyle();
+  const bureaus  = Object.entries(selectedBureaus).filter(([,v])=>v).map(([k])=>k);
+  const today    = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const genBtn   = document.getElementById('gen-btn');
+  const genStatus= document.getElementById('gen-status');
 
-  const genBtn = document.getElementById('gen-btn');
-  const genStatus = document.getElementById('gen-status');
   genBtn.disabled = true;
-  genBtn.innerHTML = '<span class="spinner"></span> Generating letters...';
+  genBtn.innerHTML = '&#9203; Building letters...';
   genStatus.textContent = '';
-
   generatedLetters = {};
 
-  try {
-    if(sample) {
-      // Use AI to generate unique letters for each bureau
-      for(const bureauCode of bureaus) {
-        const bureauName = BUREAU_NAMES[bureauCode];
-        const bureauAddr = BUREAU_ADDRS[bureauCode];
-        genStatus.textContent = 'Generating '+bureauName+' letter...';
-
-        const itemsList = items.map((item,i) =>
-          `${i+1}. ${item.name}${item.acct?' (Account ending '+item.acct+')':''} — Reason: ${item.reason}${item.bureaus!=='All Bureaus'?' ['+item.bureaus+']':''}`
-        ).join('\n');
-
-        const prompt = `Generate a formal credit dispute letter for a credit repair company. Use a ${style.format} writing style. The letter should sound professional, assertive and legally grounded under FCRA (Fair Credit Reporting Act).
-
-Client Information:
-- Name: ${clientName}
-- Client ID: ${clientId}
-- Address: ${clientAddr || '(Not provided)'}
-- Date of Birth: ${clientDOB || '(Not provided)'}
-- Date: ${today}
-
-Bureau: ${bureauName}
-Bureau Address:
-${bureauAddr}
-
-Disputed Items:
-${itemsList}
-
-Additional Notes: ${notes || 'None'}
-
-Supporting Documents Enclosed: ${Object.keys(uploadedDocs).length > 0 ? Object.values(uploadedDocs).join(', ') : 'Government ID, SSN card, proof of address'}
-
-Instructions:
-- Write the FULL letter ready to print and mail
-- Reference FCRA Section 611 and the bureau's obligation to investigate
-- Be specific about each disputed item
-- Request written confirmation of the investigation results
-- Demand removal of any unverifiable items within 30 days
-- Include enclosures list at the bottom
-- Keep tone ${style.format === 'assertive' ? 'firm and legally assertive' : style.format === 'detailed' ? 'detailed and thorough' : 'professional and formal'}
-- Do NOT include any placeholder text like [YOUR NAME] — use the actual client info provided
-- Write ONLY the letter text, no explanation before or after`;
-
-        const result = await sample(prompt, {modelTier:'default'});
-        generatedLetters[bureauCode] = result.text;
-        genStatus.textContent = '✅ '+bureauName+' letter generated. ';
-      }
-
-      // Generate FTC Report
-      genStatus.textContent = 'Generating FTC Identity Theft Report...';
-      const ftcPrompt = `Generate an FTC Identity Theft Report for credit dispute purposes.
-
-Client: ${clientName} (ID: ${clientId})
-Address: ${clientAddr || 'On file'}
-Date: ${today}
-Disputed Accounts (potential identity theft items):
-${items.filter(i=>i.reason.includes('identity')||i.reason.includes('Not mine')||i.reason.includes('Fraudulent')).map(i=>'- '+i.name+(i.acct?' ending in '+i.acct:'')).join('\n') || items.map(i=>'- '+i.name).join('\n')}
-
-Generate a complete FTC Identity Theft Report that:
-- States the client did not open, use, or benefit from these accounts
-- References IdentityTheft.gov and FTC complaint process
-- Includes an affidavit-style declaration under penalty of perjury
-- Lists all disputed accounts
-- Includes signature line and date
-Write ONLY the report, no explanation.`;
-
-      const ftcResult = await sample(ftcPrompt, {modelTier:'default'});
-      generatedFTC = ftcResult.text;
-
-    } else {
-      // Fallback: template-based letters
-      for(const bureauCode of bureaus) {
-        generatedLetters[bureauCode] = buildTemplateLetter(clientName, clientId, clientAddr, clientDOB, bureauCode, items, today, uploadedDocs, style);
-      }
-      generatedFTC = buildTemplateFTC(clientName, clientId, clientAddr, items, today);
-    }
-
-    // Show output
-    displayLetters(style, bureaus, today);
-    genStatus.textContent = '✅ All letters and FTC report generated successfully.';
-
-  } catch(e) {
-    // Fallback to templates
-    for(const bureauCode of Object.entries(selectedBureaus).filter(([,v])=>v).map(([k])=>k)) {
-      generatedLetters[bureauCode] = buildTemplateLetter(clientName, clientId, clientAddr, clientDOB, bureauCode, items, today, uploadedDocs, style);
-    }
-    generatedFTC = buildTemplateFTC(clientName, clientId, clientAddr, items, today);
-    displayLetters(style, bureaus, today);
-    genStatus.textContent = '✅ Letters generated using template format.';
+  // Build template letters for each selected bureau
+  for (const bureauCode of bureaus) {
+    genStatus.textContent = 'Building ' + (BUREAU_NAMES[bureauCode]||bureauCode) + ' letter...';
+    generatedLetters[bureauCode] = buildTemplateLetter(clientName, clientId, clientAddr, clientDOB, bureauCode, items, today, uploadedDocs, style);
   }
 
+  displayLetters(style, bureaus, today);
+
+  genStatus.textContent = '✅ Letters generated successfully.';
   genBtn.disabled = false;
   genBtn.innerHTML = '✨ Regenerate Letters';
+
+  // Show File Dispute button at bottom
+  var fileCard = document.getElementById('file-dispute-card');
+  if (fileCard) { fileCard.style.display = 'block'; fileCard.scrollIntoView({behavior:'smooth', block:'end'}); }
 }
 
 function buildTemplateLetter(name, clientId, addr, dob, bureauCode, items, today, docs, style) {
@@ -1716,7 +1651,7 @@ function renderNotificationLog() {
 async function sendTestNotification() {
   const phone = prompt('Enter a phone number to send a test SMS:','+1');
   if(!phone) return;
-  alert('Test notification queued for '+phone+'. Configure Twilio credentials in Settings to enable live SMS sending.');
+  alert('Test notification queued for '+phone+'. SMS sending active via SignalWire.');
   notificationLog.unshift({date:new Date().toLocaleString(),client:'TEST',clientId:'CPR-TEST',type:'Test',channel:'SMS',preview:'This is a test notification from CP Restoration Services...',status:'Test Mode'});
   renderNotificationLog();
 }
