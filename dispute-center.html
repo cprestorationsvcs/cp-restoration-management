@@ -234,8 +234,13 @@ tr:hover td{background:#FAFAFA;}
     <div class="card">
       <div class="card-title">Step 3 — Dispute Items</div>
       <div class="card-sub">Add each item being disputed. These will appear in the cover letters and FTC report.</div>
+      <div style="font-size:12px;font-weight:700;color:#1B3A6B;margin-bottom:8px;padding:6px 10px;background:#EFF4FF;border-radius:6px;">&#x1F4CB; ACCOUNTS</div>
       <div id="dispute-items-list"></div>
-      <button class="btn btn-outline btn-sm" onclick="addDisputeItem()" style="margin-bottom:16px;">+ Add Dispute Item</button>
+      <button class="btn btn-outline btn-sm" onclick="addDisputeItem()" style="margin-bottom:20px;">+ Add Account</button>
+
+      <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:8px;padding:6px 10px;background:#FEF3C7;border-radius:6px;">&#128269; HARD INQUIRIES</div>
+      <div id="inquiry-items-list"></div>
+      <button class="btn btn-outline btn-sm" onclick="addInquiryItem()" style="margin-bottom:16px;border-color:#C9A84C;color:#92400E;">+ Add Inquiry</button>
       <div class="form-grid one">
         <div class="field"><label>Additional Context / Dispute Notes</label><textarea id="d-notes" placeholder="Any special circumstances, client's explanation of errors, account history notes..."></textarea></div>
       </div>
@@ -2907,7 +2912,13 @@ function getAllFormData() {
 function saveDraft() {
   try {
     var data = getAllFormData();
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    var json_str = JSON.stringify(data);
+    // Try localStorage first, fall back to sessionStorage
+    try {
+      localStorage.setItem(DRAFT_KEY, json_str);
+    } catch(quota) {
+      sessionStorage.setItem(DRAFT_KEY, json_str);
+    }
     _lastSaved = new Date();
     var st = document.getElementById('draft-status');
     if (st) st.textContent = '✅ Draft saved ' + _lastSaved.toLocaleTimeString();
@@ -2923,7 +2934,7 @@ function saveDraft() {
 
 function loadDraft() {
   try {
-    var raw = localStorage.getItem(DRAFT_KEY);
+    var raw = localStorage.getItem(DRAFT_KEY) || sessionStorage.getItem(DRAFT_KEY);
     if (!raw) { showToastDraft('No saved draft found.', 'error'); return; }
     var data = JSON.parse(raw);
     // Restore all standard fields
@@ -3058,24 +3069,23 @@ function initAutoSave() {
 
   // Auto-load draft on page load if one exists
   try {
-    var raw = localStorage.getItem(DRAFT_KEY);
+    var raw = localStorage.getItem(DRAFT_KEY) || sessionStorage.getItem(DRAFT_KEY);
     if (raw) {
       var data = JSON.parse(raw);
       var savedTime = data.savedAt ? new Date(data.savedAt).toLocaleString() : '';
       var st = document.getElementById('draft-status');
       if (st && savedTime) {
-        st.textContent = '&#128190; Draft available from ' + savedTime + ' -- click Load Draft to restore';
+        st.textContent = '&#128190; Draft available from ' + savedTime + ' — click Load Draft to restore';
         st.style.color = '#1A5C38';
         st.style.fontWeight = '700';
       }
       // Auto-restore if draft was saved within last 2 hours
       var age = data.savedAt ? (Date.now() - new Date(data.savedAt).getTime()) : Infinity;
       if (age < 2 * 60 * 60 * 1000) {
-        // Auto-restore silently
         setTimeout(function() {
           loadDraft();
           showToastDraft('&#128190; Draft auto-restored from ' + savedTime, 'success');
-        }, 500);
+        }, 800);
       }
     }
   } catch(e) {}
