@@ -2829,11 +2829,13 @@ function saveDraft() {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
     _lastSaved = new Date();
     var st = document.getElementById('draft-status');
-    if (st) st.textContent = '✅ Saved ' + _lastSaved.toLocaleTimeString();
+    if (st) st.textContent = '✅ Draft saved ' + _lastSaved.toLocaleTimeString();
+    showToastDraft('✅ Draft saved successfully!', 'success');
     return true;
   } catch(e) {
     var st = document.getElementById('draft-status');
-    if (st) st.textContent = '❌ Save failed';
+    if (st) st.textContent = '❌ Save failed: ' + e.message;
+    showToastDraft('❌ Save failed: ' + e.message, 'error');
     return false;
   }
 }
