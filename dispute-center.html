@@ -1684,10 +1684,22 @@ function renderNotificationLog() {
 
 async function sendTestNotification() {
   const phone = prompt('Enter a phone number to send a test SMS:','+1');
-  if(!phone) return;
-  alert('Test notification queued for '+phone+'. SMS sending active via SignalWire.');
-  notificationLog.unshift({date:new Date().toLocaleString(),client:'TEST',clientId:'CPR-TEST',type:'Test',channel:'SMS',preview:'This is a test notification from CP Restoration Services...',status:'Test Mode'});
-  renderNotificationLog();
+  if(!phone || phone==='+1') return;
+  try {
+    const resp = await fetch('/.netlify/functions/sms-proxy',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to:phone, body:'This is a test notification from CP Restoration Services. Your dispute center notifications are working correctly. Call 1-855-327-5847 with questions.', from:'+12014657592'})
+    });
+    const result = await resp.json();
+    const ok = result.status===200||result.status===201||(result.result&&result.result.sid);
+    const status = ok ? '✅ Sent' : '❌ Failed: '+(result.result?.message||JSON.stringify(result.result||{}));
+    notificationLog.unshift({date:new Date().toLocaleString(),client:'TEST',clientId:'CPR-TEST',type:'Test SMS',channel:'SMS',preview:'Test notification sent to '+phone,status:status});
+    renderNotificationLog();
+    alert(ok ? '✅ Test SMS sent to '+phone : '❌ Failed: '+JSON.stringify(result.result||{}));
+  } catch(e) {
+    alert('❌ Error: '+e.message);
+  }
 }
 
 // ============================================================
