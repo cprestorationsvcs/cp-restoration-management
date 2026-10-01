@@ -968,6 +968,47 @@ cprestorationsvcs@gmail.com
 // ============================================================
 let disputes = [];
 let notificationLog = [];
+const _SUPA_URL = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+const _SUPA_KEY = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
+
+async function loadDisputes() {
+  const logTable = document.getElementById('log-table');
+  if (logTable) logTable.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#64748B;padding:20px;">&#128260; Loading disputes...</td></tr>';
+  try {
+    const r = await fetch(_SUPA_URL + '/disputes?order=filed_at.desc&limit=200', {
+      headers: {'apikey': _SUPA_KEY, 'Authorization': 'Bearer ' + _SUPA_KEY}
+    });
+    const rows = await r.json();
+    if (Array.isArray(rows) && rows.length) {
+      disputes = rows.map(function(row) {
+        var items = [];
+        try { items = JSON.parse(row.notes || '[]'); } catch(e) {}
+        return {
+          id:         row.id,
+          clientId:   row.client_id,
+          clientName: row.client_name,
+          clientEmail:row.client_email || '',
+          clientPhone:row.client_phone || '',
+          bureaus:    row.bureaus ? row.bureaus.split(',') : [],
+          items:      Array.isArray(items) ? items : [],
+          status:     row.status || 'Filed',
+          filedAt:    row.filed_at,
+          filedDate:  row.filed_at ? new Date(row.filed_at).toLocaleDateString() : '',
+          specialist: row.specialist || '',
+          nextAction: row.next_action || '',
+          timelineEvents: []
+        };
+      });
+      updateStats();
+      renderLog();
+    } else {
+      if (logTable) logTable.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#94A3B8;padding:32px;">No disputes filed yet.</td></tr>';
+    }
+  } catch(e) {
+    console.error('loadDisputes error:', e);
+    if (logTable) logTable.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#991B1B;padding:20px;">&#10060; Error loading disputes: ' + e.message + '</td></tr>';
+  }
+}
 let disputeItems = [];
 let inquiryItems = [];
 let selectedBureaus = {eq:true, ex:true, tu:true};
@@ -1543,7 +1584,7 @@ async function fileDispute() {
   const mailDate = document.getElementById('mail-date');
   if(mailDate) mailDate.value = new Date().toISOString().split('T')[0];
 
-  renderLog();
+  await loadDisputes();
 }
 
 // ============================================================
@@ -3116,7 +3157,10 @@ function initAutoSave() {
 
 // Initialize auto-save when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initAutoSave);
+  document.addEventListener('DOMContentLoaded', function() {
+  initAutoSave();
+  loadDisputes();
+});
 } else {
   initAutoSave();
 }
