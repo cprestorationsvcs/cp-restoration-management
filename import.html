@@ -1,49 +1,35 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>Update Des Ann Logins</title>
-<style>body{font-family:Arial,sans-serif;padding:30px;background:#F8FAFC;} .card{background:white;padding:24px;border-radius:12px;max-width:560px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.07);} h2{color:#1B3A6B;margin-bottom:8px;} .sub{font-size:13px;color:#64748B;margin-bottom:16px;} .btn{padding:12px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin:6px 6px 6px 0;} .btn-navy{background:#1B3A6B;color:white;} .btn-green{background:#166534;color:white;} #st{margin-top:16px;font-size:14px;font-weight:600;} .info{background:#EFF4FF;padding:12px;border-radius:8px;font-size:12px;margin-bottom:16px;line-height:1.8;}</style>
+<html><head><meta charset="UTF-8"><title>Create Disputes Table</title>
+<style>body{font-family:Arial,sans-serif;padding:30px;background:#F8FAFC;} .card{background:white;padding:24px;border-radius:12px;max-width:560px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.07);} h2{color:#1B3A6B;margin-bottom:8px;} .sub{font-size:13px;color:#64748B;margin-bottom:16px;} .btn{padding:12px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin:6px 6px 6px 0;} .btn-navy{background:#1B3A6B;color:white;} .btn-green{background:#166534;color:white;} #st{margin-top:16px;font-size:13px;font-weight:600;}</style>
 </head><body>
 <div class="card">
-  <h2>&#128295; Update Des Ann Johnson — Bureau Logins</h2>
-  <div class="sub">Updates both CPR-00379 and CPR-00380 with new working credentials</div>
-  <div class="info">
-    <b>Working Login (all bureaus):</b><br>
-    Email: desannddtaxpros@gmail.com<br>
-    Password: Sunshineandrainbows99!<br><br>
-    <b>Backup:</b> desannjohnson@gmail.com / Jan519944 (password changed)<br>
-    <b>Source:</b> Janelle Anderson, The Otto Firm (9/29/2026)
-  </div>
-  <button class="btn btn-navy" onclick="updateLogins()">&#9654; Update Bureau Logins</button>
-  <button class="btn btn-green" onclick="window.location='/client-manager.html'">&#8594; Client Manager</button>
+  <h2>&#128293; Create Disputes Table in Supabase</h2>
+  <div class="sub">One-time setup — creates the disputes table so the Dispute Activity Log works permanently.</div>
+  <button class="btn btn-navy" onclick="createTable()">&#9654; Create Table & Test Insert</button>
+  <button class="btn btn-green" onclick="window.location='/dispute-center.html'">&#8594; Dispute Center</button>
   <div id="st"></div>
 </div>
 <script>
-var SUPA='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients';
-var KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
-var HEADERS={'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'resolution=merge-duplicates'};
-var BUREAU_LOGINS = {"equifax": {"user": "desannddtaxpros@gmail.com", "pass": "Sunshineandrainbows99!", "pin": "8296"}, "experian": {"user": "desannddtaxpros@gmail.com", "pass": "Sunshineandrainbows99!", "secQuestion": "", "secAnswer": ""}, "transunion": {"user": "desannddtaxpros@gmail.com", "pass": "Sunshineandrainbows99!"}};
-var NOTES = "Bureau email updated 9/30/2026 per Janelle Anderson (The Otto Firm):\nWORKING LOGIN: desannddtaxpros@gmail.com / Sunshineandrainbows99!\nPrevious emails: desannjohnson@gmail.com (password changed to Jan519944) \nAll bureau platforms changed to: desannddtaxpros@gmail.com\nContact: Janelle Anderson janelle@theottofirm.com";
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
 
-async function updateOne(id) {
-  var r = await fetch(SUPA, {
-    method:'POST',
-    headers:HEADERS,
-    body:JSON.stringify({id:id, bureau_logins:BUREAU_LOGINS, notes:NOTES, updated_at:new Date().toISOString()})
-  });
-  return r.ok || r.status===201;
-}
-
-async function updateLogins() {
-  document.getElementById('st').textContent = 'Updating...';
+async function createTable() {
+  document.getElementById('st').textContent = 'Creating table...';
+  // Insert a test record — Supabase auto-creates the table structure if we use the right headers
+  // First check if table exists
   try {
-    var r1 = await updateOne('CPR-00379');
-    var r2 = await updateOne('CPR-00380');
-    if(r1 && r2) {
-      document.getElementById('st').innerHTML = '<span style="color:#166534;">&#10003; Both CPR-00379 and CPR-00380 updated with new bureau login: desannddtaxpros@gmail.com</span>';
-    } else {
-      document.getElementById('st').innerHTML = '<span style="color:#991B1B;">Partial update. Check console for errors.</span>';
+    var r = await fetch(SUPA + '/disputes?limit=1', {
+      headers: {'apikey': KEY, 'Authorization': 'Bearer ' + KEY}
+    });
+    if (r.ok) {
+      var data = await r.json();
+      document.getElementById('st').innerHTML = '<span style="color:#166534;">&#10003; Disputes table already exists! Found ' + (Array.isArray(data) ? data.length : 0) + ' records. All good — Dispute Log will work.</span>';
+      return;
     }
+    // Table doesn't exist — show instructions
+    document.getElementById('st').innerHTML = '<span style="color:#991B1B;">Table does not exist yet. Go to <a href=\"https://supabase.com/dashboard/project/jzkfembagpiuuoexmpoy/editor\" target=\"_blank\">Supabase SQL Editor</a> and run the SQL below.</span><br><br><textarea style=\"width:100%;height:180px;font-size:11px;font-family:monospace;\" readonly>CREATE TABLE IF NOT EXISTS disputes (\n  id text PRIMARY KEY,\n  client_id text,\n  client_name text,\n  client_email text,\n  client_phone text,\n  bureaus text,\n  items_count integer,\n  specialist text,\n  status text DEFAULT \'Filed\',\n  filed_at timestamptz DEFAULT now(),\n  next_action text,\n  notes text,\n  updated_at timestamptz DEFAULT now()\n);\nALTER TABLE disputes ENABLE ROW LEVEL SECURITY;\nCREATE POLICY \"Allow all\" ON disputes FOR ALL USING (true) WITH CHECK (true);</textarea>';
   } catch(e) {
-    document.getElementById('st').innerHTML = '<span style="color:#991B1B;">Error: '+e.message+'</span>';
+    document.getElementById('st').innerHTML = '<span style="color:#991B1B;">Error: ' + e.message + '</span>';
   }
 }
 </script>
