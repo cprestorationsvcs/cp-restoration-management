@@ -1591,63 +1591,73 @@ async function fileDispute() {
 // NOTIFICATIONS
 // ============================================================
 async function sendNotifications(dispute) {
-  const autoSMS = document.getElementById('auto-sms')?.checked !== false;
+  const autoSMS   = document.getElementById('auto-sms')?.checked !== false;
   const autoEmail = document.getElementById('auto-email')?.checked !== false;
   const now = new Date().toLocaleString();
 
-  const smsTemplate = document.getElementById('sms-dispute-filed')?.value || '';
-  const emailSubj = document.getElementById('email-dispute-subject')?.value || '';
-  const emailBody = document.getElementById('email-dispute-body')?.value || '';
+  // Build default messages if templates are empty
+  const smsTemplate = document.getElementById('sms-dispute-filed')?.value ||
+    'Hi [CLIENT_NAME], your credit dispute has been filed with [BUREAUS] by CP Restoration Services. We will update you on progress. Call 1-855-327-5847 with questions.';
+  const emailSubj = document.getElementById('email-dispute-subject')?.value ||
+    'Your Credit Dispute Has Been Filed — CP Restoration Services';
+  const emailBody = document.getElementById('email-dispute-body')?.value ||
+    'Dear [CLIENT_NAME],\n\nYour credit dispute has been officially filed with [BUREAUS] as of [DATE].\n\nItems disputed: [ITEMS_COUNT]\n[ITEMS_LIST]\n\nYou will receive written responses from the bureaus within 30 business days. We will notify you of any updates.\n\nIf you have any questions please contact us at cprestorationsvcs@gmail.com or call 1-855-327-5847.\n\nCP Restoration Services\ncprestorationsvcs@gmail.com\n1-855-327-5847\nMonday — Friday | 9:00 AM – 5:00 PM EST\n35daycreditrepair.com';
 
   const replacements = {
-    CLIENT_NAME: dispute.clientName,
-    BUREAUS: dispute.bureaus.join(', '),
-    ITEMS_COUNT: dispute.items.length,
-    DATE: dispute.filedDate,
-    BUREAUS_LIST: dispute.bureaus.map(b=>'  • '+b).join('\n'),
-    ITEMS_LIST: dispute.items.map(i=>'  • '+i.name+' — '+i.reason).join('\n'),
-    DOCS_LIST: dispute.docs.length > 0 ? dispute.docs.join(', ') : 'Government ID, SSN card, proof of address',
+    CLIENT_NAME:  dispute.clientName  || 'Valued Client',
+    BUREAUS:      (dispute.bureaus||[]).join(', '),
+    ITEMS_COUNT:  (dispute.items||[]).length,
+    DATE:         dispute.filedDate   || new Date().toLocaleDateString(),
+    BUREAUS_LIST: (dispute.bureaus||[]).map(b=>'  • '+b).join('\n'),
+    ITEMS_LIST:   (dispute.items||[]).map(i=>'  • '+(i.name||'Item')+' — '+(i.reason||'')).join('\n'),
+    DOCS_LIST:    'Government ID, SSN card, proof of address, FTC Identity Theft Report',
   };
 
-  const replace = (str) => Object.entries(replacements).reduce((s,[k,v])=>s.replaceAll('['+k+']',v),str);
-  const smsMsg = replace(smsTemplate);
-  const emailMsg = replace(emailBody);
+  const replace = (str) => Object.entries(replacements).reduce((s,[k,v])=>s.replaceAll('['+k+']',String(v)),str);
+  const smsMsg       = replace(smsTemplate);
+  const emailMsg     = replace(emailBody);
   const emailSubjFinal = replace(emailSubj);
 
-  // Log notifications
   const logEntry = (type, channel, msg, status) => {
-    const entry = { date: now, client: dispute.clientName, clientId: dispute.clientId, type, channel, preview: msg.substring(0,80)+'...', status };
+    const entry = { date: now, client: dispute.clientName, clientId: dispute.clientId, type, channel, preview: (msg||'').substring(0,80)+'...', status };
     notificationLog.unshift(entry);
-    if(db) db.doc('dispute_notifications/notif_'+Date.now()+'_'+channel).set(entry).catch(()=>{});
   };
 
-  if(autoSMS && dispute.clientPhone) {
-// Twilio removed — SMS now via SignalWire proxy
+  // ── SMS via SignalWire proxy ──
+  if (autoSMS && dispute.clientPhone) {
+    try {
+      const resp = await fetch('/.netlify/functions/sms-proxy', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ to: dispute.clientPhone, body: smsMsg, from: '+12014657592' })
+      });
+      const result = await resp.json();
+      const ok = result.status === 200 || result.status === 201 || (result.result && result.result.sid);
+      logEntry('Dispute Filed', 'SMS', smsMsg, ok ? '✅ Sent' : '❌ Failed: '+(result.result?.message||JSON.stringify(result.result||{})));
+    } catch(e) {
+      logEntry('Dispute Filed', 'SMS', smsMsg, '❌ Error: '+e.message);
+    }
   }
 
-  if(autoEmail && dispute.clientEmail) {
-    const sgKey = document.getElementById('sg-key')?.value;
-    const sgFrom = document.getElementById('sg-from')?.value || 'cprestorationsvcs@gmail.com';
-    const sgName = document.getElementById('sg-name')?.value || 'CP Restoration Services';
-
-    if(sgKey) {
-      try {
-        const resp = await fetch('https://api.sendgrid.com/v3/mail/send', {
-          method:'POST',
-          headers:{'Authorization':'Bearer '+sgKey,'Content-Type':'application/json'},
-          body: JSON.stringify({
-            personalizations:[{to:[{email:dispute.clientEmail,name:dispute.clientName}]}],
-            from:{email:sgFrom,name:sgName},
-            subject: emailSubjFinal,
-            content:[{type:'text/plain',value:emailMsg}]
-          })
-        });
-        logEntry('Dispute Filed','Email',emailMsg,resp.ok?'Sent':'Failed');
-      } catch(e) {
-        logEntry('Dispute Filed','Email',emailMsg,'Failed — CORS (needs server proxy)');
-      }
-    } else {
-      logEntry('Dispute Filed','Email',emailMsg,'Queued — SendGrid not configured');
+  // ── Email via email-proxy (SendGrid) ──
+  if (autoEmail && dispute.clientEmail) {
+    try {
+      const resp = await fetch('/.netlify/functions/email-proxy', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          personalizations: [{to:[{email: dispute.clientEmail, name: dispute.clientName}]}],
+          from: {email:'cprestorationsvcs@gmail.com', name:'CP Restoration Services'},
+          subject: emailSubjFinal,
+          content: [
+            {type:'text/plain', value: emailMsg},
+            {type:'text/html',  value: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+emailMsg.replace(/\n/g,'<br>')+'<br><br><hr style="border:none;border-top:1px solid #eee;margin:24px 0;"><p style="font-size:12px;color:#888;">CP Restoration Services<br>cprestorationsvcs@gmail.com<br>1-855-327-5847<br>Monday — Friday | 9:00 AM – 5:00 PM EST<br>35daycreditrepair.com</p></div>'}
+          ]
+        })
+      });
+      logEntry('Dispute Filed', 'Email', emailMsg, resp.ok ? '✅ Sent' : '❌ Failed ('+resp.status+')');
+    } catch(e) {
+      logEntry('Dispute Filed', 'Email', emailMsg, '❌ Error: '+e.message);
     }
   }
 
