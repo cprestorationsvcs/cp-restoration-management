@@ -325,7 +325,7 @@ tr:hover td{background:#FAFAFA;}
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
           <button class="btn btn-blue" onclick="generateLetters()" id="gen-btn">
-            ✨ Generate Dispute Letters + FTC Report
+            ✨ Generate Dispute Letters
           </button>
           <button class="btn btn-outline" onclick="saveDraft()" style="border-color:#C9A84C;color:#7A5F00;">
             💾 Save Draft
@@ -367,12 +367,29 @@ tr:hover td{background:#FAFAFA;}
       <div class="card" id="ftc-card">
         <div class="card-header">
           <div>
-            <div class="card-title">⚖️ FTC Identity Theft Report</div>
-            <div class="card-sub">Auto-generated FTC report to include with every dispute submission.</div>
+            <div class="card-title">&#x2696;&#xFE0F; FTC Identity Theft Report</div>
+            <div class="card-sub">Must be filed directly at IdentityTheft.gov — download and attach to your dispute submission.</div>
           </div>
-          <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print FTC Report</button>
         </div>
-        <div id="ftc-display" class="letter-preview" style="background:#FFFDF5;border-color:var(--gold);"></div>
+        <div style="padding:20px;">
+          <div style="background:#FDF8EE;border:1.5px solid #C9A84C;border-radius:10px;padding:18px;margin-bottom:16px;">
+            <div style="font-size:14px;font-weight:700;color:#7A5F00;margin-bottom:8px;">&#9888; The FTC Report must be generated at the official government website</div>
+            <div style="font-size:13px;color:#7A5F00;line-height:1.8;">CP Restoration does not generate this form — it must come directly from the FTC to be legally valid.</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">How to Get the FTC Identity Theft Report:</div>
+          <ol style="font-size:13px;line-height:2.2;padding-left:20px;color:var(--text);">
+            <li>Click the button below to open <strong>IdentityTheft.gov</strong></li>
+            <li>Click <strong>"Get Started"</strong> and select <strong>"Someone misused my information"</strong></li>
+            <li>Complete the form with the client's information</li>
+            <li>You will need a phone number to receive an <strong>SMS verification code</strong></li>
+            <li>Once complete, download the PDF of the FTC Report</li>
+            <li>Attach the downloaded PDF to the dispute submission for each bureau</li>
+          </ol>
+          <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <a href="https://www.identitytheft.gov/" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#1B3A6B;color:white;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;">&#127760; Open IdentityTheft.gov</a>
+            <div style="background:#EFF4FF;border-radius:8px;padding:12px 16px;font-size:12px;color:#1B3A6B;line-height:1.7;"><strong>SMS code needed:</strong><br>Use the client's phone number on file.<br>Or call Marcus at (251) 405-8196.</div>
+          </div>
+        </div>
       </div>
 
 
