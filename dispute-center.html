@@ -1622,24 +1622,7 @@ async function sendNotifications(dispute) {
   };
 
   if(autoSMS && dispute.clientPhone) {
-    const twilioSid = document.getElementById('twilio-sid')?.value;
-    const twilioToken = document.getElementById('twilio-token')?.value;
-    const twilioFrom = document.getElementById('twilio-from')?.value;
-
-    if(twilioSid && twilioToken && twilioFrom) {
-      try {
-        const resp = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
-          method:'POST',
-          headers:{'Authorization':'Basic '+btoa(twilioSid+':'+twilioToken),'Content-Type':'application/x-www-form-urlencoded'},
-          body: new URLSearchParams({From:twilioFrom, To:dispute.clientPhone, Body:smsMsg})
-        });
-        logEntry('Dispute Filed','SMS',smsMsg, resp.ok?'Sent':'Failed');
-      } catch(e) {
-        logEntry('Dispute Filed','SMS',smsMsg,'Failed — CORS (needs server proxy)');
-      }
-    } else {
-      logEntry('Dispute Filed','SMS',smsMsg,'Queued — Twilio not configured');
-    }
+// Twilio removed — SMS now via SignalWire proxy
   }
 
   if(autoEmail && dispute.clientEmail) {
