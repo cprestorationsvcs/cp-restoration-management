@@ -3,7 +3,7 @@ exports.handler = async function(event, context) {
   const projectId = '63cf52ee-fce3-481d-ab7e-0c91b3cdf93e';
   const token = ['swapi_Q525FlSP8wgx','UW82o1MeVW61dqpsOPn7x6cr'].join('');
   const space = 'cprestorationsvcs.signalwire.com';
-  const to = (event.queryStringParameters && event.queryStringParameters.to) || '+12014657592';
+  const to = (event.queryStringParameters && event.queryStringParameters.to) || '+12014298918';
 
   // SignalWire REST API — same structure as Twilio
   const path = '/api/laml/2010-04-01/Accounts/' + projectId + '/Messages.json?PageSize=20&To=' + encodeURIComponent(to);
