@@ -5,9 +5,10 @@ exports.handler = async function(event, context) {
 
   const https = require('https');
   const body = JSON.parse(event.body || '{}');
-  const to = body.to;
-  const msg = body.body || body.message || '';
-  const from = body.from || '+12014657592';
+  const to   = body.to;
+  const msg  = body.body || body.message || '';
+  // Use test-enabled number until campaign is approved
+  const from = '+12014298918';
 
   if (!to || !msg) {
     return { statusCode:400, headers:{'Access-Control-Allow-Origin':'*'}, body: JSON.stringify({error:'Missing to or body'}) };
