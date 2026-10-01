@@ -2020,19 +2020,83 @@ function startNextRound() {
 }
 
 function startNewDispute() {
-  ['d-client-id','d-client-name','d-client-email','d-client-phone','d-client-address','d-client-dob','d-notes'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
+  // ── Clear all d- inputs and textareas ──
+  document.querySelectorAll('input, select, textarea').forEach(function(el) {
+    if (!el.id) return;
+    if (el.type === 'checkbox') { el.checked = false; return; }
+    if (el.type === 'radio')    { el.checked = false; return; }
+    el.value = '';
   });
-  document.getElementById('dispute-items-list').innerHTML='';
-  disputeItems=[];
-  addDisputeItem();
-  generatedLetters={};
-  generatedFTC='';
-  document.getElementById('letters-output').style.display='none';
-  document.getElementById('post-filing-card').style.display='none';
-  document.getElementById('client-found-alert').style.display='none';
-  showTab('new-dispute');
-  window.scrollTo({top:0,behavior:'smooth'});
+
+  // ── Clear dispute item rows (Accounts) ──
+  var dlist = document.getElementById('dispute-items-list');
+  if (dlist) dlist.innerHTML = '';
+  disputeItems = [];
+
+  // ── Clear inquiry item rows ──
+  var ilist = document.getElementById('inquiry-items-list');
+  if (ilist) ilist.innerHTML = '';
+  if (typeof inquiryItems !== 'undefined') inquiryItems = [];
+
+  // ── Reset bureau checkboxes and selectedBureaus state ──
+  ['eq','ex','tu'].forEach(function(b) {
+    var el = document.getElementById('bureau-' + b);
+    if (el) el.checked = false;
+  });
+  if (typeof selectedBureaus !== 'undefined') {
+    Object.keys(selectedBureaus).forEach(function(k) { selectedBureaus[k] = false; });
+  }
+
+  // ── Clear generated letters display ──
+  var lc = document.getElementById('letters-container');
+  if (lc) lc.innerHTML = '';
+  var ld = document.getElementById('letter-display');
+  if (ld) { ld.innerHTML = ''; ld.style.display = 'none'; }
+  var lt = document.getElementById('letters-tabs');
+  if (lt) lt.innerHTML = '';
+  if (typeof generatedLetters !== 'undefined') generatedLetters = {};
+  if (typeof generatedFTC     !== 'undefined') generatedFTC = '';
+
+  // ── Hide file dispute card ──
+  var fc = document.getElementById('file-dispute-card');
+  if (fc) fc.style.display = 'none';
+
+  // ── Reset generate button ──
+  var gb = document.getElementById('gen-btn');
+  if (gb) { gb.disabled = false; gb.innerHTML = '✨ Generate Dispute Letters'; }
+  var gs = document.getElementById('gen-status');
+  if (gs) gs.textContent = '';
+
+  // ── Reset file button ──
+  var fb = document.getElementById('file-btn');
+  if (fb) { fb.disabled = false; fb.innerHTML = '✅ File Dispute + Notify Client'; }
+
+  // ── Clear uploaded docs ──
+  if (typeof uploadedDocs !== 'undefined') uploadedDocs = {};
+  document.querySelectorAll('.upload-preview, .doc-preview, .uploaded-files').forEach(function(el) {
+    el.innerHTML = '';
+  });
+
+  // ── Clear draft from all storages ──
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+  try { sessionStorage.removeItem(DRAFT_KEY); } catch(e) {}
+  try {
+    var req = indexedDB.open('CPRDispute', 1);
+    req.onsuccess = function(e) {
+      try {
+        var db = e.target.result;
+        db.transaction('drafts','readwrite').objectStore('drafts').delete(DRAFT_KEY);
+      } catch(e2) {}
+    };
+  } catch(e) {}
+
+  // ── Clear draft status ──
+  var st = document.getElementById('draft-status');
+  if (st) { st.textContent = ''; st.style.color = ''; }
+
+  // ── Scroll to top ──
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  showToastDraft('✅ Ready for new dispute!', 'success');
 }
 
 // ============================================================
