@@ -243,8 +243,7 @@ async function loadClients(){
 
 function hasUnread(c){
   if(!c.notes) return false;
-  var lines=c.notes.split('
-');
+  var lines=c.notes.split('\n');
   // Has unread if last message tag is CLIENT MESSAGE not TEAM REPLY
   var lastTag='';
   for(var i=0;i<lines.length;i++){
@@ -305,8 +304,7 @@ function openClient(c,el){
 function parseMsgs(notes){
   if(!notes) return [];
   var msgs=[];
-  var lines=notes.split('
-');
+  var lines=notes.split('\n');
   for(var i=0;i<lines.length;i++){
     var line=lines[i].trim();
     if(line.indexOf('[CLIENT MESSAGE ')===0){var c=line.indexOf(']:');if(c>0)msgs.push({from:'client',date:line.substring(16,c),text:line.substring(c+2).trim()});}
@@ -336,8 +334,7 @@ async function sendReply(){
   var txt=document.getElementById('reply-txt').value.trim();
   if(!txt) return;
   document.getElementById('reply-txt').value='';
-  var tag='
-[TEAM REPLY '+new Date().toLocaleString()+']: '+txt;
+  var tag='\n[TEAM REPLY '+new Date().toLocaleString()+']: '+txt;
   currentClient.notes=(currentClient.notes||'')+tag;
   renderThread(currentClient);
   try{
@@ -352,17 +349,7 @@ async function sendReply(){
           from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
           subject:'Message from CP Restoration Services',
           content:[
-            {type:'text/plain',value:'Dear '+currentClient.name+',
-
-'+txt+'
-
-Log in to reply:
-portal-cprestorationsvcs.com/client-portal.html
-User ID: '+currentClient.id+'
-Password: restore2026
-
-CP Restoration Services
-1-855-327-5847'},
+            {type:'text/plain',value:'Dear '+currentClient.name+',\n\n'+txt+'\n\nLog in to reply:\nportal-cprestorationsvcs.com/client-portal.html\nUser ID: '+currentClient.id+'\nPassword: restore2026\n\nCP Restoration Services\n1-855-327-5847'},
             {type:'text/html',value:'<div style="font-family:Arial;max-width:580px;margin:0 auto;"><div style="background:#1B3A6B;padding:16px 20px;border-radius:8px 8px 0 0;"><h2 style="color:white;margin:0;font-size:15px;">CP Restoration Services</h2></div><div style="border:1px solid #E2E8F0;border-top:none;padding:20px;border-radius:0 0 8px 8px;"><p>Dear <b>'+safe(currentClient.name)+'</b>,</p><div style="background:#F8FAFC;border-left:4px solid #1B3A6B;padding:12px;margin:14px 0;font-size:13px;line-height:1.7;">'+safe(txt)+'</div><p style="font-size:12px;color:#64748B;">Reply: <a href="https://portal-cprestorationsvcs.com/client-portal.html">portal-cprestorationsvcs.com</a><br>ID: '+safe(currentClient.id)+' | Password: restore2026</p><hr style="border:none;border-top:1px solid #eee;margin:14px 0;"><p style="font-size:11px;color:#94A3B8;">CP Restoration | 1-855-327-5847 | Mon-Fri 9AM-5PM EST</p></div></div>'}
           ]
         })
@@ -425,8 +412,7 @@ async function submitStatusRequest(){
   var reason=document.getElementById('su-reason').value;
   var notes=document.getElementById('su-notes').value.trim();
   if(!reason){toast('Select a reason','err');return;}
-  var tag='
-[STATUS REQUEST '+new Date().toLocaleString()+']: '+reason+(notes?' — '+notes:'');
+  var tag='\n[STATUS REQUEST '+new Date().toLocaleString()+']: '+reason+(notes?' — '+notes:'');
   currentClient.notes=(currentClient.notes||'')+tag;
   await saveNotes();
   // Email dispute dept
@@ -435,19 +421,7 @@ async function submitStatusRequest(){
       personalizations:[{to:[{email:'cprestorationsvcs@gmail.com',name:'Dispute Department'}]}],
       from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services — CS'},
       subject:'STATUS UPDATE REQUEST — '+currentClient.name+' ('+currentClient.id+')',
-      content:[{type:'text/plain',value:'STATUS UPDATE REQUEST
-
-Client: '+currentClient.name+'
-ID: '+currentClient.id+'
-Email: '+currentClient.email+'
-Phone: '+currentClient.phone+'
-
-Reason: '+reason+'
-Notes: '+(notes||'None')+'
-
-Please complete status update within 24 hours and send to client via portal and email.
-
-Logged by CS at '+new Date().toLocaleString()}]
+      content:[{type:'text/plain',value:'STATUS UPDATE REQUEST\n\nClient: '+currentClient.name+'\nID: '+currentClient.id+'\nEmail: '+currentClient.email+'\nPhone: '+currentClient.phone+'\n\nReason: '+reason+'\nNotes: '+(notes||'None')+'\n\nPlease complete status update within 24 hours and send to client via portal and email.\n\nLogged by CS at '+new Date().toLocaleString()}]
     })
   });
   toast('Status request sent to Dispute Department');
@@ -460,8 +434,7 @@ async function submitRefundRequest(){
   var reason=document.getElementById('rf-reason').value;
   var notes=document.getElementById('rf-notes').value.trim();
   if(!reason){toast('Select a reason','err');return;}
-  var tag='
-[REFUND REQUEST '+new Date().toLocaleString()+']: '+reason+(notes?' — '+notes:'');
+  var tag='\n[REFUND REQUEST '+new Date().toLocaleString()+']: '+reason+(notes?' — '+notes:'');
   currentClient.notes=(currentClient.notes||'')+tag;
   await saveNotes();
   // Email Queen in compliance
@@ -470,21 +443,7 @@ async function submitRefundRequest(){
       personalizations:[{to:[{email:'queen@mycprteam.com',name:'Queen — Compliance'}]}],
       from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services — CS'},
       subject:'REFUND REQUEST — '+currentClient.name+' ('+currentClient.id+')',
-      content:[{type:'text/plain',value:'REFUND REQUEST — COMPLIANCE REVIEW NEEDED
-
-Client: '+currentClient.name+'
-ID: '+currentClient.id+'
-Email: '+currentClient.email+'
-Phone: '+currentClient.phone+'
-Package: '+(currentClient.package||'Standard')+'
-Start Date: '+(currentClient.start_date||'Unknown')+'
-
-Reason given by client: '+reason+'
-CS Notes: '+(notes||'None')+'
-
-Please evaluate within 24 hours and update client portal and send decision by email.
-
-Logged by CS at '+new Date().toLocaleString()}]
+      content:[{type:'text/plain',value:'REFUND REQUEST — COMPLIANCE REVIEW NEEDED\n\nClient: '+currentClient.name+'\nID: '+currentClient.id+'\nEmail: '+currentClient.email+'\nPhone: '+currentClient.phone+'\nPackage: '+(currentClient.package||'Standard')+'\nStart Date: '+(currentClient.start_date||'Unknown')+'\n\nReason given by client: '+reason+'\nCS Notes: '+(notes||'None')+'\n\nPlease evaluate within 24 hours and update client portal and send decision by email.\n\nLogged by CS at '+new Date().toLocaleString()}]
     })
   });
   toast('Refund request sent to Queen (Compliance)');
@@ -496,8 +455,7 @@ async function saveCallNotes(){
   if(!currentClient) return;
   var notes=document.getElementById('call-notes').value.trim();
   if(!notes){toast('Enter notes first','err');return;}
-  var tag='
-[CS NOTE '+new Date().toLocaleString()+']: '+notes;
+  var tag='\n[CS NOTE '+new Date().toLocaleString()+']: '+notes;
   currentClient.notes=(currentClient.notes||'')+tag;
   await saveNotes();
   document.getElementById('call-notes').value='';
@@ -528,7 +486,7 @@ function bureauCard(name,cls,abbr,uField,pField,pinField,sqField,saField,c){
   var extra='';
   if(pinField) extra+=
     '<div class="login-row"><label>4-Digit PIN</label><input type="text" id="f-'+pinField+'" value="'+safe(c[pinField]||'')+'" maxlength="4" placeholder="1234"></div>'+
-    '<div class="login-row"><label>Security Question</label><input type="text" id="f-'+sqField+'" value="'+safe(c[sqField]||'')+'" placeholder="What is your mother's maiden name?"></div>'+
+    '<div class="login-row"><label>Security Question</label><input type="text" id="f-'+sqField+'" value="'+safe(c[sqField]||'')+'" placeholder="What is your security question?"></div>'+
     '<div class="login-row"><label>Security Answer</label><input type="text" id="f-'+saField+'" value="'+safe(c[saField]||'')+'" placeholder="Answer"></div>';
   return '<div class="bureau-card">'+
     '<div class="bc-head '+cls+'">&#9679; '+name+' &nbsp;'+status+'</div>'+
@@ -569,14 +527,14 @@ function updateFileBadge(c){
 }
 
 async function pauseFile(){
-  if(!currentClient||!confirm('Pause this client's file? This is used for chargebacks and refund disputes.')) return;
+  if(!currentClient||!confirm('Pause this client file? This is used for chargebacks and refund disputes.')) return;
   await updateStatus('Paused — Compliance Review');
   toast('File paused — Compliance notified');
   notifyCompliance('FILE PAUSED');
 }
 
 async function resumeFile(){
-  if(!currentClient||!confirm('Resume this client's file?')) return;
+  if(!currentClient||!confirm('Resume this client file?')) return;
   await updateStatus('Active');
   toast('File resumed');
 }
@@ -596,15 +554,7 @@ async function notifyCompliance(type){
       personalizations:[{to:[{email:'queen@mycprteam.com',name:'Queen — Compliance'}]}],
       from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
       subject:type+' — '+currentClient.name+' ('+currentClient.id+')',
-      content:[{type:'text/plain',value:type+'
-
-Client: '+currentClient.name+'
-ID: '+currentClient.id+'
-Email: '+currentClient.email+'
-
-This client's file has been paused pending compliance review.
-
-Please review and take action within 24 hours.'}]
+      content:[{type:'text/plain',value:type+'\n\nClient: '+currentClient.name+'\nID: '+currentClient.id+'\nEmail: '+currentClient.email+'\n\nThis client file has been paused pending compliance review.\n\nPlease review and take action within 24 hours.'}]
     })
   });
 }
@@ -673,27 +623,7 @@ async function sendPortalLink(){
         personalizations:[{to:[{email:c.email,name:c.name}]}],
         from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
         subject:'Your CP Restoration Client Portal — Login Information',
-        content:[{type:'text/plain',value:'Dear '+c.name+',
-
-CP Restoration Services is open and fully operational. We recently upgraded our client portal to give you better visibility into your credit repair progress.
-
-Here is your portal access:
-URL: portal-cprestorationsvcs.com/client-portal.html
-User ID: '+c.id+'
-Password: restore2026
-
-In the portal you can:
-- See every item being disputed and its current status
-- View your overall progress percentage
-- Send us messages and receive replies
-- Access your status updates
-
-If you have any questions, message us through the portal and we will respond within 24 hours Monday through Friday.
-
-CP Restoration Services
-cprestorationsvcs@gmail.com
-1-855-327-5847
-Monday - Friday 9:00 AM - 5:00 PM EST'}]
+        content:[{type:'text/plain',value:'Dear '+c.name+',\n\nCP Restoration Services is open and fully operational. We recently upgraded our client portal to give you better visibility into your credit repair progress.\n\nHere is your portal access:\nURL: portal-cprestorationsvcs.com/client-portal.html\nUser ID: '+c.id+'\nPassword: restore2026\n\nIn the portal you can:\n- See every item being disputed and its current status\n- View your overall progress percentage\n- Send us messages and receive replies\n- Access your status updates\n\nIf you have any questions, message us through the portal and we will respond within 24 hours Monday through Friday.\n\nCP Restoration Services\ncprestorationsvcs@gmail.com\n1-855-327-5847\nMonday - Friday 9:00 AM - 5:00 PM EST'}]
       })
     });
     toast(r.ok?'Portal link sent to '+c.email:'Failed: '+r.status,r.ok?'ok':'err');
@@ -703,8 +633,7 @@ Monday - Friday 9:00 AM - 5:00 PM EST'}]
 // ── HELPERS ──
 function parseNotes(notes){
   var result=[],bureau='all';
-  notes.split('
-').forEach(function(line){
+  notes.split('\n').forEach(function(line){
     var l=line.trim();if(!l)return;
     var ll=l.toLowerCase();
     if(ll.includes('equifax')&&ll.length<40){bureau='equifax';return;}
@@ -733,7 +662,7 @@ loadClients();
 // Auto-refresh every 30 seconds for real-time messages
 refreshTimer=setInterval(function(){
   if(currentClient){
-    // Reload current client's notes silently
+    // Reload current client notes silently
     fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id)+'&select=notes,updated_at',{headers:HDR})
       .then(function(r){return r.json();})
       .then(function(d){
