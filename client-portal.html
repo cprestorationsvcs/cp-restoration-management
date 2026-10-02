@@ -484,10 +484,17 @@ async function doLogin() {
         // Build client object from Supabase record
         // Parse structured disputes from Supabase
         var parsedDisputes = [];
+        // Try disputes column first
         if (row.disputes) {
           try {
             var d = typeof row.disputes === 'string' ? JSON.parse(row.disputes) : row.disputes;
-            if (Array.isArray(d)) parsedDisputes = d;
+            if (Array.isArray(d) && d.length) parsedDisputes = d;
+          } catch(e) {}
+        }
+        // Fallback: parse from notes text if disputes column is empty
+        if (!parsedDisputes.length && row.notes) {
+          try {
+            parsedDisputes = parseNotesToDisputes(row.notes);
           } catch(e) {}
         }
 
@@ -745,6 +752,39 @@ function loadPortal() {
 }
 
 // ── RENDER DISPUTES ───────────────────────────────────────────────
+function parseNotesToDisputes(notes) {
+  var result = [], bureau = 'all';
+  var lines = notes.split('\n');
+  lines.forEach(function(line) {
+    var l = line.trim();
+    if (!l) return;
+    var ll = l.toLowerCase();
+    // Detect bureau headers
+    if (ll.includes('equifax update') || (ll.includes('equifax') && ll.includes('---'))) { bureau='equifax'; return; }
+    if (ll.includes('transunion update') || (ll.includes('transunion') && ll.includes('---'))) { bureau='transunion'; return; }
+    if (ll.includes('experian update') || (ll.includes('experian') && ll.includes('---'))) { bureau='experian'; return; }
+    if (ll.startsWith('equifax') && ll.length < 30) { bureau='equifax'; return; }
+    if (ll.startsWith('transunion') && ll.length < 30) { bureau='transunion'; return; }
+    if (ll.startsWith('experian') && ll.length < 30) { bureau='experian'; return; }
+    // Detect status
+    var status = 'pending';
+    if (ll.includes('deleted') || ll.includes('✅') || l.includes('— DELETED')) status='removed';
+    if (ll.includes('pending') || l.includes('⏳') || l.includes('— PENDING')) status='pending';
+    // Extract name — remove leading symbols
+    var name = l.replace(/^[✅⏳☑✓\-•\*\d\.\)]+\s*/,'')
+                .replace(/\s*[—-]\s*(DELETED|PENDING|FILED|deleted|pending|filed).*/i,'')
+                .replace(/\s*\$[\d,]+\s*$/,'')
+                .replace(/\s*(#\d+|Account|\(x\d+\))\s*$/i,'')
+                .trim();
+    // Skip section headers
+    if (name.length < 3 || name.length > 80) return;
+    if (/^(accounts?|inquiri|collections?|hard\s|score|note|bureau|update|experian|equifax|transunion)/i.test(name)) return;
+    var type = /inquiry|inquiri/i.test(name) ? 'Hard Inquiry' : /collection/i.test(name) ? 'Collection' : 'Account';
+    result.push({name:name, type:type, bureau:bureau, status:status, date:''});
+  });
+  return result;
+}
+
 function renderDisputes(filter) {
   var list = document.getElementById('disputes-list');
   if(!list) return;
