@@ -492,7 +492,7 @@ async function doLogin() {
         if (!parsedDisputes.length && row.notes) {
           try {
             parsedDisputes = parseNotesToDisputes(row.notes);
-          
+          } catch(e) {}
         }
 
         client = {
