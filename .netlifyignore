@@ -1,0 +1,10 @@
+# Exclude non-site files from Netlify deploy
+node_modules/
+.git/
+*.csv
+*.zip
+*.log
+*.md
+package.json
+package-lock.json
+*.sh
