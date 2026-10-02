@@ -95,20 +95,32 @@ function parseRequests(clients) {
   var reqs=[];
   clients.forEach(function(c){
     if(!c.notes) return;
-    c.notes.split('\n').forEach(function(line){
+    // Split on both real newlines and escaped newlines
+    var lines=c.notes.replace(/\\n/g,'\n').split('\n');
+    lines.forEach(function(line){
       var l=line.trim();
-      if(l.indexOf('[STATUS REQUEST ')===0){
-        var cl=l.indexOf(']:'); if(cl<0) return;
-        var date=l.substring(16,cl);
-        var detail=l.substring(cl+2).trim();
-        var done=c.notes.indexOf('[STATUS COMPLETE '+date)>=0;
+      // STATUS REQUEST
+      if(l.indexOf('[STATUS REQUEST ')===0||l.indexOf('[STATUS REQUEST')===0){
+        var cl=l.indexOf(']:');
+        if(cl<0) cl=l.indexOf(']');
+        if(cl<0) return;
+        var inner=l.substring(1,cl); // e.g. "STATUS REQUEST 10/2/2026..."
+        var dateStart=inner.indexOf('STATUS REQUEST ')+15;
+        var date=inner.substring(dateStart).trim();
+        var detail=l.substring(l.indexOf(']')+1).replace(/^:\s*/,'').trim()||'No details provided';
+        var done=c.notes.indexOf('[STATUS COMPLETE')>=0&&c.notes.indexOf(date)>=0;
         reqs.push({type:'status',client:c,date:date,detail:detail,done:done});
       }
-      if(l.indexOf('[REFUND REQUEST ')===0){
-        var cl2=l.indexOf(']:'); if(cl2<0) return;
-        var date2=l.substring(16,cl2);
-        var detail2=l.substring(cl2+2).trim();
-        var done2=c.notes.indexOf('[REFUND COMPLETE '+date2)>=0;
+      // REFUND REQUEST
+      if(l.indexOf('[REFUND REQUEST ')===0||l.indexOf('[REFUND REQUEST')===0){
+        var cl2=l.indexOf(']:');
+        if(cl2<0) cl2=l.indexOf(']');
+        if(cl2<0) return;
+        var inner2=l.substring(1,cl2);
+        var dateStart2=inner2.indexOf('REFUND REQUEST ')+15;
+        var date2=inner2.substring(dateStart2).trim();
+        var detail2=l.substring(l.indexOf(']')+1).replace(/^:\s*/,'').trim()||'No details provided';
+        var done2=c.notes.indexOf('[REFUND COMPLETE')>=0&&c.notes.indexOf(date2)>=0;
         reqs.push({type:'refund',client:c,date:date2,detail:detail2,done:done2});
       }
     });
@@ -120,14 +132,27 @@ function parseRequests(clients) {
 async function loadRequests(){
   document.getElementById('request-list').innerHTML='<div class="empty"><div class="ico">&#128260;</div><div>Loading...</div></div>';
   try{
-    var r=await fetch(SUPA+'/clients?notes=not.is.null&select=id,name,email,phone,package,start_date,status,notes&limit=1000',{headers:HDR});
-    var data=await r.json();
-    if(!Array.isArray(data)){showError('Failed to load: '+(data.message||'unknown'));return;}
-    var withReqs=data.filter(function(c){return c.notes&&(c.notes.indexOf('[STATUS REQUEST ')>=0||c.notes.indexOf('[REFUND REQUEST ')>=0);});
-    allRequests=parseRequests(withReqs);
+    // Fetch clients with STATUS REQUEST tags
+    var r1=await fetch(SUPA+'/clients?notes=ilike.*STATUS+REQUEST*&select=id,name,email,phone,package,start_date,status,notes&limit=500',{headers:HDR});
+    var d1=await r1.json();
+    // Fetch clients with REFUND REQUEST tags
+    var r2=await fetch(SUPA+'/clients?notes=ilike.*REFUND+REQUEST*&select=id,name,email,phone,package,start_date,status,notes&limit=500',{headers:HDR});
+    var d2=await r2.json();
+    // Merge and deduplicate by id
+    var merged={};
+    (Array.isArray(d1)?d1:[]).forEach(function(c){merged[c.id]=c;});
+    (Array.isArray(d2)?d2:[]).forEach(function(c){merged[c.id]=c;});
+    var data=Object.values(merged);
+    if(!data.length){
+      allRequests=[];
+      updateStats();
+      renderList();
+      return;
+    }
+    allRequests=parseRequests(data);
     updateStats();
     renderList();
-  }catch(e){showError(e.message);}
+  }catch(e){showError('Error: '+e.message);}
 }
 
 function updateStats(){
