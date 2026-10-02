@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CP Restoration — CS Agent Training & Workflow</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#F8FAFC;color:#1E293B;}
+.topbar{background:#1B3A6B;padding:13px 20px;display:flex;align-items:center;gap:12px;}
+.topbar h1{color:white;font-size:15px;font-weight:800;flex:1;}
+.topbar a{color:rgba(255,255,255,.75);font-size:12px;text-decoration:none;}
+.container{max-width:900px;margin:0 auto;padding:24px 20px;}
+
+/* Nav tabs */
+.tabs{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;}
+.tab{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:white;border:2px solid #E2E8F0;color:#64748B;}
+.tab.active{background:#1B3A6B;color:white;border-color:#1B3A6B;}
+
+/* Cards */
+.card{background:white;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:20px;overflow:hidden;}
+.card-head{background:#1B3A6B;padding:16px 20px;}
+.card-head h2{color:white;font-size:16px;font-weight:800;}
+.card-head p{color:rgba(255,255,255,.8);font-size:12px;margin-top:4px;}
+.card-body{padding:20px;}
+.gold-head{background:linear-gradient(135deg,#C9A84C,#A0703A);}
+.green-head{background:#166534;}
+.red-head{background:#8B1A1A;}
+
+/* Step boxes */
+.step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start;}
+.step-num{width:32px;height:32px;border-radius:50%;background:#1B3A6B;color:white;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-body h4{font-size:14px;font-weight:700;color:#1B3A6B;margin-bottom:4px;}
+.step-body p{font-size:13px;color:#475569;line-height:1.7;}
+.step-body .note{background:#EFF4FF;border-left:3px solid #1B3A6B;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#1B3A6B;margin-top:8px;}
+.step-body .warn{background:#FEF3C7;border-left:3px solid #C9A84C;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#92400E;margin-top:8px;}
+.step-body .danger{background:#FEE2E2;border-left:3px solid #8B1A1A;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#8B1A1A;margin-top:8px;}
+.step-body .success{background:#F0FFF4;border-left:3px solid #166534;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#166534;margin-top:8px;}
+
+/* Script boxes */
+.script{background:#1E293B;color:#E2E8F0;padding:14px 16px;border-radius:8px;font-size:13px;line-height:1.8;margin:10px 0;font-family:Arial,sans-serif;}
+.script b{color:#FBBF24;}
+.script i{color:#86EFAC;}
+
+/* Quick ref table */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+th{background:#F8FAFC;padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;}
+td{padding:10px 12px;border-bottom:1px solid #F1F5F9;vertical-align:top;}
+tr:hover td{background:#FAFBFF;}
+
+/* Job description */
+.jd-section{margin-bottom:20px;}
+.jd-section h3{font-size:14px;font-weight:700;color:#1B3A6B;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #E2E8F0;}
+.jd-section ul{padding-left:18px;}
+.jd-section li{font-size:13px;color:#475569;line-height:2;}
+
+/* Flow diagram */
+.flow{display:flex;flex-direction:column;gap:0;}
+.flow-box{background:#EFF4FF;border:2px solid #1B3A6B;border-radius:10px;padding:14px 18px;text-align:center;font-size:13px;font-weight:700;color:#1B3A6B;}
+.flow-box.gold{background:#FDF8EE;border-color:#C9A84C;color:#92400E;}
+.flow-box.green{background:#F0FFF4;border-color:#166534;color:#166534;}
+.flow-box.red{background:#FEE2E2;border-color:#8B1A1A;color:#8B1A1A;}
+.flow-arrow{text-align:center;font-size:20px;color:#94A3B8;padding:4px 0;}
+.flow-split{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.split-arrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center;color:#94A3B8;font-size:18px;}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-right:4px;}
+.b-navy{background:#EFF4FF;color:#1B3A6B;}
+.b-gold{background:#FDF8EE;color:#92400E;}
+.b-green{background:#F0FFF4;color:#166534;}
+.b-red{background:#FEE2E2;color:#8B1A1A;}
+
+.section-page{display:none;}
+.section-page.active{display:block;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>&#127908; CP Restoration — CS Agent Training & Workflow</h1>
+  <a href="/cs-dashboard.html">&#127908; CS Dashboard</a>
+  <a href="/dashboard.html">&#8962; Dashboard</a>
+</div>
+<div class="container">
+
+  <!-- NAV TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('workflow')">&#128203; Workflow Guide</div>
+    <div class="tab" onclick="showTab('scripts')">&#128172; Call Scripts</div>
+    <div class="tab" onclick="showTab('tools')">&#128187; Tools & Systems</div>
+    <div class="tab" onclick="showTab('jd')">&#128101; Job Description</div>
+    <div class="tab" onclick="showTab('quickref')">&#9889; Quick Reference</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- TAB 1: WORKFLOW GUIDE -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section-page active" id="tab-workflow">
+
+    <div class="card">
+      <div class="card-head">
+        <h2>&#127908; CS Agent Workflow — From Call to Resolution</h2>
+        <p>Follow this process for every client interaction without exception</p>
+      </div>
+      <div class="card-body">
+
+        <!-- Call Flow Diagram -->
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:13px;font-weight:700;color:#64748B;text-transform:uppercase;margin-bottom:14px;">&#128202; Incoming Call Flow</h3>
+          <div class="flow">
+            <div class="flow-box">&#128222; Client Calls In</div>
+            <div class="flow-arrow">&#11015;</div>
+            <div class="flow-box">Greet client warmly — Pull up their record in the CS Dashboard</div>
+            <div class="flow-arrow">&#11015;</div>
+            <div class="flow-box gold">What does the client want?</div>
+            <div class="flow-arrow">&#11015;</div>
+            <div class="split-arrow"><div>&#11015;</div><div>&#11015;</div></div>
+            <div class="flow-split">
+              <div class="flow-box red">Requesting a Refund</div>
+              <div class="flow-box gold">Requesting a Status Update</div>
+            </div>
+            <div class="split-arrow"><div>&#11015;</div><div>&#11015;</div></div>
+            <div class="flow-split">
+              <div class="flow-box" style="font-size:12px;">Verify bureau logins → Confirm work done → Deny refund per agreement → Escalate to manager if needed</div>
+              <div class="flow-box" style="font-size:12px;">Verify bureau logins → Log request → Notify dispute dept → Tell client update within 24hrs</div>
+            </div>
+            <div class="flow-arrow">&#11015;</div>
+            <div class="flow-box green">Set up Client Portal → Send login credentials → End call professionally</div>
+          </div>
+        </div>
+
+        <!-- Step by Step -->
+        <h3 style="font-size:13px;font-weight:700;color:#64748B;text-transform:uppercase;margin-bottom:16px;">&#128204; Step-by-Step Instructions</h3>
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Answer the Call & Pull Up the Client</h4>
+            <p>Answer: <b>"Thank you for calling CP Restoration Services, this is [your name], how can I help you today?"</b></p>
+            <p style="margin-top:8px;">While they are speaking, open the <b>CS Dashboard</b> and search by their name, phone, or email. Have their record ready before you respond.</p>
+            <div class="note">&#128279; CS Dashboard: portal-cprestorationsvcs.com/cs-dashboard.html</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Verify Bureau Logins (ALWAYS do this first)</h4>
+            <p>Before anything else — verify that all 3 bureau logins are working. This tells you where they started and how much work has been done.</p>
+            <div class="warn">&#9888; <b>ALWAYS verify logins first</b> — whether the client wants a refund OR a status update. You cannot confirm what work has been done without working logins.</div>
+            <p style="margin-top:10px;"><b>Check in Client Manager → Bureau Logins tab:</b></p>
+            <ul style="padding-left:18px;margin-top:6px;font-size:13px;line-height:2;color:#475569;">
+              <li>&#9989; All 3 bureaus login successfully → file is accessible → work can continue</li>
+              <li>&#10060; Any login fails → client may have changed credentials (violation of agreement)</li>
+              <li>&#128241; Experian → requires phone verification → transfer to Marcus at (251) 405-8196</li>
+            </ul>
+            <div class="note">&#128279; Client Manager: portal-cprestorationsvcs.com/client-manager.html</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3A</div>
+          <div class="step-body">
+            <h4>&#128308; If Client Wants a REFUND</h4>
+            <p>Stay calm. Do not argue. Follow this process:</p>
+            <ul style="padding-left:18px;margin-top:8px;font-size:13px;line-height:2;color:#475569;">
+              <li>Acknowledge their frustration: <b>"I completely understand your concern and I want to make sure we take care of you."</b></li>
+              <li>Check the CS Dashboard — how many items have been deleted on their file?</li>
+              <li>Inform them that work has already been done on their behalf</li>
+              <li>Per the service agreement — refunds are not issued once disputes have been filed and deletions have occurred</li>
+              <li>If they changed bureau logins — this voids the refund clause per the agreement</li>
+              <li>Offer to send them a full status update within 24 hours so they can see their progress</li>
+              <li>If they are still insisting — do NOT approve a refund. Escalate to manager.</li>
+            </ul>
+            <div class="danger">&#10060; <b>DO NOT approve refunds.</b> Always escalate to management. Call or message Jason at cprestorationsvcs@gmail.com.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3B</div>
+          <div class="step-body">
+            <h4>&#128992; If Client Wants a STATUS UPDATE</h4>
+            <p>Follow this exact process:</p>
+            <ul style="padding-left:18px;margin-top:8px;font-size:13px;line-height:2;color:#475569;">
+              <li>Confirm their bureau logins are working (Step 2)</li>
+              <li>Let them know: <b>"I am going to put in a request for a full status update on your file. You will receive an email with your complete update within 24 hours."</b></li>
+              <li>In the CS Dashboard → open the client → click <b>Messages tab</b> → send an internal note: <b>"STATUS UPDATE REQUESTED — [date] — logins verified"</b></li>
+              <li>The Dispute Department will log into each bureau, check what has been deleted and what is pending, update the system, and send the client an email</li>
+            </ul>
+            <div class="success">&#9989; <b>The CS agent does NOT do the status update.</b> You log the request and the Dispute Department handles it within 24 hours.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Set Up Client Portal Access</h4>
+            <p>Every client should be on the portal. If they are not already using it, set them up on this call:</p>
+            <ul style="padding-left:18px;margin-top:8px;font-size:13px;line-height:2;color:#475569;">
+              <li>Give them the portal URL: <b>portal-cprestorationsvcs.com/client-portal.html</b></li>
+              <li>Their User ID is their <b>Client ID</b> (starts with CPR-)</li>
+              <li>Default password: <b>restore2026</b></li>
+              <li>Tell them: <b>"You can log in anytime to see your dispute progress, and you can send us messages directly through the portal. We respond within 24 hours Monday through Friday."</b></li>
+            </ul>
+            <div class="note">&#128172; Remind them: sending messages through the portal is faster than calling — they get a written record of every response.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <h4>End the Call Professionally</h4>
+            <p>Close every call with: <b>"Thank you for your patience [Name]. We are committed to getting you the best results possible. Is there anything else I can help you with today?"</b></p>
+            <div class="success">&#9989; Log any notes in the CS Dashboard before the next call.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Portal Messages Workflow -->
+    <div class="card">
+      <div class="card-head gold-head">
+        <h2>&#128172; Handling Portal Messages</h2>
+        <p>Clients who message through the portal instead of calling</p>
+      </div>
+      <div class="card-body">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Check the CS Dashboard Daily</h4>
+            <p>Open the CS Dashboard every morning and after every break. Clients with unread messages show a <span style="color:#E53E3E;font-weight:700;">red dot</span> next to their name.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Read and Categorize</h4>
+            <p>Read the message and determine: Is this a <b>refund request</b>, a <b>status update request</b>, a <b>question</b>, or a <b>login issue</b>? Follow the same workflow as a phone call.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Reply Within 24 Hours</h4>
+            <p>Use the quick reply buttons for common responses or type a custom reply. Your reply is automatically emailed to the client and appears in their portal.</p>
+            <div class="warn">&#9888; All messages must be responded to within <b>24 hours Monday–Friday</b>. Weekend messages are responded to first thing Monday morning.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- TAB 2: CALL SCRIPTS -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section-page" id="tab-scripts">
+    <div class="card">
+      <div class="card-head">
+        <h2>&#128172; Call Scripts for CS Agents</h2>
+        <p>Read these word for word until they become natural</p>
+      </div>
+      <div class="card-body">
+
+        <div class="jd-section">
+          <h3>&#128222; Opening Every Call</h3>
+          <div class="script">"Thank you for calling <b>CP Restoration Services</b>, this is <b>[your name]</b>, how can I help you today?"</div>
+          <p style="font-size:13px;color:#475569;margin-top:8px;">While they are talking — search for them in the CS Dashboard. Have their file ready.</p>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#128308; Angry Client / Wants a Refund</h3>
+          <div class="script">"I completely understand your frustration <b>[Name]</b>, and I want to assure you that your file is active and we have been working on your behalf. Let me pull up your account right now so I can give you an accurate picture of exactly where things stand."
+<br><br>
+<i>[Check CS Dashboard for deleted items]</i>
+<br><br>
+"I can see that we have already <b>[X items deleted]</b> from your credit report. Because work has already been completed on your file, our service agreement does not allow for a refund at this stage. However, what I can do is put in an immediate request for a full status update so you can see exactly what has been removed and what is still in progress. You will receive that by email within 24 hours. Would that work for you?"</div>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#128992; Client Wants a Status Update</h3>
+          <div class="script">"Absolutely <b>[Name]</b>, I would be happy to get that taken care of for you. Let me first confirm that your bureau logins are still active so our dispute team can access your file."
+<br><br>
+<i>[Verify logins in Client Manager]</i>
+<br><br>
+"Everything looks good on our end. I am going to put in a priority request for a full status update on your file right now. You will receive a detailed email update within <b>24 hours</b> showing everything that has been deleted and everything that is still pending. You can also log into your client portal anytime to check your progress — would you like me to send you your login information?"</div>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#128272; Login Issue — Bureau Changed Credentials</h3>
+          <div class="script">"<b>[Name]</b>, it looks like the login credentials for your <b>[bureau name]</b> account are no longer working on our end. Per your service agreement, bureau login credentials must remain accessible to us in order for us to continue filing disputes and making progress on your file. Changing the logins without notifying us does pause our ability to work on that bureau."
+<br><br>
+"Could you please provide us with the updated login information so we can continue working on your behalf? You can send it through your client portal or call us back with the new credentials."</div>
+          <div class="warn">&#9888; If logins were changed — note it in the CS Dashboard and notify management. Do not threaten the client — stay calm and professional.</div>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#128241; Experian Phone Verification</h3>
+          <div class="script">"For your Experian account, there is an additional step required. Experian has changed their verification process and now sends a one-time code to your phone number on file. I am going to connect you with our representative Marcus who will walk you through that process while you are on the phone. One moment please."</div>
+          <div class="note">&#128222; Transfer or refer to Marcus at <b>(251) 405-8196</b> Mon-Fri 9AM-5PM EST</div>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#9989; Setting Up the Client Portal</h3>
+          <div class="script">"We have a brand new client portal where you can log in 24/7 to see your dispute progress, view every item that has been deleted, and send us messages directly. Here is your login information:
+<br><br>
+Website: <b>portal-cprestorationsvcs.com/client-portal.html</b><br>
+User ID: <b>[their CPR- ID]</b><br>
+Password: <b>restore2026</b>
+<br><br>
+You will be able to see your full status update there. And if you have any questions, you can message us directly through the portal and we will respond within 24 hours Monday through Friday — no hold times, no waiting."</div>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#128075; Closing Every Call</h3>
+          <div class="script">"Thank you so much for your patience <b>[Name]</b>. We truly appreciate you and we are committed to getting you the results you deserve. Is there anything else I can help you with today?"
+<br><br>
+<i>[Wait for response]</i>
+<br><br>
+"Have a wonderful day. Thank you for choosing CP Restoration Services."</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- TAB 3: TOOLS & SYSTEMS -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section-page" id="tab-tools">
+    <div class="card">
+      <div class="card-head green-head">
+        <h2>&#128187; Tools & Systems You Will Use</h2>
+        <p>Learn these tools before your first call</p>
+      </div>
+      <div class="card-body">
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>CS Dashboard — Your Main Tool</h4>
+            <p>This is where you spend most of your time. It has three columns: client list on the left, messages in the middle, and dispute status on the right.</p>
+            <div class="note">&#128279; portal-cprestorationsvcs.com/cs-dashboard.html<br>Login: queen@mycprteam.com / CPRQueen2026</div>
+            <ul style="padding-left:18px;margin-top:10px;font-size:13px;line-height:2;color:#475569;">
+              <li>Search for any client by name, ID, email or phone</li>
+              <li>See all messages the client has sent and reply instantly</li>
+              <li>View their dispute progress — what is deleted, what is pending</li>
+              <li>Send status update emails with one click</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Client Manager — Verify Bureau Logins</h4>
+            <p>Use this to look up a client's bureau login credentials and verify they are working.</p>
+            <div class="note">&#128279; portal-cprestorationsvcs.com/client-manager.html</div>
+            <ul style="padding-left:18px;margin-top:10px;font-size:13px;line-height:2;color:#475569;">
+              <li>Search client by name or ID</li>
+              <li>Click <b>Bureau Logins</b> tab to see Equifax, Experian, TransUnion credentials</li>
+              <li>If logins are missing or changed — note it and notify management</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Client Portal — What Clients See</h4>
+            <p>Know what the client portal looks like so you can walk clients through it on the phone.</p>
+            <div class="note">&#128279; portal-cprestorationsvcs.com/client-portal.html<br>Default password: restore2026 | User ID = their CPR- ID</div>
+            <ul style="padding-left:18px;margin-top:10px;font-size:13px;line-height:2;color:#475569;">
+              <li><b>Dashboard tab</b> — shows their overall progress %</li>
+              <li><b>My Dispute Items tab</b> — every item disputed with status (deleted/pending)</li>
+              <li><b>Updates tab</b> — written updates from the team</li>
+              <li><b>Messages tab</b> — where clients send messages and receive replies</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>What You Do NOT Do</h4>
+            <div class="danger">
+              &#10060; Do NOT log into bureau websites (Equifax, Experian, TransUnion)<br>
+              &#10060; Do NOT approve or deny refunds — always escalate to management<br>
+              &#10060; Do NOT make promises about timelines without checking with the dispute team<br>
+              &#10060; Do NOT complete the status update yourself — that is the Dispute Department's job<br>
+              &#10060; Do NOT access client SSN or sensitive documents without authorization
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- TAB 4: JOB DESCRIPTION -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section-page" id="tab-jd">
+    <div class="card">
+      <div class="card-head gold-head">
+        <h2>&#128101; Job Description — Customer Service Agent</h2>
+        <p>CP Restoration Services | Remote | $100/week starting | Evaluated monthly</p>
+      </div>
+      <div class="card-body">
+
+        <div style="background:#FDF8EE;border:1.5px solid #C9A84C;border-radius:10px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:14px;font-weight:700;color:#92400E;margin-bottom:6px;">&#127381; About CP Restoration Services</div>
+          <p style="font-size:13px;color:#92400E;line-height:1.8;">CP Restoration Services is a fast-growing credit repair company based in Florida, serving thousands of clients across the United States. We help individuals rebuild their credit through a proven dispute process with all three major credit bureaus — Equifax, Experian, and TransUnion. We are expanding our customer service team to better serve our clients.</p>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#128203; Position Overview</h3>
+          <p style="font-size:13px;color:#475569;line-height:1.8;">We are looking for two motivated, empathetic, and professional Customer Service Agents to join our team. You will be the first point of contact for our clients — handling incoming calls, responding to portal messages, verifying account information, and ensuring every client feels heard and supported. This is a remote position.</p>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#9989; Responsibilities</h3>
+          <ul>
+            <li>Answer incoming client calls professionally and with empathy</li>
+            <li>Handle client concerns including refund requests and status inquiries using provided scripts and guidelines</li>
+            <li>Verify bureau login credentials are active and accessible for the dispute team</li>
+            <li>Set up clients on the CP Restoration client portal and walk them through how to use it</li>
+            <li>Monitor and respond to client messages sent through the client portal within 24 hours</li>
+            <li>Log call notes and client interactions in the CS Dashboard</li>
+            <li>Submit status update requests to the Dispute Department on behalf of clients</li>
+            <li>Escalate refund requests and complex issues to management immediately</li>
+            <li>Maintain a calm, professional tone at all times — even with angry or upset clients</li>
+          </ul>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#128203; Requirements</h3>
+          <ul>
+            <li>Strong written and verbal English communication skills</li>
+            <li>Ability to stay calm and empathetic under pressure</li>
+            <li>Reliable internet connection and a quiet workspace</li>
+            <li>Basic computer skills — ability to navigate web-based tools</li>
+            <li>Availability Monday through Friday, 9:00 AM – 5:00 PM EST</li>
+            <li>Prior customer service experience preferred but not required</li>
+            <li>Credit repair experience is a plus but not required — full training provided</li>
+          </ul>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#128183; Compensation & Growth</h3>
+          <ul>
+            <li>Starting pay: <b>$100 per week</b></li>
+            <li>Performance review every 30 days with opportunity for pay increase</li>
+            <li>Remote position — work from home</li>
+            <li>Paid weekly via Zelle or Cash App</li>
+            <li>Growth opportunity into senior CS, compliance, or dispute operations roles</li>
+          </ul>
+        </div>
+
+        <div class="jd-section">
+          <h3>&#128222; How to Apply</h3>
+          <p style="font-size:13px;color:#475569;line-height:1.8;">Send your resume and a brief introduction to <b>cprestorationsvcs@gmail.com</b> with the subject line: <b>CS Agent Application — [Your Name]</b>. Include your availability and any relevant experience.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- TAB 5: QUICK REFERENCE -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section-page" id="tab-quickref">
+    <div class="card">
+      <div class="card-head">
+        <h2>&#9889; Quick Reference Card</h2>
+        <p>Keep this open during every call</p>
+      </div>
+      <div class="card-body">
+
+        <div class="jd-section">
+          <h3>Key Phone Numbers & Contacts</h3>
+          <table>
+            <tr><th>Contact</th><th>Purpose</th><th>Info</th></tr>
+            <tr><td><b>Marcus</b></td><td>Experian phone verification + client reactivation</td><td>(251) 405-8196 | Mon-Fri 9AM-5PM EST</td></tr>
+            <tr><td><b>Management (Jason)</b></td><td>Refund escalations, legal issues, major complaints</td><td>cprestorationsvcs@gmail.com</td></tr>
+            <tr><td><b>Main Line</b></td><td>Company phone number</td><td>1-855-327-5847</td></tr>
+          </table>
+        </div>
+
+        <div class="jd-section">
+          <h3>Key URLs</h3>
+          <table>
+            <tr><th>Tool</th><th>URL</th><th>Used For</th></tr>
+            <tr><td><b>CS Dashboard</b></td><td>portal-cprestorationsvcs.com/cs-dashboard.html</td><td>Your main daily tool</td></tr>
+            <tr><td><b>Client Manager</b></td><td>portal-cprestorationsvcs.com/client-manager.html</td><td>Verify bureau logins</td></tr>
+            <tr><td><b>Client Portal</b></td><td>portal-cprestorationsvcs.com/client-portal.html</td><td>What clients log into</td></tr>
+            <tr><td><b>Status Update Tool</b></td><td>portal-cprestorationsvcs.com/status-update.html</td><td>Dispute dept use only</td></tr>
+          </table>
+        </div>
+
+        <div class="jd-section">
+          <h3>Client Portal Login Info (Give to Every Client)</h3>
+          <table>
+            <tr><th>Field</th><th>Value</th></tr>
+            <tr><td><b>Portal URL</b></td><td>portal-cprestorationsvcs.com/client-portal.html</td></tr>
+            <tr><td><b>User ID</b></td><td>Their CPR- ID (found in Client Manager)</td></tr>
+            <tr><td><b>Password</b></td><td>restore2026</td></tr>
+          </table>
+        </div>
+
+        <div class="jd-section">
+          <h3>Situation → Action Reference</h3>
+          <table>
+            <tr><th>Situation</th><th>Your Action</th><th>Escalate?</th></tr>
+            <tr><td>Client wants a refund</td><td>Verify logins → confirm work done → deny per agreement → offer status update</td><td><span class="badge b-red">Yes if insisting</span></td></tr>
+            <tr><td>Client wants status update</td><td>Verify logins → log request → tell client 24hrs → notify dispute dept</td><td><span class="badge b-green">No</span></td></tr>
+            <tr><td>Client can't log into portal</td><td>Give them URL + CPR ID + password restore2026</td><td><span class="badge b-green">No</span></td></tr>
+            <tr><td>Bureau logins not working</td><td>Note in CS Dashboard → notify management → tell client we will follow up</td><td><span class="badge b-gold">Yes</span></td></tr>
+            <tr><td>Experian phone verification needed</td><td>Transfer to Marcus at (251) 405-8196</td><td><span class="badge b-green">No</span></td></tr>
+            <tr><td>Client is very upset / threatening</td><td>Stay calm → escalate immediately to management</td><td><span class="badge b-red">Yes</span></td></tr>
+            <tr><td>Client says company is closed</td><td>Correct the misinformation — company is fully open and operational</td><td><span class="badge b-green">No</span></td></tr>
+          </table>
+        </div>
+
+        <div class="jd-section">
+          <h3>Department Responsibilities</h3>
+          <table>
+            <tr><th>Department</th><th>Handles</th><th>Does NOT handle</th></tr>
+            <tr><td><b>CS Agent (You)</b></td><td>Calls, portal messages, login verification, portal setup, logging requests</td><td>Bureau logins, status updates, refund approvals, disputes</td></tr>
+            <tr><td><b>Dispute Department</b></td><td>Logging into bureaus, checking deletions, completing status updates, filing disputes</td><td>Client calls, messages, refund conversations</td></tr>
+            <tr><td><b>Management</b></td><td>Refund approvals, legal issues, major escalations</td><td>Day-to-day CS calls</td></tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.section-page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
