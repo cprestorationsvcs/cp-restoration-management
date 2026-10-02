@@ -283,7 +283,7 @@ function searchClients(q) {
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function selectClient(jsonStr) {
-  var c = JSON.parse(jsonStr);
+  var c = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
   currentClient = c;
   // Parse disputes
   try {
