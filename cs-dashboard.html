@@ -7,153 +7,211 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Arial,sans-serif;background:#F1F5F9;color:#1E293B;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-.topbar{background:#1B3A6B;padding:11px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.topbar{background:#1B3A6B;padding:11px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .topbar h1{color:white;font-size:14px;font-weight:800;flex:1;}
 .topbar a{color:rgba(255,255,255,.7);font-size:11px;text-decoration:none;white-space:nowrap;}
 .layout{display:flex;flex:1;overflow:hidden;}
 
-/* ── LEFT: Client List ── */
+/* LEFT — Client List */
 .col-left{width:260px;background:white;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;flex-shrink:0;}
-.col-head{padding:12px 14px;border-bottom:1px solid #E2E8F0;font-size:12px;font-weight:700;color:#1B3A6B;display:flex;align-items:center;justify-content:space-between;}
+.col-head{padding:10px 14px;border-bottom:1px solid #E2E8F0;font-size:12px;font-weight:700;color:#1B3A6B;display:flex;align-items:center;justify-content:space-between;}
+.unread-count{background:#E53E3E;color:white;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700;}
 .search-inp{width:100%;padding:8px 12px;border:none;border-bottom:1px solid #E2E8F0;font-size:13px;font-family:inherit;outline:none;}
 .client-list{flex:1;overflow-y:auto;}
-.client-row{padding:11px 14px;border-bottom:1px solid #F8FAFC;cursor:pointer;display:flex;align-items:center;gap:10px;}
-.client-row:hover{background:#F8FAFC;}
-.client-row.active{background:#EFF4FF;border-left:3px solid #1B3A6B;}
-.client-row.has-msg{border-left:3px solid #E53E3E;}
-.avatar{width:34px;height:34px;border-radius:50%;background:#1B3A6B;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
-.cr-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cr{padding:10px 12px;border-bottom:1px solid #F8FAFC;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.cr:hover{background:#F8FAFC;}
+.cr.active{background:#EFF4FF;border-left:3px solid #1B3A6B;}
+.cr.has-msg{border-left:3px solid #E53E3E;}
+.cr.has-msg .cr-name{font-weight:800;}
+.av{width:32px;height:32px;border-radius:50%;background:#1B3A6B;color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.cr-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
 .cr-id{font-size:10px;color:#94A3B8;}
-.msg-dot{width:7px;height:7px;border-radius:50%;background:#E53E3E;flex-shrink:0;margin-left:auto;}
+.msg-dot{width:8px;height:8px;border-radius:50%;background:#E53E3E;flex-shrink:0;}
 
-/* ── MIDDLE: Messages ── */
-.col-mid{width:340px;background:white;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;flex-shrink:0;}
-.mid-head{padding:12px 14px;border-bottom:1px solid #E2E8F0;font-size:12px;font-weight:700;color:#1B3A6B;}
-.msg-thread{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F8FAFC;}
-.bubble{max-width:85%;padding:10px 13px;border-radius:10px;font-size:12px;line-height:1.6;}
-.bubble.client{background:white;border:1px solid #E2E8F0;align-self:flex-start;border-radius:3px 10px 10px 10px;}
-.bubble.team{background:#1B3A6B;color:white;align-self:flex-end;border-radius:10px 3px 10px 10px;}
-.bubble-meta{font-size:10px;color:#94A3B8;margin-top:3px;}
-.bubble.team .bubble-meta{text-align:right;}
-.reply-box{padding:10px 12px;border-top:1px solid #E2E8F0;}
-.qr-btns{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+/* MIDDLE — Messages + Actions */
+.col-mid{width:360px;background:white;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;flex-shrink:0;}
+.mid-tabs{display:flex;border-bottom:1px solid #E2E8F0;}
+.mtab{flex:1;padding:10px;font-size:11px;font-weight:700;text-align:center;cursor:pointer;color:#64748B;border-bottom:2px solid transparent;}
+.mtab.active{color:#1B3A6B;border-bottom-color:#1B3A6B;}
+.mid-body{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* Messages */
+.msg-thread{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#F8FAFC;}
+.bubble-wrap{display:flex;flex-direction:column;}
+.bubble-wrap.team{align-items:flex-end;}
+.bubble-wrap.client{align-items:flex-start;}
+.bname{font-size:10px;font-weight:700;color:#64748B;margin-bottom:2px;}
+.bubble{padding:10px 13px;border-radius:10px;font-size:12px;line-height:1.6;max-width:85%;}
+.client .bubble{background:white;border:1px solid #E2E8F0;border-radius:3px 10px 10px 10px;}
+.team .bubble{background:#1B3A6B;color:white;border-radius:10px 3px 10px 10px;}
+.btime{font-size:10px;color:#94A3B8;margin-top:3px;}
+.reply-box{padding:10px 12px;border-top:1px solid #E2E8F0;flex-shrink:0;}
+.qr-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
 .qr{padding:4px 8px;border:1px solid #E2E8F0;border-radius:12px;font-size:10px;cursor:pointer;background:white;color:#1B3A6B;}
 .qr:hover{background:#EFF4FF;}
 .reply-row{display:flex;gap:6px;}
-.reply-row textarea{flex:1;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;font-family:inherit;resize:none;height:52px;}
+.reply-row textarea{flex:1;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;resize:none;height:50px;}
 .reply-row textarea:focus{outline:none;border-color:#1B3A6B;}
-.send-btn{background:#1B3A6B;color:white;border:none;border-radius:8px;padding:0 14px;font-size:12px;font-weight:700;cursor:pointer;}
+.send-btn{background:#1B3A6B;color:white;border:none;border-radius:7px;padding:0 14px;font-size:12px;font-weight:700;cursor:pointer;height:50px;}
 
-/* ── RIGHT: Status & Actions ── */
+/* Actions Panel */
+.actions-panel{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.action-card{background:white;border:1.5px solid #E2E8F0;border-radius:10px;overflow:hidden;}
+.action-card-head{padding:10px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.action-card-body{padding:12px 14px;border-top:1px solid #F1F5F9;}
+.ac-navy{background:#EFF4FF;color:#1B3A6B;}
+.ac-gold{background:#FDF8EE;color:#92400E;}
+.ac-red{background:#FEE2E2;color:#8B1A1A;}
+.ac-green{background:#F0FFF4;color:#166534;}
+.ac-purple{background:#F5F3FF;color:#5B21B6;}
+.btn{padding:7px 14px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;}
+.btn-navy{background:#1B3A6B;color:white;}
+.btn-gold{background:#C9A84C;color:white;}
+.btn-red{background:#8B1A1A;color:white;}
+.btn-green{background:#166534;color:white;}
+.btn-purple{background:#5B21B6;color:white;}
+.btn-outline{background:white;color:#1B3A6B;border:1.5px solid #1B3A6B;}
+.btn-sm{padding:5px 10px;font-size:11px;}
+textarea.notes-box{width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;resize:none;height:70px;margin-bottom:8px;}
+textarea.notes-box:focus{outline:none;border-color:#1B3A6B;}
+select.form-sel{width:100%;padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;margin-bottom:8px;}
+
+/* RIGHT — Client Info + Logins + Disputes */
 .col-right{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .right-tabs{display:flex;background:white;border-bottom:1px solid #E2E8F0;flex-shrink:0;}
-.rtab{padding:11px 18px;font-size:12px;font-weight:700;color:#64748B;cursor:pointer;border-bottom:2px solid transparent;}
+.rtab{padding:10px 16px;font-size:11px;font-weight:700;color:#64748B;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
 .rtab.active{color:#1B3A6B;border-bottom-color:#1B3A6B;}
-.right-body{flex:1;overflow-y:auto;padding:16px;}
+.right-body{flex:1;overflow-y:auto;padding:14px;}
 
-/* Client info card */
-.info-card{background:white;border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid #E2E8F0;}
-.info-card h3{font-size:12px;font-weight:700;color:#1B3A6B;margin-bottom:10px;text-transform:uppercase;}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.info-item label{font-size:10px;font-weight:700;color:#94A3B8;display:block;}
-.info-item span{font-size:12px;font-weight:600;}
+/* Info grid */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.ig{background:white;border:1px solid #E2E8F0;border-radius:8px;padding:10px 12px;}
+.ig label{font-size:10px;font-weight:700;color:#94A3B8;display:block;margin-bottom:2px;text-transform:uppercase;}
+.ig span{font-size:12px;font-weight:600;}
 
-/* Progress */
+/* Bureau logins */
+.bureau-card{background:white;border:1px solid #E2E8F0;border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.bc-head{padding:10px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.bc-eq{background:#FEE2E2;color:#991B1B;}
+.bc-ex{background:#EFF4FF;color:#1B3A6B;}
+.bc-tu{background:#DCFCE7;color:#166534;}
+.bc-body{padding:12px 14px;}
+.login-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.login-row label{font-size:10px;font-weight:700;color:#64748B;width:110px;flex-shrink:0;}
+.login-row input{flex:1;padding:6px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;}
+.login-row input:focus{outline:none;border-color:#1B3A6B;}
+.login-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.ls-ok{background:#DCFCE7;color:#166534;}
+.ls-fail{background:#FEE2E2;color:#991B1B;}
+.ls-unk{background:#F1F5F9;color:#64748B;}
+
+/* Disputes */
 .prog-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
 .prog-box{background:white;border:1px solid #E2E8F0;border-radius:8px;padding:10px;text-align:center;}
 .prog-num{font-size:20px;font-weight:800;color:#1B3A6B;}
 .prog-lbl{font-size:10px;color:#64748B;font-weight:600;}
-.prog-bar-w{background:#E2E8F0;border-radius:10px;height:6px;margin-top:6px;overflow:hidden;}
-.prog-bar{height:6px;border-radius:10px;background:#166534;transition:.4s;}
-
-/* Dispute table */
-.dispute-card{background:white;border-radius:10px;border:1px solid #E2E8F0;overflow:hidden;margin-bottom:12px;}
-.dispute-card table{width:100%;border-collapse:collapse;font-size:11px;}
-.dispute-card th{padding:8px 10px;background:#F8FAFC;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:1px solid #E2E8F0;text-align:left;}
-.dispute-card td{padding:9px 10px;border-bottom:1px solid #F8FAFC;vertical-align:middle;}
-.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.prog-bar-w{background:#E2E8F0;border-radius:10px;height:5px;margin-top:5px;overflow:hidden;}
+.prog-bar{height:5px;border-radius:10px;background:#166534;}
+table.dt{width:100%;border-collapse:collapse;font-size:11px;}
+table.dt th{padding:8px 10px;background:#F8FAFC;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:1px solid #E2E8F0;text-align:left;}
+table.dt td{padding:8px 10px;border-bottom:1px solid #F8FAFC;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;}
 .b-del{background:#DCFCE7;color:#166534;}
 .b-pen{background:#FEF3C7;color:#92400E;}
-.dot-eq{background:#FEE2E2;color:#991B1B;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;}
-.dot-ex{background:#EFF4FF;color:#1B3A6B;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;}
-.dot-tu{background:#DCFCE7;color:#166534;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;}
-.tog{padding:3px 8px;border-radius:5px;border:1px solid #E2E8F0;font-size:10px;font-weight:700;cursor:pointer;background:white;margin-right:2px;}
-.tog.on-del{background:#DCFCE7;color:#166534;border-color:#166534;}
-.tog.on-pen{background:#FEF3C7;color:#92400E;border-color:#C9A84C;}
+.dot-eq{background:#FEE2E2;color:#991B1B;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;}
+.dot-ex{background:#EFF4FF;color:#1B3A6B;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;}
+.dot-tu{background:#DCFCE7;color:#166534;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;}
 
-/* Add item */
-.add-item-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;padding:10px;background:#F8FAFC;border-top:1px solid #E2E8F0;}
-.add-item-row input,.add-item-row select{padding:6px 8px;border:1px solid #E2E8F0;border-radius:6px;font-size:11px;font-family:inherit;}
-.add-item-row label{font-size:9px;font-weight:700;color:#64748B;display:block;margin-bottom:2px;}
+/* Status bar */
+.file-status-bar{padding:8px 14px;background:white;border-top:1px solid #E2E8F0;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.file-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.fb-active{background:#DCFCE7;color:#166534;}
+.fb-paused{background:#FEE2E2;color:#991B1B;}
+.fb-pending{background:#FEF3C7;color:#92400E;}
 
-/* Action bar */
-.action-bar{background:white;border-top:1px solid #E2E8F0;padding:10px 16px;display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;}
-.btn{padding:8px 16px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
-.btn-navy{background:#1B3A6B;color:white;}
-.btn-green{background:#166534;color:white;}
-.btn-gold{background:#C9A84C;color:white;}
-.btn-red{background:#8B1A1A;color:white;}
-.empty-state{text-align:center;padding:60px 20px;color:#94A3B8;}
-.empty-state .icon{font-size:48px;margin-bottom:12px;}
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#94A3B8;padding:40px;}
+.empty-state .ico{font-size:44px;}
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:9px 20px;border-radius:8px;font-size:12px;font-weight:700;z-index:9999;color:white;pointer-events:none;}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>&#128101; CP Restoration — Customer Service Dashboard</h1>
+  <h1>&#127908; CP Restoration — Customer Service Dashboard</h1>
+  <a href="/cs-training.html">&#128203; Training</a>
+  <a href="/client-manager.html">&#128101; Clients</a>
   <a href="/dashboard.html">&#8962; Dashboard</a>
-  <a href="/client-manager.html">&#128101; All Clients</a>
-  <a href="/dispute-center.html">&#9878; Disputes</a>
 </div>
 
 <div class="layout">
 
-  <!-- ── LEFT: Client List ── -->
+  <!-- LEFT: Client List -->
   <div class="col-left">
     <div class="col-head">
-      Clients
-      <button onclick="loadClients()" style="background:none;border:none;color:#1B3A6B;cursor:pointer;font-size:12px;font-weight:700;">&#128260;</button>
+      Clients <span class="unread-count" id="unread-count" style="display:none;">0</span>
+      <button onclick="loadClients()" style="background:none;border:none;color:#1B3A6B;cursor:pointer;font-size:13px;font-weight:700;">&#128260;</button>
     </div>
-    <input class="search-inp" type="text" id="client-search" placeholder="&#128269; Search name or ID..." oninput="filterClients(this.value)">
+    <input class="search-inp" type="text" id="cs-search" placeholder="&#128269; Name, ID, email, phone..." oninput="filterClients(this.value)">
     <div class="client-list" id="client-list">
       <div style="padding:20px;text-align:center;color:#94A3B8;font-size:12px;">Loading...</div>
     </div>
   </div>
 
-  <!-- ── MIDDLE: Messages ── -->
+  <!-- MIDDLE: Messages + Action Requests -->
   <div class="col-mid">
-    <div class="mid-head" id="mid-head">&#128172; Messages</div>
-    <div class="msg-thread" id="msg-thread">
-      <div class="empty-state"><div class="icon">&#128172;</div><div>Select a client to view messages</div></div>
+    <div class="mid-tabs">
+      <div class="mtab active" id="mtab-msg" onclick="showMidTab('msg')">&#128172; Messages</div>
+      <div class="mtab" id="mtab-actions" onclick="showMidTab('actions')">&#9989; Actions <span id="action-badge" style="display:none;background:#E53E3E;color:white;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;"></span></div>
     </div>
-    <div class="reply-box" id="reply-box" style="display:none;">
-      <div class="qr-btns">
-        <div class="qr" onclick="useQR(this)">Thank you for reaching out!</div>
-        <div class="qr" onclick="useQR(this)">We are actively working on your file.</div>
-        <div class="qr" onclick="useQR(this)">Please log into your portal for the latest update.</div>
-        <div class="qr" onclick="useQR(this)">Your dispute has been filed. Bureaus respond within 30 days.</div>
-        <div class="qr" onclick="useQR(this)">Please call Marcus at (251) 405-8196 for Experian.</div>
+    <div class="mid-body">
+
+      <!-- Messages tab -->
+      <div id="mid-msg" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+        <div class="msg-thread" id="msg-thread">
+          <div class="empty-state"><div class="ico">&#128172;</div><div>Select a client</div></div>
+        </div>
+        <div class="reply-box" id="reply-box" style="display:none;">
+          <div class="qr-row">
+            <div class="qr" onclick="useQR(this)">Thank you for reaching out!</div>
+            <div class="qr" onclick="useQR(this)">We are open and fully operational.</div>
+            <div class="qr" onclick="useQR(this)">We recently updated our portal to serve you better.</div>
+            <div class="qr" onclick="useQR(this)">We are actively working on your file.</div>
+            <div class="qr" onclick="useQR(this)">Your status update will be ready within 24 hours.</div>
+            <div class="qr" onclick="useQR(this)">Please log into your portal for the latest update.</div>
+            <div class="qr" onclick="useQR(this)">Your refund request is under review by our compliance team. You will receive a decision within 24 hours.</div>
+          </div>
+          <div class="reply-row">
+            <textarea id="reply-txt" placeholder="Type reply... (Ctrl+Enter to send)" onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))sendReply()"></textarea>
+            <button class="send-btn" onclick="sendReply()">Send &#9658;</button>
+          </div>
+        </div>
       </div>
-      <div class="reply-row">
-        <textarea id="reply-txt" placeholder="Type reply... (Ctrl+Enter to send)"></textarea>
-        <button class="send-btn" onclick="sendReply()">Send &#9658;</button>
+
+      <!-- Actions tab -->
+      <div id="mid-actions" style="display:none;flex:1;overflow:hidden;">
+        <div class="actions-panel" id="actions-panel">
+          <div class="empty-state"><div class="ico">&#9989;</div><div>Select a client to log requests</div></div>
+        </div>
       </div>
+
     </div>
   </div>
 
-  <!-- ── RIGHT: Client Details + Disputes ── -->
+  <!-- RIGHT: Client Info + Bureau Logins + Disputes -->
   <div class="col-right">
     <div class="right-tabs">
-      <div class="rtab active" id="tab-status" onclick="showTab('status')">&#128202; Status & Disputes</div>
-      <div class="rtab" id="tab-info" onclick="showTab('info')">&#128101; Client Info</div>
+      <div class="rtab active" id="rtab-info" onclick="showRTab('info')">&#128101; Client Info</div>
+      <div class="rtab" id="rtab-logins" onclick="showRTab('logins')">&#128272; Bureau Logins</div>
+      <div class="rtab" id="rtab-disputes" onclick="showRTab('disputes')">&#128202; Disputes</div>
     </div>
     <div class="right-body" id="right-body">
-      <div class="empty-state"><div class="icon">&#128101;</div><div>Select a client to view their file</div></div>
+      <div class="empty-state"><div class="ico">&#128101;</div><div>Select a client to view their file</div></div>
     </div>
-    <div class="action-bar" id="action-bar" style="display:none;">
-      <button class="btn btn-navy" onclick="saveDisputes()">&#128190; Save Changes</button>
-      <button class="btn btn-green" onclick="sendStatusEmail()">&#9993; Send Status Email</button>
-      <button class="btn btn-gold" onclick="sendPortalLink()">&#128279; Send Portal Link</button>
+    <div class="file-status-bar" id="file-status-bar" style="display:none;">
+      <span style="font-size:11px;font-weight:700;color:#64748B;">FILE STATUS:</span>
+      <span class="file-badge" id="file-badge">Active</span>
+      <button class="btn btn-red btn-sm" onclick="pauseFile()" id="pause-btn">&#9646;&#9646; Pause File</button>
+      <button class="btn btn-green btn-sm" onclick="resumeFile()" id="resume-btn" style="display:none;">&#9654; Resume File</button>
+      <button class="btn btn-navy btn-sm" onclick="saveLogins()">&#128190; Save Logins</button>
     </div>
   </div>
 
@@ -163,86 +221,109 @@ body{font-family:Arial,sans-serif;background:#F1F5F9;color:#1E293B;height:100vh;
 var SUPA='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
 var KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
 var HDR={'apikey':KEY,'Authorization':'Bearer '+KEY};
-var allClients=[], currentClient=null, disputes=[], activeTab='status';
+var allClients=[], currentClient=null, disputes=[], activeRTab='info', activeMTab='msg';
+var refreshTimer=null;
 
 // ── LOAD CLIENTS ──
 async function loadClients(){
-  document.getElementById('client-list').innerHTML='<div style="padding:20px;text-align:center;color:#94A3B8;font-size:12px;">Loading...</div>';
   try{
-    var r=await fetch(SUPA+'/clients?select=id,name,email,phone,status,package,start_date,disputes,notes,updated_at&order=updated_at.desc&limit=500',{headers:HDR});
-    allClients=await r.json()||[];
+    var r=await fetch(SUPA+'/clients?select=id,name,email,phone,status,package,start_date,disputes,notes,updated_at,equifax_user,equifax_pass,experian_user,experian_pass,experian_pin,experian_sq,experian_sa,transunion_user,transunion_pass&order=updated_at.desc&limit=1000',{headers:HDR});
+    var data=await r.json();
+    if(!Array.isArray(data)) return;
+    // Sort: unread messages first, then by updated_at
+    allClients=data.sort(function(a,b){
+      var aMsg=hasUnread(a), bMsg=hasUnread(b);
+      if(aMsg&&!bMsg) return -1;
+      if(!aMsg&&bMsg) return 1;
+      return new Date(b.updated_at)-new Date(a.updated_at);
+    });
     renderClientList(allClients);
-  }catch(e){document.getElementById('client-list').innerHTML='<div style="padding:20px;color:red;font-size:12px;">Error: '+e.message+'</div>';}
+  }catch(e){console.error(e);}
+}
+
+function hasUnread(c){
+  if(!c.notes) return false;
+  var lines=c.notes.split('
+');
+  // Has unread if last message tag is CLIENT MESSAGE not TEAM REPLY
+  var lastTag='';
+  for(var i=0;i<lines.length;i++){
+    var l=lines[i].trim();
+    if(l.indexOf('[CLIENT MESSAGE ')===0) lastTag='client';
+    if(l.indexOf('[TEAM REPLY ')===0) lastTag='team';
+  }
+  return lastTag==='client';
 }
 
 function renderClientList(list){
   var el=document.getElementById('client-list');
+  var unread=list.filter(hasUnread).length;
+  var badge=document.getElementById('unread-count');
+  if(unread){badge.textContent=unread;badge.style.display='inline';}
+  else badge.style.display='none';
   if(!list.length){el.innerHTML='<div style="padding:20px;text-align:center;color:#94A3B8;font-size:12px;">No clients found</div>';return;}
   el.innerHTML='';
   list.forEach(function(c){
-    var hasMsgs=c.notes&&c.notes.includes('[CLIENT MESSAGE');
+    var unrd=hasUnread(c);
     var init=(c.name||'?').split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
     var div=document.createElement('div');
-    div.className='client-row'+(hasMsgs?' has-msg':'')+(currentClient&&currentClient.id===c.id?' active':'');
-    div.innerHTML='<div class="avatar">'+init+'</div><div style="flex:1;min-width:0;"><div class="cr-name">'+safe(c.name)+'</div><div class="cr-id">'+safe(c.id)+'</div></div>'+(hasMsgs?'<div class="msg-dot"></div>':'');
-    div.onclick=function(){openClient(c);};
+    div.className='cr'+(unrd?' has-msg':'')+(currentClient&&currentClient.id===c.id?' active':'');
+    div.innerHTML='<div class="av">'+init+'</div><div style="flex:1;min-width:0;"><div class="cr-name">'+safe(c.name)+'</div><div class="cr-id">'+safe(c.id)+'</div></div>'+(unrd?'<div class="msg-dot"></div>':'');
+    div.onclick=function(){openClient(c,div);};
     el.appendChild(div);
   });
 }
 
+var searchTimer;
 function filterClients(q){
-  var filtered=q?allClients.filter(function(c){return(c.name||'').toLowerCase().includes(q.toLowerCase())||(c.id||'').toLowerCase().includes(q.toLowerCase());}):allClients;
-  renderClientList(filtered);
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(function(){
+    var ql=q.toLowerCase();
+    var filtered=q?allClients.filter(function(c){
+      return(c.name||'').toLowerCase().includes(ql)||(c.id||'').toLowerCase().includes(ql)||(c.email||'').toLowerCase().includes(ql)||(c.phone||'').includes(q);
+    }):allClients;
+    renderClientList(filtered);
+  },200);
 }
 
 // ── OPEN CLIENT ──
-function openClient(c){
+function openClient(c,el){
   currentClient=c;
-  // Parse disputes
-  try{var d=typeof c.disputes==='string'?JSON.parse(c.disputes):c.disputes; disputes=Array.isArray(d)&&d.length?d:[];}catch(e){disputes=[];}
+  try{var d=typeof c.disputes==='string'?JSON.parse(c.disputes):c.disputes;disputes=Array.isArray(d)&&d.length?d:[];}catch(e){disputes=[];}
   if(!disputes.length&&c.notes) disputes=parseNotes(c.notes);
-
-  // Highlight in list
-  document.querySelectorAll('.client-row').forEach(function(el){el.classList.remove('active');});
-  event.currentTarget.classList.add('active');
-
-  // Show messages
-  document.getElementById('mid-head').textContent='💬 '+c.name;
+  document.querySelectorAll('.cr').forEach(function(d){d.classList.remove('active');});
+  if(el) el.classList.add('active');
   document.getElementById('reply-box').style.display='block';
+  document.getElementById('file-status-bar').style.display='flex';
   renderThread(c);
-
-  // Show right panel
-  document.getElementById('action-bar').style.display='flex';
-  showTab(activeTab);
+  renderActions(c);
+  showRTab(activeRTab);
+  updateFileBadge(c);
 }
 
 // ── MESSAGES ──
-function extractMsgs(notes){
-  if(!notes)return[];
+function parseMsgs(notes){
+  if(!notes) return [];
   var msgs=[];
-  var lines=notes.split('\n');
-  lines.forEach(function(line){
-    var cm=line.match(/\[CLIENT MESSAGE ([^\]]+)\]:\s*(.+)/);
-    if(cm)msgs.push({from:'client',date:cm[1],text:cm[2].trim()});
-    var tm=line.match(/\[TEAM REPLY ([^\]]+)\]:\s*(.+)/);
-    if(tm)msgs.push({from:'team',date:tm[1],text:tm[2].trim()});
-  });
-  msgs.sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+  var lines=notes.split('
+');
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i].trim();
+    if(line.indexOf('[CLIENT MESSAGE ')===0){var c=line.indexOf(']:');if(c>0)msgs.push({from:'client',date:line.substring(16,c),text:line.substring(c+2).trim()});}
+    if(line.indexOf('[TEAM REPLY ')===0){var c2=line.indexOf(']:');if(c2>0)msgs.push({from:'team',date:line.substring(12,c2),text:line.substring(c2+2).trim()});}
+  }
   return msgs;
 }
 
 function renderThread(c){
-  var msgs=extractMsgs(c.notes||'');
+  var msgs=parseMsgs(c.notes||'');
   var el=document.getElementById('msg-thread');
-  if(!msgs.length){
-    el.innerHTML='<div class="empty-state"><div class="icon">&#128172;</div><div>No messages yet</div></div>';
-    return;
-  }
+  if(!msgs.length){el.innerHTML='<div class="empty-state"><div class="ico">&#128172;</div><div>No messages yet</div></div>';return;}
   el.innerHTML=msgs.map(function(m){
-    return '<div style="display:flex;flex-direction:column;align-items:'+(m.from==='team'?'flex-end':'flex-start')+';">'+
-      (m.from==='client'?'<div style="font-size:10px;font-weight:700;color:#64748B;margin-bottom:3px;">'+safe(c.name)+'</div>':'')+
-      '<div class="bubble '+m.from+'">'+safe(m.text)+'</div>'+
-      '<div class="bubble-meta">'+(m.from==='team'?'CP Restoration &bull; ':'')+fmtTime(m.date)+'</div>'+
+    return '<div class="bubble-wrap '+m.from+'">'+
+      (m.from==='client'?'<div class="bname">'+safe(c.name)+'</div>':'')+
+      '<div class="bubble">'+safe(m.text)+'</div>'+
+      '<div class="btime">'+(m.from==='team'?'CP Restoration &bull; ':'')+fmtTime(m.date)+'</div>'+
     '</div>';
   }).join('');
   el.scrollTop=el.scrollHeight;
@@ -251,11 +332,12 @@ function renderThread(c){
 function useQR(el){var t=document.getElementById('reply-txt');t.value=(t.value?t.value+' ':'')+el.textContent;t.focus();}
 
 async function sendReply(){
-  if(!currentClient)return;
+  if(!currentClient) return;
   var txt=document.getElementById('reply-txt').value.trim();
-  if(!txt)return;
+  if(!txt) return;
   document.getElementById('reply-txt').value='';
-  var tag='\n[TEAM REPLY '+new Date().toLocaleString()+']: '+txt;
+  var tag='
+[TEAM REPLY '+new Date().toLocaleString()+']: '+txt;
   currentClient.notes=(currentClient.notes||'')+tag;
   renderThread(currentClient);
   try{
@@ -263,135 +345,325 @@ async function sendReply(){
       method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
       body:JSON.stringify({notes:currentClient.notes,updated_at:new Date().toISOString()})
     });
-    // Email client
     if(currentClient.email){
       fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({personalizations:[{to:[{email:currentClient.email,name:currentClient.name}]}],
+        body:JSON.stringify({
+          personalizations:[{to:[{email:currentClient.email,name:currentClient.name}]}],
           from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
           subject:'Message from CP Restoration Services',
-          content:[{type:'text/plain',value:'Dear '+currentClient.name+',\n\n'+txt+'\n\nLog in to reply:\nportal-cprestorationsvcs.com/client-portal.html\nUser ID: '+currentClient.id+'\nPassword: restore2026\n\nCP Restoration Services'},{type:'text/html',value:'<div style="font-family:Arial;max-width:580px;margin:0 auto;padding:20px;"><div style="background:#1B3A6B;padding:16px;border-radius:8px 8px 0 0;"><h2 style="color:white;margin:0;font-size:15px;">CP Restoration Services</h2></div><div style="border:1px solid #E2E8F0;border-top:none;padding:20px;border-radius:0 0 8px 8px;"><p>Dear <b>'+currentClient.name+'</b>,</p><div style="background:#F8FAFC;border-left:4px solid #1B3A6B;padding:12px;margin:14px 0;font-size:13px;line-height:1.7;">'+safe(txt)+'</div><p style="font-size:12px;color:#64748B;">Reply through your portal: <a href="https://portal-cprestorationsvcs.com/client-portal.html">portal-cprestorationsvcs.com</a><br>ID: '+currentClient.id+' | Password: restore2026</p><hr style="border:none;border-top:1px solid #eee;margin:16px 0;"><p style="font-size:11px;color:#94A3B8;">CP Restoration | 1-855-327-5847 | Mon-Fri 9AM-5PM EST</p></div></div>'}]
+          content:[
+            {type:'text/plain',value:'Dear '+currentClient.name+',
+
+'+txt+'
+
+Log in to reply:
+portal-cprestorationsvcs.com/client-portal.html
+User ID: '+currentClient.id+'
+Password: restore2026
+
+CP Restoration Services
+1-855-327-5847'},
+            {type:'text/html',value:'<div style="font-family:Arial;max-width:580px;margin:0 auto;"><div style="background:#1B3A6B;padding:16px 20px;border-radius:8px 8px 0 0;"><h2 style="color:white;margin:0;font-size:15px;">CP Restoration Services</h2></div><div style="border:1px solid #E2E8F0;border-top:none;padding:20px;border-radius:0 0 8px 8px;"><p>Dear <b>'+safe(currentClient.name)+'</b>,</p><div style="background:#F8FAFC;border-left:4px solid #1B3A6B;padding:12px;margin:14px 0;font-size:13px;line-height:1.7;">'+safe(txt)+'</div><p style="font-size:12px;color:#64748B;">Reply: <a href="https://portal-cprestorationsvcs.com/client-portal.html">portal-cprestorationsvcs.com</a><br>ID: '+safe(currentClient.id)+' | Password: restore2026</p><hr style="border:none;border-top:1px solid #eee;margin:14px 0;"><p style="font-size:11px;color:#94A3B8;">CP Restoration | 1-855-327-5847 | Mon-Fri 9AM-5PM EST</p></div></div>'}
+          ]
         })
       });
     }
     toast('Reply sent');
+    loadClients();
   }catch(e){toast('Error: '+e.message,'err');}
 }
 
-// ── TABS ──
-function showTab(tab){
-  activeTab=tab;
-  ['status','info'].forEach(function(t){document.getElementById('tab-'+t).classList.toggle('active',t===tab);});
-  if(tab==='status') renderStatus();
-  else renderInfo();
+// ── ACTIONS PANEL ──
+function renderActions(c){
+  var el=document.getElementById('actions-panel');
+  var notes=c.notes||'';
+  var hasPending=notes.includes('[STATUS REQUEST')||notes.includes('[REFUND REQUEST');
+  if(hasPending) document.getElementById('action-badge').style.display='inline';
+  else document.getElementById('action-badge').style.display='none';
+
+  el.innerHTML=
+    // Status Update Request
+    '<div class="action-card">'+
+      '<div class="action-card-head ac-navy">&#128202; Request Status Update</div>'+
+      '<div class="action-card-body">'+
+        '<p style="font-size:11px;color:#475569;margin-bottom:8px;">Verify bureau logins first, then submit to Dispute Department. They have 24 hours to complete.</p>'+
+        '<select class="form-sel" id="su-reason"><option value="">-- Reason for request --</option><option>Client called requesting status</option><option>Client messaged via portal</option><option>Client complaint — needs urgent update</option></select>'+
+        '<textarea class="notes-box" id="su-notes" placeholder="Notes (logins verified, client concerns, etc.)..."></textarea>'+
+        '<button class="btn btn-navy btn-sm" onclick="submitStatusRequest()" style="width:100%;">&#128202; Send to Dispute Department</button>'+
+      '</div>'+
+    '</div>'+
+    // Refund Request
+    '<div class="action-card">'+
+      '<div class="action-card-head ac-red">&#128176; Send Refund Request to Compliance</div>'+
+      '<div class="action-card-body">'+
+        '<p style="font-size:11px;color:#475569;margin-bottom:8px;">DO NOT approve or deny. Submit to Queen in Compliance. Decision in 24 hours — client will be notified by email and portal.</p>'+
+        '<select class="form-sel" id="rf-reason"><option value="">-- Refund reason given by client --</option><option>No results / items not deleted</option><option>Outside service window</option><option>Dissatisfied with service</option><option>Moved to another company</option><option>Financial hardship</option></select>'+
+        '<textarea class="notes-box" id="rf-notes" placeholder="Notes (what client said, logins status, any violations, etc.)..."></textarea>'+
+        '<button class="btn btn-red btn-sm" onclick="submitRefundRequest()" style="width:100%;">&#128176; Send to Compliance (Queen)</button>'+
+      '</div>'+
+    '</div>'+
+    // Notes
+    '<div class="action-card">'+
+      '<div class="action-card-head ac-gold">&#128221; Call Notes</div>'+
+      '<div class="action-card-body">'+
+        '<textarea class="notes-box" id="call-notes" placeholder="Log what happened on this call..." style="height:80px;"></textarea>'+
+        '<button class="btn btn-gold btn-sm" onclick="saveCallNotes()" style="width:100%;">&#128190; Save Notes</button>'+
+      '</div>'+
+    '</div>'+
+    // Send Portal Link
+    '<div class="action-card">'+
+      '<div class="action-card-head ac-green">&#128279; Send Portal Access to Client</div>'+
+      '<div class="action-card-body">'+
+        '<p style="font-size:11px;color:#475569;margin-bottom:8px;">Sends client their portal URL, User ID and password by email.</p>'+
+        '<button class="btn btn-green btn-sm" onclick="sendPortalLink()" style="width:100%;">&#9993; Email Portal Login to Client</button>'+
+      '</div>'+
+    '</div>';
+}
+
+async function submitStatusRequest(){
+  if(!currentClient) return;
+  var reason=document.getElementById('su-reason').value;
+  var notes=document.getElementById('su-notes').value.trim();
+  if(!reason){toast('Select a reason','err');return;}
+  var tag='
+[STATUS REQUEST '+new Date().toLocaleString()+']: '+reason+(notes?' — '+notes:'');
+  currentClient.notes=(currentClient.notes||'')+tag;
+  await saveNotes();
+  // Email dispute dept
+  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      personalizations:[{to:[{email:'cprestorationsvcs@gmail.com',name:'Dispute Department'}]}],
+      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services — CS'},
+      subject:'STATUS UPDATE REQUEST — '+currentClient.name+' ('+currentClient.id+')',
+      content:[{type:'text/plain',value:'STATUS UPDATE REQUEST
+
+Client: '+currentClient.name+'
+ID: '+currentClient.id+'
+Email: '+currentClient.email+'
+Phone: '+currentClient.phone+'
+
+Reason: '+reason+'
+Notes: '+(notes||'None')+'
+
+Please complete status update within 24 hours and send to client via portal and email.
+
+Logged by CS at '+new Date().toLocaleString()}]
+    })
+  });
+  toast('Status request sent to Dispute Department');
+  document.getElementById('su-reason').value='';
+  document.getElementById('su-notes').value='';
+}
+
+async function submitRefundRequest(){
+  if(!currentClient) return;
+  var reason=document.getElementById('rf-reason').value;
+  var notes=document.getElementById('rf-notes').value.trim();
+  if(!reason){toast('Select a reason','err');return;}
+  var tag='
+[REFUND REQUEST '+new Date().toLocaleString()+']: '+reason+(notes?' — '+notes:'');
+  currentClient.notes=(currentClient.notes||'')+tag;
+  await saveNotes();
+  // Email Queen in compliance
+  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      personalizations:[{to:[{email:'queen@mycprteam.com',name:'Queen — Compliance'}]}],
+      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services — CS'},
+      subject:'REFUND REQUEST — '+currentClient.name+' ('+currentClient.id+')',
+      content:[{type:'text/plain',value:'REFUND REQUEST — COMPLIANCE REVIEW NEEDED
+
+Client: '+currentClient.name+'
+ID: '+currentClient.id+'
+Email: '+currentClient.email+'
+Phone: '+currentClient.phone+'
+Package: '+(currentClient.package||'Standard')+'
+Start Date: '+(currentClient.start_date||'Unknown')+'
+
+Reason given by client: '+reason+'
+CS Notes: '+(notes||'None')+'
+
+Please evaluate within 24 hours and update client portal and send decision by email.
+
+Logged by CS at '+new Date().toLocaleString()}]
+    })
+  });
+  toast('Refund request sent to Queen (Compliance)');
+  document.getElementById('rf-reason').value='';
+  document.getElementById('rf-notes').value='';
+}
+
+async function saveCallNotes(){
+  if(!currentClient) return;
+  var notes=document.getElementById('call-notes').value.trim();
+  if(!notes){toast('Enter notes first','err');return;}
+  var tag='
+[CS NOTE '+new Date().toLocaleString()+']: '+notes;
+  currentClient.notes=(currentClient.notes||'')+tag;
+  await saveNotes();
+  document.getElementById('call-notes').value='';
+  toast('Notes saved');
+}
+
+async function saveNotes(){
+  await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
+    method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
+    body:JSON.stringify({notes:currentClient.notes,updated_at:new Date().toISOString()})
+  });
+}
+
+// ── BUREAU LOGINS ──
+function renderLogins(){
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128272;</div><div>Select a client</div></div>';return;}
+  var c=currentClient;
+  document.getElementById('right-body').innerHTML=
+    '<p style="font-size:11px;color:#64748B;margin-bottom:12px;">&#9888; Verify logins are working before submitting any requests. For Experian, confirm the 4-digit PIN and security question answer.</p>'+
+    bureauCard('Equifax','bc-eq','EQ','equifax_user','equifax_pass',null,null,null,c)+
+    bureauCard('Experian','bc-ex','EX','experian_user','experian_pass','experian_pin','experian_sq','experian_sa',c)+
+    bureauCard('TransUnion','bc-tu','TU','transunion_user','transunion_pass',null,null,null,c);
+}
+
+function bureauCard(name,cls,abbr,uField,pField,pinField,sqField,saField,c){
+  var hasLogins=c[uField]||c[pField];
+  var status=hasLogins?'<span class="login-status ls-ok">&#9989; Credentials on file</span>':'<span class="login-status ls-unk">&#128683; No credentials</span>';
+  var extra='';
+  if(pinField) extra+=
+    '<div class="login-row"><label>4-Digit PIN</label><input type="text" id="f-'+pinField+'" value="'+safe(c[pinField]||'')+'" maxlength="4" placeholder="1234"></div>'+
+    '<div class="login-row"><label>Security Question</label><input type="text" id="f-'+sqField+'" value="'+safe(c[sqField]||'')+'" placeholder="What is your mother's maiden name?"></div>'+
+    '<div class="login-row"><label>Security Answer</label><input type="text" id="f-'+saField+'" value="'+safe(c[saField]||'')+'" placeholder="Answer"></div>';
+  return '<div class="bureau-card">'+
+    '<div class="bc-head '+cls+'">&#9679; '+name+' &nbsp;'+status+'</div>'+
+    '<div class="bc-body">'+
+      '<div class="login-row"><label>Username / Email</label><input type="text" id="f-'+uField+'" value="'+safe(c[uField]||'')+'" placeholder="username or email"></div>'+
+      '<div class="login-row"><label>Password</label><input type="text" id="f-'+pField+'" value="'+safe(c[pField]||'')+'" placeholder="password"></div>'+
+      extra+
+    '</div>'+
+  '</div>';
+}
+
+async function saveLogins(){
+  if(!currentClient) return;
+  var fields=['equifax_user','equifax_pass','experian_user','experian_pass','experian_pin','experian_sq','experian_sa','transunion_user','transunion_pass'];
+  var updates={};
+  fields.forEach(function(f){
+    var el=document.getElementById('f-'+f);
+    if(el){updates[f]=el.value.trim();currentClient[f]=updates[f];}
+  });
+  updates.updated_at=new Date().toISOString();
+  try{
+    var r=await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
+      method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
+      body:JSON.stringify(updates)
+    });
+    toast(r.ok?'&#10003; Logins saved':'&#10006; Failed: '+r.status,r.ok?'ok':'err');
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+
+// ── FILE STATUS ──
+function updateFileBadge(c){
+  var badge=document.getElementById('file-badge');
+  var paused=c.status&&c.status.toLowerCase().includes('paused');
+  badge.textContent=c.status||'Active';
+  badge.className='file-badge '+(paused?'fb-paused':'fb-active');
+  document.getElementById('pause-btn').style.display=paused?'none':'inline-flex';
+  document.getElementById('resume-btn').style.display=paused?'inline-flex':'none';
+}
+
+async function pauseFile(){
+  if(!currentClient||!confirm('Pause this client's file? This is used for chargebacks and refund disputes.')) return;
+  await updateStatus('Paused — Compliance Review');
+  toast('File paused — Compliance notified');
+  notifyCompliance('FILE PAUSED');
+}
+
+async function resumeFile(){
+  if(!currentClient||!confirm('Resume this client's file?')) return;
+  await updateStatus('Active');
+  toast('File resumed');
+}
+
+async function updateStatus(status){
+  currentClient.status=status;
+  await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
+    method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
+    body:JSON.stringify({status:status,updated_at:new Date().toISOString()})
+  });
+  updateFileBadge(currentClient);
+}
+
+async function notifyCompliance(type){
+  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      personalizations:[{to:[{email:'queen@mycprteam.com',name:'Queen — Compliance'}]}],
+      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
+      subject:type+' — '+currentClient.name+' ('+currentClient.id+')',
+      content:[{type:'text/plain',value:type+'
+
+Client: '+currentClient.name+'
+ID: '+currentClient.id+'
+Email: '+currentClient.email+'
+
+This client's file has been paused pending compliance review.
+
+Please review and take action within 24 hours.'}]
+    })
+  });
+}
+
+// ── RIGHT TABS ──
+function showRTab(tab){
+  activeRTab=tab;
+  ['info','logins','disputes'].forEach(function(t){document.getElementById('rtab-'+t).classList.toggle('active',t===tab);});
+  if(tab==='info') renderInfo();
+  else if(tab==='logins') renderLogins();
+  else renderDisputes();
 }
 
 function renderInfo(){
-  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="icon">&#128101;</div><div>Select a client</div></div>';return;}
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128101;</div><div>Select a client</div></div>';return;}
   var c=currentClient;
   document.getElementById('right-body').innerHTML=
-    '<div class="info-card"><h3>Client Information</h3><div class="info-grid">'+
-    [['Name',c.name],['Client ID',c.id],['Email',c.email||'—'],['Phone',c.phone||'—'],
+    '<div class="info-grid">'+
+    [['Client ID',c.id],['Name',c.name],['Email',c.email||'—'],['Phone',c.phone||'—'],
      ['Package',c.package||'Standard'],['Start Date',c.start_date?new Date(c.start_date).toLocaleDateString():'—'],
      ['Status',c.status||'Active'],['Portal Password','restore2026']
-    ].map(function(f){return '<div class="info-item"><label>'+f[0]+'</label><span>'+safe(f[1])+'</span></div>';}).join('')+
-    '</div></div>'+
-    '<div class="info-card"><h3>Portal Access</h3>'+
-    '<p style="font-size:12px;line-height:1.8;color:#475569;">&#128279; portal-cprestorationsvcs.com/client-portal.html<br>&#128272; User ID: <b>'+safe(c.id)+'</b><br>&#128274; Password: <b>restore2026</b></p></div>';
+    ].map(function(f){return '<div class="ig"><label>'+f[0]+'</label><span>'+safe(f[1])+'</span></div>';}).join('')+
+    '</div>'+
+    '<div style="background:#EFF4FF;border-radius:8px;padding:12px;font-size:12px;line-height:1.8;color:#1B3A6B;">'+
+    '<b>Portal URL:</b> portal-cprestorationsvcs.com/client-portal.html<br>'+
+    '<b>User ID:</b> '+safe(c.id)+'<br>'+
+    '<b>Password:</b> restore2026</div>';
 }
 
-function renderStatus(){
-  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="icon">&#128202;</div><div>Select a client</div></div>';return;}
+function renderDisputes(){
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128202;</div><div>Select a client</div></div>';return;}
   var del=disputes.filter(function(d){return d.status==='removed';}).length;
   var tot=disputes.length;
   var pct=tot>0?Math.round(del/tot*100):0;
   var eq=disputes.filter(function(d){return(d.bureau||'').includes('equifax');});
   var tu=disputes.filter(function(d){return(d.bureau||'').includes('transunion');});
-  var ex=disputes.filter(function(d){return(d.bureau||'').includes('experian');});
   function pbox(n,l,p,col){return'<div class="prog-box"><div class="prog-num" style="color:'+col+';">'+n+'</div><div class="prog-lbl">'+l+'</div><div class="prog-bar-w"><div class="prog-bar" style="width:'+p+'%;background:'+col+';"></div></div></div>';}
-
-  var rows=disputes.map(function(d,i){
+  var rows=disputes.length?disputes.map(function(d,i){
     var bur=(d.bureau||'all').toLowerCase();
     var dot=bur==='equifax'?'<span class="dot-eq">EQ</span>':bur==='experian'?'<span class="dot-ex">EX</span>':bur==='transunion'?'<span class="dot-tu">TU</span>':'<span class="dot-eq">EQ</span><span class="dot-ex">EX</span><span class="dot-tu">TU</span>';
-    var badge=d.status==='removed'?'<span class="badge b-del">✅ Del</span>':'<span class="badge b-pen">⏳ Pend</span>';
-    return'<tr>'+
-      '<td style="font-weight:600;font-size:11px;">'+safe(d.name)+'</td>'+
-      '<td style="font-size:10px;color:#64748B;">'+safe(d.type||'Account')+'</td>'+
-      '<td>'+dot+'</td>'+
-      '<td>'+badge+'</td>'+
-      '<td>'+
-        '<button class="tog'+(d.status==='removed'?' on-del':'')+'" onclick="setS('+i+',\'removed\')">✅</button>'+
-        '<button class="tog'+(d.status==='pending'?' on-pen':'')+'" onclick="setS('+i+',\'pending\')">⏳</button>'+
-        '<button class="tog" style="color:#8B1A1A;" onclick="delItem('+i+')">🗑</button>'+
-      '</td>'+
-    '</tr>';
-  }).join('');
-
+    var badge=d.status==='removed'?'<span class="badge b-del">&#10003; Deleted</span>':'<span class="badge b-pen">&#8987; Pending</span>';
+    return'<tr><td style="font-weight:600;">'+safe(d.name)+'</td><td style="font-size:10px;color:#64748B;">'+safe(d.type||'')+'</td><td>'+dot+'</td><td>'+badge+'</td></tr>';
+  }).join(''):'<tr><td colspan="4" style="text-align:center;padding:20px;color:#94A3B8;">No dispute items on file</td></tr>';
   document.getElementById('right-body').innerHTML=
-    '<div class="prog-row">'+
-      pbox(pct+'%','Overall',pct,'#166534')+
-      pbox(del+'/'+tot,'Deleted',pct,'#1B3A6B')+
-      pbox(eq.filter(function(d){return d.status==='removed';}).length+'/'+eq.length,'Equifax',eq.length?Math.round(eq.filter(function(d){return d.status==='removed';}).length/eq.length*100):0,'#E53E3E')+
-    '</div>'+
-    '<div class="dispute-card">'+
-      '<table><thead><tr><th>Item</th><th>Type</th><th>Bureau</th><th>Status</th><th>Action</th></tr></thead>'+
-      '<tbody>'+rows+'</tbody></table>'+
-      '<div class="add-item-row">'+
-        '<div><label>Item Name</label><input id="ai-name" placeholder="e.g. Capital One Auto"></div>'+
-        '<div><label>Type</label><select id="ai-type"><option>Account</option><option>Hard Inquiry</option><option>Collection</option></select></div>'+
-        '<div><label>Bureau</label><select id="ai-bur"><option value="equifax">Equifax</option><option value="experian">Experian</option><option value="transunion">TransUnion</option><option value="all">All</option></select></div>'+
-        '<div><label>Status</label><select id="ai-status"><option value="pending">Pending</option><option value="removed">Deleted</option></select></div>'+
-        '<button class="btn btn-navy" onclick="addItem()" style="height:36px;padding:0 10px;font-size:11px;align-self:flex-end;">+ Add</button>'+
-      '</div>'+
-    '</div>';
+    '<div class="prog-row">'+pbox(pct+'%','Overall',pct,'#166534')+pbox(del+'/'+tot,'Deleted',pct,'#1B3A6B')+pbox(eq.filter(function(d){return d.status==='removed';}).length+'/'+eq.length,'Equifax',eq.length?Math.round(eq.filter(function(d){return d.status==='removed';}).length/eq.length*100):0,'#E53E3E')+'</div>'+
+    '<p style="font-size:11px;color:#94A3B8;margin-bottom:8px;">View only — status updates are completed by the Dispute Department</p>'+
+    '<table class="dt"><thead><tr><th>Item</th><th>Type</th><th>Bureau</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
-function setS(i,s){if(disputes[i]){disputes[i].status=s;disputes[i].date=new Date().toLocaleDateString();renderStatus();}}
-function delItem(i){disputes.splice(i,1);renderStatus();}
-function addItem(){
-  var n=document.getElementById('ai-name').value.trim();
-  if(!n){toast('Enter item name','err');return;}
-  disputes.push({name:n,type:document.getElementById('ai-type').value,bureau:document.getElementById('ai-bur').value,status:document.getElementById('ai-status').value,date:new Date().toLocaleDateString()});
-  document.getElementById('ai-name').value='';
-  renderStatus();
-  toast('Item added');
+// ── MID TABS ──
+function showMidTab(tab){
+  activeMTab=tab;
+  ['msg','actions'].forEach(function(t){
+    document.getElementById('mtab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('mid-'+t).style.display=t===tab?'flex':'none';
+  });
 }
 
-// ── SAVE ──
-async function saveDisputes(){
-  if(!currentClient)return;
-  try{
-    var r=await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
-      method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
-      body:JSON.stringify({disputes:JSON.stringify(disputes),updated_at:new Date().toISOString()})
-    });
-    toast(r.ok?'✅ Saved':'❌ Failed: '+r.status,r.ok?'ok':'err');
-  }catch(e){toast('Error: '+e.message,'err');}
-}
-
-// ── SEND STATUS EMAIL ──
-async function sendStatusEmail(){
-  if(!currentClient||!currentClient.email){toast('No email on file','err');return;}
-  await saveDisputes();
-  var del=disputes.filter(function(d){return d.status==='removed';}).length;
-  var tot=disputes.length;
-  var pct=tot>0?Math.round(del/tot*100):0;
-  var c=currentClient;
-  try{
-    var r=await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        personalizations:[{to:[{email:c.email,name:c.name}]}],
-        from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
-        subject:'Your Credit Repair Status Update — CP Restoration Services',
-        content:[
-          {type:'text/plain',value:'Dear '+c.name+',\n\nYour credit repair update: '+del+' of '+tot+' items deleted ('+pct+'% complete).\n\nLog in to see full report:\nportal-cprestorationsvcs.com/client-portal.html\nUser ID: '+c.id+'\nPassword: restore2026\n\nQuestions? Message us through the portal — we respond within 24 hours Mon-Fri.\n\nCP Restoration Services\ncprestorationsvcs@gmail.com\n1-855-327-5847'},
-          {type:'text/html',value:'<div style="font-family:Arial;max-width:580px;margin:0 auto;padding:20px;"><div style="background:#1B3A6B;padding:18px 20px;border-radius:8px 8px 0 0;"><h2 style="color:white;margin:0;font-size:16px;">CP Restoration Services</h2><p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:12px;">Credit Repair Status Update</p></div><div style="border:1px solid #E2E8F0;border-top:none;padding:24px;border-radius:0 0 8px 8px;"><p>Dear <b>'+c.name+'</b>,</p><div style="background:#F0FFF4;border:1.5px solid #166534;border-radius:8px;padding:18px;margin:16px 0;text-align:center;"><div style="font-size:38px;font-weight:800;color:#166534;">'+pct+'%</div><div style="font-size:13px;color:#166534;font-weight:600;">Complete — '+del+' of '+tot+' items deleted</div><div style="background:#E2E8F0;height:8px;border-radius:10px;margin:10px 0;"><div style="background:#166534;width:'+pct+'%;height:8px;border-radius:10px;"></div></div></div><p>Log in to your portal to see your full detailed report:</p><div style="background:#EFF4FF;border-radius:8px;padding:12px;margin:12px 0;font-size:12px;"><a href="https://portal-cprestorationsvcs.com/client-portal.html" style="color:#1B3A6B;font-weight:700;">portal-cprestorationsvcs.com/client-portal.html</a><br>User ID: <b>'+c.id+'</b> &nbsp;|&nbsp; Password: <b>restore2026</b></div><p style="font-size:12px;color:#64748B;">Questions? Message us through the portal — we respond within 24 hours Mon-Fri.</p><hr style="border:none;border-top:1px solid #eee;margin:16px 0;"><p style="font-size:11px;color:#94A3B8;">CP Restoration Services | cprestorationsvcs@gmail.com | 1-855-327-5847 | Mon-Fri 9AM-5PM EST | 35daycreditrepair.com</p></div></div>'}
-        ]
-      })
-    });
-    toast(r.ok?'✅ Status email sent to '+c.email:'❌ Email failed: '+r.status,r.ok?'ok':'err');
-  }catch(e){toast('Error: '+e.message,'err');}
-}
-
+// ── PORTAL LINK ──
 async function sendPortalLink(){
   if(!currentClient||!currentClient.email){toast('No email on file','err');return;}
   var c=currentClient;
@@ -400,19 +672,40 @@ async function sendPortalLink(){
       body:JSON.stringify({
         personalizations:[{to:[{email:c.email,name:c.name}]}],
         from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
-        subject:'Your CP Restoration Client Portal Access',
-        content:[{type:'text/plain',value:'Dear '+c.name+',\n\nYou can now log in to your client portal to track your credit repair progress and send us messages:\n\nPortal: portal-cprestorationsvcs.com/client-portal.html\nUser ID: '+c.id+'\nPassword: restore2026\n\nCP Restoration Services\ncprestorationsvcs@gmail.com\n1-855-327-5847'}]
+        subject:'Your CP Restoration Client Portal — Login Information',
+        content:[{type:'text/plain',value:'Dear '+c.name+',
+
+CP Restoration Services is open and fully operational. We recently upgraded our client portal to give you better visibility into your credit repair progress.
+
+Here is your portal access:
+URL: portal-cprestorationsvcs.com/client-portal.html
+User ID: '+c.id+'
+Password: restore2026
+
+In the portal you can:
+- See every item being disputed and its current status
+- View your overall progress percentage
+- Send us messages and receive replies
+- Access your status updates
+
+If you have any questions, message us through the portal and we will respond within 24 hours Monday through Friday.
+
+CP Restoration Services
+cprestorationsvcs@gmail.com
+1-855-327-5847
+Monday - Friday 9:00 AM - 5:00 PM EST'}]
       })
     });
-    toast(r.ok?'✅ Portal link sent':'❌ Failed','ok');
+    toast(r.ok?'Portal link sent to '+c.email:'Failed: '+r.status,r.ok?'ok':'err');
   }catch(e){toast('Error','err');}
 }
 
-// ── PARSE NOTES ──
+// ── HELPERS ──
 function parseNotes(notes){
   var result=[],bureau='all';
-  notes.split('\n').forEach(function(line){
-    var l=line.trim(); if(!l)return;
+  notes.split('
+').forEach(function(line){
+    var l=line.trim();if(!l)return;
     var ll=l.toLowerCase();
     if(ll.includes('equifax')&&ll.length<40){bureau='equifax';return;}
     if(ll.includes('transunion')&&ll.length<40){bureau='transunion';return;}
@@ -420,7 +713,7 @@ function parseNotes(notes){
     var status=ll.includes('deleted')||l.includes('✅')?'removed':'pending';
     var name=l.replace(/^[✅⏳\-•*\d.]+\s*/,'').replace(/\s*[—-]\s*(DELETED|PENDING).*/i,'').trim();
     var type=/inquiry/i.test(name)?'Hard Inquiry':/collection/i.test(name)?'Collection':'Account';
-    if(name.length>3&&name.length<80&&!/^(accounts?|inquiri|collections?|score|note|bureau|update|experian|equifax|transunion)/i.test(name))
+    if(name.length>3&&name.length<80&&!/^(accounts?|inquiri|collections?|score|note|bureau|update|experian|equifax|transunion|\[)/i.test(name))
       result.push({name:name,type:type,bureau:bureau,status:status,date:''});
   });
   return result;
@@ -428,6 +721,7 @@ function parseNotes(notes){
 
 function fmtTime(s){
   try{var d=new Date(s),now=new Date(),diff=now-d;
+  if(isNaN(diff))return s;
   if(diff<60000)return'Just now';if(diff<3600000)return Math.floor(diff/60000)+'m ago';
   if(diff<86400000)return Math.floor(diff/3600000)+'h ago';return d.toLocaleDateString();}catch(e){return s;}
 }
@@ -436,7 +730,22 @@ function toast(msg,type){var t=document.createElement('div');t.className='toast'
 
 // Init
 loadClients();
-setInterval(loadClients,60000);
+// Auto-refresh every 30 seconds for real-time messages
+refreshTimer=setInterval(function(){
+  if(currentClient){
+    // Reload current client's notes silently
+    fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id)+'&select=notes,updated_at',{headers:HDR})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(Array.isArray(d)&&d[0]&&d[0].notes!==currentClient.notes){
+          currentClient.notes=d[0].notes;
+          renderThread(currentClient);
+          toast('New message received');
+        }
+      }).catch(function(){});
+  }
+  loadClients();
+},30000);
 </script>
 </body>
 </html>
