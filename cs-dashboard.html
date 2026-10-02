@@ -227,9 +227,12 @@ var refreshTimer=null;
 // ── LOAD CLIENTS ──
 async function loadClients(){
   try{
-    var r=await fetch(SUPA+'/clients?select=id,name,email,phone,status,package,start_date,disputes,notes,updated_at,equifax_user,equifax_pass,experian_user,experian_pass,experian_pin,experian_sq,experian_sa,transunion_user,transunion_pass&order=updated_at.desc&limit=1000',{headers:HDR});
+    var r=await fetch(SUPA+'/clients?select=*&order=updated_at.desc&limit=1000',{headers:HDR});
     var data=await r.json();
-    if(!Array.isArray(data)) return;
+    if(!Array.isArray(data)){
+      document.getElementById('client-list').innerHTML='<div style="padding:16px;color:#E53E3E;font-size:12px;">Error loading clients: '+(data.message||data.error||JSON.stringify(data).substring(0,100))+'</div>';
+      return;
+    }
     // Sort: unread messages first, then by updated_at
     allClients=data.sort(function(a,b){
       var aMsg=hasUnread(a), bMsg=hasUnread(b);
@@ -473,6 +476,15 @@ async function saveNotes(){
 function renderLogins(){
   if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128272;</div><div>Select a client</div></div>';return;}
   var c=currentClient;
+  // If bureau_logins JSON exists, populate individual fields from it
+  if(c.bureau_logins && typeof c.bureau_logins === 'string') {
+    try {
+      var bl=JSON.parse(c.bureau_logins);
+      if(bl.equifax){c.equifax_user=bl.equifax.user||'';c.equifax_pass=bl.equifax.pass||'';}
+      if(bl.experian){c.experian_user=bl.experian.user||'';c.experian_pass=bl.experian.pass||'';c.experian_pin=bl.experian.pin||'';c.experian_sq=bl.experian.secQuestion||'';c.experian_sa=bl.experian.secAnswer||'';}
+      if(bl.transunion){c.transunion_user=bl.transunion.user||'';c.transunion_pass=bl.transunion.pass||'';}
+    } catch(e){}
+  }
   document.getElementById('right-body').innerHTML=
     '<p style="font-size:11px;color:#64748B;margin-bottom:12px;">&#9888; Verify logins are working before submitting any requests. For Experian, confirm the 4-digit PIN and security question answer.</p>'+
     bureauCard('Equifax','bc-eq','EQ','equifax_user','equifax_pass',null,null,null,c)+
@@ -481,6 +493,7 @@ function renderLogins(){
 }
 
 function bureauCard(name,cls,abbr,uField,pField,pinField,sqField,saField,c){
+  c = c || {};
   var hasLogins=c[uField]||c[pField];
   var status=hasLogins?'<span class="login-status ls-ok">&#9989; Credentials on file</span>':'<span class="login-status ls-unk">&#128683; No credentials</span>';
   var extra='';
@@ -500,14 +513,28 @@ function bureauCard(name,cls,abbr,uField,pField,pinField,sqField,saField,c){
 
 async function saveLogins(){
   if(!currentClient) return;
-  var fields=['equifax_user','equifax_pass','experian_user','experian_pass','experian_pin','experian_sq','experian_sa','transunion_user','transunion_pass'];
-  var updates={};
-  fields.forEach(function(f){
+  var loginData={
+    equifax:{user:''     ,pass:''},
+    experian:{user:'',pass:'',pin:'',secQuestion:'',secAnswer:''},
+    transunion:{user:'',pass:''}
+  };
+  var fieldMap={
+    equifax_user:'equifax.user',equifax_pass:'equifax.pass',
+    experian_user:'experian.user',experian_pass:'experian.pass',
+    experian_pin:'experian.pin',experian_sq:'experian.secQuestion',experian_sa:'experian.secAnswer',
+    transunion_user:'transunion.user',transunion_pass:'transunion.pass'
+  };
+  Object.keys(fieldMap).forEach(function(f){
     var el=document.getElementById('f-'+f);
-    if(el){updates[f]=el.value.trim();currentClient[f]=updates[f];}
+    if(!el) return;
+    var val=el.value.trim();
+    var path=fieldMap[f].split('.');
+    loginData[path[0]][path[1]]=val;
+    currentClient[f]=val;
   });
-  updates.updated_at=new Date().toISOString();
   try{
+    // Try saving to bureau_logins JSON column (always exists)
+    var updates={bureau_logins:JSON.stringify(loginData),updated_at:new Date().toISOString()};
     var r=await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
       method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
       body:JSON.stringify(updates)
