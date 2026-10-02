@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CP Restoration — Requests Inbox</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#F8FAFC;color:#1E293B;}
+.topbar{background:#1B3A6B;padding:12px 20px;display:flex;align-items:center;gap:12px;}
+.topbar h1{color:white;font-size:15px;font-weight:800;flex:1;}
+.topbar a{color:rgba(255,255,255,.75);font-size:12px;text-decoration:none;}
+.container{max-width:1000px;margin:0 auto;padding:20px;}
+.tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;}
+.tab{padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:white;border:2px solid #E2E8F0;color:#64748B;}
+.tab.active-status{background:#1B3A6B;color:white;border-color:#1B3A6B;}
+.tab.active-refund{background:#8B1A1A;color:white;border-color:#8B1A1A;}
+.tab.active-all{background:#166534;color:white;border-color:#166534;}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-left:6px;}
+.b-red{background:#FEE2E2;color:#8B1A1A;}
+.b-navy{background:#EFF4FF;color:#1B3A6B;}
+.b-green{background:#DCFCE7;color:#166534;}
+.b-gold{background:#FEF3C7;color:#92400E;}
+.card{background:white;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:14px;border:1.5px solid #E2E8F0;overflow:hidden;}
+.card.status-req{border-left:4px solid #1B3A6B;}
+.card.refund-req{border-left:4px solid #8B1A1A;}
+.card.completed{border-left:4px solid #166534;opacity:.7;}
+.card-head{padding:14px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.req-type{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;}
+.rt-status{background:#EFF4FF;color:#1B3A6B;}
+.rt-refund{background:#FEE2E2;color:#8B1A1A;}
+.rt-done{background:#DCFCE7;color:#166534;}
+.client-name{font-size:15px;font-weight:700;color:#1E293B;margin-top:4px;}
+.client-meta{font-size:12px;color:#64748B;margin-top:2px;}
+.req-time{font-size:11px;color:#94A3B8;flex-shrink:0;}
+.card-body{padding:14px 18px;border-top:1px solid #F1F5F9;background:#FAFBFF;}
+.req-detail{font-size:13px;color:#475569;line-height:1.7;margin-bottom:10px;}
+.req-notes{background:#F1F5F9;border-radius:7px;padding:10px 13px;font-size:12px;color:#475569;margin-bottom:12px;line-height:1.6;}
+.action-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.btn{padding:8px 16px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-navy{background:#1B3A6B;color:white;}
+.btn-green{background:#166534;color:white;}
+.btn-gold{background:#C9A84C;color:white;}
+.btn-red{background:#8B1A1A;color:white;}
+.btn-outline{background:white;color:#1B3A6B;border:1.5px solid #1B3A6B;}
+.btn-sm{padding:5px 12px;font-size:11px;}
+.complete-btn{background:#DCFCE7;color:#166534;border:1.5px solid #166534;}
+.resolution-box{margin-top:10px;}
+.resolution-box textarea{width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;resize:none;height:60px;}
+.resolution-box textarea:focus{outline:none;border-color:#1B3A6B;}
+.empty{text-align:center;padding:60px 20px;color:#94A3B8;}
+.empty .ico{font-size:48px;margin-bottom:12px;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:10px;padding:14px;text-align:center;border:1px solid #E2E8F0;}
+.stat-num{font-size:26px;font-weight:800;color:#1B3A6B;}
+.stat-lbl{font-size:11px;color:#64748B;font-weight:600;margin-top:4px;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;color:white;z-index:9999;pointer-events:none;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>&#128243; CP Restoration — Requests Inbox</h1>
+  <a href="/cs-dashboard.html">&#127908; CS Dashboard</a>
+  <a href="/status-update.html">&#128202; Status Update Tool</a>
+  <a href="/dashboard.html">&#8962; Dashboard</a>
+</div>
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num" id="stat-status">—</div><div class="stat-lbl">&#128202; Status Requests Pending</div></div>
+    <div class="stat"><div class="stat-num" id="stat-refund">—</div><div class="stat-lbl">&#128176; Refund Requests Pending</div></div>
+    <div class="stat"><div class="stat-num" id="stat-done">—</div><div class="stat-lbl">&#10003; Completed Today</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active-all" id="tab-all" onclick="showTab('all')">&#128243; All Requests</div>
+    <div class="tab" id="tab-status" onclick="showTab('status')">&#128202; Status Updates <span class="badge b-navy" id="badge-status">0</span></div>
+    <div class="tab" id="tab-refund" onclick="showTab('refund')">&#128176; Refund Requests <span class="badge b-red" id="badge-refund">0</span></div>
+    <div class="tab" id="tab-done" onclick="showTab('done')">&#10003; Completed</div>
+  </div>
+
+  <!-- Request List -->
+  <div id="request-list"><div class="empty"><div class="ico">&#128260;</div><div>Loading requests...</div></div></div>
+
+</div>
+<script>
+var SUPA='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
+var HDR={'apikey':KEY,'Authorization':'Bearer '+KEY};
+var allRequests=[], currentTab='all';
+
+// Parse requests from client notes
+function parseRequests(clients) {
+  var reqs = [];
+  clients.forEach(function(c) {
+    if (!c.notes) return;
+    var lines = c.notes.split('\n');
+    lines.forEach(function(line) {
+      var l = line.trim();
+      // Status Update Request
+      if (l.indexOf('[STATUS REQUEST ') === 0) {
+        var close = l.indexOf(']:');
+        if (close > 0) {
+          var date = l.substring(16, close);
+          var detail = l.substring(close+2).trim();
+          // Check if completed
+          var completedTag = '[STATUS COMPLETE '+date;
+          var isDone = c.notes.indexOf(completedTag) >= 0;
+          reqs.push({
+            type: 'status',
+            client: c,
+            date: date,
+            detail: detail,
+            done: isDone,
+            tag: l
+          });
+        }
+      }
+      // Refund Request
+      if (l.indexOf('[REFUND REQUEST ') === 0) {
+        var close2 = l.indexOf(']:');
+        if (close2 > 0) {
+          var date2 = l.substring(16, close2);
+          var detail2 = l.substring(close2+2).trim();
+          var completedTag2 = '[REFUND COMPLETE '+date2;
+          var isDone2 = c.notes.indexOf(completedTag2) >= 0;
+          reqs.push({
+            type: 'refund',
+            client: c,
+            date: date2,
+            detail: detail2,
+            done: isDone2,
+            tag: l
+          });
+        }
+      }
+    });
+  });
+  // Sort: pending first, then by date desc
+  reqs.sort(function(a,b){
+    if(a.done !== b.done) return a.done ? 1 : -1;
+    return new Date(b.date) - new Date(a.date);
+  });
+  return reqs;
+}
+
+async function loadRequests() {
+  document.getElementById('request-list').innerHTML = '<div class="empty"><div class="ico">&#128260;</div><div>Loading...</div></div>';
+  try {
+    var r = await fetch(SUPA+'/clients?notes=not.is.null&select=id,name,email,phone,package,start_date,status,notes&limit=1000', {headers:HDR});
+    var data = await r.json();
+    if (!Array.isArray(data)) { showError('Failed to load'); return; }
+    // Filter to only clients with requests
+    var withReqs = data.filter(function(c){
+      return c.notes && (c.notes.indexOf('[STATUS REQUEST ') >= 0 || c.notes.indexOf('[REFUND REQUEST ') >= 0);
+    });
+    allRequests = parseRequests(withReqs);
+    updateStats();
+    renderList();
+  } catch(e) { showError(e.message); }
+}
+
+function updateStats() {
+  var pending_s = allRequests.filter(function(r){return r.type==='status'&&!r.done;}).length;
+  var pending_r = allRequests.filter(function(r){return r.type==='refund'&&!r.done;}).length;
+  var done_today = allRequests.filter(function(r){
+    return r.done && new Date(r.date).toDateString() === new Date().toDateString();
+  }).length;
+  document.getElementById('stat-status').textContent = pending_s;
+  document.getElementById('stat-refund').textContent = pending_r;
+  document.getElementById('stat-done').textContent = done_today;
+  document.getElementById('badge-status').textContent = pending_s;
+  document.getElementById('badge-refund').textContent = pending_r;
+}
+
+function showTab(tab) {
+  currentTab = tab;
+  ['all','status','refund','done'].forEach(function(t){
+    var el = document.getElementById('tab-'+t);
+    el.className = 'tab';
+  });
+  var activeClass = tab==='status'?'active-status':tab==='refund'?'active-refund':'active-all';
+  document.getElementById('tab-'+tab).classList.add(activeClass);
+  renderList();
+}
+
+function renderList() {
+  var filtered = allRequests.filter(function(r){
+    if(currentTab==='status') return r.type==='status' && !r.done;
+    if(currentTab==='refund') return r.type==='refund' && !r.done;
+    if(currentTab==='done') return r.done;
+    return true; // all
+  });
+
+  if (!filtered.length) {
+    document.getElementById('request-list').innerHTML =
+      '<div class="empty"><div class="ico">'+(currentTab==='done'?'&#10003;':'&#128203;')+'</div><div>'+(currentTab==='done'?'No completed requests yet':'No pending requests — all clear!')+'</div></div>';
+    return;
+  }
+
+  document.getElementById('request-list').innerHTML = filtered.map(function(req, i) {
+    var gi = allRequests.indexOf(req);
+    var c = req.client;
+    var isStatus = req.type === 'status';
+    var typeLabel = isStatus ?
+      '<span class="req-type rt-status">&#128202; Status Update Request</span>' :
+      '<span class="req-type rt-refund">&#128176; Refund Request</span>';
+    if (req.done) typeLabel = '<span class="req-type rt-done">&#10003; Completed</span>';
+
+    var actionBtns = '';
+    if (!req.done) {
+      if (isStatus) {
+        actionBtns =
+          '<button class="btn btn-navy btn-sm" onclick="openStatusUpdate(''+safe(c.id)+'')">&#128202; Open Status Update Tool</button>'+
+          '<button class="btn complete-btn btn-sm" onclick="markComplete('+gi+','status')">&#10003; Mark Complete</button>';
+      } else {
+        actionBtns =
+          '<button class="btn btn-red btn-sm" onclick="denyRefund('+gi+')">&#10006; Deny Refund</button>'+
+          '<button class="btn btn-green btn-sm" onclick="approveRefund('+gi+')">&#10003; Approve Refund</button>'+
+          '<button class="btn complete-btn btn-sm" onclick="markComplete('+gi+','refund')">&#10003; Mark Reviewed</button>';
+      }
+    }
+
+    return '<div class="card '+(isStatus?'status-req':'refund-req')+(req.done?' completed':'')+'">'+
+      '<div class="card-head">'+
+        '<div>'+
+          typeLabel+
+          '<div class="client-name">'+safe(c.name)+'</div>'+
+          '<div class="client-meta">'+safe(c.id)+' &nbsp;|&nbsp; '+safe(c.email||'—')+' &nbsp;|&nbsp; '+safe(c.phone||'—')+'</div>'+
+          '<div class="client-meta">Package: '+safe(c.package||'Standard')+' &nbsp;|&nbsp; Started: '+safe(c.start_date||'—')+'</div>'+
+        '</div>'+
+        '<div class="req-time">'+fmtTime(req.date)+'</div>'+
+      '</div>'+
+      '<div class="card-body">'+
+        '<div class="req-notes">'+safe(req.detail)+'</div>'+
+        (!req.done?
+          '<div class="resolution-box">'+
+            '<textarea id="res-'+gi+'" placeholder="'+(isStatus?'Notes on status update completed...':'Refund decision notes — reason approved or denied...')+'"></textarea>'+
+          '</div>':'')+
+        '<div class="action-row" style="margin-top:10px;">'+
+          actionBtns+
+          '<button class="btn btn-outline btn-sm" onclick="window.open('/client-manager.html','_blank')">&#128101; View in Client Manager</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+// Mark status request complete — logs completion tag in notes
+async function markComplete(gi, type) {
+  var req = allRequests[gi];
+  if (!req) return;
+  var resEl = document.getElementById('res-'+gi);
+  var resolution = resEl ? resEl.value.trim() : '';
+  var tag = type==='status' ? '[STATUS COMPLETE ' : '[REFUND COMPLETE ';
+  var note = '
+'+tag+req.date+']: '+(resolution||'Completed by team — '+new Date().toLocaleString());
+  req.client.notes = (req.client.notes||'') + note;
+  try {
+    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(req.client.id), {
+      method:'PATCH',
+      headers:Object.assign({'Content-Type':'application/json'},HDR),
+      body:JSON.stringify({notes:req.client.notes, updated_at:new Date().toISOString()})
+    });
+    req.done = true;
+    updateStats();
+    renderList();
+    toast('Marked complete');
+  } catch(e){toast('Error: '+e.message,'err');}
+}
+
+async function approveRefund(gi) {
+  var req = allRequests[gi];
+  if (!req) return;
+  var resEl = document.getElementById('res-'+gi);
+  var notes = resEl ? resEl.value.trim() : '';
+  if (!notes) { toast('Add decision notes before approving','err'); return; }
+  // Send approval email to client
+  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      personalizations:[{to:[{email:req.client.email,name:req.client.name}]}],
+      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
+      subject:'Your Refund Request — Decision from CP Restoration Services',
+      content:[{type:'text/plain',value:'Dear '+req.client.name+',
+
+After reviewing your file, CP Restoration Services has approved your refund request.
+
+'+notes+'
+
+Please allow 5-7 business days for processing.
+
+CP Restoration Services
+cprestorationsvcs@gmail.com
+1-855-327-5847'}]
+    })
+  });
+  // Update portal — add note visible to client
+  var portalNote = '
+[TEAM REPLY '+new Date().toLocaleString()+']: Your refund request has been approved by our Compliance Department. '+notes+' Please allow 5-7 business days for processing.';
+  req.client.notes = (req.client.notes||'') + portalNote;
+  await markComplete(gi, 'refund');
+  toast('Refund approved — client notified by email and portal');
+}
+
+async function denyRefund(gi) {
+  var req = allRequests[gi];
+  if (!req) return;
+  var resEl = document.getElementById('res-'+gi);
+  var notes = resEl ? resEl.value.trim() : '';
+  if (!notes) { toast('Add decision notes before denying','err'); return; }
+  // Send denial email to client
+  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      personalizations:[{to:[{email:req.client.email,name:req.client.name}]}],
+      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
+      subject:'Your Refund Request — Decision from CP Restoration Services',
+      content:[{type:'text/plain',value:'Dear '+req.client.name+',
+
+After a thorough review of your file, CP Restoration Services has determined that your refund request does not qualify at this time.
+
+'+notes+'
+
+If you have questions, please log into your portal or contact us at 1-855-327-5847.
+
+CP Restoration Services
+cprestorationsvcs@gmail.com
+1-855-327-5847'}]
+    })
+  });
+  var portalNote = '
+[TEAM REPLY '+new Date().toLocaleString()+']: Your refund request has been reviewed by our Compliance Department. After reviewing your file, your request does not qualify at this time. '+notes+' If you have questions please contact us at 1-855-327-5847.';
+  req.client.notes = (req.client.notes||'') + portalNote;
+  await markComplete(gi, 'refund');
+  toast('Refund denied — client notified by email and portal');
+}
+
+function openStatusUpdate(clientId) {
+  window.open('/status-update.html', '_blank');
+  toast('Open Status Update Tool and search: '+clientId);
+}
+
+function showError(msg) {
+  document.getElementById('request-list').innerHTML = '<div class="empty"><div class="ico">&#10060;</div><div>Error: '+safe(msg)+'</div></div>';
+}
+
+function fmtTime(s){
+  try{var d=new Date(s),now=new Date(),diff=now-d;
+  if(isNaN(diff))return s;
+  if(diff<3600000)return Math.floor(diff/60000)+'m ago';
+  if(diff<86400000)return Math.floor(diff/3600000)+'h ago';
+  if(diff<604800000)return Math.floor(diff/86400000)+'d ago';
+  return d.toLocaleDateString();}catch(e){return s;}
+}
+function safe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg,type){var t=document.createElement('div');t.className='toast';t.textContent=msg;t.style.background=type==='err'?'#8B1A1A':'#166534';document.body.appendChild(t);setTimeout(function(){t.remove();},3500);}
+
+loadRequests();
+setInterval(loadRequests, 60000);
+</script>
+</body>
+</html>
