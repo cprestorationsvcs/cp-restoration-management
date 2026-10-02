@@ -518,9 +518,25 @@ async function doLogin() {
                body: 'Welcome to your CP Restoration client portal. Your file is active. Contact us at cprestorationsvcs@gmail.com for updates.',
                type: 'green' }
           ],
-          messages: [
-            { from: 'team', text: 'Welcome to the CP Restoration client portal. Your file is active and we are working on your behalf.', date: '2026-09-27' }
-          ]
+          messages: (function() {
+            // Parse messages from notes — client messages AND team replies
+            var msgs = [{ from:'team', text:'Welcome to the CP Restoration client portal. Your file is active and we are working on your behalf.', date:'2026-09-27' }];
+            if (row.notes) {
+              var lines = row.notes.split('\n');
+              for (var li=0; li<lines.length; li++) {
+                var line = lines[li].trim();
+                if (line.indexOf('[CLIENT MESSAGE ') === 0) {
+                  var c1 = line.indexOf(']:');
+                  if (c1>0) msgs.push({from:'client', date:line.substring(16,c1), text:line.substring(c1+2).trim()});
+                }
+                if (line.indexOf('[TEAM REPLY ') === 0) {
+                  var c2 = line.indexOf(']:');
+                  if (c2>0) msgs.push({from:'team', date:line.substring(12,c2), text:line.substring(c2+2).trim()});
+                }
+              }
+            }
+            return msgs;
+          })()
         };
       }
     } catch(e) {
