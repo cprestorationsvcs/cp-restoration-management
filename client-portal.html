@@ -452,6 +452,16 @@ var currentDisputes = [];
 var _PORTAL_SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients';
 var _PORTAL_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
 
+async function doLogin() {
+  var id  = ((document.getElementById('login-id')||{}).value||'').trim().toUpperCase();
+  var pw  = ((document.getElementById('login-pw')||{}).value||'').trim();
+  var err = document.getElementById('login-error');
+  var btn = document.getElementById('login-btn');
+  if (!id || !pw) { if(err){err.textContent='Please enter your Client ID and password.';err.style.display='block';} return; }
+  if(btn) btn.textContent = 'Checking...';
+  // First check local CLIENT_DB
+  var client = CLIENT_DB[id];
+
   // If not found locally, check Supabase
   if (!client) {
     try {
