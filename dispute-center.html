@@ -1555,13 +1555,57 @@ async function fileDispute() {
     }]
   };
 
+  // Save to Supabase disputes table
   try {
-    if(db) {
-      const id = 'dispute_'+Date.now();
-      await db.doc('disputes/'+id).set(dispute);
-      dispute.id = id;
+    const SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+    const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+    const supaRecord = {
+      client_id: clientId || null,
+      client_name: clientName,
+      client_email: clientEmail || null,
+      client_phone: clientPhone || null,
+      bureaus: bureaus.join(', '),
+      items_count: items.length,
+      specialist: specialist,
+      status: 'Filed',
+      filed_at: today,
+      next_action: new Date(Date.now() + 30*24*60*60*1000).toISOString(),
+      notes: items.map(function(it){ return it.name + ' (' + (it.bureau||'All') + ')'; }).join('; ')
+    };
+    const sr = await fetch(SUPA + '/disputes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SKEY,
+        'Authorization': 'Bearer ' + SKEY,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(supaRecord)
+    });
+    const saved = await sr.json();
+    if (Array.isArray(saved) && saved[0]) dispute.id = saved[0].id;
+
+    // Also update the client disputes column
+    if (clientId) {
+      const cr = await fetch(SUPA + '/clients?id=eq.' + encodeURIComponent(clientId) + '&select=disputes', {
+        headers: {'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY}
+      });
+      const cdata = await cr.json();
+      let existing = [];
+      if (Array.isArray(cdata) && cdata[0] && cdata[0].disputes) {
+        try { existing = JSON.parse(cdata[0].disputes); } catch(e) { existing = []; }
+      }
+      const newItems = items.map(function(it) {
+        return { name: it.name, type: it.type||'Account', bureau: (it.bureau||bureaus[0]||'all').toLowerCase(), status: 'pending', date: dateStr };
+      });
+      const merged = existing.concat(newItems);
+      await fetch(SUPA + '/clients?id=eq.' + encodeURIComponent(clientId), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY },
+        body: JSON.stringify({ disputes: JSON.stringify(merged), updated_at: today })
+      });
     }
-  } catch(e) {}
+  } catch(e) { console.error('Supabase save error:', e); }
 
   disputes.push(dispute);
   updateStats();
