@@ -15,6 +15,72 @@
   to = "/.netlify/functions/supabase-proxy/:splat"
   status = 200
 
+# Allow clean URLs without .html extension
+[[redirects]]
+  from = "/dashboard"
+  to = "/dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/cs-dashboard"
+  to = "/cs-dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/requests-inbox"
+  to = "/requests-inbox.html"
+  status = 200
+
+[[redirects]]
+  from = "/status-update"
+  to = "/status-update.html"
+  status = 200
+
+[[redirects]]
+  from = "/client-manager"
+  to = "/client-manager.html"
+  status = 200
+
+[[redirects]]
+  from = "/client-portal"
+  to = "/client-portal.html"
+  status = 200
+
+[[redirects]]
+  from = "/dispute-center"
+  to = "/dispute-center.html"
+  status = 200
+
+[[redirects]]
+  from = "/cs-training"
+  to = "/cs-training.html"
+  status = 200
+
+[[redirects]]
+  from = "/sms-inbox"
+  to = "/sms-inbox.html"
+  status = 200
+
+[[redirects]]
+  from = "/onboard"
+  to = "/onboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/broadcast"
+  to = "/broadcast.html"
+  status = 200
+
+[[redirects]]
+  from = "/pdf-editor"
+  to = "/pdf-editor.html"
+  status = 200
+
+[[redirects]]
+  from = "/import"
+  to = "/import.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]
