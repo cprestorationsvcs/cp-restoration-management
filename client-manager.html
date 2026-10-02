@@ -695,7 +695,43 @@ function openView(id){
     ['Status',c.status||'Active'],
     ['Portal Login','<span style="font-family:monospace;">'+esc(c.id||'')+' / '+(c.portalPwd||'restore2026')+'</span>'],
     ['FTC Report #',esc(c.ftc||'')],['Starting Score',esc(c.score||'')],
-    ['Disputes','<div style="white-space:pre-wrap;font-size:12px;">'+esc(c.disputes||'')+'</div>'],
+    ['Disputes', (function(){
+      try {
+        var d = typeof c.disputes==='string' ? JSON.parse(c.disputes) : (c.disputes||[]);
+        if (!Array.isArray(d) || !d.length) return '<span style="color:#94A3B8;font-size:12px;">No dispute items on file</span>';
+        var del = d.filter(function(x){return x.status==='removed';}).length;
+        var pct = Math.round(del/d.length*100);
+        var html = '<div style="margin-bottom:8px;display:flex;align-items:center;gap:10px;">';
+        html += '<span style="font-size:13px;font-weight:700;color:#166534;">'+pct+'% Complete</span>';
+        html += '<span style="font-size:11px;color:#64748B;">'+del+' of '+d.length+' deleted</span>';
+        html += '<div style="flex:1;background:#E2E8F0;border-radius:10px;height:6px;overflow:hidden;"><div style="background:#166534;width:'+pct+'%;height:6px;border-radius:10px;"></div></div>';
+        html += '</div>';
+        html += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
+        html += '<thead><tr style="background:#F8FAFC;">';
+        html += '<th style="padding:6px 8px;text-align:left;border-bottom:1px solid #E2E8F0;color:#64748B;font-size:10px;">ITEM</th>';
+        html += '<th style="padding:6px 8px;text-align:left;border-bottom:1px solid #E2E8F0;color:#64748B;font-size:10px;">TYPE</th>';
+        html += '<th style="padding:6px 8px;text-align:left;border-bottom:1px solid #E2E8F0;color:#64748B;font-size:10px;">BUREAU</th>';
+        html += '<th style="padding:6px 8px;text-align:left;border-bottom:1px solid #E2E8F0;color:#64748B;font-size:10px;">STATUS</th>';
+        html += '</tr></thead><tbody>';
+        d.forEach(function(item){
+          var bur = (item.bureau||'').toLowerCase();
+          var dot = bur==='equifax'?'<span style="background:#FEE2E2;color:#991B1B;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;">EQ</span>':
+                    bur==='experian'?'<span style="background:#EFF4FF;color:#1B3A6B;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;">EX</span>':
+                    bur==='transunion'?'<span style="background:#DCFCE7;color:#166534;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;">TU</span>':'ALL';
+          var badge = item.status==='removed'?
+            '<span style="background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;">&#10003; Deleted</span>':
+            '<span style="background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;">&#9203; Pending</span>';
+          html += '<tr style="border-bottom:1px solid #F8FAFC;">';
+          html += '<td style="padding:6px 8px;font-weight:600;">'+esc(item.name||'')+'</td>';
+          html += '<td style="padding:6px 8px;color:#64748B;">'+esc(item.type||'Account')+'</td>';
+          html += '<td style="padding:6px 8px;">'+dot+'</td>';
+          html += '<td style="padding:6px 8px;">'+badge+'</td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+        return html;
+      } catch(e) { return '<span style="color:#94A3B8;font-size:12px;">Unable to parse disputes</span>'; }
+    })()],
     ['Notes','<div style="white-space:pre-wrap;font-size:12px;">'+esc(c.notes||'')+'</div>'],
     ['Bureau Logins',c.bureauLogins&&(c.bureauLogins.equifax&&c.bureauLogins.equifax.user)?'&#x2705; Saved':'Not entered'],
     ['Documents',c.docs&&Object.keys(c.docs).length?Object.keys(c.docs).length+' file(s)':'None'],
