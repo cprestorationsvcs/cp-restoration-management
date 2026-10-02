@@ -600,7 +600,28 @@ function showPage(name, silent) {
     if((btns[i].getAttribute('onclick')||'').indexOf("'"+name+"'")!==-1){ btns[i].classList.add('active'); break; }
   }
   if(!silent){
-    if(name==='disputes') renderDisputes('all');
+    if(name==='disputes') {
+      // Always re-fetch fresh dispute data from Supabase
+      if(currentClientId) {
+        var _sk = _PORTAL_KEY.join('.');
+        fetch(_PORTAL_SUPA + '?id=eq.' + encodeURIComponent(currentClientId) + '&select=disputes,notes', {
+          headers:{'apikey':_sk,'Authorization':'Bearer '+_sk}
+        }).then(function(r){return r.json();}).then(function(rows){
+          if(Array.isArray(rows)&&rows[0]){
+            var row=rows[0];
+            var fresh=[];
+            if(row.disputes){
+              try{var d=typeof row.disputes==='string'?JSON.parse(row.disputes):row.disputes;if(Array.isArray(d)&&d.length)fresh=d;}catch(e){}
+            }
+            if(!fresh.length&&row.notes){
+              try{fresh=parseNotesToDisputes(row.notes);}catch(e){}
+            }
+            if(fresh.length){currentDisputes=fresh;}
+          }
+          renderDisputes('all');
+        }).catch(function(){renderDisputes('all');});
+      } else { renderDisputes('all'); }
+    }
     if(name==='updates')  renderUpdates();
     if(name==='messages') renderMessages();
     if(name==='documents') renderDocuments();
