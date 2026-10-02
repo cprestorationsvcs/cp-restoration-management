@@ -598,7 +598,15 @@ function showPage(name, silent) {
   }
   if(!silent){
     if(name==='disputes') {
-      // Always re-fetch fresh dispute data from Supabase
+      // Use already-loaded disputes first (instant display)
+      if(!currentDisputes.length && currentClient) {
+        var cd = currentClient.disputes || [];
+        if(Array.isArray(cd) && cd.length) currentDisputes = cd;
+        if(!currentDisputes.length && currentClient.notes) {
+          try { currentDisputes = parseNotesToDisputes(currentClient.notes); } catch(e){}
+        }
+      }
+      // Then refresh from Supabase in background
       if(currentClientId) {
         var _sk = _PORTAL_KEY;
         fetch(_PORTAL_SUPA + '?id=eq.' + encodeURIComponent(currentClientId) + '&select=disputes,notes', {
