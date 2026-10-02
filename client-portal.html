@@ -469,7 +469,7 @@ async function doLogin() {
   if (!client) {
     try {
       var r = await fetch(_PORTAL_SUPA+'?id=eq.'+encodeURIComponent(id)+'&limit=1', {
-        headers: {'apikey': _PORTAL_KEY, 'Authorization': 'Bearer '+_PORTAL_KEY}
+        headers: {'apikey': _PORTAL_KEY_STR, 'Authorization': 'Bearer '+_PORTAL_KEY_STR}
       });
       var data = await r.json();
       if (data && data.length > 0) {
