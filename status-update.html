@@ -331,8 +331,8 @@ function renderChart() {
       '<td>'+statusBadge+'</td>' +
       '<td>' +
         '<div class="status-toggle">' +
-          '<button class="tog'+(d.status==='removed'?' deleted':'') +'" onclick="setStatus('+globalIdx+','removed')">✅ Deleted</button>' +
-          '<button class="tog'+(d.status==='pending'?' pending':'') +'" onclick="setStatus('+globalIdx+','pending')">⏳ Pending</button>' +
+          '<button class="tog'+(d.status==='removed'?' deleted':'') +'" onclick="setStatus('+globalIdx+',\'removed\')">✅ Deleted</button>' +
+          '<button class="tog'+(d.status==='pending'?' pending':'') +'" onclick="setStatus('+globalIdx+',\'pending\')">⏳ Pending</button>' +
           '<button class="tog deleted" style="background:#FEE2E2;color:#8B1A1A;border-color:#8B1A1A;" onclick="removeItem('+globalIdx+')">🗑</button>' +
         '</div>' +
       '</td>' +
