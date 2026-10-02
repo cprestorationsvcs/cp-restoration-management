@@ -472,8 +472,11 @@ async function doLogin() {
         headers: {'apikey': _PORTAL_KEY_STR, 'Authorization': 'Bearer '+_PORTAL_KEY_STR}
       });
       var data = await r.json();
+      console.log('Portal login fetch result:', JSON.stringify(data).substring(0,500));
       if (data && data.length > 0) {
         var row = data[0];
+        console.log('disputes field:', row.disputes ? String(row.disputes).substring(0,200) : 'EMPTY');
+        console.log('notes field:', row.notes ? String(row.notes).substring(0,100) : 'EMPTY');
         var portalPwd = row.portal_pwd || 'restore2026';
         if (pw !== portalPwd) {
           if(err){err.textContent='Incorrect password. Contact cprestorationsvcs@gmail.com for help.';err.style.display='block';}
@@ -491,11 +494,13 @@ async function doLogin() {
             if (Array.isArray(d) && d.length) parsedDisputes = d;
           } catch(e) {}
         }
+        console.log('parsedDisputes after disputes column:', parsedDisputes.length);
         // Fallback: parse from notes text if disputes column is empty
         if (!parsedDisputes.length && row.notes) {
           try {
             parsedDisputes = parseNotesToDisputes(row.notes);
-          } catch(e) {}
+          
+            console.log('parsedDisputes after notes fallback:', parsedDisputes.length);} catch(e) {}
         }
 
         client = {
