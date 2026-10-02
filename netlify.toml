@@ -2,6 +2,14 @@
   publish = "."
   functions = "netlify/functions"
 
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
 [[redirects]]
   from = "/api/supabase/*"
   to = "/.netlify/functions/supabase-proxy/:splat"
@@ -11,3 +19,4 @@
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+    Cache-Control = "no-cache"
