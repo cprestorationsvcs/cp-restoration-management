@@ -6,534 +6,349 @@
 <title>CP Restoration — Status Update Tool</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',Arial,sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;}
+body{font-family:Arial,sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;}
 .topbar{background:#1B3A6B;padding:13px 20px;display:flex;align-items:center;gap:14px;}
 .topbar h1{color:white;font-size:15px;font-weight:800;flex:1;}
 .topbar a{color:rgba(255,255,255,.75);font-size:12px;text-decoration:none;}
-.container{max-width:1100px;margin:0 auto;padding:20px;}
-.card{background:white;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:20px;overflow:hidden;}
-.card-head{padding:16px 20px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.wrap{max-width:1100px;margin:0 auto;padding:20px;}
+.card{background:white;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:20px;}
+.card-head{padding:16px 20px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .card-title{font-size:15px;font-weight:700;color:#1B3A6B;}
-.card-sub{font-size:12px;color:#64748B;margin-top:2px;}
+.card-sub{font-size:12px;color:#64748B;}
 .card-body{padding:20px;}
-.btn{padding:9px 18px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}
+.btn{padding:9px 18px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-navy{background:#1B3A6B;color:white;}
 .btn-green{background:#166534;color:white;}
 .btn-gold{background:#C9A84C;color:white;}
-.btn-red{background:#8B1A1A;color:white;}
-.btn-outline{background:white;color:#1B3A6B;border:1.5px solid #1B3A6B;}
-.btn-sm{padding:5px 12px;font-size:11px;}
-.search-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
-.search-row input{flex:1;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:14px;font-family:inherit;min-width:200px;}
-.client-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;padding:14px;background:#EFF4FF;border-radius:10px;}
+.btn-sm{padding:6px 14px;font-size:12px;}
+.search-row{display:flex;gap:10px;margin-bottom:12px;}
+.search-row input{flex:1;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:14px;font-family:inherit;}
+.result-item{padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;background:white;}
+.result-item:hover{border-color:#1B3A6B;background:#EFF4FF;cursor:pointer;}
+.result-name{font-weight:700;font-size:14px;}
+.result-sub{font-size:12px;color:#64748B;margin-top:2px;}
+.result-badge{font-size:11px;color:#166534;font-weight:700;background:#DCFCE7;padding:3px 10px;border-radius:10px;}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px;padding:14px;background:#EFF4FF;border-radius:10px;}
 .info-item label{font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;display:block;margin-bottom:3px;}
-.info-item span{font-size:13px;font-weight:600;color:#1E293B;}
-
-/* Comparison Chart */
-.bureau-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
-.bureau-tab{padding:8px 18px;border-radius:20px;border:2px solid #E2E8F0;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;}
-.bureau-tab.eq{border-color:#E53E3E;color:#E53E3E;}
-.bureau-tab.eq.active{background:#E53E3E;color:white;}
-.bureau-tab.ex{border-color:#1B3A6B;color:#1B3A6B;}
-.bureau-tab.ex.active{background:#1B3A6B;color:white;}
-.bureau-tab.tu{border-color:#166534;color:#166534;}
-.bureau-tab.tu.active{background:#166534;color:white;}
-.bureau-tab.all{border-color:#64748B;color:#64748B;}
-.bureau-tab.all.active{background:#64748B;color:white;}
-
-.chart-table{width:100%;border-collapse:collapse;font-size:13px;}
-.chart-table th{background:#F8FAFC;padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;}
-.chart-table td{padding:12px 14px;border-bottom:1px solid #F1F5F9;vertical-align:middle;}
-.chart-table tr:hover td{background:#FAFBFF;}
-.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
-.badge-deleted{background:#DCFCE7;color:#166534;}
-.badge-pending{background:#FEF3C7;color:#92400E;}
-.badge-filed{background:#EFF4FF;color:#1B3A6B;}
-.bureau-dot{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-right:3px;}
-.dot-eq{background:#FEE2E2;color:#991B1B;}
-.dot-ex{background:#EFF4FF;color:#1B3A6B;}
-.dot-tu{background:#DCFCE7;color:#166534;}
-
-/* Status toggle buttons */
-.status-toggle{display:flex;gap:4px;}
-.tog{padding:4px 10px;border-radius:6px;border:1.5px solid #E2E8F0;font-size:11px;font-weight:700;cursor:pointer;background:white;}
-.tog:hover{border-color:#1B3A6B;}
-.tog.deleted{background:#DCFCE7;color:#166534;border-color:#166534;}
-.tog.pending{background:#FEF3C7;color:#92400E;border-color:#C9A84C;}
-.tog.filed{background:#EFF4FF;color:#1B3A6B;border-color:#1B3A6B;}
-
-/* Progress summary */
-.progress-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.info-item span{font-size:13px;font-weight:600;}
+.prog-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
 .prog-card{background:#F8FAFC;border-radius:10px;padding:14px;text-align:center;border:1.5px solid #E2E8F0;}
-.prog-num{font-size:28px;font-weight:800;color:#1B3A6B;}
+.prog-num{font-size:26px;font-weight:800;color:#1B3A6B;}
 .prog-label{font-size:11px;color:#64748B;font-weight:600;margin-top:4px;}
 .prog-bar-wrap{background:#E2E8F0;border-radius:20px;height:8px;margin-top:8px;overflow:hidden;}
 .prog-bar{height:8px;border-radius:20px;background:#166534;transition:.5s;}
-
-/* Add item form */
-.add-form{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:16px;padding-top:16px;border-top:1px solid #E2E8F0;}
-.add-form input,.add-form select{padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;}
-.add-form label{font-size:11px;font-weight:600;color:#64748B;display:block;margin-bottom:4px;}
-
-/* Notification section */
-.notify-box{background:#F0FFF4;border:1.5px solid #166534;border-radius:10px;padding:16px;margin-top:16px;}
-.notify-box h4{font-size:13px;font-weight:700;color:#166534;margin-bottom:10px;}
-
-.empty{text-align:center;padding:40px;color:#94A3B8;font-size:14px;}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#166534;color:white;padding:11px 24px;border-radius:8px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.25);pointer-events:none;}
+.bureau-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.btab{padding:7px 16px;border-radius:20px;border:2px solid #E2E8F0;font-size:12px;font-weight:700;cursor:pointer;background:white;}
+.btab.active-all{background:#64748B;color:white;border-color:#64748B;}
+.btab.active-eq{background:#E53E3E;color:white;border-color:#E53E3E;}
+.btab.active-ex{background:#1B3A6B;color:white;border-color:#1B3A6B;}
+.btab.active-tu{background:#166534;color:white;border-color:#166534;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#F8FAFC;padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;}
+td{padding:11px 12px;border-bottom:1px solid #F1F5F9;vertical-align:middle;}
+tr:hover td{background:#FAFBFF;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.b-del{background:#DCFCE7;color:#166534;}
+.b-pen{background:#FEF3C7;color:#92400E;}
+.b-fil{background:#EFF4FF;color:#1B3A6B;}
+.dot-eq{background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;}
+.dot-ex{background:#EFF4FF;color:#1B3A6B;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;}
+.dot-tu{background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;}
+.tog{padding:4px 10px;border-radius:6px;border:1.5px solid #E2E8F0;font-size:11px;font-weight:700;cursor:pointer;background:white;margin-right:3px;}
+.tog-del{background:#DCFCE7;color:#166534;border-color:#166534;}
+.tog-pen{background:#FEF3C7;color:#92400E;border-color:#C9A84C;}
+.add-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:16px;padding-top:16px;border-top:1px solid #E2E8F0;}
+.add-row input,.add-row select{padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;}
+.add-row label{font-size:11px;font-weight:600;color:#64748B;display:block;margin-bottom:4px;}
+.notify-box{background:#F0FFF4;border:1.5px solid #166534;border-radius:10px;padding:16px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.notify-info{font-size:12px;color:#166534;line-height:1.8;}
+.empty{text-align:center;padding:32px;color:#94A3B8;font-size:13px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:11px 24px;border-radius:8px;font-size:13px;font-weight:700;z-index:9999;color:white;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none;}
 </style>
 </head>
 <body>
-
 <div class="topbar">
   <h1>&#128202; CP Restoration — Status Update Tool</h1>
   <a href="/client-manager.html">&#8592; Client Manager</a>
   <a href="/dashboard.html">&#8962; Dashboard</a>
 </div>
+<div class="wrap">
 
-<div class="container">
-
-  <!-- Client Search -->
+  <!-- SEARCH -->
   <div class="card">
     <div class="card-head">
-      <div>
-        <div class="card-title">&#128269; Find Client</div>
-        <div class="card-sub">Search by name, Client ID, email, or phone</div>
-      </div>
-      <button class="btn btn-green btn-sm" onclick="sendPortalLink()" id="notify-btn" style="display:none;">&#9993; Send Portal Link to Client</button>
+      <div><div class="card-title">&#128269; Find Client</div><div class="card-sub">Search by name, ID, or email</div></div>
     </div>
     <div class="card-body">
       <div class="search-row">
-        <input type="text" id="search-input" placeholder="Search client name, ID, email, phone..." oninput="searchClients(this.value)">
-        <button class="btn btn-navy" onclick="searchClients(document.getElementById('search-input').value)">&#128269; Search</button>
+        <input type="text" id="q" placeholder="Type client name, ID, or email..." oninput="doSearch()">
+        <button class="btn btn-navy" onclick="doSearch()">Search</button>
       </div>
-      <div id="search-results"></div>
+      <div id="results"></div>
     </div>
   </div>
 
-  <!-- Client Info + Status Chart -->
-  <div id="client-section" style="display:none;">
-
-    <!-- Client Info -->
+  <!-- CLIENT PANEL -->
+  <div id="panel" style="display:none;">
     <div class="card">
       <div class="card-head">
-        <div>
-          <div class="card-title" id="client-title">Client Name</div>
-          <div class="card-sub" id="client-subtitle">CPR-XXXXX</div>
-        </div>
+        <div><div class="card-title" id="p-name"></div><div class="card-sub" id="p-sub"></div></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-gold btn-sm" onclick="addItemModal()">&#43; Add Item</button>
-          <button class="btn btn-green btn-sm" onclick="saveAllChanges()">&#128190; Save Changes</button>
-          <button class="btn btn-navy btn-sm" onclick="sendPortalLink()">&#9993; Send Portal Link</button>
+          <button class="btn btn-gold btn-sm" onclick="addItem()">+ Add Item</button>
+          <button class="btn btn-navy btn-sm" onclick="saveChanges()">&#128190; Save</button>
+          <button class="btn btn-green btn-sm" onclick="sendEmail()">&#9993; Send Update Email</button>
         </div>
       </div>
       <div class="card-body">
-        <div class="client-info" id="client-info-grid"></div>
-
-        <!-- Progress Summary -->
-        <div class="progress-summary" id="progress-summary"></div>
-
-        <!-- Bureau Filter Tabs -->
+        <div class="info-grid" id="p-info"></div>
+        <div class="prog-grid" id="p-prog"></div>
         <div class="bureau-tabs">
-          <div class="bureau-tab all active" onclick="filterBureau('all',this)">All Items</div>
-          <div class="bureau-tab eq" onclick="filterBureau('equifax',this)">&#9679; Equifax</div>
-          <div class="bureau-tab ex" onclick="filterBureau('experian',this)">&#9679; Experian</div>
-          <div class="bureau-tab tu" onclick="filterBureau('transunion',this)">&#9679; TransUnion</div>
+          <div class="btab active-all" id="tab-all" onclick="filter('all')">All Items</div>
+          <div class="btab" id="tab-eq" onclick="filter('equifax')">&#9679; Equifax</div>
+          <div class="btab" id="tab-ex" onclick="filter('experian')">&#9679; Experian</div>
+          <div class="btab" id="tab-tu" onclick="filter('transunion')">&#9679; TransUnion</div>
         </div>
-
-        <!-- Comparison Chart -->
         <div style="overflow-x:auto;">
-          <table class="chart-table" id="status-table">
-            <thead>
-              <tr>
-                <th style="width:30%;">Account / Item</th>
-                <th style="width:10%;">Type</th>
-                <th style="width:15%;">Bureau</th>
-                <th style="width:12%;">Date</th>
-                <th style="width:13%;">Status</th>
-                <th style="width:20%;">Update Status</th>
-              </tr>
-            </thead>
-            <tbody id="status-tbody"></tbody>
-          </table>
+          <table><thead><tr><th>Account / Item</th><th>Type</th><th>Bureau</th><th>Date</th><th>Status</th><th>Update</th></tr></thead>
+          <tbody id="p-table"></tbody></table>
         </div>
-
-        <!-- Add Item Form -->
-        <div class="add-form" id="add-form">
-          <div>
-            <label>Account / Item Name</label>
-            <input type="text" id="new-name" placeholder="e.g. Capital One Auto">
-          </div>
-          <div>
-            <label>Type</label>
-            <select id="new-type">
-              <option>Account</option>
-              <option>Hard Inquiry</option>
-              <option>Collection</option>
-              <option>Public Record</option>
-            </select>
-          </div>
-          <div>
-            <label>Bureau</label>
-            <select id="new-bureau">
-              <option value="equifax">Equifax</option>
-              <option value="experian">Experian</option>
-              <option value="transunion">TransUnion</option>
-              <option value="all">All Bureaus</option>
-            </select>
-          </div>
-          <div>
-            <label>Status</label>
-            <select id="new-status">
-              <option value="pending">Pending</option>
-              <option value="filed">Filed</option>
-              <option value="removed">Deleted ✅</option>
-            </select>
-          </div>
-          <button class="btn btn-navy" onclick="addItem()" style="height:38px;">&#43; Add</button>
+        <div class="add-row">
+          <div><label>Item Name</label><input id="n-name" placeholder="e.g. Capital One Auto"></div>
+          <div><label>Type</label><select id="n-type"><option>Account</option><option>Hard Inquiry</option><option>Collection</option></select></div>
+          <div><label>Bureau</label><select id="n-bureau"><option value="equifax">Equifax</option><option value="experian">Experian</option><option value="transunion">TransUnion</option><option value="all">All Bureaus</option></select></div>
+          <div><label>Status</label><select id="n-status"><option value="pending">Pending</option><option value="filed">Filed</option><option value="removed">Deleted</option></select></div>
+          <button class="btn btn-navy" onclick="addItem()" style="height:38px;">+ Add</button>
         </div>
-
-        <!-- Notify Client -->
         <div class="notify-box">
-          <h4>&#9993; Notify Client of Update</h4>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <div style="flex:1;min-width:200px;">
-              <div style="font-size:12px;color:#166534;margin-bottom:6px;">Client will receive an email with their portal link, User ID and password to view their full status update.</div>
-              <div style="font-size:12px;color:#166534;"><b>Portal:</b> portal-cprestorationsvcs.com/client-portal.html<br><b>User ID:</b> <span id="notify-id"></span><br><b>Password:</b> restore2026</div>
-            </div>
-            <button class="btn btn-green" onclick="sendPortalLink()">&#9993; Send Update Email to Client</button>
+          <div class="notify-info">
+            <b>Portal:</b> portal-cprestorationsvcs.com/client-portal.html<br>
+            <b>User ID:</b> <span id="p-id-display"></span> &nbsp; <b>Password:</b> restore2026
           </div>
+          <button class="btn btn-green" onclick="sendEmail()">&#9993; Send Status Email to Client</button>
         </div>
-
       </div>
     </div>
   </div>
 
 </div>
-
 <script>
 var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
-var KEY = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
-var currentClient = null;
-var currentDisputes = [];
-var currentFilter = 'all';
+var KEY  = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
+var HDR  = {apikey:KEY,'Authorization':'Bearer '+KEY};
+var client = null, items = [], filterBy = 'all', timer = null;
 
-// ── Search ──
-var searchTimer;
-window._searchResults = [];
-
-function searchClients(q) {
-  clearTimeout(searchTimer);
-  var container = document.getElementById('search-results');
-  if (!q || q.length < 2) { container.innerHTML = ''; return; }
-  searchTimer = setTimeout(async function() {
-    container.innerHTML = '<div style="padding:12px;color:#64748B;font-size:13px;">Searching...</div>';
-    var results = [];
-    var fields = '&select=id,name,email,phone,start_date,package,status,disputes,notes';
-    var q2 = encodeURIComponent(q);
-    var headers = {'apikey':KEY,'Authorization':'Bearer '+KEY};
-    // Try name
-    try {
-      var r1 = await fetch(SUPA+'/clients?name=ilike.*'+q2+'*&limit=8'+fields, {headers:headers});
-      var d1 = await r1.json();
-      if (Array.isArray(d1) && d1.length) results = d1;
-    } catch(e) {}
-    // Try ID
-    if (!results.length) {
-      try {
-        var r2 = await fetch(SUPA+'/clients?id=ilike.*'+q2+'*&limit=8'+fields, {headers:headers});
-        var d2 = await r2.json();
-        if (Array.isArray(d2) && d2.length) results = d2;
-      } catch(e) {}
-    }
-    // Try email
-    if (!results.length) {
-      try {
-        var r3 = await fetch(SUPA+'/clients?email=ilike.*'+q2+'*&limit=8'+fields, {headers:headers});
-        var d3 = await r3.json();
-        if (Array.isArray(d3) && d3.length) results = d3;
-      } catch(e) {}
-    }
-
-    if (!results.length) {
-      container.innerHTML = '<div style="padding:16px;text-align:center;color:#94A3B8;">No clients found for "'+q+'"</div>';
-      return;
-    }
-
-    window._searchResults = results;
-    container.innerHTML = '';
-    results.forEach(function(c, i) {
-      var div = document.createElement('div');
-      div.style.cssText = 'padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:8px;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;background:white;transition:all .15s;';
-      div.innerHTML =
-        '<div>'+
-          '<div style="font-weight:700;font-size:14px;">'+esc(c.name)+'</div>'+
-          '<div style="font-size:12px;color:#64748B;margin-top:2px;">'+esc(c.id)+' &nbsp;|&nbsp; '+esc(c.email||'—')+'</div>'+
-        '</div>'+
-        '<div style="font-size:11px;color:#166534;font-weight:700;background:#DCFCE7;padding:3px 10px;border-radius:10px;">'+(c.status||'Active')+'</div>';
-      div.addEventListener('mouseover', function(){ this.style.borderColor='#1B3A6B'; this.style.background='#EFF4FF'; });
-      div.addEventListener('mouseout',  function(){ this.style.borderColor='#E2E8F0'; this.style.background='white'; });
-      div.addEventListener('click',     function(){ selectClient(window._searchResults[i]); });
-      container.appendChild(div);
-    });
-  }, 300);
+// ── SEARCH ──
+function doSearch() {
+  clearTimeout(timer);
+  var q = document.getElementById('q').value.trim();
+  var res = document.getElementById('results');
+  if (q.length < 2) { res.innerHTML = ''; return; }
+  res.innerHTML = '<div style="padding:10px;color:#64748B;">Searching...</div>';
+  timer = setTimeout(function(){ runSearch(q); }, 350);
 }
 
+async function runSearch(q) {
+  var res = document.getElementById('results');
+  var enc = encodeURIComponent(q);
+  var sel = 'id,name,email,phone,start_date,package,status,disputes,notes';
+  var found = [];
+  var endpoints = [
+    SUPA+'/clients?name=ilike.*'+enc+'*&limit=8&select='+sel,
+    SUPA+'/clients?id=ilike.*'+enc+'*&limit=8&select='+sel,
+    SUPA+'/clients?email=ilike.*'+enc+'*&limit=8&select='+sel
+  ];
+  for (var i=0; i<endpoints.length && !found.length; i++) {
+    try {
+      var r = await fetch(endpoints[i], {headers:HDR});
+      var d = await r.json();
+      if (Array.isArray(d) && d.length) found = d;
+    } catch(e) {}
+  }
+  if (!found.length) { res.innerHTML = '<div class="empty">No clients found for "'+q+'"</div>'; return; }
+  res.innerHTML = '';
+  found.forEach(function(c) {
+    var div = document.createElement('div');
+    div.className = 'result-item';
+    div.innerHTML = '<div><div class="result-name">'+safe(c.name)+'</div><div class="result-sub">'+safe(c.id)+' | '+safe(c.email||'')+'</div></div><div class="result-badge">'+(c.status||'Active')+'</div>';
+    div.onclick = function() { loadClient(c); };
+    res.appendChild(div);
+  });
+}
 
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function selectClient(jsonStr) {
-  var c = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
-  currentClient = c;
+// ── LOAD CLIENT ──
+function loadClient(c) {
+  client = c;
   // Parse disputes
   try {
-    var d = typeof c.disputes === 'string' ? JSON.parse(c.disputes) : c.disputes;
-    currentDisputes = Array.isArray(d) ? d : [];
-  } catch(e) { currentDisputes = []; }
+    var d = typeof c.disputes==='string' ? JSON.parse(c.disputes) : (c.disputes||[]);
+    items = Array.isArray(d) ? d : [];
+  } catch(e) { items = []; }
+  // If no items, parse from notes
+  if (!items.length && c.notes) items = parseNotes(c.notes);
 
-  // If no structured disputes, parse from notes
-  if (currentDisputes.length === 0 && c.notes) {
-    currentDisputes = parseNotesToDisputes(c.notes);
-  }
-
-  document.getElementById('client-section').style.display = 'block';
-  document.getElementById('client-title').textContent = c.name;
-  document.getElementById('client-subtitle').textContent = c.id + ' — ' + (c.package||'Standard') + ' Package';
-  document.getElementById('notify-id').textContent = c.id;
-
-  // Info grid
-  document.getElementById('client-info-grid').innerHTML = [
-    ['Client ID', c.id],
-    ['Email', c.email||'—'],
-    ['Phone', c.phone||'—'],
-    ['Package', c.package||'Standard'],
-    ['Start Date', c.start_date ? new Date(c.start_date).toLocaleDateString() : '—'],
-    ['Status', c.status||'Active'],
-  ].map(function(f){
-    return '<div class="info-item"><label>'+f[0]+'</label><span>'+esc(f[1])+'</span></div>';
-  }).join('');
-
-  renderChart();
-  document.getElementById('search-results').innerHTML = '';
-  document.getElementById('client-section').scrollIntoView({behavior:'smooth'});
+  document.getElementById('panel').style.display = 'block';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('q').value = '';
+  document.getElementById('p-name').textContent = c.name;
+  document.getElementById('p-sub').textContent = (c.id||'') + ' — ' + (c.package||'Standard') + ' Package';
+  document.getElementById('p-id-display').textContent = c.id;
+  document.getElementById('p-info').innerHTML = [
+    ['Client ID',c.id],['Email',c.email||'—'],['Phone',c.phone||'—'],
+    ['Package',c.package||'Standard'],['Start Date',c.start_date?new Date(c.start_date).toLocaleDateString():'—'],['Status',c.status||'Active']
+  ].map(function(f){ return '<div class="info-item"><label>'+f[0]+'</label><span>'+safe(f[1])+'</span></div>'; }).join('');
+  filterBy = 'all';
+  setTab('all');
+  render();
+  document.getElementById('panel').scrollIntoView({behavior:'smooth'});
 }
 
-// ── Parse notes into dispute items ──
-function parseNotesToDisputes(notes) {
-  var items = [];
-  var bureauMap = {'equifax':'equifax','transunion':'transunion','experian':'experian','eq':'equifax','tu':'transunion','ex':'experian'};
-  var currentBureau = 'all';
-  var lines = notes.split('\n');
-  lines.forEach(function(line) {
+// ── PARSE NOTES ──
+function parseNotes(notes) {
+  var result = [], bureau = 'all';
+  notes.split('\n').forEach(function(line) {
     var l = line.trim();
     if (!l) return;
-    // Detect bureau header
-    var bl = l.toLowerCase();
-    if (bl.includes('equifax')) { currentBureau='equifax'; return; }
-    if (bl.includes('transunion')) { currentBureau='transunion'; return; }
-    if (bl.includes('experian')) { currentBureau='experian'; return; }
-    // Detect status markers
-    var status = 'pending';
-    if (l.includes('DELETED') || l.includes('✅') || l.includes('deleted')) status='removed';
-    if (l.includes('PENDING') || l.includes('⏳') || l.includes('pending')) status='pending';
-    // Extract item name — lines starting with ✅ ⏳ - •
-    var name = l.replace(/^[✅⏳\-•\*\d\.\)]\s*/,'').replace(/—\s*(DELETED|PENDING|FILED).*/i,'').replace(/\s*—\s*(DELETED|PENDING).*/i,'').trim();
-    var type = 'Account';
-    if (/inquiry/i.test(name)) type='Hard Inquiry';
-    if (/collection/i.test(name)) type='Collection';
-    if (name.length > 3 && name.length < 80) {
-      items.push({name:name, type:type, bureau:currentBureau, status:status, date:''});
-    }
+    var ll = l.toLowerCase();
+    if (ll.includes('equifax'))    { bureau='equifax'; return; }
+    if (ll.includes('transunion')) { bureau='transunion'; return; }
+    if (ll.includes('experian'))   { bureau='experian'; return; }
+    var status = ll.includes('deleted')||ll.includes('✅') ? 'removed' : 'pending';
+    var name = l.replace(/^[✅⏳\-•\*\d\.\)]+\s*/,'').replace(/\s*[—-]\s*(DELETED|PENDING|FILED).*/i,'').trim();
+    var type = /inquiry/i.test(name)?'Hard Inquiry':/collection/i.test(name)?'Collection':'Account';
+    if (name.length>3 && name.length<80) result.push({name:name,type:type,bureau:bureau,status:status,date:''});
   });
-  return items;
+  return result;
 }
 
-// ── Render Chart ──
-function renderChart() {
-  updateProgressSummary();
-  var tbody = document.getElementById('status-tbody');
-  var filtered = currentFilter==='all' ? currentDisputes : currentDisputes.filter(function(d){
-    return (d.bureau||'').toLowerCase().includes(currentFilter) || d.bureau==='all';
-  });
-
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">No dispute items found. Click + Add Item to add items manually.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(function(d, i) {
-    var globalIdx = currentDisputes.indexOf(d);
+// ── RENDER TABLE ──
+function render() {
+  renderProgress();
+  var tbody = document.getElementById('p-table');
+  var show = filterBy==='all' ? items : items.filter(function(d){ return (d.bureau||'all')===filterBy || d.bureau==='all'; });
+  if (!show.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No items. Use + Add Item below.</td></tr>'; return; }
+  tbody.innerHTML = show.map(function(d) {
+    var gi = items.indexOf(d);
     var bur = (d.bureau||'all').toLowerCase();
-    var bureauBadge = bur==='equifax'?'<span class="bureau-dot dot-eq">EQ</span>':bur==='experian'?'<span class="bureau-dot dot-ex">EX</span>':bur==='transunion'?'<span class="bureau-dot dot-tu">TU</span>':'<span class="bureau-dot dot-eq">EQ</span><span class="bureau-dot dot-ex">EX</span><span class="bureau-dot dot-tu">TU</span>';
-    var statusBadge = d.status==='removed'?'<span class="badge badge-deleted">✅ Deleted</span>':d.status==='filed'?'<span class="badge badge-filed">📋 Filed</span>':'<span class="badge badge-pending">⏳ Pending</span>';
-    return '<tr>' +
-      '<td style="font-weight:600;">'+esc(d.name||'')+'</td>' +
-      '<td style="color:#64748B;font-size:12px;">'+esc(d.type||'Account')+'</td>' +
-      '<td>'+bureauBadge+'</td>' +
-      '<td style="font-size:12px;color:#64748B;">'+esc(d.date||'')+'</td>' +
-      '<td>'+statusBadge+'</td>' +
-      '<td>' +
-        '<div class="status-toggle">' +
-          '<button class="tog'+(d.status==='removed'?' deleted':'') +'" onclick="setStatus('+globalIdx+',\'removed\')">✅ Deleted</button>' +
-          '<button class="tog'+(d.status==='pending'?' pending':'') +'" onclick="setStatus('+globalIdx+',\'pending\')">⏳ Pending</button>' +
-          '<button class="tog deleted" style="background:#FEE2E2;color:#8B1A1A;border-color:#8B1A1A;" onclick="removeItem('+globalIdx+')">🗑</button>' +
-        '</div>' +
-      '</td>' +
+    var bdot = bur==='equifax'?'<span class="dot-eq">EQ</span>':bur==='experian'?'<span class="dot-ex">EX</span>':bur==='transunion'?'<span class="dot-tu">TU</span>':'<span class="dot-eq">EQ</span><span class="dot-ex">EX</span><span class="dot-tu">TU</span>';
+    var bBadge = d.status==='removed'?'<span class="badge b-del">✅ Deleted</span>':d.status==='filed'?'<span class="badge b-fil">📋 Filed</span>':'<span class="badge b-pen">⏳ Pending</span>';
+    return '<tr>'+
+      '<td style="font-weight:600;">'+safe(d.name)+'</td>'+
+      '<td style="color:#64748B;font-size:12px;">'+safe(d.type||'Account')+'</td>'+
+      '<td>'+bdot+'</td>'+
+      '<td style="font-size:11px;color:#64748B;">'+safe(d.date||'')+'</td>'+
+      '<td>'+bBadge+'</td>'+
+      '<td>'+
+        '<button class="tog '+(d.status==='removed'?'tog-del':'')+'" onclick="setStatus('+gi+',\'removed\')">✅ Deleted</button>'+
+        '<button class="tog '+(d.status==='pending'?'tog-pen':'')+'" onclick="setStatus('+gi+',\'pending\')">⏳ Pending</button>'+
+        '<button class="tog" style="color:#8B1A1A;" onclick="removeItem('+gi+')">🗑</button>'+
+      '</td>'+
     '</tr>';
   }).join('');
 }
 
-function setStatus(idx, status) {
-  if (!currentDisputes[idx]) return;
-  currentDisputes[idx].status = status;
-  currentDisputes[idx].date = new Date().toLocaleDateString();
-  renderChart();
+function setStatus(i, s) { if(items[i]){ items[i].status=s; items[i].date=new Date().toLocaleDateString(); render(); } }
+function removeItem(i) { items.splice(i,1); render(); }
+
+function filter(b) {
+  filterBy = b;
+  ['all','eq','ex','tu'].forEach(function(t){ document.getElementById('tab-'+t).className='btab'; });
+  var map = {all:'active-all',equifax:'active-eq',experian:'active-ex',transunion:'active-tu'};
+  var tabId = b==='all'?'tab-all':b==='equifax'?'tab-eq':b==='experian'?'tab-ex':'tab-tu';
+  document.getElementById(tabId).classList.add(map[b]);
+  render();
 }
 
-function removeItem(idx) {
-  currentDisputes.splice(idx, 1);
-  renderChart();
+function setTab(b) {
+  ['all','eq','ex','tu'].forEach(function(t){ document.getElementById('tab-'+t).className='btab'; });
+  document.getElementById('tab-all').classList.add('active-all');
 }
 
-function filterBureau(bureau, el) {
-  currentFilter = bureau;
-  document.querySelectorAll('.bureau-tab').forEach(function(t){ t.classList.remove('active'); });
-  el.classList.add('active');
-  renderChart();
+function renderProgress() {
+  var total = items.length;
+  var del   = items.filter(function(d){ return d.status==='removed'; }).length;
+  var pct   = total>0?Math.round(del/total*100):0;
+  var eq    = items.filter(function(d){ return (d.bureau||'').includes('equifax'); });
+  var tu    = items.filter(function(d){ return (d.bureau||'').includes('transunion'); });
+  var ex    = items.filter(function(d){ return (d.bureau||'').includes('experian'); });
+  function pcard(num, label, p, color) {
+    return '<div class="prog-card"><div class="prog-num" style="color:'+color+';">'+num+'</div><div class="prog-label">'+label+'</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:'+p+'%;background:'+color+';"></div></div></div>';
+  }
+  document.getElementById('p-prog').innerHTML =
+    pcard(pct+'%','Overall Progress',pct,'#166534')+
+    pcard(del+'/'+total,'Items Deleted',pct,'#1B3A6B')+
+    pcard(eq.filter(function(d){return d.status==='removed';}).length+'/'+eq.length,'Equifax',eq.length?Math.round(eq.filter(function(d){return d.status==='removed';}).length/eq.length*100):0,'#E53E3E')+
+    pcard(tu.filter(function(d){return d.status==='removed';}).length+'/'+tu.length,'TransUnion',tu.length?Math.round(tu.filter(function(d){return d.status==='removed';}).length/tu.length*100):0,'#166534');
 }
 
-function updateProgressSummary() {
-  var total   = currentDisputes.length;
-  var deleted = currentDisputes.filter(function(d){ return d.status==='removed'; }).length;
-  var pending = currentDisputes.filter(function(d){ return d.status==='pending'||d.status==='filed'; }).length;
-  var pct     = total>0 ? Math.round((deleted/total)*100) : 0;
-  var eq = currentDisputes.filter(function(d){ return (d.bureau||'').toLowerCase().includes('equifax'); });
-  var ex = currentDisputes.filter(function(d){ return (d.bureau||'').toLowerCase().includes('experian'); });
-  var tu = currentDisputes.filter(function(d){ return (d.bureau||'').toLowerCase().includes('transunion'); });
-
-  document.getElementById('progress-summary').innerHTML = [
-    [pct+'%', 'Overall Progress', pct, '#166534'],
-    [deleted+'/'+total, 'Items Deleted', pct, '#166534'],
-    [eq.filter(function(d){return d.status==='removed';}).length+'/'+eq.length, 'Equifax', eq.length?Math.round(eq.filter(function(d){return d.status==='removed';}).length/eq.length*100):0, '#E53E3E'],
-    [tu.filter(function(d){return d.status==='removed';}).length+'/'+tu.length, 'TransUnion', tu.length?Math.round(tu.filter(function(d){return d.status==='removed';}).length/tu.length*100):0, '#166534'],
-  ].map(function(s){
-    return '<div class="prog-card"><div class="prog-num">'+s[0]+'</div><div class="prog-label">'+s[1]+'</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:'+s[2]+'%;background:'+s[3]+';"></div></div></div>';
-  }).join('');
-}
-
-// ── Add Item ──
+// ── ADD ITEM ──
 function addItem() {
-  var name = document.getElementById('new-name').value.trim();
-  if (!name) { showToast('Enter an item name','error'); return; }
-  currentDisputes.push({
-    name: name,
-    type: document.getElementById('new-type').value,
-    bureau: document.getElementById('new-bureau').value,
-    status: document.getElementById('new-status').value,
-    date: new Date().toLocaleDateString()
-  });
-  document.getElementById('new-name').value = '';
-  renderChart();
-  showToast('Item added');
+  var name = document.getElementById('n-name').value.trim();
+  if (!name) { toast('Enter an item name','err'); return; }
+  items.push({name:name,type:document.getElementById('n-type').value,bureau:document.getElementById('n-bureau').value,status:document.getElementById('n-status').value,date:new Date().toLocaleDateString()});
+  document.getElementById('n-name').value='';
+  render();
+  toast('Item added');
 }
 
-// ── Save to Supabase ──
-async function saveAllChanges() {
-  if (!currentClient) return;
-  var btn = event.target;
-  btn.textContent = 'Saving...'; btn.disabled = true;
+// ── SAVE ──
+async function saveChanges() {
+  if (!client) return;
   try {
-    var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
+    var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(client.id),{
       method:'PATCH',
-      headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
-      body: JSON.stringify({
-        disputes: JSON.stringify(currentDisputes),
-        updated_at: new Date().toISOString()
-      })
+      headers:Object.assign({'Content-Type':'application/json'},HDR),
+      body:JSON.stringify({disputes:JSON.stringify(items),updated_at:new Date().toISOString()})
     });
-    if (r.ok) showToast('✅ Changes saved to Supabase');
-    else showToast('❌ Save failed: '+r.status,'error');
-  } catch(e) {
-    showToast('❌ Error: '+e.message,'error');
-  }
-  btn.textContent = '💾 Save Changes'; btn.disabled = false;
+    toast(r.ok?'✅ Saved successfully':'❌ Save failed: '+r.status, r.ok?'ok':'err');
+  } catch(e){ toast('❌ '+e.message,'err'); }
 }
 
-// ── Send Portal Link ──
-async function sendPortalLink() {
-  if (!currentClient || !currentClient.email) { showToast('No email on file for this client','error'); return; }
-  await saveAllChanges();
-
-  var deleted = currentDisputes.filter(function(d){return d.status==='removed';}).length;
-  var total   = currentDisputes.length;
-  var pct     = total>0?Math.round(deleted/total*100):0;
-
-  var emailBody = 'Dear '+currentClient.name+',\n\n'+
-    'We have an important update on your credit repair file with CP Restoration Services.\n\n'+
-    'As of today, here is your progress summary:\n\n'+
-    '  ✅ Items Deleted: '+deleted+' of '+total+' ('+pct+'% complete)\n\n'+
-    'You can view your full detailed status update — including every item, its current status, and which bureau it was disputed with — by logging into your client portal:\n\n'+
-    '  Portal: portal-cprestorationsvcs.com/client-portal.html\n'+
-    '  User ID: '+currentClient.id+'\n'+
-    '  Password: restore2026\n\n'+
-    'All future updates will be sent to you via email. If you have any questions or concerns, you can send us a message directly through the portal and we will respond within 24 hours Monday through Friday.\n\n'+
-    'We appreciate your patience and we are committed to delivering the best possible results for you.\n\n'+
-    'CP Restoration Services\n'+
-    'cprestorationsvcs@gmail.com\n'+
-    '1-855-327-5847\n'+
-    'Monday — Friday | 9:00 AM – 5:00 PM EST\n'+
-    '35daycreditrepair.com';
-
+// ── SEND EMAIL ──
+async function sendEmail() {
+  if (!client||!client.email) { toast('No email on file','err'); return; }
+  await saveChanges();
+  var del=items.filter(function(d){return d.status==='removed';}).length;
+  var tot=items.length;
+  var pct=tot>0?Math.round(del/tot*100):0;
+  var body='Dear '+client.name+',\n\nHere is your credit repair status update from CP Restoration Services.\n\n'+
+    'Progress: '+del+' of '+tot+' items deleted ('+pct+'% complete)\n\n'+
+    'Log in to see your full detailed report:\n'+
+    'Portal: portal-cprestorationsvcs.com/client-portal.html\n'+
+    'User ID: '+client.id+'\nPassword: restore2026\n\n'+
+    'Future updates will be sent via email. Questions? Message us through the portal — we respond within 24 hours Monday–Friday.\n\n'+
+    'CP Restoration Services\ncprestorationsvcs@gmail.com\n1-855-327-5847\n35daycreditrepair.com';
   try {
-    var r = await fetch('/.netlify/functions/email-proxy', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        personalizations:[{to:[{email:currentClient.email,name:currentClient.name}]}],
+    var r = await fetch('/.netlify/functions/email-proxy',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        personalizations:[{to:[{email:client.email,name:client.name}]}],
         from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
-        subject:'Your Credit Repair Status Update — '+currentClient.name,
-        content:[
-          {type:'text/plain',value:emailBody},
-          {type:'text/html',value:'<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+
-            '<div style="background:#1B3A6B;padding:20px 24px;border-radius:10px 10px 0 0;margin-bottom:0;">' +
-            '<h1 style="color:white;font-size:18px;margin:0;">CP Restoration Services</h1>'+
-            '<p style="color:rgba(255,255,255,.8);font-size:13px;margin:4px 0 0;">Credit Repair Status Update</p></div>'+
+        subject:'Your Credit Repair Status Update — CP Restoration Services',
+        content:[{type:'text/plain',value:body},
+          {type:'text/html',value:'<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">'+
+            '<div style="background:#1B3A6B;padding:20px;border-radius:10px 10px 0 0;"><h1 style="color:white;font-size:18px;margin:0;">CP Restoration Services</h1><p style="color:rgba(255,255,255,.8);font-size:13px;margin:6px 0 0;">Credit Repair Status Update</p></div>'+
             '<div style="border:1px solid #E2E8F0;border-top:none;border-radius:0 0 10px 10px;padding:24px;">'+
-            '<p>Dear <b>'+currentClient.name+'</b>,</p>'+
-            '<p style="margin:12px 0;">We have an important update on your credit repair file.</p>'+
-            '<div style="background:#F0FFF4;border:1.5px solid #166534;border-radius:10px;padding:16px;margin:16px 0;text-align:center;">'+
-            '<div style="font-size:36px;font-weight:800;color:#166534;">'+pct+'%</div>'+
-            '<div style="font-size:14px;color:#166534;font-weight:600;">Complete — '+deleted+' of '+total+' items deleted</div>'+
-            '<div style="background:#E2E8F0;border-radius:20px;height:10px;margin:12px 0;"><div style="background:#166534;width:'+pct+'%;height:10px;border-radius:20px;"></div></div>'+
-            '</div>'+
-            '<p>Log in to see your full detailed report:</p>'+
+            '<p>Dear <b>'+client.name+'</b>,</p>'+
+            '<div style="background:#F0FFF4;border:1.5px solid #166534;border-radius:10px;padding:20px;margin:16px 0;text-align:center;">'+
+            '<div style="font-size:40px;font-weight:800;color:#166534;">'+pct+'%</div>'+
+            '<div style="font-size:14px;color:#166534;font-weight:600;">'+del+' of '+tot+' items deleted</div>'+
+            '<div style="background:#E2E8F0;border-radius:20px;height:10px;margin:12px 0;"><div style="background:#166534;width:'+pct+'%;height:10px;border-radius:20px;"></div></div></div>'+
+            '<p>Log in to your portal to see your full report:</p>'+
             '<div style="background:#EFF4FF;border-radius:8px;padding:14px;margin:12px 0;font-size:13px;">'+
-            '&#128279; <b>Portal:</b> <a href="https://portal-cprestorationsvcs.com/client-portal.html" style="color:#1B3A6B;">portal-cprestorationsvcs.com/client-portal.html</a><br>'+
-            '&#128272; <b>User ID:</b> '+currentClient.id+'<br>'+
-            '&#128274; <b>Password:</b> restore2026</div>'+
-            '<p style="font-size:13px;color:#64748B;">Future updates will be sent via email. Questions? Message us through the portal — we respond within 24 hours Monday–Friday.</p>'+
+            '&#128279; <a href="https://portal-cprestorationsvcs.com/client-portal.html" style="color:#1B3A6B;font-weight:700;">portal-cprestorationsvcs.com/client-portal.html</a><br>'+
+            '&#128272; User ID: <b>'+client.id+'</b><br>&#128274; Password: <b>restore2026</b></div>'+
+            '<p style="font-size:12px;color:#64748B;margin-top:16px;">Questions? Message us through the portal — we respond within 24 hours Mon–Fri.</p>'+
             '<hr style="border:none;border-top:1px solid #E2E8F0;margin:20px 0;">'+
-            '<p style="font-size:12px;color:#94A3B8;">CP Restoration Services &nbsp;|&nbsp; cprestorationsvcs@gmail.com &nbsp;|&nbsp; 1-855-327-5847<br>Monday – Friday | 9:00 AM – 5:00 PM EST &nbsp;|&nbsp; 35daycreditrepair.com</p>'+
-            '</div></div>'}
-        ]
+            '<p style="font-size:12px;color:#94A3B8;">CP Restoration Services | cprestorationsvcs@gmail.com | 1-855-327-5847<br>Mon–Fri 9AM–5PM EST | 35daycreditrepair.com</p>'+
+            '</div></div>'}]
       })
     });
-    if (r.ok) {
-      showToast('✅ Status update email sent to '+currentClient.email);
-    } else {
-      showToast('❌ Email failed: '+r.status,'error');
-    }
-  } catch(e) {
-    showToast('❌ Error: '+e.message,'error');
-  }
+    toast(r.ok?'✅ Email sent to '+client.email:'❌ Email failed: '+r.status, r.ok?'ok':'err');
+  } catch(e){ toast('❌ '+e.message,'err'); }
 }
 
-function showToast(msg, type) {
-  var t=document.createElement('div'); t.className='toast';
-  t.textContent=msg; t.style.background=type==='error'?'#8B1A1A':'#166534';
-  document.body.appendChild(t);
-  setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},3500);
-}
+function safe(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toast(msg,type){ var t=document.createElement('div'); t.className='toast'; t.textContent=msg; t.style.background=type==='err'?'#8B1A1A':'#166534'; document.body.appendChild(t); setTimeout(function(){ t.remove(); },3000); }
 </script>
 </body>
 </html>
