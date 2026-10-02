@@ -91,273 +91,193 @@ var KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6I
 var HDR={'apikey':KEY,'Authorization':'Bearer '+KEY};
 var allRequests=[], currentTab='all';
 
-// Parse requests from client notes
 function parseRequests(clients) {
-  var reqs = [];
-  clients.forEach(function(c) {
-    if (!c.notes) return;
-    var lines = c.notes.split('\n');
-    lines.forEach(function(line) {
-      var l = line.trim();
-      // Status Update Request
-      if (l.indexOf('[STATUS REQUEST ') === 0) {
-        var close = l.indexOf(']:');
-        if (close > 0) {
-          var date = l.substring(16, close);
-          var detail = l.substring(close+2).trim();
-          // Check if completed
-          var completedTag = '[STATUS COMPLETE '+date;
-          var isDone = c.notes.indexOf(completedTag) >= 0;
-          reqs.push({
-            type: 'status',
-            client: c,
-            date: date,
-            detail: detail,
-            done: isDone,
-            tag: l
-          });
-        }
+  var reqs=[];
+  clients.forEach(function(c){
+    if(!c.notes) return;
+    c.notes.split('\n').forEach(function(line){
+      var l=line.trim();
+      if(l.indexOf('[STATUS REQUEST ')===0){
+        var cl=l.indexOf(']:'); if(cl<0) return;
+        var date=l.substring(16,cl);
+        var detail=l.substring(cl+2).trim();
+        var done=c.notes.indexOf('[STATUS COMPLETE '+date)>=0;
+        reqs.push({type:'status',client:c,date:date,detail:detail,done:done});
       }
-      // Refund Request
-      if (l.indexOf('[REFUND REQUEST ') === 0) {
-        var close2 = l.indexOf(']:');
-        if (close2 > 0) {
-          var date2 = l.substring(16, close2);
-          var detail2 = l.substring(close2+2).trim();
-          var completedTag2 = '[REFUND COMPLETE '+date2;
-          var isDone2 = c.notes.indexOf(completedTag2) >= 0;
-          reqs.push({
-            type: 'refund',
-            client: c,
-            date: date2,
-            detail: detail2,
-            done: isDone2,
-            tag: l
-          });
-        }
+      if(l.indexOf('[REFUND REQUEST ')===0){
+        var cl2=l.indexOf(']:'); if(cl2<0) return;
+        var date2=l.substring(16,cl2);
+        var detail2=l.substring(cl2+2).trim();
+        var done2=c.notes.indexOf('[REFUND COMPLETE '+date2)>=0;
+        reqs.push({type:'refund',client:c,date:date2,detail:detail2,done:done2});
       }
     });
   });
-  // Sort: pending first, then by date desc
-  reqs.sort(function(a,b){
-    if(a.done !== b.done) return a.done ? 1 : -1;
-    return new Date(b.date) - new Date(a.date);
-  });
+  reqs.sort(function(a,b){ if(a.done!==b.done) return a.done?1:-1; return new Date(b.date)-new Date(a.date); });
   return reqs;
 }
 
-async function loadRequests() {
-  document.getElementById('request-list').innerHTML = '<div class="empty"><div class="ico">&#128260;</div><div>Loading...</div></div>';
-  try {
-    var r = await fetch(SUPA+'/clients?notes=not.is.null&select=id,name,email,phone,package,start_date,status,notes&limit=1000', {headers:HDR});
-    var data = await r.json();
-    if (!Array.isArray(data)) { showError('Failed to load'); return; }
-    // Filter to only clients with requests
-    var withReqs = data.filter(function(c){
-      return c.notes && (c.notes.indexOf('[STATUS REQUEST ') >= 0 || c.notes.indexOf('[REFUND REQUEST ') >= 0);
-    });
-    allRequests = parseRequests(withReqs);
+async function loadRequests(){
+  document.getElementById('request-list').innerHTML='<div class="empty"><div class="ico">&#128260;</div><div>Loading...</div></div>';
+  try{
+    var r=await fetch(SUPA+'/clients?notes=not.is.null&select=id,name,email,phone,package,start_date,status,notes&limit=1000',{headers:HDR});
+    var data=await r.json();
+    if(!Array.isArray(data)){showError('Failed to load: '+(data.message||'unknown'));return;}
+    var withReqs=data.filter(function(c){return c.notes&&(c.notes.indexOf('[STATUS REQUEST ')>=0||c.notes.indexOf('[REFUND REQUEST ')>=0);});
+    allRequests=parseRequests(withReqs);
     updateStats();
     renderList();
-  } catch(e) { showError(e.message); }
+  }catch(e){showError(e.message);}
 }
 
-function updateStats() {
-  var pending_s = allRequests.filter(function(r){return r.type==='status'&&!r.done;}).length;
-  var pending_r = allRequests.filter(function(r){return r.type==='refund'&&!r.done;}).length;
-  var done_today = allRequests.filter(function(r){
-    return r.done && new Date(r.date).toDateString() === new Date().toDateString();
-  }).length;
-  document.getElementById('stat-status').textContent = pending_s;
-  document.getElementById('stat-refund').textContent = pending_r;
-  document.getElementById('stat-done').textContent = done_today;
-  document.getElementById('badge-status').textContent = pending_s;
-  document.getElementById('badge-refund').textContent = pending_r;
+function updateStats(){
+  var ps=allRequests.filter(function(r){return r.type==='status'&&!r.done;}).length;
+  var pr=allRequests.filter(function(r){return r.type==='refund'&&!r.done;}).length;
+  var dt=allRequests.filter(function(r){return r.done&&new Date(r.date).toDateString()===new Date().toDateString();}).length;
+  document.getElementById('stat-status').textContent=ps;
+  document.getElementById('stat-refund').textContent=pr;
+  document.getElementById('stat-done').textContent=dt;
+  document.getElementById('badge-status').textContent=ps;
+  document.getElementById('badge-refund').textContent=pr;
 }
 
-function showTab(tab) {
-  currentTab = tab;
-  ['all','status','refund','done'].forEach(function(t){
-    var el = document.getElementById('tab-'+t);
-    el.className = 'tab';
-  });
-  var activeClass = tab==='status'?'active-status':tab==='refund'?'active-refund':'active-all';
-  document.getElementById('tab-'+tab).classList.add(activeClass);
+function showTab(tab){
+  currentTab=tab;
+  ['all','status','refund','done'].forEach(function(t){ document.getElementById('tab-'+t).className='tab'; });
+  var cls=tab==='status'?'active-status':tab==='refund'?'active-refund':'active-all';
+  document.getElementById('tab-'+tab).classList.add(cls);
   renderList();
 }
 
-function renderList() {
-  var filtered = allRequests.filter(function(r){
-    if(currentTab==='status') return r.type==='status' && !r.done;
-    if(currentTab==='refund') return r.type==='refund' && !r.done;
+function renderList(){
+  var filtered=allRequests.filter(function(r){
+    if(currentTab==='status') return r.type==='status'&&!r.done;
+    if(currentTab==='refund') return r.type==='refund'&&!r.done;
     if(currentTab==='done') return r.done;
-    return true; // all
+    return true;
   });
-
-  if (!filtered.length) {
-    document.getElementById('request-list').innerHTML =
-      '<div class="empty"><div class="ico">'+(currentTab==='done'?'&#10003;':'&#128203;')+'</div><div>'+(currentTab==='done'?'No completed requests yet':'No pending requests — all clear!')+'</div></div>';
+  var container=document.getElementById('request-list');
+  if(!filtered.length){
+    container.innerHTML='<div class="empty"><div class="ico">'+(currentTab==='done'?'&#10003;':'&#128203;')+'</div><div>'+(currentTab==='done'?'No completed requests yet':'No pending requests — all clear!')+'</div></div>';
     return;
   }
-
-  document.getElementById('request-list').innerHTML = filtered.map(function(req, i) {
-    var gi = allRequests.indexOf(req);
-    var c = req.client;
-    var isStatus = req.type === 'status';
-    var typeLabel = isStatus ?
-      '<span class="req-type rt-status">&#128202; Status Update Request</span>' :
-      '<span class="req-type rt-refund">&#128176; Refund Request</span>';
-    if (req.done) typeLabel = '<span class="req-type rt-done">&#10003; Completed</span>';
-
-    var actionBtns = '';
-    if (!req.done) {
-      if (isStatus) {
-        actionBtns =
-          '<button class="btn btn-navy btn-sm" onclick="openStatusUpdate(''+safe(c.id)+'')">&#128202; Open Status Update Tool</button>'+
-          '<button class="btn complete-btn btn-sm" onclick="markComplete('+gi+','status')">&#10003; Mark Complete</button>';
+  container.innerHTML='';
+  filtered.forEach(function(req){
+    var gi=allRequests.indexOf(req);
+    var c=req.client;
+    var isStatus=req.type==='status';
+    var card=document.createElement('div');
+    card.className='card '+(isStatus?'status-req':'refund-req')+(req.done?' completed':'');
+    var typeText=req.done?'&#10003; Completed':(isStatus?'&#128202; Status Update Request':'&#128176; Refund Request');
+    var typeCls=req.done?'rt-done':(isStatus?'rt-status':'rt-refund');
+    var head=document.createElement('div'); head.className='card-head';
+    head.innerHTML='<div><span class="req-type '+typeCls+'">'+typeText+'</span>'+
+      '<div class="client-name">'+safe(c.name)+'</div>'+
+      '<div class="client-meta">'+safe(c.id)+' | '+safe(c.email||'—')+' | '+safe(c.phone||'—')+'</div>'+
+      '<div class="client-meta">Package: '+safe(c.package||'Standard')+' | Started: '+safe(c.start_date||'—')+'</div></div>'+
+      '<div class="req-time">'+fmtTime(req.date)+'</div>';
+    card.appendChild(head);
+    var body=document.createElement('div'); body.className='card-body';
+    var notes=document.createElement('div'); notes.className='req-notes'; notes.textContent=req.detail;
+    body.appendChild(notes);
+    if(!req.done){
+      var ta=document.createElement('textarea');
+      ta.id='res-'+gi; ta.className='resolution-box';
+      ta.style.cssText='width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;resize:none;height:60px;margin-top:10px;';
+      ta.placeholder=isStatus?'Notes on status update...':'Refund decision notes...';
+      body.appendChild(ta);
+    }
+    var ar=document.createElement('div'); ar.className='action-row'; ar.style.marginTop='10px';
+    if(!req.done){
+      if(isStatus){
+        var a=document.createElement('a');
+        a.href='/status-update.html?client='+encodeURIComponent(c.id);
+        a.target='_blank'; a.className='btn btn-navy btn-sm';
+        a.style.textDecoration='none'; a.innerHTML='&#128202; Complete Status Update';
+        ar.appendChild(a);
+        var b=document.createElement('button'); b.className='btn complete-btn btn-sm';
+        b.innerHTML='&#10003; Mark Complete';
+        b.onclick=(function(i){return function(){markComplete(i,'status');};})(gi);
+        ar.appendChild(b);
       } else {
-        actionBtns =
-          '<button class="btn btn-red btn-sm" onclick="denyRefund('+gi+')">&#10006; Deny Refund</button>'+
-          '<button class="btn btn-green btn-sm" onclick="approveRefund('+gi+')">&#10003; Approve Refund</button>'+
-          '<button class="btn complete-btn btn-sm" onclick="markComplete('+gi+','refund')">&#10003; Mark Reviewed</button>';
+        var d=document.createElement('button'); d.className='btn btn-red btn-sm';
+        d.innerHTML='&#10006; Deny'; d.onclick=(function(i){return function(){denyRefund(i);};})(gi);
+        ar.appendChild(d);
+        var ap=document.createElement('button'); ap.className='btn btn-green btn-sm';
+        ap.innerHTML='&#10003; Approve'; ap.onclick=(function(i){return function(){approveRefund(i);};})(gi);
+        ar.appendChild(ap);
+        var rv=document.createElement('button'); rv.className='btn complete-btn btn-sm';
+        rv.innerHTML='&#10003; Reviewed'; rv.onclick=(function(i){return function(){markComplete(i,'refund');};})(gi);
+        ar.appendChild(rv);
       }
     }
-
-    return '<div class="card '+(isStatus?'status-req':'refund-req')+(req.done?' completed':'')+'">'+
-      '<div class="card-head">'+
-        '<div>'+
-          typeLabel+
-          '<div class="client-name">'+safe(c.name)+'</div>'+
-          '<div class="client-meta">'+safe(c.id)+' &nbsp;|&nbsp; '+safe(c.email||'—')+' &nbsp;|&nbsp; '+safe(c.phone||'—')+'</div>'+
-          '<div class="client-meta">Package: '+safe(c.package||'Standard')+' &nbsp;|&nbsp; Started: '+safe(c.start_date||'—')+'</div>'+
-        '</div>'+
-        '<div class="req-time">'+fmtTime(req.date)+'</div>'+
-      '</div>'+
-      '<div class="card-body">'+
-        '<div class="req-notes">'+safe(req.detail)+'</div>'+
-        (!req.done?
-          '<div class="resolution-box">'+
-            '<textarea id="res-'+gi+'" placeholder="'+(isStatus?'Notes on status update completed...':'Refund decision notes — reason approved or denied...')+'"></textarea>'+
-          '</div>':'')+
-        '<div class="action-row" style="margin-top:10px;">'+
-          actionBtns+
-          '<button class="btn btn-outline btn-sm" onclick="window.open('/client-manager.html','_blank')">&#128101; View in Client Manager</button>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
+    var cm=document.createElement('a'); cm.href='/client-manager.html'; cm.target='_blank';
+    cm.className='btn btn-outline btn-sm'; cm.style.textDecoration='none';
+    cm.innerHTML='&#128101; Client Manager'; ar.appendChild(cm);
+    body.appendChild(ar); card.appendChild(body); container.appendChild(card);
+  });
 }
 
-// Mark status request complete — logs completion tag in notes
-async function markComplete(gi, type) {
-  var req = allRequests[gi];
-  if (!req) return;
-  var resEl = document.getElementById('res-'+gi);
-  var resolution = resEl ? resEl.value.trim() : '';
-  var tag = type==='status' ? '[STATUS COMPLETE ' : '[REFUND COMPLETE ';
-  var note = '
-'+tag+req.date+']: '+(resolution||'Completed by team — '+new Date().toLocaleString());
-  req.client.notes = (req.client.notes||'') + note;
-  try {
-    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(req.client.id), {
-      method:'PATCH',
-      headers:Object.assign({'Content-Type':'application/json'},HDR),
-      body:JSON.stringify({notes:req.client.notes, updated_at:new Date().toISOString()})
+async function markComplete(gi,type){
+  var req=allRequests[gi]; if(!req) return;
+  var ta=document.getElementById('res-'+gi);
+  var resolution=ta?ta.value.trim():'';
+  var tag=type==='status'?'[STATUS COMPLETE ':'[REFUND COMPLETE ';
+  var note='\n'+tag+req.date+']: '+(resolution||'Completed — '+new Date().toLocaleString());
+  req.client.notes=(req.client.notes||'')+note;
+  try{
+    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(req.client.id),{
+      method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
+      body:JSON.stringify({notes:req.client.notes,updated_at:new Date().toISOString()})
     });
-    req.done = true;
-    updateStats();
-    renderList();
-    toast('Marked complete');
-  } catch(e){toast('Error: '+e.message,'err');}
+    req.done=true; updateStats(); renderList(); toast('Marked complete');
+  }catch(e){toast('Error: '+e.message,'err');}
 }
 
-async function approveRefund(gi) {
-  var req = allRequests[gi];
-  if (!req) return;
-  var resEl = document.getElementById('res-'+gi);
-  var notes = resEl ? resEl.value.trim() : '';
-  if (!notes) { toast('Add decision notes before approving','err'); return; }
-  // Send approval email to client
+async function sendDecisionEmail(req,approved,notes){
+  if(!req.client.email) return;
+  var subject='Your Refund Request — Decision from CP Restoration Services';
+  var body=approved?
+    'Dear '+req.client.name+',\n\nAfter reviewing your file, CP Restoration Services has approved your refund request.\n\n'+notes+'\n\nPlease allow 5-7 business days for processing.\n\nCP Restoration Services\n1-855-327-5847':
+    'Dear '+req.client.name+',\n\nAfter a thorough review of your file, your refund request does not qualify at this time.\n\n'+notes+'\n\nIf you have questions please call 1-855-327-5847 or message us through your portal.\n\nCP Restoration Services\n1-855-327-5847';
   await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      personalizations:[{to:[{email:req.client.email,name:req.client.name}]}],
+    body:JSON.stringify({personalizations:[{to:[{email:req.client.email,name:req.client.name}]}],
       from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
-      subject:'Your Refund Request — Decision from CP Restoration Services',
-      content:[{type:'text/plain',value:'Dear '+req.client.name+',
-
-After reviewing your file, CP Restoration Services has approved your refund request.
-
-'+notes+'
-
-Please allow 5-7 business days for processing.
-
-CP Restoration Services
-cprestorationsvcs@gmail.com
-1-855-327-5847'}]
-    })
+      subject:subject,content:[{type:'text/plain',value:body}]})
   });
-  // Update portal — add note visible to client
-  var portalNote = '
-[TEAM REPLY '+new Date().toLocaleString()+']: Your refund request has been approved by our Compliance Department. '+notes+' Please allow 5-7 business days for processing.';
-  req.client.notes = (req.client.notes||'') + portalNote;
-  await markComplete(gi, 'refund');
-  toast('Refund approved — client notified by email and portal');
 }
 
-async function denyRefund(gi) {
-  var req = allRequests[gi];
-  if (!req) return;
-  var resEl = document.getElementById('res-'+gi);
-  var notes = resEl ? resEl.value.trim() : '';
-  if (!notes) { toast('Add decision notes before denying','err'); return; }
-  // Send denial email to client
-  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      personalizations:[{to:[{email:req.client.email,name:req.client.name}]}],
-      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
-      subject:'Your Refund Request — Decision from CP Restoration Services',
-      content:[{type:'text/plain',value:'Dear '+req.client.name+',
-
-After a thorough review of your file, CP Restoration Services has determined that your refund request does not qualify at this time.
-
-'+notes+'
-
-If you have questions, please log into your portal or contact us at 1-855-327-5847.
-
-CP Restoration Services
-cprestorationsvcs@gmail.com
-1-855-327-5847'}]
-    })
-  });
-  var portalNote = '
-[TEAM REPLY '+new Date().toLocaleString()+']: Your refund request has been reviewed by our Compliance Department. After reviewing your file, your request does not qualify at this time. '+notes+' If you have questions please contact us at 1-855-327-5847.';
-  req.client.notes = (req.client.notes||'') + portalNote;
-  await markComplete(gi, 'refund');
-  toast('Refund denied — client notified by email and portal');
+async function approveRefund(gi){
+  var req=allRequests[gi]; if(!req) return;
+  var ta=document.getElementById('res-'+gi);
+  var notes=ta?ta.value.trim():'';
+  if(!notes){toast('Add decision notes first','err');return;}
+  var portalNote='\n[TEAM REPLY '+new Date().toLocaleString()+']: Your refund request has been APPROVED by our Compliance Department. '+notes+' Please allow 5-7 business days for processing.';
+  req.client.notes=(req.client.notes||'')+portalNote;
+  await sendDecisionEmail(req,true,notes);
+  await markComplete(gi,'refund');
+  toast('Refund approved — client notified');
 }
 
-function openStatusUpdate(clientId) {
-  window.open('/status-update.html', '_blank');
-  toast('Open Status Update Tool and search: '+clientId);
+async function denyRefund(gi){
+  var req=allRequests[gi]; if(!req) return;
+  var ta=document.getElementById('res-'+gi);
+  var notes=ta?ta.value.trim():'';
+  if(!notes){toast('Add decision notes first','err');return;}
+  var portalNote='\n[TEAM REPLY '+new Date().toLocaleString()+']: Your refund request has been reviewed by our Compliance Department. At this time your request does not qualify. '+notes+' Questions? Call 1-855-327-5847.';
+  req.client.notes=(req.client.notes||'')+portalNote;
+  await sendDecisionEmail(req,false,notes);
+  await markComplete(gi,'refund');
+  toast('Refund denied — client notified');
 }
 
-function showError(msg) {
-  document.getElementById('request-list').innerHTML = '<div class="empty"><div class="ico">&#10060;</div><div>Error: '+safe(msg)+'</div></div>';
-}
-
-function fmtTime(s){
-  try{var d=new Date(s),now=new Date(),diff=now-d;
-  if(isNaN(diff))return s;
-  if(diff<3600000)return Math.floor(diff/60000)+'m ago';
-  if(diff<86400000)return Math.floor(diff/3600000)+'h ago';
-  if(diff<604800000)return Math.floor(diff/86400000)+'d ago';
-  return d.toLocaleDateString();}catch(e){return s;}
-}
+function showError(msg){document.getElementById('request-list').innerHTML='<div class="empty"><div class="ico">&#10060;</div><div>Error: '+safe(msg)+'</div></div>';}
+function fmtTime(s){try{var d=new Date(s),now=new Date(),diff=now-d;if(isNaN(diff))return s;if(diff<3600000)return Math.floor(diff/60000)+'m ago';if(diff<86400000)return Math.floor(diff/3600000)+'h ago';if(diff<604800000)return Math.floor(diff/86400000)+'d ago';return d.toLocaleDateString();}catch(e){return s;}}
 function safe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function toast(msg,type){var t=document.createElement('div');t.className='toast';t.textContent=msg;t.style.background=type==='err'?'#8B1A1A':'#166534';document.body.appendChild(t);setTimeout(function(){t.remove();},3500);}
 
 loadRequests();
-setInterval(loadRequests, 60000);
+setInterval(loadRequests,60000);
 </script>
 </body>
 </html>
