@@ -273,7 +273,44 @@ tbody tr:hover{background:#EFF4FF;}
 
       <!-- DISPUTES -->
       <div id="e-disputes" style="display:none;">
-        <div class="fld"><label>Dispute Items</label><textarea id="e-disputes-txt" style="min-height:200px;" placeholder="List each negative item:&#10;- Collection: Midland Credit $1,240 (EQ, EX, TU)&#10;- Late Payment: Chase Visa (EQ, EX)&#10;- Hard Inquiry: Capital One (TU)"></textarea></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:13px;font-weight:700;color:#1B3A6B;">Dispute Items</div>
+          <div style="display:flex;gap:6px;">
+            <select id="disp-filter" onchange="renderDisputeTable()" style="padding:5px 8px;border:1px solid #E2E8F0;border-radius:6px;font-size:11px;">
+              <option value="all">All Bureaus</option>
+              <option value="equifax">Equifax</option>
+              <option value="experian">Experian</option>
+              <option value="transunion">TransUnion</option>
+            </select>
+            <button onclick="saveDisputeChanges()" style="padding:5px 12px;background:#166534;color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">&#128190; Save</button>
+          </div>
+        </div>
+        <!-- Dispute Table -->
+        <div style="overflow-x:auto;margin-bottom:14px;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;" id="dispute-table">
+            <thead>
+              <tr style="background:#F8FAFC;">
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;">Account / Item</th>
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;">Type</th>
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;">Bureau</th>
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;">Status</th>
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="dispute-tbody"></tbody>
+          </table>
+        </div>
+        <!-- Add Item Row -->
+        <div style="background:#F8FAFC;border-radius:8px;padding:12px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;font-weight:700;color:#1B3A6B;margin-bottom:8px;">+ Add Dispute Item</div>
+          <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;align-items:end;">
+            <div><label style="font-size:10px;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Item Name</label><input id="di-name" type="text" placeholder="e.g. Capital One" style="width:100%;padding:6px 8px;border:1px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;"></div>
+            <div><label style="font-size:10px;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Type</label><select id="di-type" style="width:100%;padding:6px 8px;border:1px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;"><option>Account</option><option>Hard Inquiry</option><option>Collection</option></select></div>
+            <div><label style="font-size:10px;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Bureau</label><select id="di-bureau" style="width:100%;padding:6px 8px;border:1px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;"><option value="equifax">Equifax</option><option value="experian">Experian</option><option value="transunion">TransUnion</option></select></div>
+            <div><label style="font-size:10px;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Status</label><select id="di-status" style="width:100%;padding:6px 8px;border:1px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;"><option value="pending">Pending</option><option value="removed">Deleted</option></select></div>
+            <button onclick="addDisputeItem()" style="padding:6px 12px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;height:32px;align-self:flex-end;">+ Add</button>
+          </div>
+        </div>
       </div>
 
       <!-- DOCUMENTS -->
@@ -690,7 +727,7 @@ function openEdit(){
   sv('e-status',c.status||'Active');sv('e-pwd',c.portalPwd||'restore2026');
   sv('e-pkg',c.package);sv('e-bureaus',c.bureaus||'All 3');sv('e-start',c.startDate);
   sv('e-pay-amt',c.payAmount);sv('e-pay-meth',c.payMethod);sv('e-score',c.score);sv('e-ftc',c.ftc);
-  var dl=document.getElementById('e-disputes-txt'); if(dl) dl.value=c.disputes||'';
+  var dl=document.getElementById('e-disputes-txt'); if(dl) dl.value=c.disputes||''; loadDisputeTable(c);
   var nl=document.getElementById('e-notes-txt');    if(nl) nl.value=c.notes||'';
   var bl=c.bureauLogins||{};
   var eq=bl.equifax||{};var ex=bl.experian||{};var tu=bl.transunion||{};
@@ -951,6 +988,93 @@ function pkgInfo(){
 // Init
 seed();
 renderTable();
+
+// ── DISPUTE TABLE IN CLIENT MANAGER ──
+var cmDisputes = [];
+
+function loadDisputeTable(c) {
+  try {
+    var d = typeof c.disputes === 'string' ? JSON.parse(c.disputes) : (c.disputes || []);
+    cmDisputes = Array.isArray(d) ? JSON.parse(JSON.stringify(d)) : [];
+  } catch(e) { cmDisputes = []; }
+  renderDisputeTable();
+}
+
+function renderDisputeTable() {
+  var filter = document.getElementById('disp-filter');
+  var filterVal = filter ? filter.value : 'all';
+  var tbody = document.getElementById('dispute-tbody');
+  if (!tbody) return;
+  var show = filterVal === 'all' ? cmDisputes : cmDisputes.filter(function(d){
+    return (d.bureau||'').toLowerCase() === filterVal;
+  });
+  if (!show.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">No dispute items. Add one below.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = show.map(function(d, i) {
+    var gi = cmDisputes.indexOf(d);
+    var bur = (d.bureau||'all').toLowerCase();
+    var burDot = bur==='equifax'?'<span style="background:#FEE2E2;color:#991B1B;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;">EQ</span>':
+                 bur==='experian'?'<span style="background:#EFF4FF;color:#1B3A6B;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;">EX</span>':
+                 bur==='transunion'?'<span style="background:#DCFCE7;color:#166534;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;">TU</span>':
+                 '<span style="background:#F1F5F9;color:#64748B;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;">ALL</span>';
+    var badge = d.status==='removed'?
+      '<span style="background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">&#10003; Deleted</span>':
+      '<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">&#9203; Pending</span>';
+    return '<tr style="border-bottom:1px solid #F1F5F9;">' +
+      '<td style="padding:8px 10px;font-weight:600;">' + (d.name||'') + '</td>' +
+      '<td style="padding:8px 10px;color:#64748B;font-size:11px;">' + (d.type||'Account') + '</td>' +
+      '<td style="padding:8px 10px;">' + burDot + '</td>' +
+      '<td style="padding:8px 10px;">' + badge + '</td>' +
+      '<td style="padding:8px 10px;">' +
+        '<button onclick="cmSetStatus(' + gi + ',\'removed\')" style="padding:3px 7px;border-radius:4px;border:1px solid #166534;background:' + (d.status==='removed'?'#DCFCE7':'white') + ';color:#166534;font-size:10px;font-weight:700;cursor:pointer;margin-right:3px;">&#10003;</button>' +
+        '<button onclick="cmSetStatus(' + gi + ',\'pending\')" style="padding:3px 7px;border-radius:4px;border:1px solid #C9A84C;background:' + (d.status==='pending'?'#FEF3C7':'white') + ';color:#92400E;font-size:10px;font-weight:700;cursor:pointer;margin-right:3px;">&#9203;</button>' +
+        '<button onclick="cmRemoveItem(' + gi + ')" style="padding:3px 7px;border-radius:4px;border:1px solid #E2E8F0;background:white;color:#8B1A1A;font-size:10px;font-weight:700;cursor:pointer;">&#128465;</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function cmSetStatus(i, s) {
+  if (cmDisputes[i]) { cmDisputes[i].status = s; cmDisputes[i].date = new Date().toLocaleDateString(); renderDisputeTable(); }
+}
+
+function cmRemoveItem(i) {
+  cmDisputes.splice(i, 1);
+  renderDisputeTable();
+}
+
+function addDisputeItem() {
+  var name = document.getElementById('di-name').value.trim();
+  if (!name) return;
+  cmDisputes.push({
+    name: name,
+    type: document.getElementById('di-type').value,
+    bureau: document.getElementById('di-bureau').value,
+    status: document.getElementById('di-status').value,
+    date: new Date().toLocaleDateString()
+  });
+  document.getElementById('di-name').value = '';
+  renderDisputeTable();
+}
+
+async function saveDisputeChanges() {
+  if (!currentEdit) return;
+  var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+  var KEY = supaKey || '';
+  try {
+    var r = await fetch(SUPA + '/clients?id=eq.' + encodeURIComponent(currentEdit.id), {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
+      body: JSON.stringify({disputes: JSON.stringify(cmDisputes), updated_at: new Date().toISOString()})
+    });
+    if (r.ok) {
+      currentEdit.disputes = JSON.stringify(cmDisputes);
+      showToast('Disputes saved', 'success');
+    } else { showToast('Save failed: ' + r.status, 'error'); }
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
 </script>
 </body>
 </html>
