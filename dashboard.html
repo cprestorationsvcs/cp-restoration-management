@@ -550,16 +550,30 @@ function takeScreenshot() {
       ctx.font = '13px Arial';
       ctx.fillText(_ssName + ' — ' + new Date().toLocaleString(), 10, canvas.height-10);
       var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-      // Save to localStorage (keep last 20 screenshots)
-      var shots = [];
-      try { shots = JSON.parse(localStorage.getItem('cp_screenshots')||'[]'); } catch(e){}
-      shots.unshift({ name: _ssName, ts: new Date().toISOString(), img: dataUrl });
-      if (shots.length > 20) shots = shots.slice(0, 20);
-      try { localStorage.setItem('cp_screenshots', JSON.stringify(shots)); } catch(e){
-        // Storage full — keep only last 5
-        shots = shots.slice(0, 5);
-        try { localStorage.setItem('cp_screenshots', JSON.stringify(shots)); } catch(e2){}
-      }
+      // Save to Supabase screenshots table
+      var payload = {
+        employee_name: _ssName,
+        captured_at: new Date().toISOString(),
+        image_data: dataUrl,
+        page: window.location.pathname
+      };
+      fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/screenshots', {
+        method: 'POST',
+        headers: {
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50',
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(payload)
+      }).catch(function(e){ console.log('Screenshot save error:', e); });
+      // Also keep local copy as backup
+      try {
+        var shots = JSON.parse(localStorage.getItem('cp_screenshots')||'[]');
+        shots.unshift({ name: _ssName, ts: new Date().toISOString(), img: dataUrl });
+        if (shots.length > 5) shots = shots.slice(0, 5);
+        localStorage.setItem('cp_screenshots', JSON.stringify(shots));
+      } catch(e){}
       video.pause();
       video.srcObject = null;
     });
