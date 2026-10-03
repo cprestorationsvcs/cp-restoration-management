@@ -400,6 +400,7 @@ function doLogin() {
 }
 
 function doLogout() {
+  ttClockOut();
   localStorage.removeItem('cp_logged_in_user');
   currentUser = null;
   document.getElementById('app').style.display='none';
@@ -487,19 +488,147 @@ function loadDashboard() {
 }
 
 // ── SESSION TRACKING ───────────────────────────────────────────────
+// ── AUTO TIME TRACKING ─────────────────────────────────────────
+var _ttActive = false;
+var _ttStart = null;
+var _ttIdleTimer = null;
+var _ttIdleLimit = 15 * 60 * 1000; // 15 min idle = pause
+var _ttCurrentUser = null;
+var _ttCurrentName = null;
+
+function ttGetLog() {
+  try { return JSON.parse(localStorage.getItem('cp_time_log')||'[]'); } catch(e){ return []; }
+}
+function ttSaveLog(log) {
+  try { localStorage.setItem('cp_time_log', JSON.stringify(log)); } catch(e){} 
+}
+
+function ttStartSession(name) {
+  if (_ttActive) return;
+  _ttCurrentName = name;
+  _ttActive = true;
+  _ttStart = new Date();
+  ttResetIdle();
+  // Update header badge
+  ttUpdateBadge();
+  // Save session start
+  var log = ttGetLog();
+  log.push({ id: Date.now(), name: name, date: _ttStart.toISOString().split('T')[0],
+    clockIn: _ttStart.toISOString(), clockOut: null, breakMin: 0, auto: true });
+  ttSaveLog(log);
+}
+
+function ttPauseSession(reason) {
+  if (!_ttActive) return;
+  _ttActive = false;
+  var log = ttGetLog();
+  // Find the open entry (no clockOut)
+  var entry = null;
+  for (var i = log.length-1; i >= 0; i--) {
+    if (log[i].name === _ttCurrentName && !log[i].clockOut) { entry = log[i]; break; }
+  }
+  if (entry) {
+    entry.clockOut = new Date().toISOString();
+    ttSaveLog(log);
+  }
+  ttUpdateBadge();
+}
+
+function ttResumeSession() {
+  if (_ttActive) return;
+  if (!_ttCurrentName) return;
+  _ttActive = true;
+  _ttStart = new Date();
+  var log = ttGetLog();
+  log.push({ id: Date.now(), name: _ttCurrentName, date: _ttStart.toISOString().split('T')[0],
+    clockIn: _ttStart.toISOString(), clockOut: null, breakMin: 0, auto: true });
+  ttSaveLog(log);
+  ttUpdateBadge();
+}
+
+function ttResetIdle() {
+  clearTimeout(_ttIdleTimer);
+  if (!_ttActive && _ttCurrentName) {
+    ttResumeSession();
+  }
+  _ttIdleTimer = setTimeout(function(){
+    if (_ttActive) ttPauseSession('idle');
+  }, _ttIdleLimit);
+}
+
+function ttClockOut() {
+  ttPauseSession('logout');
+  _ttCurrentName = null;
+  _ttActive = false;
+}
+
+function ttUpdateBadge() {
+  var badge = document.getElementById('tt-badge');
+  if (!badge) return;
+  badge.textContent = _ttActive ? '🟢 Clocked In' : '🔴 Paused';
+  badge.style.background = _ttActive ? '#166534' : '#8B1A1A';
+}
+
+function ttGetTodayHours(name) {
+  var log = ttGetLog();
+  var today = new Date().toISOString().split('T')[0];
+  var total = 0;
+  log.forEach(function(e){
+    if (e.name !== name) return;
+    if (e.date !== today) return;
+    var cin = new Date(e.clockIn);
+    var cout = e.clockOut ? new Date(e.clockOut) : new Date();
+    total += (cout - cin) / 3600000;
+  });
+  return total;
+}
+
+function ttGetWeekHours(name) {
+  var log = ttGetLog();
+  // Current pay week: Mon-Sun
+  var now = new Date();
+  var day = now.getDay(); // 0=Sun
+  var monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+  monday.setHours(0,0,0,0);
+  var total = 0;
+  log.forEach(function(e){
+    if (e.name !== name) return;
+    var cin = new Date(e.clockIn);
+    if (cin < monday) return;
+    var cout = e.clockOut ? new Date(e.clockOut) : new Date();
+    total += (cout - cin) / 3600000;
+  });
+  return total;
+}
+
+// Listen for activity
+['mousemove','keypress','click','scroll','touchstart'].forEach(function(ev){
+  document.addEventListener(ev, ttResetIdle, { passive: true });
+});
+
 function trackSession(emp) {
   if (!currentUser) return;
-  try {
-    var sessions = JSON.parse(localStorage.getItem('cp_team_sessions')||'{}');
-    sessions[currentUser] = {
-      email: currentUser, name: emp.name, role: emp.label,
-      lastSeen: new Date().toISOString(), page: 'Dashboard'
-    };
-    localStorage.setItem('cp_team_sessions', JSON.stringify(sessions));
-  } catch(e) {}
-  // Refresh every 60s
+  _ttCurrentUser = currentUser;
+  _ttCurrentName = emp.name;
+  ttStartSession(emp.name);
+  // Add time badge to header if not exists
+  if (!document.getElementById('tt-badge')) {
+    var hdr = document.getElementById('hdr-user');
+    if (hdr) {
+      var badge = document.createElement('span');
+      badge.id = 'tt-badge';
+      badge.style.cssText = 'margin-left:10px;padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;color:white;background:#166534;cursor:pointer;';
+      badge.title = 'Click to view your hours';
+      badge.onclick = function(){ showTTModal(); };
+      hdr.parentNode.insertBefore(badge, hdr.nextSibling);
+      ttUpdateBadge();
+    }
+  }
+  // Update every 30s
   setInterval(function(){
     if (!currentUser) return;
+    ttUpdateBadge();
     try {
       var sessions = JSON.parse(localStorage.getItem('cp_team_sessions')||'{}');
       if (sessions[currentUser]) {
@@ -557,6 +686,36 @@ window.addEventListener('load', function(){
   }
   setInterval(function(){ if(currentUser) loadDashboard(); }, 30000);
 });
+
+function showTTModal() {
+  var name = _ttCurrentName;
+  if (!name) return;
+  var todayH = ttGetTodayHours(name);
+  var weekH = ttGetWeekHours(name);
+  var fmtH = function(h){ var hrs=Math.floor(h),mins=Math.round((h-hrs)*60); return hrs+'h '+(mins>0?mins+'m':''); };
+  var log = ttGetLog().filter(function(e){return e.name===name;}).slice(-10).reverse();
+  var rows = log.map(function(e){
+    var cin=new Date(e.clockIn),cout=e.clockOut?new Date(e.clockOut):new Date();
+    var hrs=(cout-cin)/3600000;
+    return '<tr><td>'+e.date+'</td><td>'+cin.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'</td>'+
+      '<td>'+(e.clockOut?cout.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'Active')+'</td>'+
+      '<td>'+fmtH(hrs)+'</td></tr>';
+  }).join('');
+  var html = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;" onclick="this.remove()">'+
+    '<div style="background:white;border-radius:12px;padding:24px;min-width:420px;max-width:90vw;" onclick="event.stopPropagation()">'+
+    '<div style="font-size:16px;font-weight:800;color:#1B3A6B;margin-bottom:16px;">⏱ '+name+' — Time Tracker</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">'+
+      '<div style="background:#F0FDF4;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:#166534;">'+fmtH(todayH)+'</div><div style="font-size:11px;color:#666;">Today</div></div>'+
+      '<div style="background:#EFF6FF;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:#1B3A6B;">'+fmtH(weekH)+'</div><div style="font-size:11px;color:#666;">This Week</div></div>'+
+    '</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:12px;">'+
+    '<tr style="background:#1B3A6B;color:white;"><th style="padding:6px 8px;text-align:left;">Date</th><th style="padding:6px 8px;text-align:left;">In</th><th style="padding:6px 8px;text-align:left;">Out</th><th style="padding:6px 8px;text-align:left;">Hours</th></tr>'+
+    rows+'</table>'+
+    '<div style="margin-top:16px;text-align:right;"><button onclick="this.closest('div[onclick]').remove()" style="padding:8px 16px;background:#1B3A6B;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Close</button></div>'+
+    '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
 </script>
 </body>
 </html>
