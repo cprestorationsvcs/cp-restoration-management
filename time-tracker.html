@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Tracker — CP Restoration Services</title>
+<style>
+:root {
+  --navy: #1B3A6B;
+  --gold: #C9A84C;
+  --green: #166534;
+  --red: #8B1A1A;
+  --bg: #F8FAFC;
+  --white: #FFFFFF;
+  --gray: #64748B;
+  --border: #E2E8F0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: #1E293B; }
+header { background: var(--navy); color: white; padding: 16px 24px; display: flex; align-items: center; gap: 16px; }
+header h1 { font-size: 18px; font-weight: 700; }
+header p { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+.container { max-width: 1000px; margin: 0 auto; padding: 24px; }
+
+/* Add Entry Form */
+.card { background: white; border-radius: 12px; border: 1.5px solid var(--border); padding: 20px; margin-bottom: 20px; }
+.card h2 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 16px; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 12px; }
+label { font-size: 12px; font-weight: 600; color: var(--gray); display: block; margin-bottom: 4px; }
+input, select { width: 100%; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 7px; font-size: 13px; font-family: inherit; }
+input:focus, select:focus { outline: none; border-color: var(--navy); }
+.btn { padding: 9px 18px; border-radius: 7px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-navy { background: var(--navy); color: white; }
+.btn-green { background: var(--green); color: white; }
+.btn-red { background: var(--red); color: white; }
+.btn-outline { background: white; color: var(--navy); border: 1.5px solid var(--navy); }
+.btn:hover { opacity: 0.9; }
+
+/* Summary Cards */
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.stat-card { background: white; border-radius: 12px; border: 1.5px solid var(--border); padding: 16px; text-align: center; }
+.stat-card .val { font-size: 28px; font-weight: 800; color: var(--navy); }
+.stat-card .lbl { font-size: 11px; color: var(--gray); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-card.gold .val { color: var(--gold); }
+.stat-card.green .val { color: var(--green); }
+
+/* Log Table */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: var(--navy); color: white; padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+tr:hover td { background: #F1F5F9; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.badge-green { background: #DCFCE7; color: var(--green); }
+.badge-gold { background: #FEF9C3; color: #854D0E; }
+
+.filter-row { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.payroll-box { background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 10px; padding: 16px; margin-top: 16px; }
+.payroll-box h3 { font-size: 14px; font-weight: 700; color: var(--green); margin-bottom: 10px; }
+.payroll-line { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid #BBF7D0; }
+.payroll-line:last-child { border-bottom: none; font-weight: 700; font-size: 15px; color: var(--navy); }
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: white; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 999; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>⏱ Time Tracker — CP Restoration Services</h1>
+    <p>Team payroll calculated at $100/week | Pay period ends 10/10/2026</p>
+  </div>
+</header>
+<div class="container">
+
+  <!-- Add Entry -->
+  <div class="card">
+    <h2>➕ Add Time Entry</h2>
+    <div class="form-row">
+      <div>
+        <label>Team Member</label>
+        <select id="emp">
+          <option value="Queen">Queen</option>
+          <option value="Jason">Jason</option>
+          <option value="Bukunmi">Bukunmi</option>
+        </select>
+      </div>
+      <div>
+        <label>Date</label>
+        <input type="date" id="date">
+      </div>
+      <div>
+        <label>Clock In (EST)</label>
+        <input type="time" id="clock-in">
+      </div>
+      <div>
+        <label>Clock Out (EST)</label>
+        <input type="time" id="clock-out">
+      </div>
+      <div>
+        <label>Break (minutes)</label>
+        <input type="number" id="break-min" value="0" min="0" max="480">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn btn-navy" onclick="addEntry()">Save Entry</button>
+      <span id="entry-msg" style="font-size:12px;color:var(--green);"></span>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-row">
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--gray);">Filter by Employee</label>
+      <select id="filter-emp" onchange="renderAll()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;">
+        <option value="all">All Employees</option>
+        <option value="Queen">Queen</option>
+        <option value="Jason">Jason</option>
+        <option value="Bukunmi">Bukunmi</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--gray);">Pay Period</label>
+      <select id="filter-period" onchange="renderAll()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;">
+        <option value="current">Current (10/10/26)</option>
+        <option value="all">All Time</option>
+      </select>
+    </div>
+    <button class="btn btn-outline" onclick="exportCSV()" style="margin-top:16px;">⬇ Export CSV</button>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-grid" id="summary-grid"></div>
+
+  <!-- Log Table -->
+  <div class="card">
+    <h2>📋 Time Log</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Date</th>
+          <th>Clock In</th>
+          <th>Clock Out</th>
+          <th>Break</th>
+          <th>Hours Worked</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="log-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Payroll Summary -->
+  <div id="payroll-section"></div>
+
+</div>
+
+<script>
+var RATE = 100; // $100/week
+var HOURLY = 100 / 40; // $2.50/hr
+
+// Load entries from localStorage
+function loadEntries() {
+  try { return JSON.parse(localStorage.getItem('cp_time_entries') || '[]'); } catch(e) { return []; }
+}
+function saveEntries(entries) {
+  localStorage.setItem('cp_time_entries', JSON.stringify(entries));
+}
+
+// Pre-load Queen's entries for the current pay period
+function seedQueenEntries() {
+  var entries = loadEntries();
+  var queenDates = ['2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02'];
+  var existing = entries.filter(function(e){ return e.emp==='Queen' && queenDates.indexOf(e.date)>=0; });
+  if (existing.length > 0) return; // already seeded
+
+  var seed = [
+    { emp:'Queen', date:'2026-09-28', clockIn:'09:00', clockOut:'14:10', breakMin:45 },
+    { emp:'Queen', date:'2026-09-29', clockIn:'09:00', clockOut:'12:30', breakMin:0 },
+    { emp:'Queen', date:'2026-09-30', clockIn:'09:00', clockOut:'13:00', breakMin:45 },
+    { emp:'Queen', date:'2026-10-01', clockIn:'09:00', clockOut:'16:00', breakMin:60 },
+    { emp:'Queen', date:'2026-10-02', clockIn:'09:30', clockOut:'17:00', breakMin:120 },
+  ];
+  seed.forEach(function(s){
+    s.id = Date.now() + Math.random();
+    entries.push(s);
+  });
+  saveEntries(entries);
+}
+
+function calcHours(clockIn, clockOut, breakMin) {
+  var inParts = clockIn.split(':'), outParts = clockOut.split(':');
+  var inMins = parseInt(inParts[0])*60 + parseInt(inParts[1]);
+  var outMins = parseInt(outParts[0])*60 + parseInt(outParts[1]);
+  var totalMins = outMins - inMins - parseInt(breakMin||0);
+  return Math.max(0, totalMins / 60);
+}
+
+function fmtHours(h) {
+  var hrs = Math.floor(h);
+  var mins = Math.round((h - hrs) * 60);
+  return hrs + 'h ' + (mins>0 ? mins+'m' : '');
+}
+
+function fmt12(time24) {
+  if (!time24) return '';
+  var parts = time24.split(':');
+  var h = parseInt(parts[0]), m = parts[1];
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + m + ' ' + ampm;
+}
+
+function isCurrentPeriod(date) {
+  // Pay period: 10/4/26 - 10/10/26... but Queen's entries start 9/28
+  // Show all entries in "current" for now
+  return true;
+}
+
+function addEntry() {
+  var emp = document.getElementById('emp').value;
+  var date = document.getElementById('date').value;
+  var ci = document.getElementById('clock-in').value;
+  var co = document.getElementById('clock-out').value;
+  var brk = parseInt(document.getElementById('break-min').value)||0;
+
+  if (!date || !ci || !co) { toast('Please fill in date, clock in, and clock out','err'); return; }
+
+  var entries = loadEntries();
+  entries.push({ id: Date.now(), emp: emp, date: date, clockIn: ci, clockOut: co, breakMin: brk });
+  saveEntries(entries);
+  document.getElementById('entry-msg').textContent = '✅ Saved!';
+  setTimeout(function(){ document.getElementById('entry-msg').textContent=''; }, 2000);
+  renderAll();
+}
+
+function deleteEntry(id) {
+  var entries = loadEntries().filter(function(e){ return e.id !== id; });
+  saveEntries(entries);
+  renderAll();
+}
+
+function renderAll() {
+  var filterEmp = document.getElementById('filter-emp').value;
+  var entries = loadEntries();
+
+  var filtered = entries.filter(function(e){
+    if (filterEmp !== 'all' && e.emp !== filterEmp) return false;
+    return true;
+  });
+
+  // Sort by date desc
+  filtered.sort(function(a,b){ return b.date.localeCompare(a.date); });
+
+  // Render table
+  var tbody = document.getElementById('log-body');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">No entries yet.</td></tr>';
+  } else {
+    tbody.innerHTML = filtered.map(function(e){
+      var hrs = calcHours(e.clockIn, e.clockOut, e.breakMin);
+      return '<tr>'+
+        '<td><strong>'+e.emp+'</strong></td>'+
+        '<td>'+new Date(e.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})+'</td>'+
+        '<td>'+fmt12(e.clockIn)+' EST</td>'+
+        '<td>'+fmt12(e.clockOut)+' EST</td>'+
+        '<td>'+(e.breakMin>0?e.breakMin+' min':'None')+'</td>'+
+        '<td><span class="badge badge-green">'+fmtHours(hrs)+'</span></td>'+
+        '<td><button class="btn btn-red" style="padding:4px 10px;font-size:11px;" onclick="deleteEntry('+e.id+')">Delete</button></td>'+
+      '</tr>';
+    }).join('');
+  }
+
+  // Summary by employee
+  var byEmp = {};
+  entries.forEach(function(e){
+    if (!byEmp[e.emp]) byEmp[e.emp] = { hours: 0, days: new Set() };
+    byEmp[e.emp].hours += calcHours(e.clockIn, e.clockOut, e.breakMin);
+    byEmp[e.emp].days.add(e.date);
+  });
+
+  var summaryGrid = document.getElementById('summary-grid');
+  summaryGrid.innerHTML = Object.keys(byEmp).map(function(emp){
+    var h = byEmp[emp].hours;
+    var days = byEmp[emp].days.size;
+    var pay = Math.min(RATE, (h / 40) * RATE).toFixed(2);
+    return '<div class="stat-card">'+
+      '<div class="val">'+fmtHours(h)+'</div>'+
+      '<div class="lbl">'+emp+' — '+days+' days</div>'+
+      '<div style="font-size:12px;color:var(--green);margin-top:6px;font-weight:700;">Est. Pay: $'+pay+'</div>'+
+    '</div>';
+  }).join('');
+
+  // Payroll section
+  renderPayroll(entries);
+}
+
+function renderPayroll(entries) {
+  var byEmp = {};
+  entries.forEach(function(e){
+    if (!byEmp[e.emp]) byEmp[e.emp] = [];
+    byEmp[e.emp].push(e);
+  });
+
+  var html = '<div class="payroll-box"><h3>💰 Payroll Summary — Pay Date: 10/10/2026</h3>';
+  var total = 0;
+  Object.keys(byEmp).forEach(function(emp){
+    var hrs = byEmp[emp].reduce(function(sum,e){ return sum + calcHours(e.clockIn,e.clockOut,e.breakMin); }, 0);
+    var days = new Set(byEmp[emp].map(function(e){return e.date;})).size;
+    var pay = RATE; // flat $100/week regardless of hours (as per contract)
+    total += pay;
+    html += '<div class="payroll-line"><span>'+emp+' ('+fmtHours(hrs)+' across '+days+' days)</span><span>$'+pay.toFixed(2)+'</span></div>';
+  });
+  html += '<div class="payroll-line"><span>TOTAL PAYROLL</span><span>$'+total.toFixed(2)+'</span></div>';
+  html += '</div>';
+  document.getElementById('payroll-section').innerHTML = html;
+}
+
+function exportCSV() {
+  var entries = loadEntries();
+  var rows = [['Employee','Date','Clock In','Clock Out','Break (min)','Hours Worked']];
+  entries.forEach(function(e){
+    var hrs = calcHours(e.clockIn, e.clockOut, e.breakMin).toFixed(2);
+    rows.push([e.emp, e.date, fmt12(e.clockIn), fmt12(e.clockOut), e.breakMin, hrs]);
+  });
+  var csv = rows.map(function(r){ return r.join(','); }).join('\n');
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'cp_timesheet_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+function toast(msg, type) {
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.style.background = type==='err' ? 'var(--red)' : 'var(--green)';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3000);
+}
+
+// Init
+seedQueenEntries();
+document.getElementById('date').value = new Date().toISOString().split('T')[0];
+renderAll();
+</script>
+</body>
+</html>
