@@ -870,7 +870,7 @@ function renderDisputes(filter) {
   list.innerHTML = filtered.map(function(d) {
     var status = d.status || 'pending';
     var dateStr = '';
-    try { dateStr = d.date ? new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''; } catch(e){}
+    try { var df=d.date_filed||d.date||''; if(df) dateStr=new Date(df).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); } catch(e){}
     var dname = String(d.creditor||d.name||'Unknown').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     var dtype = String(d.type||'Account').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     return '<div class="dispute-item '+(itemClass[status]||'pending')+'">' +
