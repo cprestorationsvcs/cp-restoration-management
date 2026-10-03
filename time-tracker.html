@@ -104,6 +104,31 @@ tr:hover td { background:#F1F5F9; }
 
   <!-- Payroll -->
   <div id="payroll-section"></div>
+
+  <!-- Screenshot Viewer -->
+  <div class="card">
+    <h2>📸 Screenshot Monitor</h2>
+    <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">Captured every 8–12 minutes automatically while team members are logged into the dashboard. Stored in Supabase — visible from any device.</div>
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end;">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:4px;">Filter</label>
+        <select id="ss-filter" onchange="renderScreenshots()" style="padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;">
+          <option value="all">All Employees</option>
+          <option value="Queen">Queen</option>
+          <option value="Jason">Jason</option>
+          <option value="Bukunmi">Bukunmi</option>
+        </select>
+      </div>
+      <button class="btn btn-outline" onclick="renderScreenshots()" style="margin-bottom:0;">🔄 Refresh</button>
+      <button onclick="clearScreenshots()" style="padding:9px 14px;background:var(--red);color:white;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;">🗑 Clear</button>
+    </div>
+    <div id="ss-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
+    <div id="ss-empty" style="text-align:center;padding:40px;color:var(--gray);">
+      <div style="font-size:40px;margin-bottom:12px;">📷</div>
+      <div style="font-weight:600;">No screenshots yet</div>
+      <div style="font-size:12px;margin-top:6px;">They appear here once team members log into the dashboard and grant screen share permission.</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -308,6 +333,90 @@ seedQueenEntries();
 document.getElementById('date').value = new Date().toISOString().split('T')[0];
 render();
 setInterval(render, 30000); // refresh every 30s to show active sessions
+
+var _ssCache = [];
+
+async function renderScreenshots() {
+  var filter = document.getElementById('ss-filter') ? document.getElementById('ss-filter').value : 'all';
+  var grid = document.getElementById('ss-grid');
+  var empty = document.getElementById('ss-empty');
+  if (!grid) return;
+  grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray);">⏳ Loading screenshots...</div>';
+  try {
+    var url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/screenshots?order=captured_at.desc&limit=50';
+    if (filter !== 'all') url += '&employee_name=eq.' + encodeURIComponent(filter);
+    var r = await fetch(url, {
+      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50' }
+    });
+    var data = await r.json();
+    _ssCache = Array.isArray(data) ? data : [];
+  } catch(e) { _ssCache = []; }
+
+  if (!_ssCache.length) {
+    grid.innerHTML = '';
+    if(empty) empty.style.display = 'block';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+  grid.innerHTML = _ssCache.map(function(s, i) {
+    var name = s.employee_name || 'Unknown';
+    var ts = '';
+    try { ts = new Date(s.captured_at).toLocaleString('en-US', {weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); } catch(e) { ts = s.captured_at; }
+    return '<div style="border:1.5px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">' +
+      '<img src="' + s.image_data + '" style="width:100%;display:block;cursor:zoom-in;" onclick="zoomSS(' + i + ')" loading="lazy" title="Click to enlarge">' +
+      '<div style="padding:8px 12px;background:#F8FAFC;display:flex;justify-content:space-between;align-items:center;">' +
+        '<div>' +
+          '<div style="font-size:12px;font-weight:700;color:var(--navy);">' + name + '</div>' +
+          '<div style="font-size:11px;color:var(--gray);">' + ts + '</div>' +
+        '</div>' +
+        '<button onclick="deleteScreenshot(' + s.id + ')" style="padding:3px 9px;background:var(--red);color:white;border:none;border-radius:4px;font-size:11px;cursor:pointer;">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function zoomSS(idx) {
+  var s = _ssCache[idx];
+  if (!s) return;
+  var name = s.employee_name || 'Unknown';
+  var ts = '';
+  try { ts = new Date(s.captured_at).toLocaleString(); } catch(e) { ts = s.captured_at; }
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:20px;';
+  overlay.onclick = function() { overlay.remove(); };
+  overlay.innerHTML = '<img src="' + s.image_data + '" style="max-width:95vw;max-height:85vh;border-radius:8px;object-fit:contain;">' +
+    '<div style="color:white;margin-top:12px;font-size:13px;text-align:center;">' + name + ' — ' + ts + '<br><span style="opacity:0.6;font-size:11px;">Click anywhere to close</span></div>';
+  document.body.appendChild(overlay);
+}
+
+async function deleteScreenshot(id) {
+  if (!confirm('Delete this screenshot?')) return;
+  try {
+    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/screenshots?id=eq.' + id, {
+      method: 'DELETE',
+      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50' }
+    });
+  } catch(e) {}
+  renderScreenshots();
+}
+
+async function clearScreenshots() {
+  var filter = document.getElementById('ss-filter') ? document.getElementById('ss-filter').value : 'all';
+  var who = filter === 'all' ? 'ALL employees' : filter;
+  if (!confirm('Delete all screenshots for ' + who + '? Cannot be undone.')) return;
+  try {
+    var url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/screenshots?id=gt.0';
+    if (filter !== 'all') url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/screenshots?employee_name=eq.' + encodeURIComponent(filter);
+    await fetch(url, {
+      method: 'DELETE',
+      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50' }
+    });
+  } catch(e) {}
+  renderScreenshots();
+}
+
+// Render on load
+renderScreenshots();
 </script>
 </body>
 </html>
