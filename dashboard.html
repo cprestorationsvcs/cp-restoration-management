@@ -397,6 +397,7 @@ function doLogin() {
   trackSession(emp);
   loadDashboard();
   startClock();
+  setTimeout(function(){ initScreenshots(emp.name); }, 2000);
 }
 
 function doLogout() {
@@ -488,6 +489,83 @@ function loadDashboard() {
 }
 
 // ── SESSION TRACKING ───────────────────────────────────────────────
+
+// ── SCREENSHOT MONITORING ──────────────────────────────────────
+var _ssStream = null;
+var _ssInterval = null;
+var _ssName = null;
+
+async function initScreenshots(name) {
+  _ssName = name;
+  try {
+    // Ask user once for screen share permission
+    _ssStream = await navigator.mediaDevices.getDisplayMedia({
+      video: { mediaSource: 'screen', width: 1920, height: 1080 },
+      audio: false
+    });
+    // Show notification
+    var note = document.createElement('div');
+    note.style.cssText = 'position:fixed;bottom:70px;right:20px;background:#166534;color:white;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;';
+    note.textContent = '📸 Screen monitoring active — screenshots every 10 min';
+    document.body.appendChild(note);
+    setTimeout(function(){ note.remove(); }, 4000);
+    // Take first screenshot immediately
+    takeScreenshot();
+    // Then every 8-12 minutes (random)
+    function scheduleNext() {
+      var delay = (8 + Math.random() * 4) * 60 * 1000;
+      _ssInterval = setTimeout(function(){
+        takeScreenshot();
+        scheduleNext();
+      }, delay);
+    }
+    scheduleNext();
+    // If stream ends (user stops sharing), clear interval
+    _ssStream.getVideoTracks()[0].addEventListener('ended', function(){
+      clearTimeout(_ssInterval);
+      _ssStream = null;
+    });
+  } catch(e) {
+    // User denied or browser doesn't support — silently skip
+    console.log('Screen capture not available:', e.message);
+  }
+}
+
+function takeScreenshot() {
+  if (!_ssStream) return;
+  try {
+    var video = document.createElement('video');
+    video.srcObject = _ssStream;
+    video.play();
+    video.addEventListener('loadeddata', function(){
+      var canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // Add timestamp watermark
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(0, canvas.height-30, canvas.width, 30);
+      ctx.fillStyle = 'white';
+      ctx.font = '13px Arial';
+      ctx.fillText(_ssName + ' — ' + new Date().toLocaleString(), 10, canvas.height-10);
+      var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      // Save to localStorage (keep last 20 screenshots)
+      var shots = [];
+      try { shots = JSON.parse(localStorage.getItem('cp_screenshots')||'[]'); } catch(e){}
+      shots.unshift({ name: _ssName, ts: new Date().toISOString(), img: dataUrl });
+      if (shots.length > 20) shots = shots.slice(0, 20);
+      try { localStorage.setItem('cp_screenshots', JSON.stringify(shots)); } catch(e){
+        // Storage full — keep only last 5
+        shots = shots.slice(0, 5);
+        try { localStorage.setItem('cp_screenshots', JSON.stringify(shots)); } catch(e2){}
+      }
+      video.pause();
+      video.srcObject = null;
+    });
+  } catch(e) { console.log('Screenshot error:', e); }
+}
+
 // ── AUTO TIME TRACKING ─────────────────────────────────────────
 var _ttActive = false;
 var _ttStart = null;
