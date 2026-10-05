@@ -803,9 +803,11 @@ function showTTModal() {
     '<table style="width:100%;border-collapse:collapse;font-size:12px;">'+
     '<tr style="background:#1B3A6B;color:white;"><th style="padding:6px 8px;text-align:left;">Date</th><th style="padding:6px 8px;text-align:left;">In</th><th style="padding:6px 8px;text-align:left;">Out</th><th style="padding:6px 8px;text-align:left;">Hours</th></tr>'+
     rows+'</table>'+
-    '<div style="margin-top:16px;text-align:right;"><button onclick="this.closest('div[onclick]').remove()" style="padding:8px 16px;background:#1B3A6B;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Close</button></div>'+
+    '<div style="margin-top:16px;text-align:right;"><button id="tt-close-btn" style="padding:8px 16px;background:#1B3A6B;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Close</button></div>'+
     '</div></div>';
   document.body.insertAdjacentHTML('beforeend', html);
+  var closeBtn = document.getElementById('tt-close-btn');
+  if (closeBtn) closeBtn.onclick = function(){ this.closest('[style*="position:fixed"]').remove(); };
 }
 
 </script>
