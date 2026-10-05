@@ -703,6 +703,103 @@ function ttGetWeekHours(name) {
   document.addEventListener(ev, ttResetIdle, { passive: true });
 });
 
+
+// ── SUPABASE TIME TRACKING ─────────────────────────────────────
+var _ttActive = false;
+var _ttSessionId = null;
+var _ttIdleTimer = null;
+var _ttIdleLimit = 15 * 60 * 1000;
+var _ttCurrentName = null;
+var _ttHeartbeat = null;
+var _TT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var _TT_HDR = {'apikey':_TT_KEY,'Authorization':'Bearer '+_TT_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+
+async function ttStartSession(name) {
+  if (_ttActive) return;
+  _ttCurrentName = name;
+  _ttActive = true;
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions', {
+      method:'POST', headers:_TT_HDR,
+      body:JSON.stringify({employee_name:name, date:new Date().toISOString().split('T')[0], clock_in:new Date().toISOString(), status:'active', last_seen:new Date().toISOString()})
+    });
+    var data = await r.json();
+    if (Array.isArray(data) && data[0]) _ttSessionId = data[0].id;
+  } catch(e) { console.log('TT start:', e); }
+  ttResetIdle();
+  ttUpdateBadge();
+  clearInterval(_ttHeartbeat);
+  _ttHeartbeat = setInterval(function(){ if(_ttActive && _ttSessionId) ttHeartbeat(); }, 60000);
+}
+
+async function ttHeartbeat() {
+  try {
+    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?id=eq.'+_ttSessionId, {
+      method:'PATCH', headers:_TT_HDR,
+      body:JSON.stringify({last_seen:new Date().toISOString()})
+    });
+  } catch(e){}
+}
+
+async function ttPauseSession() {
+  if (!_ttActive || !_ttSessionId) return;
+  _ttActive = false;
+  try {
+    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?id=eq.'+_ttSessionId, {
+      method:'PATCH', headers:_TT_HDR,
+      body:JSON.stringify({clock_out:new Date().toISOString(), status:'paused'})
+    });
+  } catch(e){}
+  _ttSessionId = null;
+  ttUpdateBadge();
+}
+
+async function ttResumeSession() {
+  if (_ttActive || !_ttCurrentName) return;
+  _ttActive = true;
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions', {
+      method:'POST', headers:_TT_HDR,
+      body:JSON.stringify({employee_name:_ttCurrentName, date:new Date().toISOString().split('T')[0], clock_in:new Date().toISOString(), status:'active', last_seen:new Date().toISOString()})
+    });
+    var data = await r.json();
+    if (Array.isArray(data) && data[0]) _ttSessionId = data[0].id;
+  } catch(e){}
+  ttUpdateBadge();
+}
+
+async function ttClockOut() {
+  if (_ttSessionId) {
+    try {
+      await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?id=eq.'+_ttSessionId, {
+        method:'PATCH', headers:_TT_HDR,
+        body:JSON.stringify({clock_out:new Date().toISOString(), status:'completed'})
+      });
+    } catch(e){}
+  }
+  clearInterval(_ttHeartbeat);
+  clearTimeout(_ttIdleTimer);
+  _ttActive = false; _ttSessionId = null;
+  ttUpdateBadge();
+}
+
+function ttResetIdle() {
+  clearTimeout(_ttIdleTimer);
+  if (!_ttActive && _ttCurrentName) { ttResumeSession(); return; }
+  _ttIdleTimer = setTimeout(function(){ if(_ttActive) ttPauseSession(); }, _ttIdleLimit);
+}
+
+function ttUpdateBadge() {
+  var badge = document.getElementById('tt-badge');
+  if (!badge) return;
+  badge.textContent = _ttActive ? '🟢 Clocked In' : '🔴 Paused';
+  badge.style.background = _ttActive ? '#166534' : '#8B1A1A';
+}
+
+['mousemove','keypress','click','scroll','touchstart'].forEach(function(ev){
+  document.addEventListener(ev, ttResetIdle, {passive:true});
+});
+
 function trackSession(emp) {
   if (!currentUser) return;
   _ttCurrentUser = currentUser;
