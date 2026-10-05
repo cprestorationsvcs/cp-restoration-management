@@ -407,6 +407,24 @@ function renderActions(c){
         '<p style="font-size:11px;color:#475569;margin-bottom:8px;">Sends client their portal URL, User ID and password by email.</p>'+
         '<button class="btn btn-green btn-sm" onclick="sendPortalLink()" style="width:100%;">&#9993; Email Portal Login to Client</button>'+
       '</div>'+
+    '</div>'+
+
+    // ── Invalid Bureau Login ──────────────────────────────────────────
+    '<div class="action-card">'+
+      '<div class="action-card-head" style="background:#FEF3C7;color:#92400E;">&#128274; Report Invalid Bureau Login</div>'+
+      '<div class="action-card-body">'+
+        '<p style="font-size:11px;color:#475569;margin-bottom:8px;">Use this when bureau logins are failing. Call the client, get updated credentials, then notify the Dispute Department.</p>'+
+        '<p style="font-size:11px;font-weight:700;color:#1B3A6B;margin-bottom:6px;">Which bureau(s) are failing?</p>'+
+        '<div style="display:flex;gap:12px;margin-bottom:10px;">'+
+          '<label style="font-size:12px;display:flex;gap:4px;align-items:center;"><input type="checkbox" id="li-eq"> Equifax</label>'+
+          '<label style="font-size:12px;display:flex;gap:4px;align-items:center;"><input type="checkbox" id="li-ex"> Experian</label>'+
+          '<label style="font-size:12px;display:flex;gap:4px;align-items:center;"><input type="checkbox" id="li-tu"> TransUnion</label>'+
+        '</div>'+
+        '<p style="font-size:11px;font-weight:700;color:#1B3A6B;margin-bottom:4px;">Call Script:</p>'+
+        '<p style="font-size:11px;color:#475569;font-style:italic;background:#FFFBEB;padding:8px;border-radius:6px;border-left:3px solid #F59E0B;margin-bottom:8px;">"Hi [Client Name], this is [Your Name] from CP Restoration Services. Our dispute team is working on your file today and we need to verify your bureau login credentials to continue. Can you confirm your username, password, and PIN for [bureau]?"</p>'+
+        '<textarea id="li-new-creds" placeholder="Enter updated credentials received from client (username, password, PIN)..." style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:11px;min-height:70px;font-family:inherit;"></textarea>'+
+        '<button class="btn btn-sm" style="width:100%;margin-top:8px;background:#92400E;color:white;" onclick="submitLoginIssue()">&#128231; Update & Notify Dispute Department</button>'+
+      '</div>'+
     '</div>';
 }
 
@@ -417,7 +435,8 @@ async function submitLoginIssue(){
   if(document.getElementById('li-ex')&&document.getElementById('li-ex').checked) bureaus.push('Experian');
   if(document.getElementById('li-tu')&&document.getElementById('li-tu').checked) bureaus.push('TransUnion');
   if(!bureaus.length){toast('Select at least one bureau','err');return;}
-  var notes = document.getElementById('li-notes').value.trim();
+  var notes = (document.getElementById('li-new-creds')||document.getElementById('li-notes')||{}).value||'';
+  notes = notes.trim();
   var tag = '\n[LOGIN ISSUE '+new Date().toLocaleString()+']: Bureau(s) with invalid login: '+bureaus.join(', ')+(notes?' — New credentials: '+notes:'');
   currentClient.notes = (currentClient.notes||'') + tag;
   // Save to Supabase
