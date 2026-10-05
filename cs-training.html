@@ -580,5 +580,56 @@ function showTab(name) {
   window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
+
+<div class="section" id="login-protocol">
+  <h2>🔐 Invalid Bureau Login Protocol</h2>
+
+  <div class="alert" style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:8px;padding:14px;margin-bottom:16px;">
+    <strong>When to use this:</strong> The Dispute Department is unable to log into a client's Equifax, Experian, or TransUnion account because the credentials on file are incorrect or outdated.
+  </div>
+
+  <h3>CS Agent Workflow</h3>
+  <ol>
+    <li>You will receive a notification or see a [LOGIN ISSUE] tag in the client's notes in the CS Dashboard</li>
+    <li>Open the client's file in the CS Dashboard</li>
+    <li>Go to the <strong>Actions tab</strong> → click <strong>🔐 Report Invalid Bureau Login</strong></li>
+    <li>Check which bureau(s) are failing</li>
+    <li>Call the client using the script below</li>
+    <li>Enter the updated credentials in the text box</li>
+    <li>Click <strong>Update & Notify Dispute Department</strong> — this automatically emails the Dispute Dept with the new credentials</li>
+    <li>Update the Bureau Logins tab on the right panel with the new credentials and click Save</li>
+  </ol>
+
+  <h3>Call Script — Invalid Login</h3>
+  <div class="script-box" style="background:#F8FAFC;border-left:4px solid #F59E0B;padding:14px;border-radius:6px;font-style:italic;margin:12px 0;">
+    "Hi, may I speak with [Client Name]? Hi [Client Name], this is [Your Name] calling from CP Restoration Services. Our dispute team is actively working on your credit file today and we need to verify your bureau login credentials to continue processing your disputes. This will only take a minute.<br><br>
+    Can you confirm your username and password for [Equifax / Experian / TransUnion]?<br><br>
+    [For Experian] Great — and do you have your PIN number and the answer to your security question?<br><br>
+    Perfect, thank you so much. Our team will resume working on your file right away. You'll receive a status update within 24 hours. Is there anything else I can help you with today?"
+  </div>
+
+  <h3>What NOT to do</h3>
+  <ul>
+    <li>❌ Do NOT attempt to reset bureau passwords on behalf of the client — they must do it themselves</li>
+    <li>❌ Do NOT leave the file sitting without notifying the Dispute Department</li>
+    <li>❌ Do NOT leave a voicemail with the client's account information in it</li>
+    <li>❌ Do NOT mark the request complete until new credentials are confirmed working</li>
+  </ul>
+
+  <h3>Dispute Department Workflow (when logins fail)</h3>
+  <ol>
+    <li>When bureau login fails, go to the client's CS Dashboard file</li>
+    <li>Go to Actions tab → click <strong>🔐 Report Invalid Bureau Login</strong></li>
+    <li>Select the failing bureau(s) and click <strong>Update & Notify</strong> — this creates a [LOGIN ISSUE] note and alerts the CS team</li>
+    <li>CS team will call the client within 2 hours to get updated credentials</li>
+    <li>Once CS sends the updated credentials, you will receive an email notification</li>
+    <li>Update the Bureau Logins tab with the new credentials</li>
+    <li>Resume the dispute process</li>
+  </ol>
+
+  <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;padding:12px;margin-top:12px;">
+    <strong>⏱ SLA:</strong> CS must attempt to reach the client within <strong>2 hours</strong> of receiving a login issue notification. If client cannot be reached after 3 attempts over 24 hours, escalate to Jason.
+  </div>
+</div>
 </body>
 </html>
