@@ -132,21 +132,40 @@ tr:hover td { background:#F1F5F9; }
 </div>
 
 <script>
+var _ttSessions = []; // cached from Supabase
+
+async function loadSessionsFromSupabase() {
+  try {
+    var url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?order=clock_in.desc&limit=200';
+    var r = await fetch(url, {
+      headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var data = await r.json();
+    if (Array.isArray(data)) {
+      _ttSessions = data.map(function(s){
+        return {
+          id: s.id, name: s.employee_name, date: s.date,
+          clockIn: s.clock_in, clockOut: s.clock_out,
+          breakMin: s.break_min||0, auto: true, status: s.status
+        };
+      });
+    }
+  } catch(e) { console.log('Load sessions error:', e); }
+}
+
 function getAllEntries() {
-  var auto = [], manual = [];
-  try { auto = JSON.parse(localStorage.getItem('cp_time_log')||'[]'); } catch(e){}
+  var manual = [];
   try { manual = JSON.parse(localStorage.getItem('cp_time_entries')||'[]'); } catch(e){}
-  // Normalize manual entries to same format
   manual = manual.map(function(e){
     if (e.clockIn && e.clockIn.length <= 5) {
-      // Convert HH:MM to ISO
-      var d = e.date + 'T' + e.clockIn + ':00';
-      var d2 = e.date + 'T' + e.clockOut + ':00';
-      return { id:e.id, name:e.emp, date:e.date, clockIn:d, clockOut:d2, breakMin:e.breakMin||0, auto:false };
+      return { id:e.id, name:e.emp||e.name, date:e.date, clockIn:e.date+'T'+e.clockIn+':00', clockOut:e.date+'T'+e.clockOut+':00', breakMin:e.breakMin||0, auto:false };
     }
-    return e;
+    return { id:e.id, name:e.emp||e.name, date:e.date, clockIn:e.clockIn, clockOut:e.clockOut, breakMin:e.breakMin||0, auto:false };
   });
-  return auto.concat(manual);
+  // Merge Supabase sessions with manual entries
+  var ids = new Set(_ttSessions.map(function(s){return s.id;}));
+  var combined = _ttSessions.concat(manual.filter(function(e){return !ids.has(e.id);}));
+  return combined;
 }
 
 function saveAutoLog(log) { try { localStorage.setItem('cp_time_log', JSON.stringify(log)); } catch(e){} }
