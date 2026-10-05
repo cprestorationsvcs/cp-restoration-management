@@ -294,12 +294,36 @@ function addItem() {
 async function saveChanges() {
   if (!client) return;
   try {
+    // 1. Save to clients.disputes column (for client portal)
     var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(client.id),{
       method:'PATCH',
       headers:Object.assign({'Content-Type':'application/json'},HDR),
       body:JSON.stringify({disputes:JSON.stringify(items),updated_at:new Date().toISOString()})
     });
-    toast(r.ok?'✅ Saved successfully':'❌ Save failed: '+r.status, r.ok?'ok':'err');
+
+    // 2. Also write to disputes table (for Dispute Center log)
+    var removed = items.filter(function(i){return i.status==='removed';}).length;
+    var pending = items.filter(function(i){return i.status==='pending';}).length;
+    var bureauSet = [...new Set(items.map(function(i){return i.bureau;}).filter(Boolean))];
+    var logEntry = {
+      client_id:   client.id,
+      client_name: client.name,
+      client_email:client.email||'',
+      client_phone:client.phone||'',
+      bureaus:     bureauSet.join(','),
+      status:      removed > 0 ? 'Completed' : 'In Progress',
+      notes:       JSON.stringify(items),
+      specialist:  'Dispute Department',
+      next_action: pending > 0 ? pending+' items pending bureau response' : 'All items processed',
+      filed_at:    new Date().toISOString()
+    };
+    await fetch(SUPA+'/disputes',{
+      method:'POST',
+      headers:Object.assign({'Content-Type':'application/json','Prefer':'return=minimal'},HDR),
+      body:JSON.stringify(logEntry)
+    });
+
+    toast(r.ok?'✅ Saved — Dispute Center updated':'❌ Save failed: '+r.status, r.ok?'ok':'err');
   } catch(e){ toast('❌ '+e.message,'err'); }
 }
 
