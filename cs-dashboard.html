@@ -410,6 +410,35 @@ function renderActions(c){
     '</div>';
 }
 
+async function submitLoginIssue(){
+  if(!currentClient) return;
+  var bureaus = [];
+  if(document.getElementById('li-eq')&&document.getElementById('li-eq').checked) bureaus.push('Equifax');
+  if(document.getElementById('li-ex')&&document.getElementById('li-ex').checked) bureaus.push('Experian');
+  if(document.getElementById('li-tu')&&document.getElementById('li-tu').checked) bureaus.push('TransUnion');
+  if(!bureaus.length){toast('Select at least one bureau','err');return;}
+  var notes = document.getElementById('li-notes').value.trim();
+  var tag = '\n[LOGIN ISSUE '+new Date().toLocaleString()+']: Bureau(s) with invalid login: '+bureaus.join(', ')+(notes?' — New credentials: '+notes:'');
+  currentClient.notes = (currentClient.notes||'') + tag;
+  // Save to Supabase
+  await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
+    method:'PATCH',
+    headers:Object.assign({'Content-Type':'application/json'},HDR),
+    body:JSON.stringify({notes:currentClient.notes,updated_at:new Date().toISOString()})
+  });
+  // Send email to dispute dept
+  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      personalizations:[{to:[{email:'jason@mycprteam.com',name:'Dispute Department'}]}],
+      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration CS Team'},
+      subject:'🔐 Invalid Bureau Login — '+currentClient.name+' ('+currentClient.id+')',
+      content:[{type:'text/plain',value:'A CS agent has reported invalid bureau login credentials for the following client:\n\nClient: '+currentClient.name+'\nID: '+currentClient.id+'\nPhone: '+(currentClient.phone||'N/A')+'\nBureau(s) failing: '+bureaus.join(', ')+'\n\n'+(notes?'Updated credentials provided by client:\n'+notes+'\n\n':'No new credentials yet — CS agent is still attempting to reach client.\n\n')+'Please update the Bureau Logins tab in the CS Dashboard and resume the dispute process.\n\nCP Restoration CS Team'}]
+    })
+  });
+  toast('Login issue reported to Dispute Department');
+  showAction('');
+}
+
 async function submitStatusRequest(){
   if(!currentClient) return;
   var reason=document.getElementById('su-reason').value;
