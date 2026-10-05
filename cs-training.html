@@ -581,55 +581,160 @@ function showTab(name) {
 }
 </script>
 
-<div class="section" id="login-protocol">
-  <h2>🔐 Invalid Bureau Login Protocol</h2>
 
-  <div class="alert" style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:8px;padding:14px;margin-bottom:16px;">
-    <strong>When to use this:</strong> The Dispute Department is unable to log into a client's Equifax, Experian, or TransUnion account because the credentials on file are incorrect or outdated.
-  </div>
 
-  <h3>CS Agent Workflow</h3>
+<div class="section">
+  <h2>&#128187; Tools &amp; Systems — Complete Guide</h2>
+  <p>These are all the tools you will use every day. Learn each one before your first shift.</p>
+
+  <h3>Your Daily Workflow — In Order</h3>
   <ol>
-    <li>You will receive a notification or see a [LOGIN ISSUE] tag in the client's notes in the CS Dashboard</li>
-    <li>Open the client's file in the CS Dashboard</li>
-    <li>Go to the <strong>Actions tab</strong> → click <strong>🔐 Report Invalid Bureau Login</strong></li>
-    <li>Check which bureau(s) are failing</li>
-    <li>Call the client using the script below</li>
-    <li>Enter the updated credentials in the text box</li>
-    <li>Click <strong>Update & Notify Dispute Department</strong> — this automatically emails the Dispute Dept with the new credentials</li>
-    <li>Update the Bureau Logins tab on the right panel with the new credentials and click Save</li>
+    <li>Log into <strong>portal-cprestorationsvcs.com/dashboard.html</strong> with your mycprteam.com email and password</li>
+    <li>Open the <strong>CS Dashboard</strong> — clients with unread messages appear at the top with a red dot</li>
+    <li>Work through each unread message — reply, take action, or escalate</li>
+    <li>Check the <strong>Requests Inbox</strong> for any pending status update or refund requests</li>
+    <li>Check your <strong>Priority Reminder Banner</strong> at the top of the Requests Inbox for urgent clients</li>
+    <li>Log out at end of shift — this stops your time tracker</li>
   </ol>
 
-  <h3>Call Script — Invalid Login</h3>
-  <div class="script-box" style="background:#F8FAFC;border-left:4px solid #F59E0B;padding:14px;border-radius:6px;font-style:italic;margin:12px 0;">
-    "Hi, may I speak with [Client Name]? Hi [Client Name], this is [Your Name] calling from CP Restoration Services. Our dispute team is actively working on your credit file today and we need to verify your bureau login credentials to continue processing your disputes. This will only take a minute.<br><br>
-    Can you confirm your username and password for [Equifax / Experian / TransUnion]?<br><br>
-    [For Experian] Great — and do you have your PIN number and the answer to your security question?<br><br>
-    Perfect, thank you so much. Our team will resume working on your file right away. You'll receive a status update within 24 hours. Is there anything else I can help you with today?"
-  </div>
+  <h3>All Portal Pages and What They Do</h3>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;">
+    <tr style="background:#1B3A6B;color:white;">
+      <th style="padding:8px 12px;text-align:left;">Page</th>
+      <th style="padding:8px 12px;text-align:left;">URL</th>
+      <th style="padding:8px 12px;text-align:left;">Used By</th>
+      <th style="padding:8px 12px;text-align:left;">Purpose</th>
+    </tr>
+    <tr style="border-bottom:1px solid #E2E8F0;">
+      <td style="padding:8px 12px;">CS Dashboard</td>
+      <td style="padding:8px 12px;">/cs-dashboard</td>
+      <td style="padding:8px 12px;">CS Agents</td>
+      <td style="padding:8px 12px;">Handle all client messages, submit requests, update bureau logins</td>
+    </tr>
+    <tr style="background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
+      <td style="padding:8px 12px;">Requests Inbox</td>
+      <td style="padding:8px 12px;">/requests-inbox</td>
+      <td style="padding:8px 12px;">CS + Dispute Dept + Queen</td>
+      <td style="padding:8px 12px;">See all pending status update and refund requests</td>
+    </tr>
+    <tr style="border-bottom:1px solid #E2E8F0;">
+      <td style="padding:8px 12px;">Status Update Tool</td>
+      <td style="padding:8px 12px;">/status-update</td>
+      <td style="padding:8px 12px;">Dispute Department</td>
+      <td style="padding:8px 12px;">Mark dispute items deleted or pending, send status emails to clients</td>
+    </tr>
+    <tr style="background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
+      <td style="padding:8px 12px;">Client Manager</td>
+      <td style="padding:8px 12px;">/client-manager</td>
+      <td style="padding:8px 12px;">All Staff</td>
+      <td style="padding:8px 12px;">View and edit all 4,951 client records</td>
+    </tr>
+    <tr style="border-bottom:1px solid #E2E8F0;">
+      <td style="padding:8px 12px;">Dispute Center</td>
+      <td style="padding:8px 12px;">/dispute-center</td>
+      <td style="padding:8px 12px;">Dispute Department</td>
+      <td style="padding:8px 12px;">Log and track all dispute filings across all bureaus</td>
+    </tr>
+    <tr style="background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
+      <td style="padding:8px 12px;">Client Portal</td>
+      <td style="padding:8px 12px;">/client-portal</td>
+      <td style="padding:8px 12px;">Clients only</td>
+      <td style="padding:8px 12px;">Clients view their dispute items, messages, and updates</td>
+    </tr>
+    <tr style="border-bottom:1px solid #E2E8F0;">
+      <td style="padding:8px 12px;">SMS Inbox</td>
+      <td style="padding:8px 12px;">/sms-inbox</td>
+      <td style="padding:8px 12px;">All Staff</td>
+      <td style="padding:8px 12px;">Send and receive SMS messages with clients</td>
+    </tr>
+    <tr style="background:#F8FAFC;">
+      <td style="padding:8px 12px;">Time Tracker</td>
+      <td style="padding:8px 12px;">/time-tracker</td>
+      <td style="padding:8px 12px;">All Staff</td>
+      <td style="padding:8px 12px;">Your hours are tracked automatically — starts on login, pauses on 15min idle</td>
+    </tr>
+  </table>
+</div>
 
-  <h3>What NOT to do</h3>
+<div class="section">
+  <h2>&#9203; Time Tracking — How It Works</h2>
+  <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:8px;padding:14px;margin-bottom:14px;">
+    <strong>Your time is tracked automatically.</strong> You do not need to clock in or out manually.
+  </div>
   <ul>
-    <li>❌ Do NOT attempt to reset bureau passwords on behalf of the client — they must do it themselves</li>
-    <li>❌ Do NOT leave the file sitting without notifying the Dispute Department</li>
-    <li>❌ Do NOT leave a voicemail with the client's account information in it</li>
-    <li>❌ Do NOT mark the request complete until new credentials are confirmed working</li>
+    <li>Time tracking <strong>starts automatically</strong> when you log into the dashboard</li>
+    <li>It <strong>pauses automatically</strong> after 15 minutes of no activity (no mouse movement, no typing, no clicking)</li>
+    <li>It <strong>resumes automatically</strong> when you start working again</li>
+    <li>It <strong>stops</strong> when you click Logout</li>
+    <li>A <strong>🟢 Clocked In</strong> badge appears in the top bar — click it to see your hours for the day</li>
+    <li>When you first log in, your browser will ask you to share your screen — <strong>you must click Share</strong>. This is required for screenshot monitoring</li>
   </ul>
-
-  <h3>Dispute Department Workflow (when logins fail)</h3>
-  <ol>
-    <li>When bureau login fails, go to the client's CS Dashboard file</li>
-    <li>Go to Actions tab → click <strong>🔐 Report Invalid Bureau Login</strong></li>
-    <li>Select the failing bureau(s) and click <strong>Update & Notify</strong> — this creates a [LOGIN ISSUE] note and alerts the CS team</li>
-    <li>CS team will call the client within 2 hours to get updated credentials</li>
-    <li>Once CS sends the updated credentials, you will receive an email notification</li>
-    <li>Update the Bureau Logins tab with the new credentials</li>
-    <li>Resume the dispute process</li>
-  </ol>
-
-  <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;padding:12px;margin-top:12px;">
-    <strong>⏱ SLA:</strong> CS must attempt to reach the client within <strong>2 hours</strong> of receiving a login issue notification. If client cannot be reached after 3 attempts over 24 hours, escalate to Jason.
+  <div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:8px;padding:12px;margin-top:12px;">
+    <strong>⚠️ Important:</strong> Do NOT close the browser or navigate away from the portal during your shift without logging out first. Always use the Logout button at the end of your shift so your hours are recorded correctly.
   </div>
 </div>
+
+<div class="section">
+  <h2>&#128247; Screenshot Monitoring</h2>
+  <p>CP Restoration Services uses automated screenshot monitoring to ensure team members are actively working during their shift.</p>
+  <ul>
+    <li>When you log in, your browser will ask: <em>"Choose what to share"</em></li>
+    <li>Select <strong>Entire Screen</strong> and click <strong>Share</strong></li>
+    <li>Screenshots are taken automatically every 8–12 minutes</li>
+    <li>Screenshots are reviewed by management and include your name and timestamp</li>
+    <li>This is a condition of employment — failure to share your screen will be noted</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>&#128274; Invalid Bureau Login — CS Agent Protocol</h2>
+  <p>When the Dispute Department cannot log into a client's credit bureau account, they will notify CS. Here is exactly what you do:</p>
+  <ol>
+    <li>Open the client's file in the <strong>CS Dashboard</strong></li>
+    <li>Go to the <strong>Actions tab</strong></li>
+    <li>Click <strong>🔐 Report Invalid Bureau Login</strong></li>
+    <li>Check which bureau(s) are failing</li>
+    <li>Call the client using this script:</li>
+  </ol>
+  <div style="background:#FFFBEB;border-left:4px solid #F59E0B;padding:14px;border-radius:6px;font-style:italic;margin:12px 0;">
+    "Hi, may I speak with [Client Name]? Hi [Client Name], this is [Your Name] from CP Restoration Services. Our dispute team is actively working on your credit file today and we need to verify your [bureau] login credentials to continue processing your disputes. Can you confirm your username and password? [For Experian: also your PIN and security question answer?] Thank you — our team will resume working on your file right away and you'll receive a status update within 24 hours."
+  </div>
+  <ol start="6">
+    <li>Enter the updated credentials in the text box</li>
+    <li>Click <strong>Update &amp; Notify Dispute Department</strong></li>
+    <li>Update the Bureau Logins tab on the right panel with the new credentials and click Save</li>
+  </ol>
+  <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;padding:12px;margin-top:12px;">
+    <strong>⏱ SLA:</strong> You must attempt to reach the client within <strong>2 hours</strong> of receiving a login issue. Make 3 attempts over 24 hours. If client cannot be reached after 3 attempts, escalate to Jason at cprestorationsvcs@gmail.com.
+  </div>
+</div>
+
+<div class="section">
+  <h2>&#128176; Refund Request Protocol</h2>
+  <ul>
+    <li>Refunds are <strong>only considered after the service window</strong> — clients sign an agreement confirming this</li>
+    <li>If a client demands a refund, be empathetic but do NOT promise one</li>
+    <li>Use the <strong>Actions tab → Send Refund Request</strong> to submit it to Queen (Compliance)</li>
+    <li>Queen will review and respond within 24 hours</li>
+    <li>The client will be notified automatically by email once Queen approves or denies</li>
+  </ul>
+  <div style="background:#FEE2E2;border:1.5px solid #FECACA;border-radius:8px;padding:12px;margin-top:10px;">
+    <strong>Never tell a client their refund is approved.</strong> Only Queen can approve refunds. Your job is to submit the request and set the expectation that compliance will review within 24 hours.
+  </div>
+</div>
+
+<div class="section">
+  <h2>&#128226; Client Communication Rules</h2>
+  <ul>
+    <li>Always respond to client messages <strong>within 2 hours</strong> during your shift</li>
+    <li>Never read back a client's Social Security Number — verify identity another way</li>
+    <li>Never make promises about credit score improvements or specific deletion timelines</li>
+    <li>Never discuss another client's file with anyone</li>
+    <li>All sensitive client information is confidential — do not share outside the portal</li>
+    <li>If a client mentions a lawsuit, attorney, or government agency — immediately escalate to Jason</li>
+    <li>If a client mentions Jacob Prado or any former employee who contacted them — immediately escalate to Jason</li>
+  </ul>
+</div>
+
 </body>
 </html>
