@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CP Restoration Services — Employee Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;}
+.hdr{background:#1B3A6B;padding:16px 24px;display:flex;align-items:center;gap:16px;}
+.hdr h1{color:white;font-size:18px;font-weight:800;}
+.hdr p{color:rgba(255,255,255,0.7);font-size:12px;margin-top:2px;}
+.container{max-width:720px;margin:32px auto;padding:0 20px 60px;}
+.card{background:white;border-radius:14px;border:1.5px solid #E2E8F0;padding:28px;margin-bottom:24px;}
+.card h2{font-size:16px;font-weight:800;color:#1B3A6B;margin-bottom:6px;}
+.card p{font-size:13px;color:#64748B;margin-bottom:16px;}
+.step-badge{display:inline-block;background:#1B3A6B;color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.frow.single{grid-template-columns:1fr;}
+label{font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px;}
+input,select,textarea{width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;transition:border 0.2s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1B3A6B;}
+textarea{min-height:80px;resize:none;}
+.check-group{display:flex;flex-direction:column;gap:8px;}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;cursor:pointer;transition:border 0.2s;}
+.check-item:hover{border-color:#1B3A6B;}
+.check-item input[type=checkbox]{margin-top:1px;width:16px;height:16px;accent-color:#1B3A6B;flex-shrink:0;}
+.check-item label{font-size:13px;font-weight:500;color:#1E293B;cursor:pointer;margin:0;}
+.check-item small{font-size:11px;color:#64748B;display:block;margin-top:2px;}
+.policy-box{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:8px;padding:16px;font-size:12px;color:#475569;line-height:1.7;max-height:200px;overflow-y:auto;margin-bottom:12px;}
+.policy-box h4{font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;}
+.btn{width:100%;padding:14px;background:#1B3A6B;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;}
+.btn:hover{background:#0f2548;}
+.btn:disabled{background:#94A3B8;cursor:not-allowed;}
+.progress{display:flex;gap:8px;margin-bottom:28px;}
+.progress-step{flex:1;height:6px;border-radius:3px;background:#E2E8F0;}
+.progress-step.done{background:#1B3A6B;}
+.progress-step.active{background:#C9A84C;}
+.alert{background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:8px;padding:12px 16px;font-size:12px;color:#92400E;margin-bottom:16px;}
+.success{text-align:center;padding:40px 20px;}
+.success .icon{font-size:64px;margin-bottom:16px;}
+.success h2{font-size:24px;font-weight:800;color:#1B3A6B;margin-bottom:8px;}
+.success p{font-size:14px;color:#64748B;margin-bottom:24px;}
+.next-steps{background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:10px;padding:20px;text-align:left;}
+.next-steps h3{font-size:14px;font-weight:700;color:#166534;margin-bottom:12px;}
+.next-steps ol{padding-left:18px;font-size:13px;color:#1E293B;line-height:2;}
+.next-steps a{color:#1B3A6B;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div>
+    <h1>&#127775; CP Restoration Services — Employee Onboarding</h1>
+    <p>Complete all steps before your first shift on Tuesday, October 6th at 9:00 AM EST</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="progress" id="progress-bar">
+    <div class="progress-step active" id="ps1"></div>
+    <div class="progress-step" id="ps2"></div>
+    <div class="progress-step" id="ps3"></div>
+    <div class="progress-step" id="ps4"></div>
+  </div>
+
+  <!-- STEP 1: Personal Info -->
+  <div id="step1" class="card">
+    <div class="step-badge">Step 1 of 4</div>
+    <h2>Personal Information</h2>
+    <p>Please complete your basic information below.</p>
+    <div class="frow">
+      <div><label>First Name *</label><input id="s1-fname" placeholder="First name"></div>
+      <div><label>Last Name *</label><input id="s1-lname" placeholder="Last name"></div>
+    </div>
+    <div class="frow">
+      <div><label>Personal Email *</label><input id="s1-email" type="email" placeholder="your@gmail.com"></div>
+      <div><label>Work Email (mycprteam.com) *</label><input id="s1-work-email" placeholder="you@mycprteam.com"></div>
+    </div>
+    <div class="frow">
+      <div><label>Phone Number *</label><input id="s1-phone" placeholder="+1 (000) 000-0000"></div>
+      <div><label>Country / Time Zone *</label><input id="s1-timezone" placeholder="e.g. Philippines / EST"></div>
+    </div>
+    <div class="frow single">
+      <div><label>Home Address *</label><input id="s1-address" placeholder="Full address"></div>
+    </div>
+    <div class="frow">
+      <div><label>Emergency Contact Name *</label><input id="s1-ec-name" placeholder="Full name"></div>
+      <div><label>Emergency Contact Phone *</label><input id="s1-ec-phone" placeholder="+1 (000) 000-0000"></div>
+    </div>
+    <button class="btn" onclick="nextStep(1)">Continue →</button>
+  </div>
+
+  <!-- STEP 2: Work Setup -->
+  <div id="step2" class="card" style="display:none;">
+    <div class="step-badge">Step 2 of 4</div>
+    <h2>Work From Home Setup</h2>
+    <p>Confirm your remote work setup meets our requirements.</p>
+    <div class="alert">All CS Agents must have a professional home office setup. Please confirm each item below.</div>
+    <div class="check-group">
+      <label class="check-item"><input type="checkbox" id="c1"><div><label for="c1">Quiet, private workspace</label><small>No background noise, children, pets, or distractions during shift hours</small></div></label>
+      <label class="check-item"><input type="checkbox" id="c2"><div><label for="c2">Reliable high-speed internet</label><small>Minimum 10 Mbps download, stable connection — not mobile hotspot</small></div></label>
+      <label class="check-item"><input type="checkbox" id="c3"><div><label for="c3">Working computer or laptop</label><small>Windows or Mac with updated browser (Chrome preferred)</small></div></label>
+      <label class="check-item"><input type="checkbox" id="c4"><div><label for="c4">Headset or microphone with clear audio</label><small>Clients must be able to hear you clearly on calls</small></div></label>
+      <label class="check-item"><input type="checkbox" id="c5"><div><label for="c5">Webcam (optional but preferred)</label><small>For team meetings and training sessions</small></div></label>
+      <label class="check-item"><input type="checkbox" id="c6"><div><label for="c6">Available Monday–Friday 9:00 AM – 5:00 PM EST</label><small>This is a full-time position during these hours</small></div></label>
+    </div>
+    <div style="margin-top:16px;">
+      <label>Internet Speed (Mbps) *</label>
+      <input id="s2-speed" placeholder="e.g. 50 Mbps — run a speed test at fast.com">
+    </div>
+    <button class="btn" onclick="nextStep(2)" style="margin-top:16px;">Continue →</button>
+  </div>
+
+  <!-- STEP 3: Policies -->
+  <div id="step3" class="card" style="display:none;">
+    <div class="step-badge">Step 3 of 4</div>
+    <h2>Company Policies & Agreements</h2>
+    <p>Please read and acknowledge each policy before continuing.</p>
+
+    <div style="margin-bottom:20px;">
+      <label style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;display:block;">Confidentiality & Data Privacy Policy</label>
+      <div class="policy-box">
+        <h4>Client Data Confidentiality</h4>
+        All client information including names, Social Security Numbers, credit report data, financial information, and account details are strictly confidential. You may not share, screenshot, copy, or discuss any client information outside of the CP Restoration Services portal or with anyone not employed by CP Restoration Services. Violation of this policy is grounds for immediate termination and may result in legal action.<br><br>
+        <h4>Portal & System Security</h4>
+        You are responsible for keeping your portal login credentials secure. Do not share your username or password with anyone. Do not access the portal from public Wi-Fi without a VPN. Report any suspected unauthorized access immediately to Jason Crown at cprestorationsvcs@gmail.com.<br><br>
+        <h4>Screenshot Monitoring</h4>
+        By accepting employment, you consent to automated screenshot monitoring during your shift hours. Screenshots are taken every 8-12 minutes while you are logged into the dashboard. Screenshots are reviewed by management to verify active work during paid hours. Failure to share your screen when prompted is a policy violation.
+      </div>
+      <label class="check-item"><input type="checkbox" id="p1"><div><label for="p1">I have read and agree to the Confidentiality & Data Privacy Policy</label></div></label>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;display:block;">Code of Conduct</label>
+      <div class="policy-box">
+        <h4>Professional Standards</h4>
+        All CP Restoration Services team members are expected to maintain the highest level of professionalism in all client interactions. This includes being respectful, patient, and empathetic at all times. You may not make promises about credit score improvements, deletion timelines, or refunds without authorization.<br><br>
+        <h4>Communication Standards</h4>
+        All client communication must go through the official CP Restoration Services portal. You may not communicate with clients via personal email, phone, or social media. Any attempt to solicit clients for personal gain is grounds for immediate termination.<br><br>
+        <h4>Attendance & Punctuality</h4>
+        You are expected to be logged into the portal and ready to work at 9:00 AM EST Monday through Friday. Repeated tardiness or unexplained absences will result in disciplinary action. You must notify your supervisor at least 2 hours before your shift if you will be absent.
+      </div>
+      <label class="check-item"><input type="checkbox" id="p2"><div><label for="p2">I have read and agree to the Code of Conduct</label></div></label>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;display:block;">Compensation Agreement</label>
+      <div class="policy-box">
+        <h4>Pay Rate & Schedule</h4>
+        Compensation is $100.00 USD per week, paid on a weekly basis on Fridays via the payment method on file. Pay is based on a standard 40-hour work week (Monday–Friday, 9:00 AM – 5:00 PM EST). Time is tracked automatically via the portal dashboard. The first pay date is Friday, October 10, 2026.<br><br>
+        <h4>Performance Reviews</h4>
+        Performance reviews are conducted monthly. Pay increases and advancement opportunities are based on performance metrics including client satisfaction, response time, and attendance. Agents who consistently perform above expectations will be considered for additional responsibilities and compensation.
+      </div>
+      <label class="check-item"><input type="checkbox" id="p3"><div><label for="p3">I have read and agree to the Compensation Agreement</label></div></label>
+    </div>
+
+    <button class="btn" onclick="nextStep(3)">Continue →</button>
+  </div>
+
+  <!-- STEP 4: Payment & Final -->
+  <div id="step4" class="card" style="display:none;">
+    <div class="step-badge">Step 4 of 4</div>
+    <h2>Payment Information & Final Confirmation</h2>
+    <p>Provide your payment details for weekly payroll processing.</p>
+
+    <div class="frow single" style="margin-bottom:14px;">
+      <div>
+        <label>Preferred Payment Method *</label>
+        <select id="s4-payment-method" onchange="togglePayment()">
+          <option value="">Select payment method</option>
+          <option value="zelle">Zelle</option>
+          <option value="paypal">PayPal</option>
+          <option value="wise">Wise (TransferWise)</option>
+          <option value="cashapp">Cash App</option>
+          <option value="bank">Bank Transfer (ACH)</option>
+        </select>
+      </div>
+    </div>
+    <div id="payment-details">
+      <div class="frow single">
+        <div><label id="payment-label">Payment Account / Email *</label><input id="s4-payment-info" placeholder="Enter your payment account details"></div>
+      </div>
+    </div>
+
+    <div style="margin:20px 0 14px;">
+      <label style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;display:block;">How did you hear about us?</label>
+      <select id="s4-source">
+        <option value="">Select one</option>
+        <option value="onlinejobs">OnlineJobs.ph</option>
+        <option value="facebook">Facebook</option>
+        <option value="email">Email / Job Posting</option>
+        <option value="referral">Referral</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="frow single">
+      <div><label>Any questions or comments before you start?</label><textarea id="s4-comments" placeholder="Optional — any questions for management?"></textarea></div>
+    </div>
+
+    <div style="margin:16px 0;">
+      <label class="check-item"><input type="checkbox" id="final-confirm"><div><label for="final-confirm">I confirm that all information I have provided is accurate and complete, and I agree to all CP Restoration Services policies and terms of employment.</label></div></label>
+    </div>
+
+    <button class="btn" onclick="submitOnboarding()" id="submit-btn">✅ Complete Onboarding</button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success-screen" style="display:none;" class="card success">
+    <div class="icon">🎉</div>
+    <h2>Onboarding Complete!</h2>
+    <p>Welcome to the CP Restoration Services team. Your information has been submitted successfully.</p>
+    <div class="next-steps">
+      <h3>✅ Your Next Steps</h3>
+      <ol>
+        <li>Read the full <a href="/cs-training.html" target="_blank">CS Training Guide</a></li>
+        <li>Log into the <a href="/dashboard.html" target="_blank">Team Dashboard</a> with your mycprteam.com email</li>
+        <li>Be ready at <strong>9:00 AM EST on Tuesday, October 6th</strong> for your first shift</li>
+        <li>Questions? Email <strong>cprestorationsvcs@gmail.com</strong></li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<script>
+var formData = {};
+var currentStep = 1;
+
+function updateProgress(step) {
+  for (var i=1;i<=4;i++) {
+    var el = document.getElementById('ps'+i);
+    if (i < step) { el.className='progress-step done'; }
+    else if (i === step) { el.className='progress-step active'; }
+    else { el.className='progress-step'; }
+  }
+}
+
+function nextStep(from) {
+  if (from === 1) {
+    var fname = document.getElementById('s1-fname').value.trim();
+    var lname = document.getElementById('s1-lname').value.trim();
+    var email = document.getElementById('s1-email').value.trim();
+    var wemail = document.getElementById('s1-work-email').value.trim();
+    var phone = document.getElementById('s1-phone').value.trim();
+    var tz = document.getElementById('s1-timezone').value.trim();
+    if (!fname||!lname||!email||!wemail||!phone||!tz) { alert('Please complete all required fields.'); return; }
+    formData.firstName=fname; formData.lastName=lname; formData.email=email;
+    formData.workEmail=wemail; formData.phone=phone; formData.timezone=tz;
+    formData.address=document.getElementById('s1-address').value.trim();
+    formData.ecName=document.getElementById('s1-ec-name').value.trim();
+    formData.ecPhone=document.getElementById('s1-ec-phone').value.trim();
+  }
+  if (from === 2) {
+    var checks = ['c1','c2','c3','c4','c6'];
+    for (var i=0;i<checks.length;i++) {
+      if (!document.getElementById(checks[i]).checked) { alert('Please confirm all required setup items.'); return; }
+    }
+    formData.internetSpeed = document.getElementById('s2-speed').value.trim();
+    if (!formData.internetSpeed) { alert('Please enter your internet speed.'); return; }
+  }
+  if (from === 3) {
+    if (!document.getElementById('p1').checked||!document.getElementById('p2').checked||!document.getElementById('p3').checked) {
+      alert('Please read and acknowledge all policies before continuing.'); return;
+    }
+  }
+  document.getElementById('step'+from).style.display='none';
+  document.getElementById('step'+(from+1)).style.display='block';
+  currentStep = from+1;
+  updateProgress(currentStep);
+  window.scrollTo(0,0);
+}
+
+function togglePayment() {
+  var method = document.getElementById('s4-payment-method').value;
+  var labels = { zelle:'Zelle Email or Phone', paypal:'PayPal Email', wise:'Wise Email', cashapp:'Cash App $Tag', bank:'Bank Name, Account Number, Routing Number' };
+  if (labels[method]) document.getElementById('payment-label').textContent = labels[method]+' *';
+}
+
+async function submitOnboarding() {
+  var method = document.getElementById('s4-payment-method').value;
+  var info = document.getElementById('s4-payment-info').value.trim();
+  var confirmed = document.getElementById('final-confirm').checked;
+  if (!method||!info) { alert('Please provide your payment information.'); return; }
+  if (!confirmed) { alert('Please confirm your agreement to all policies.'); return; }
+
+  formData.paymentMethod = method;
+  formData.paymentInfo = info;
+  formData.source = document.getElementById('s4-source').value;
+  formData.comments = document.getElementById('s4-comments').value.trim();
+  formData.submittedAt = new Date().toISOString();
+
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
+  // Save to Supabase
+  try {
+    var K = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
+    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding', {
+      method:'POST',
+      headers:{'apikey':K,'Authorization':'Bearer '+K,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify(formData)
+    });
+  } catch(e) { console.log('Save error:', e); }
+
+  // Show success
+  document.getElementById('step4').style.display='none';
+  document.getElementById('success-screen').style.display='block';
+  updateProgress(5);
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
