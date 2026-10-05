@@ -294,7 +294,26 @@ function addItem() {
 async function saveChanges() {
   if (!client) return;
   try {
-    // 1. Save to clients.disputes column (for client portal)
+    // Fetch latest from Supabase first to avoid overwriting other changes
+    var latestResp = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(client.id)+'&select=disputes',{headers:HDR});
+    var latestData = await latestResp.json();
+    var existingItems = [];
+    if (Array.isArray(latestData) && latestData[0] && latestData[0].disputes) {
+      try {
+        var ex = typeof latestData[0].disputes==='string' ? JSON.parse(latestData[0].disputes) : latestData[0].disputes;
+        if (Array.isArray(ex)) existingItems = ex;
+      } catch(e) {}
+    }
+    // Merge: current items override existing ones by name+bureau, new items are added
+    var merged = [...items];
+    existingItems.forEach(function(ex) {
+      var found = merged.find(function(i){ return i.name===ex.name && i.bureau===ex.bureau; });
+      if (!found) merged.push(ex);
+    });
+    items = merged;
+    render();
+
+    // 1. Save merged array to clients.disputes column (for client portal)
     var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(client.id),{
       method:'PATCH',
       headers:Object.assign({'Content-Type':'application/json'},HDR),
