@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HR — Employee Onboarding | CP Restoration</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#F8FAFC;color:#1E293B;}
+header{background:#1B3A6B;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+header h1{color:white;font-size:18px;font-weight:800;}
+header a{color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;}
+.container{max-width:1100px;margin:24px auto;padding:0 20px;}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
+.stat{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:16px;text-align:center;}
+.stat .val{font-size:32px;font-weight:800;color:#1B3A6B;}
+.stat .lbl{font-size:11px;color:#64748B;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;}
+.card{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:20px;margin-bottom:20px;}
+.card h2{font-size:15px;font-weight:700;color:#1B3A6B;margin-bottom:16px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#1B3A6B;color:white;padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;}
+td{padding:10px 12px;border-bottom:1px solid #E2E8F0;vertical-align:top;}
+tr:hover td{background:#F1F5F9;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-gold{background:#FEF9C3;color:#854D0E;}
+.detail-btn{padding:4px 10px;background:#1B3A6B;color:white;border:none;border-radius:5px;font-size:11px;cursor:pointer;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;display:flex;align-items:center;justify-content:center;}
+.modal-box{background:white;border-radius:14px;padding:28px;max-width:600px;width:90%;max-height:85vh;overflow-y:auto;}
+.modal-box h2{font-size:16px;font-weight:800;color:#1B3A6B;margin-bottom:16px;}
+.field{margin-bottom:10px;font-size:13px;}
+.field label{font-weight:600;color:#475569;display:block;font-size:11px;margin-bottom:2px;}
+.field span{color:#1E293B;}
+.close-btn{margin-top:16px;padding:8px 20px;background:#1B3A6B;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:600;}
+</style>
+</head>
+<body>
+<header>
+  <h1>&#128101; HR — Employee Onboarding Submissions</h1>
+  <a href="/dashboard.html">← Back to Dashboard</a>
+</header>
+<div class="container">
+  <div class="summary" id="summary"></div>
+  <div class="card">
+    <h2>&#128203; All Submissions</h2>
+    <table>
+      <thead><tr><th>Name</th><th>Work Email</th><th>Phone</th><th>Timezone</th><th>Payment</th><th>Submitted</th><th></th></tr></thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+</div>
+<div id="modal" style="display:none;" class="modal" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h2 id="m-name"></h2>
+    <div id="m-body"></div>
+    <button class="close-btn" onclick="closeModal()">Close</button>
+  </div>
+</div>
+<script>
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var allData = [];
+
+async function load() {
+  try {
+    var r = await fetch(SUPA+'/employee_onboarding?order=submittedAt.desc', {
+      headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
+    });
+    allData = await r.json();
+    if (!Array.isArray(allData)) { allData = []; }
+    render();
+  } catch(e) {
+    document.getElementById('tbl-body').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:#64748B;">Error loading data: '+e.message+'</td></tr>';
+  }
+}
+
+function render() {
+  // Summary
+  document.getElementById('summary').innerHTML =
+    '<div class="stat"><div class="val">'+allData.length+'</div><div class="lbl">Total Submissions</div></div>'+
+    '<div class="stat"><div class="val" style="color:#166534;">'+allData.filter(function(d){return d.workEmail;}).length+'</div><div class="lbl">With Work Email</div></div>'+
+    '<div class="stat"><div class="val" style="color:#C9A84C;">'+allData.filter(function(d){return d.paymentMethod;}).length+'</div><div class="lbl">Payment On File</div></div>';
+
+  // Table
+  if (!allData.length) {
+    document.getElementById('tbl-body').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#64748B;">No submissions yet.</td></tr>';
+    return;
+  }
+  document.getElementById('tbl-body').innerHTML = allData.map(function(d,i) {
+    var name = (d.firstName||'') + ' ' + (d.lastName||'');
+    var ts = '';
+    try { ts = new Date(d.submittedAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); } catch(e){}
+    return '<tr>'+
+      '<td><strong>'+name.trim()+'</strong></td>'+
+      '<td>'+(d.workEmail||'—')+'</td>'+
+      '<td>'+(d.phone||'—')+'</td>'+
+      '<td>'+(d.timezone||'—')+'</td>'+
+      '<td><span class="badge badge-'+(d.paymentMethod?'green':'gold')+'">'+((d.paymentMethod||'Not provided'))+'</span></td>'+
+      '<td>'+ts+'</td>'+
+      '<td><button class="detail-btn" onclick="showDetail('+i+')">View</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function showDetail(i) {
+  var d = allData[i];
+  document.getElementById('m-name').textContent = (d.firstName||'') + ' ' + (d.lastName||'');
+  document.getElementById('m-body').innerHTML =
+    field('Work Email', d.workEmail) +
+    field('Personal Email', d.email) +
+    field('Phone', d.phone) +
+    field('Timezone', d.timezone) +
+    field('Address', d.address) +
+    field('Emergency Contact', (d.ecName||'') + ' — ' + (d.ecPhone||'')) +
+    field('Internet Speed', d.internetSpeed) +
+    field('Payment Method', d.paymentMethod) +
+    field('Payment Info', d.paymentInfo) +
+    field('How They Found Us', d.source) +
+    field('Comments', d.comments) +
+    field('Submitted', d.submittedAt ? new Date(d.submittedAt).toLocaleString() : '—');
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function field(label, val) {
+  return '<div class="field"><label>'+label+'</label><span>'+(val||'—')+'</span></div>';
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+
+load();
+</script>
+</body>
+</html>
