@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Phone System — CP Restoration</title>
+<title>Phone System - CP Restoration</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1E293B;}
@@ -20,8 +20,7 @@ header a{color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;}
 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 .dot.green{background:#22C55E;}
 .dot.red{background:#EF4444;}
-.dot.yellow{background:#F59E0B;animation:pulse 1s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.dot.yellow{background:#F59E0B;}
 label{font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px;}
 input,textarea{width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:12px;}
 .btn{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
@@ -42,30 +41,36 @@ input,textarea{width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-ra
 .badge-green{background:#DCFCE7;color:#166534;}
 .badge-red{background:#FEE2E2;color:#8B1A1A;}
 .badge-blue{background:#DBEAFE;color:#1E40AF;}
-.debug-box{background:#1E293B;color:#94A3B8;font-family:monospace;font-size:11px;padding:10px;border-radius:6px;margin-top:8px;max-height:100px;overflow-y:auto;}
+.info-box{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:8px;padding:12px 16px;font-size:12px;color:#1E40AF;margin-bottom:16px;line-height:1.6;}
 </style>
 </head>
 <body>
 <header>
-  <h1>&#128222; CP Restoration — Phone System (RingCentral)</h1>
-  <a href="/dashboard.html">← Dashboard</a>
+  <h1>&#128222; CP Restoration &mdash; Phone System (RingCentral)</h1>
+  <a href="/dashboard.html">&larr; Dashboard</a>
 </header>
 <div class="container">
+
   <div class="status-bar yellow" id="status-bar">
     <div class="dot yellow" id="status-dot"></div>
-    <span id="status-text">Connecting to RingCentral...</span>
+    <span id="status-text">Not connected</span>
   </div>
 
-  <!-- Manual login fallback -->
-  <div id="login-section" class="card" style="display:none;max-width:460px;margin:0 auto 20px;">
-    <h2>&#128274; Manual Login</h2>
-    <label>RingCentral Email</label>
-    <input type="email" id="rc-user" value="crownitstaffingandrecruiting@gmail.com">
-    <label>Password</label>
-    <input type="password" id="rc-pass">
-    <button class="btn btn-navy" style="width:100%;padding:12px;" id="connect-btn" onclick="rcConnect()">&#128222; Connect</button>
+  <!-- JWT Login -->
+  <div id="login-section" class="card" style="max-width:500px;margin:0 auto 20px;">
+    <h2>&#128274; Connect to RingCentral</h2>
+    <div class="info-box">
+      <strong>How to get your JWT token:</strong><br>
+      1. Go to <strong>developers.ringcentral.com</strong><br>
+      2. Click your app (Client ID: 9XxWlKzJPckcCLW1TWZ0YO)<br>
+      3. Go to <strong>Credentials</strong> tab<br>
+      4. Click <strong>Create JWT</strong><br>
+      5. Copy the JWT token and paste it below
+    </div>
+    <label>JWT Token</label>
+    <textarea id="rc-jwt" placeholder="Paste your RingCentral JWT token here..." style="min-height:80px;font-family:monospace;font-size:11px;"></textarea>
+    <button class="btn btn-navy" style="width:100%;padding:12px;font-size:14px;" id="connect-btn" onclick="rcConnect()">&#128222; Connect to RingCentral</button>
     <div id="login-msg" style="margin-top:10px;font-size:13px;text-align:center;min-height:20px;color:#8B1A1A;"></div>
-    <div class="debug-box" id="debug-log">Debug log:</div>
   </div>
 
   <!-- Phone UI -->
@@ -96,10 +101,11 @@ input,textarea{width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-ra
         <button class="call-btn btn-red" id="hangup-btn" style="display:none;" onclick="hangUp()">&#128308; End Call</button>
         <div id="call-status" style="text-align:center;font-size:12px;color:#64748B;margin-top:8px;min-height:18px;"></div>
       </div>
+
       <div class="card">
-        <h2>&#9889; Quick Dial & SMS</h2>
-        <button onclick="setNum('+18553275847')" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;text-align:left;background:white;cursor:pointer;font-size:13px;margin-bottom:6px;">&#128241; CP Main — 1-855-327-5847</button>
-        <button onclick="setNum('+12407883555')" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;text-align:left;background:white;cursor:pointer;font-size:13px;margin-bottom:16px;">&#128222; RC Line — (240) 788-3555</button>
+        <h2>&#9889; Quick Dial &amp; SMS</h2>
+        <button onclick="setNum('+18553275847')" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;text-align:left;background:white;cursor:pointer;font-size:13px;margin-bottom:6px;">&#128241; CP Main &mdash; 1-855-327-5847</button>
+        <button onclick="setNum('+12407883555')" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;text-align:left;background:white;cursor:pointer;font-size:13px;margin-bottom:16px;">&#128222; RC Line &mdash; (240) 788-3555</button>
         <div style="border-top:1px solid #E2E8F0;padding-top:14px;">
           <label>Send SMS</label>
           <input type="tel" id="sms-to" placeholder="To: phone number">
@@ -109,6 +115,7 @@ input,textarea{width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-ra
         </div>
       </div>
     </div>
+
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <h2 style="margin:0;">&#128203; Recent Calls</h2>
@@ -117,72 +124,56 @@ input,textarea{width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-ra
       <div id="call-log-body"><div style="text-align:center;padding:20px;color:#94A3B8;">Loading...</div></div>
     </div>
   </div>
-</div>
 
+</div>
 <script>
 var RC_FROM = '+12407883555';
 var PROXY = '/.netlify/functions/rc-proxy';
 var accessToken = null;
-var debugLines = [];
 
-function dbg(msg) {
-  debugLines.push(new Date().toLocaleTimeString() + ': ' + msg);
-  var el = document.getElementById('debug-log');
-  if (el) el.textContent = debugLines.slice(-8).join('\n');
-  console.log('[RC]', msg);
-}
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  var n = p.get('number');
+  if (n) document.getElementById('dial-num').value = n;
+})();
 
 function setStatus(text, color) {
   document.getElementById('status-bar').className = 'status-bar ' + color;
   document.getElementById('status-dot').className = 'dot ' + color;
   document.getElementById('status-text').textContent = text;
 }
-
 function dp(d) { document.getElementById('dial-num').value += d; }
 function setNum(n) { document.getElementById('dial-num').value = n; }
 
-async function rcConnect(user, pass) {
-  user = user || (document.getElementById('rc-user') && document.getElementById('rc-user').value.trim()) || 'crownitstaffingandrecruiting@gmail.com';
-  pass = pass || (document.getElementById('rc-pass') && document.getElementById('rc-pass').value.trim()) || '';
-  
-  dbg('Connecting as: ' + user);
-  setStatus('Connecting to RingCentral...', 'yellow');
-
-  var loginMsg = document.getElementById('login-msg');
+async function rcConnect() {
+  var jwt = document.getElementById('rc-jwt').value.trim();
+  var msg = document.getElementById('login-msg');
   var btn = document.getElementById('connect-btn');
-  if (btn) { btn.textContent = 'Connecting...'; btn.disabled = true; }
-
+  if (!jwt) { msg.textContent = 'Please paste your JWT token.'; return; }
+  btn.textContent = 'Connecting...'; btn.disabled = true;
+  msg.textContent = ''; setStatus('Connecting...', 'yellow');
   try {
-    dbg('Calling proxy: ' + PROXY);
     var resp = await fetch(PROXY, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ action: 'auth', username: user, password: pass, extension: '' })
+      body: JSON.stringify({ action: 'jwt', jwt: jwt })
     });
-    
-    dbg('Proxy response status: ' + resp.status);
-    var text = await resp.text();
-    dbg('Response: ' + text.substring(0, 100));
-    
-    var data;
-    try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid response: ' + text.substring(0,100)); }
-    
+    var data = await resp.json();
     if (data.access_token) {
       accessToken = data.access_token;
+      localStorage.setItem('rc_token', accessToken);
+      localStorage.setItem('rc_token_exp', String(Date.now() + (data.expires_in * 1000)));
       document.getElementById('login-section').style.display = 'none';
       document.getElementById('phone-ui').style.display = 'block';
-      setStatus('✅ Connected — RingCentral Ready (+12407883555)', 'green');
-      dbg('Connected! Token received.');
+      setStatus('Connected - RingCentral Ready', 'green');
       loadCallLog();
     } else {
-      throw new Error(data.error_description || data.message || 'Auth failed: ' + JSON.stringify(data).substring(0,100));
+      throw new Error(data.error_description || data.message || JSON.stringify(data).substring(0,150));
     }
   } catch(e) {
-    dbg('Error: ' + e.message);
-    setStatus('Connection failed — see login form', 'red');
-    document.getElementById('login-section').style.display = 'block';
-    if (loginMsg) { loginMsg.textContent = '❌ ' + e.message; }
-    if (btn) { btn.textContent = '📞 Connect'; btn.disabled = false; }
+    msg.textContent = 'Error: ' + e.message;
+    setStatus('Connection failed', 'red');
+    btn.textContent = 'Connect to RingCentral'; btn.disabled = false;
   }
 }
 
@@ -190,7 +181,7 @@ async function apiCall(method, path, body) {
   var resp = await fetch(PROXY, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ action: 'api', accessToken, method, path, reqBody: body })
+    body: JSON.stringify({ action: 'api', accessToken: accessToken, method: method, path: path, reqBody: body })
   });
   return resp.json();
 }
@@ -208,14 +199,14 @@ async function makeCall() {
       from: {phoneNumber: RC_FROM}, to: {phoneNumber: num}, playPrompt: true
     });
     if (data && data.id) {
-      document.getElementById('call-status').textContent = '📞 Your phone will ring first, then connect to ' + num;
+      document.getElementById('call-status').textContent = 'Your phone will ring first, then connect to ' + num;
       setStatus('On call with ' + num, 'yellow');
     } else throw new Error((data && data.message) || 'Call failed');
   } catch(e) {
-    document.getElementById('call-status').textContent = '❌ ' + e.message;
+    document.getElementById('call-status').textContent = 'Error: ' + e.message;
     document.getElementById('call-btn').style.display = 'block';
     document.getElementById('hangup-btn').style.display = 'none';
-    setStatus('Connected — Ready', 'green');
+    setStatus('Connected - Ready', 'green');
   }
 }
 
@@ -223,27 +214,27 @@ function hangUp() {
   document.getElementById('call-btn').style.display = 'block';
   document.getElementById('hangup-btn').style.display = 'none';
   document.getElementById('call-status').textContent = 'Call ended.';
-  setStatus('Connected — Ready', 'green');
+  setStatus('Connected - Ready', 'green');
   setTimeout(function(){ document.getElementById('call-status').textContent = ''; }, 3000);
   loadCallLog();
 }
 
 async function sendSMS() {
-  var to = document.getElementById('sms-to').value.replace(/[^0-9+]/g,'');
+  var to = document.getElementById('sms-to').value.replace(/[^0-9+]/g, '');
   var body = document.getElementById('sms-body').value.trim();
   var stat = document.getElementById('sms-status');
   if (!to || !body) { stat.style.color='#8B1A1A'; stat.textContent='Enter number and message.'; return; }
   if (!to.startsWith('+')) to = '+1' + to;
-  stat.style.color = '#64748B'; stat.textContent = 'Sending...';
+  stat.style.color='#64748B'; stat.textContent='Sending...';
   try {
     var data = await apiCall('POST', '/restapi/v1.0/account/~/extension/~/sms', {
       from: {phoneNumber: RC_FROM}, to: [{phoneNumber: to}], text: body
     });
     if (data && data.id) {
-      stat.style.color = '#166534'; stat.textContent = '✅ SMS sent!';
+      stat.style.color='#166534'; stat.textContent='SMS sent!';
       document.getElementById('sms-body').value = '';
     } else throw new Error((data && data.message) || 'Failed');
-  } catch(e) { stat.style.color = '#8B1A1A'; stat.textContent = '❌ ' + e.message; }
+  } catch(e) { stat.style.color='#8B1A1A'; stat.textContent='Error: ' + e.message; }
 }
 
 async function loadCallLog() {
@@ -260,22 +251,27 @@ async function loadCallLog() {
       var ts = c.startTime ? new Date(c.startTime).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
       var dur = c.duration ? Math.floor(c.duration/60)+'m '+(c.duration%60)+'s' : '';
       var badge = missed ? '<span class="badge badge-red">Missed</span>' : inbound ? '<span class="badge badge-green">'+dur+'</span>' : '<span class="badge badge-blue">'+dur+'</span>';
-      return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1F5F9;">'+
-        '<div style="width:34px;height:34px;border-radius:50%;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">'+icon+'</div>'+
-        '<div style="flex:1;"><div style="font-size:13px;font-weight:600;">'+name+'</div><div style="font-size:11px;color:#64748B;">'+num+' &middot; '+ts+'</div></div>'+
-        badge+(num?'<button onclick="setNum(''+num+'')" class="btn btn-gray" style="margin-left:8px;padding:4px 10px;font-size:11px;">Call Back</button>':'')+
-      '</div>';
+      var cbBtn = num ? '<button onclick="setNum(\'' + num + '\')" class="btn btn-gray" style="margin-left:8px;padding:4px 10px;font-size:11px;">Call Back</button>' : '';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1F5F9;">' +
+        '<div style="width:34px;height:34px;border-radius:50%;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">'+icon+'</div>' +
+        '<div style="flex:1;"><div style="font-size:13px;font-weight:600;">'+name+'</div><div style="font-size:11px;color:#64748B;">'+num+' &middot; '+ts+'</div></div>' +
+        badge + cbBtn + '</div>';
     }).join('');
   } catch(e) {
     div.innerHTML = '<div style="text-align:center;padding:16px;color:#8B1A1A;">Error: '+e.message+'</div>';
   }
 }
 
-// Auto-connect on page load with stored credentials
 window.addEventListener('load', function() {
-  dbg('Page loaded — auto-connecting...');
-  // Try auto-connect with pre-stored creds
-  rcConnect('crownitstaffingandrecruiting@gmail.com', 'NewDay2026!');
+  var tok = localStorage.getItem('rc_token');
+  var exp = parseInt(localStorage.getItem('rc_token_exp') || '0');
+  if (tok && exp > Date.now()) {
+    accessToken = tok;
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('phone-ui').style.display = 'block';
+    setStatus('Connected - RingCentral Ready', 'green');
+    loadCallLog();
+  }
 });
 
 document.getElementById('dial-num').addEventListener('keydown', function(e) { if(e.key==='Enter') makeCall(); });
