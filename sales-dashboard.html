@@ -264,7 +264,7 @@ function updateDialProgress(count) {
   bar.style.width = pct+'%';
   if (pct >= 100) bar.classList.add('done');
   document.getElementById('dial-pct').textContent = pct+'%';
-  document.getElementById('dial-status').textContent = pct >= 100 ? '✅ Daily target met!' : (100-count)+' more dials to reach today's target.';
+  var statusMsg = pct >= 100 ? 'Daily target met!' : (100-count)+' more dials needed today.'; document.getElementById('dial-status').textContent = statusMsg;
 }
 
 async function loadStats() {
