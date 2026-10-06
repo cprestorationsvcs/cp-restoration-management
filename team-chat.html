@@ -197,6 +197,8 @@ async function sendMsg() {
 function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+
+document.addEventListener("DOMContentLoaded", function() { loadMessages(); setInterval(loadMessages, 5000); });
 </script>
 </body>
 </html>
