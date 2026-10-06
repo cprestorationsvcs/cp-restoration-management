@@ -1522,6 +1522,8 @@ var _origSaveIncome = saveIncome;
 saveIncome = function() {
   _origSaveIncome();
 };
+
+document.addEventListener("DOMContentLoaded", function() { renderIncomeTable(); renderExpenseTable(); renderPayrollTable(); });
 </script>
 
 <!-- RESERVE DEPOSIT MODAL -->
