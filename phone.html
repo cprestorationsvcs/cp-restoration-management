@@ -335,82 +335,8 @@ window.addEventListener('load', function() {
 
 document.getElementById('dial-num').addEventListener('keydown', function(e) { if(e.key==='Enter') makeCall(); });
 
-var pollInterval = null;
-var lastCallId = null;
-var dismissed = {};
+// Polling removed — caused RC rate limiting
 
-function startPolling() {
-  if (pollInterval) clearInterval(pollInterval);
-  var ind = document.getElementById('poll-indicator');
-  if (ind) ind.style.display = 'block';
-  pollInterval = setInterval(checkActiveCalls, 5000);
-  checkActiveCalls();
-}
-
-async function checkActiveCalls() {
-  if (!accessToken) return;
-  try {
-    var data = await apiCall('GET', '/restapi/v1.0/account/~/extension/~/active-calls?direction=Inbound&view=Simple&perPage=5');
-    if (!data || !data.records) return;
-    var ringing = data.records.filter(function(c) {
-      return c.telephonyStatus === 'Ringing' || c.telephonyStatus === 'CallConnected' || c.result === 'In Progress';
-    });
-    if (ringing.length > 0) {
-      var call = ringing[0];
-      var cid = call.id || call.sessionId || '';
-      if (!dismissed[cid]) {
-        showIncoming(call);
-        lastCallId = cid;
-        if (window.Notification && Notification.permission === 'granted') {
-          new Notification('Incoming Call', {body: (call.from && (call.from.name || call.from.phoneNumber)) || 'Unknown'});
-        }
-      }
-    } else {
-      hideIncoming();
-      if (lastCallId) { setTimeout(loadCallLog, 2000); lastCallId = null; }
-    }
-  } catch(e) { console.log('Poll error:', e.message); }
-}
-
-function showIncoming(call) {
-  var name = (call.from && (call.from.name || call.from.phoneNumber)) || 'Unknown';
-  var num  = (call.from && call.from.phoneNumber) || '';
-  var el = document.getElementById('incoming-call-banner');
-  var nameEl = document.getElementById('incoming-caller-name');
-  var numEl = document.getElementById('incoming-caller-number');
-  var ansEl = document.getElementById('answer-call-link');
-  if (nameEl) nameEl.textContent = name;
-  if (numEl) numEl.textContent = num;
-  if (ansEl && num) ansEl.href = 'rcmobile://call?number=' + encodeURIComponent(num);
-  if (el) el.style.display = 'block';
-  if (num) { var d = document.getElementById('dial-num'); if(d) d.value = num; }
-}
-
-function hideIncoming() {
-  var el = document.getElementById('incoming-call-banner');
-  if (el) el.style.display = 'none';
-}
-
-function dismissIncoming() {
-  if (lastCallId) dismissed[lastCallId] = true;
-  hideIncoming();
-}
-
-if (window.Notification && Notification.permission === 'default') {
-  Notification.requestPermission();
-}
-
-var _origSet = setStatus;
-setStatus = function(t, c) {
-  _origSet(t, c);
-  if (c === 'green' && !pollInterval) startPolling();
-  if (c === 'red' && pollInterval) {
-    clearInterval(pollInterval);
-    pollInterval = null;
-    var ind = document.getElementById('poll-indicator');
-    if (ind) ind.style.display = 'none';
-  }
-};
 
 </script>
 </body>
