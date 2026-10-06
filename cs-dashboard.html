@@ -477,11 +477,31 @@ async function submitLoginIssue(){
 
 function openPhone() {
   var phone = currentClient && (currentClient.phone || currentClient.homePhone || '');
-  if (phone) {
-    rcCallClient(phone);
-  } else {
-    window.open('/phone.html', '_blank', 'width=960,height=700');
-  }
+  if (!phone) { toast('No phone number on file.','err'); return; }
+  var clean = phone.replace(/[^0-9+]/g,'');
+  if (!clean.startsWith('+')) clean = '+1' + clean.replace(/^1/,'');
+  var clientName = currentClient.name || 'Client';
+  var overlay = document.createElement('div');
+  overlay.id = 'call-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  var box = document.createElement('div');
+  box.style.cssText = 'background:white;border-radius:14px;padding:24px;min-width:300px;max-width:90vw;';
+  box.innerHTML = '<div style="font-size:16px;font-weight:800;color:#1B3A6B;margin-bottom:6px;">&#128222; Call Client</div>' +
+    '<div style="font-size:14px;color:#475569;margin-bottom:20px;">' + clientName + '<br><strong>' + phone + '</strong></div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px;">' +
+      '<a href="rcmobile://call?number=' + encodeURIComponent(clean) + '" style="display:block;padding:12px;background:#1B3A6B;color:white;border-radius:8px;text-decoration:none;text-align:center;font-weight:700;">&#128222; Open RingCentral App</a>' +
+      '<a href="tel:' + clean + '" style="display:block;padding:12px;background:#166534;color:white;border-radius:8px;text-decoration:none;text-align:center;font-weight:700;">&#128241; Call via Device</a>' +
+    '</div>' +
+    '<button id="copy-num-btn" style="width:100%;margin-top:8px;padding:10px;background:#F1F5F9;border:1.5px solid #E2E8F0;border-radius:8px;cursor:pointer;font-weight:600;">&#128203; Copy Number</button>' +
+    '<button id="close-call-btn" style="width:100%;margin-top:6px;padding:10px;background:white;border:1.5px solid #E2E8F0;border-radius:8px;cursor:pointer;color:#64748B;">Cancel</button>';
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  document.getElementById('copy-num-btn').onclick = function() {
+    navigator.clipboard.writeText(clean).then(function(){ toast('Number copied!'); });
+    overlay.remove();
+  };
+  document.getElementById('close-call-btn').onclick = function() { overlay.remove(); };
+  overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
 }
 async function submitStatusRequest(){
   if(!currentClient) return;
