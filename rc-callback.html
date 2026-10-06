@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>RC Callback</title></head>
+<body>
+<script>
+if (window.RCAdapter) {
+  window.RCAdapter.setGlipWindowState && window.RCAdapter.setGlipWindowState();
+}
+if (window.opener) {
+  window.opener.postMessage({ type: 'rc-auth-callback', callbackUri: window.location.href }, '*');
+  window.close();
+}
+</script>
+</body>
+</html>
