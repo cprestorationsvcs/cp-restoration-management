@@ -140,31 +140,97 @@ function parseRequests(clients) {
   return reqs;
 }
 
+
 async function loadRequests(){
-  document.getElementById('request-list').innerHTML='<div class="empty"><div class="ico">&#128260;</div><div>Loading...</div></div>';
+  var listEl = document.getElementById('request-list');
+  if(listEl) listEl.innerHTML='<div class="empty"><div class="ico">&#128260;</div><div>Loading...</div></div>';
   try{
-    // Fetch clients with STATUS REQUEST tags
-    var r1=await fetch(SUPA+'/clients?notes=ilike.*STATUS+REQUEST*&select=id,name,email,phone,package,start_date,status,notes&limit=500',{headers:HDR});
-    var d1=await r1.json();
-    // Fetch clients with REFUND REQUEST tags
-    var r2=await fetch(SUPA+'/clients?notes=ilike.*REFUND+REQUEST*&select=id,name,email,phone,package,start_date,status,notes&limit=500',{headers:HDR});
-    var d2=await r2.json();
-    // Merge and deduplicate by id
-    var merged={};
-    (Array.isArray(d1)?d1:[]).forEach(function(c){merged[c.id]=c;});
-    (Array.isArray(d2)?d2:[]).forEach(function(c){merged[c.id]=c;});
-    var data=Object.values(merged);
-    if(!data.length){
-      allRequests=[];
-      updateStats();
-      renderList();
+    // Source 1: requests table (direct submissions from CS agents)
+    var directRequests = [];
+    try {
+      var r0 = await fetch(SUPA+'/requests?order=created_at.desc&limit=200', {headers:HDR});
+      var d0 = await r0.json();
+      if(Array.isArray(d0)) directRequests = d0;
+    } catch(e){ console.log('requests table:', e.message); }
+
+    // Source 2: client notes with tags (legacy)
+    var r1 = await fetch(SUPA+'/clients?notes=ilike.*STATUS+REQUEST*&select=id,name,notes&limit=500',{headers:HDR});
+    var r2 = await fetch(SUPA+'/clients?notes=ilike.*REFUND+REQUEST*&select=id,name,notes&limit=500',{headers:HDR});
+    var d1 = await r1.json(); var d2 = await r2.json();
+    if(!Array.isArray(d1)) d1=[]; if(!Array.isArray(d2)) d2=[];
+
+    // Count pending
+    var statusCount = directRequests.filter(function(r){return r.type==='status_update'&&r.status==='pending';}).length + d1.length;
+    var refundCount = directRequests.filter(function(r){return r.type==='refund'&&r.status==='pending';}).length + d2.length;
+    var sc=document.getElementById('status-count'); if(sc) sc.textContent=statusCount;
+    var rc=document.getElementById('refund-count'); if(rc) rc.textContent=refundCount;
+
+    // Build items list
+    var items = [];
+
+    // From requests table
+    directRequests.forEach(function(req){
+      items.push({
+        label: req.type==='refund' ? 'REFUND REQUEST' : 'STATUS UPDATE',
+        clientId: req.client_id||'',
+        clientName: req.client_name||'Unknown',
+        detail: (req.reason||'') + (req.notes ? ' — '+req.notes : ''),
+        date: req.created_at ? new Date(req.created_at).toLocaleDateString() : '',
+        status: req.status||'pending',
+        reqId: req.id||''
+      });
+    });
+
+    // From client notes
+    var seen = {};
+    d1.concat(d2).forEach(function(c){
+      if(seen[c.id]) return; seen[c.id]=true;
+      var notes = c.notes||'';
+      var isStatus = notes.indexOf('[STATUS REQUEST') !== -1;
+      var isRefund = notes.indexOf('[REFUND REQUEST') !== -1;
+      if(isStatus || isRefund) {
+        items.push({
+          label: isRefund ? 'REFUND REQUEST' : 'STATUS UPDATE',
+          clientId: c.id,
+          clientName: c.name||'Unknown',
+          detail: 'See client notes for details',
+          date: '',
+          status: 'pending',
+          reqId: ''
+        });
+      }
+    });
+
+    if(!items.length){
+      if(listEl) listEl.innerHTML='<div class="empty"><div class="ico">&#9989;</div><div>No pending requests.</div></div>';
       return;
     }
-    allRequests=parseRequests(data);
-    updateStats();
-    renderList();
-  }catch(e){showError('Error: '+e.message);}
+
+    var html = items.map(function(item){
+      var bc = item.label==='REFUND REQUEST' ? '#8B1A1A' : '#1B3A6B';
+      var rid = item.reqId || item.clientId;
+      var lbl = item.label.replace(/'/g,"'");
+      return '<div style="background:white;border:1.5px solid #E2E8F0;border-radius:10px;padding:14px;margin-bottom:12px;">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+          '<span style="background:'+bc+';color:white;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">'+item.label+'</span>' +
+          '<strong style="font-size:14px;">'+item.clientName+'</strong>' +
+          '<span style="color:#64748B;font-size:12px;">'+item.clientId+'</span>' +
+          (item.date ? '<span style="margin-left:auto;color:#94A3B8;font-size:11px;">'+item.date+'</span>' : '') +
+        '</div>' +
+        '<div style="font-size:13px;color:#475569;margin-bottom:10px;">'+item.detail+'</div>' +
+        '<div style="display:flex;gap:8px;">' +
+          '<a href="/cs-dashboard.html?client='+item.clientId+'" target="_blank" style="padding:6px 14px;background:#1B3A6B;color:white;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;">&#128269; View Client</a>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    if(listEl) listEl.innerHTML = html;
+  } catch(e){
+    console.error('loadRequests:', e.message);
+    if(listEl) listEl.innerHTML='<div class="empty"><div class="ico">&#10060;</div><div>Error: '+e.message+'</div></div>';
+  }
 }
+
 
 function updateStats(){
   var ps=allRequests.filter(function(r){return r.type==='status'&&!r.done;}).length;
