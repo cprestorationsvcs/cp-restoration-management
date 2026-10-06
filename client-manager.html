@@ -156,7 +156,7 @@ tbody tr:hover{background:#EFF4FF;}
       <div class="card-title">&#128101; All Clients</div>
     </div>
     <div class="search-bar">
-      <input type="text" id="srch" placeholder="&#128269; Search name, ID, email, phone..." oninput="renderTable()">
+      <input type="text" id="srch" placeholder="&#128269; Search name, ID, email, phone..." oninput="renderTable()" onkeyup="renderTable()">
       <select id="srch-status" onchange="renderTable()">
         <option value="">All Statuses</option>
         <option value="Active">Active</option>
@@ -642,7 +642,7 @@ function seed(){
 }
 
 // ── TABLE ─────────────────────────────────────────────────────────
-async function renderTable(){
+async async function renderTable(){
   var arr=await dbGetClients();
   var s=gv('srch').toLowerCase();
   var st=gv('srch-status');
