@@ -88,6 +88,25 @@ textarea{min-height:80px;resize:none;}
       <div><label>Emergency Contact Name *</label><input id="s1-ec-name" placeholder="Full name"></div>
       <div><label>Emergency Contact Phone *</label><input id="s1-ec-phone" placeholder="+1 (000) 000-0000"></div>
     </div>
+    <div class="frow">
+      <div><label>Date of Birth *</label><input type="date" id="s1-dob"></div>
+      <div><label>ID Type *</label>
+        <select id="s1-id-type">
+          <option value="">Select ID type</option>
+          <option value="passport">Passport</option>
+          <option value="drivers_license">Driver's License</option>
+          <option value="national_id">National ID</option>
+          <option value="govt_id">Government ID</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow single">
+      <div>
+        <label>Upload ID Card * (front side — JPG, PNG, or PDF, max 5MB)</label>
+        <input type="file" id="s1-id-file" accept="image/*,.pdf" style="padding:6px;">
+        <div id="id-preview" style="margin-top:8px;"></div>
+      </div>
+    </div>
     <button class="btn" onclick="nextStep(1)">Continue →</button>
   </div>
 
@@ -236,7 +255,7 @@ function updateProgress(step) {
   }
 }
 
-function nextStep(from) {
+async function nextStep(from) {
   if (from === 1) {
     var fname = document.getElementById('s1-fname').value.trim();
     var lname = document.getElementById('s1-lname').value.trim();
@@ -250,6 +269,27 @@ function nextStep(from) {
     formData.address=document.getElementById('s1-address').value.trim();
     formData.ecName=document.getElementById('s1-ec-name').value.trim();
     formData.ecPhone=document.getElementById('s1-ec-phone').value.trim();
+    formData.dob=document.getElementById('s1-dob').value;
+    formData.idType=document.getElementById('s1-id-type').value;
+    if(!formData.dob){alert('Please enter your date of birth.');return;}
+    if(!formData.idType){alert('Please select your ID type.');return;}
+    var idFile=document.getElementById('s1-id-file').files[0];
+    if(!idFile){alert('Please upload your ID card.');return;}
+    // Convert ID to base64
+    await new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(e){formData.idCard=e.target.result;resolve();};
+      reader.onerror=reject;
+      reader.readAsDataURL(idFile);
+    });
+    formData.idFileName=idFile.name;
+    // Show preview
+    var prev=document.getElementById('id-preview');
+    if(idFile.type.startsWith('image/')){
+      prev.innerHTML='<img src="'+formData.idCard+'" style="max-width:100%;max-height:200px;border-radius:8px;border:1.5px solid #E2E8F0;">';
+    } else {
+      prev.innerHTML='<div style="padding:8px;background:#F0FDF4;border-radius:6px;font-size:12px;color:#166534;">✅ '+idFile.name+' uploaded</div>';
+    }
   }
   if (from === 2) {
     var checks = ['c1','c2','c3','c4','c6'];
