@@ -458,3 +458,77 @@ window.addEventListener('load', function() {
     }
   }, 60000);
 });
+
+
+// ── MISSING FUNCTIONS ADDED ─────────────────────────────────────
+
+function switchTab(tabGroup, tabName) {
+  // Hide all tabs in this group
+  document.querySelectorAll('[data-tab-group="' + tabGroup + '"]').forEach(function(el) {
+    el.style.display = 'none';
+  });
+  // Show selected tab
+  var target = document.getElementById(tabGroup + '-' + tabName);
+  if (target) target.style.display = 'block';
+  // Update tab buttons
+  document.querySelectorAll('[data-tab-group-btn="' + tabGroup + '"]').forEach(function(btn) {
+    btn.classList.remove('active');
+  });
+  var activeBtn = document.querySelector('[data-tab-group-btn="' + tabGroup + '"][data-tab="' + tabName + '"]');
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+async function renderPwdTable() {
+  var el = document.getElementById('pwd-list');
+  if (!el) return;
+  el.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:#64748B;">Loading...</td></tr>';
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients?select=id,name,email,portal_pwd&order=name.asc&limit=500', {
+      headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var data = await r.json();
+    if (!Array.isArray(data) || !data.length) {
+      el.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:16px;color:#64748B;">No clients found.</td></tr>';
+      return;
+    }
+    el.innerHTML = data.map(function(c) {
+      return '<tr>' +
+        '<td>' + (c.id||'') + '</td>' +
+        '<td>' + (c.name||'') + '</td>' +
+        '<td>' + (c.email||'') + '</td>' +
+        '<td><code>' + (c.portal_pwd||'restore2026') + '</code></td>' +
+      '</tr>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<tr><td colspan="4" style="color:#8B1A1A;padding:16px;">Error: ' + e.message + '</td></tr>';
+  }
+}
+
+function renderSalesTab(tab) {
+  document.querySelectorAll('.sales-tab-content').forEach(function(el) { el.style.display='none'; });
+  var target = document.getElementById('sales-' + tab);
+  if (target) target.style.display = 'block';
+  document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
+  var activeBtn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+function openDisputeModal(id) {
+  var modal = document.getElementById('dispute-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeDisputeModal() {
+  var modal = document.getElementById('dispute-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function openEditModal(id) {
+  var modal = document.getElementById('edit-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeEdit() {
+  var modal = document.getElementById('edit-modal');
+  if (modal) modal.style.display = 'none';
+}
