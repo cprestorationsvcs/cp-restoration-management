@@ -314,6 +314,8 @@ function toast(msg,type){var t=document.createElement('div');t.className='toast'
 
 loadRequests();
 setInterval(loadRequests,60000);
+
+document.addEventListener("DOMContentLoaded", function() { loadRequests(); });
 </script>
 </body>
 </html>
