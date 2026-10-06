@@ -117,6 +117,10 @@ function showDetail(i) {
     field('Payment Method', d.paymentMethod) +
     field('Payment Info', d.paymentInfo) +
     field('How They Found Us', d.source) +
+    field('Date of Birth', d.dob) +
+    field('ID Type', d.idType) +
+    field('ID File', d.idFileName) +
+    (d.idCard ? '<div class="field"><label>ID Card</label><img src="'+d.idCard+'" style="max-width:100%;max-height:300px;border-radius:8px;border:1.5px solid #E2E8F0;margin-top:4px;"></div>' : field('ID Card', 'Not uploaded')) +
     field('Comments', d.comments) +
     field('Submitted', d.submittedAt ? new Date(d.submittedAt).toLocaleString() : '—');
   document.getElementById('modal').style.display = 'flex';
