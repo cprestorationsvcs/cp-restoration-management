@@ -33,14 +33,26 @@ tr:hover td{background:#F1F5F9;}
 .field label{font-weight:600;color:#475569;display:block;font-size:11px;margin-bottom:2px;}
 .field span{color:#1E293B;}
 .close-btn{margin-top:16px;padding:8px 20px;background:#1B3A6B;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:600;}
+.tab-btn{padding:10px 20px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:13px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;}
+.tab-btn.active{color:white;border-bottom:3px solid #C9A84C;}
+.tab-content{display:none;} .tab-content.active{display:block;}
+.pass-badge{background:#DCFCE7;color:#166534;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.fail-badge{background:#FEE2E2;color:#991B1B;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.progress-bar-wrap{background:#E2E8F0;border-radius:4px;height:8px;width:100px;display:inline-block;vertical-align:middle;}
+.progress-bar-fill{height:8px;border-radius:4px;background:#166534;}
 </style>
 </head>
 <body>
 <header>
-  <h1>&#128101; HR — Employee Onboarding Submissions</h1>
-  <a href="/dashboard.html">← Back to Dashboard</a>
+  <h1>&#128101; HR Management — CP Restoration Services</h1>
+  <a href="/dashboard.html" style="color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;">← Back to Dashboard</a>
 </header>
+<div style="background:#1E3A5F;padding:0 24px;display:flex;gap:4px;">
+  <button class="tab-btn active" id="tab-onboarding" onclick="showTab('onboarding')">&#128203; Onboarding</button>
+  <button class="tab-btn" id="tab-training" onclick="showTab('training')">&#127891; Training Results</button>
+</div>
 <div class="container">
+<div id="tab-onboarding-content" class="tab-content active">
   <div class="summary" id="summary"></div>
   <div class="card">
     <h2>&#128203; All Submissions</h2>
@@ -50,6 +62,35 @@ tr:hover td{background:#F1F5F9;}
     </table>
   </div>
 </div>
+</div><!-- end onboarding tab -->
+
+<div id="tab-training-content" class="tab-content">
+<div class="container">
+  <div class="summary" id="training-summary"></div>
+  <div class="card">
+    <h2>&#127891; Training Quiz Results — All Employees</h2>
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+      <select id="tr-filter-dept" onchange="loadTraining()" style="padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:13px;">
+        <option value="all">All Departments</option>
+        <option value="cs">CS Agents</option>
+        <option value="compliance">Compliance</option>
+        <option value="sales">Sales</option>
+      </select>
+      <select id="tr-filter-status" onchange="loadTraining()" style="padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:13px;">
+        <option value="all">All Results</option>
+        <option value="passed">Passed Only</option>
+        <option value="failed">Failed Only</option>
+      </select>
+      <button onclick="loadTraining()" style="padding:8px 16px;background:#1B3A6B;color:white;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;">&#8635; Refresh</button>
+    </div>
+    <table>
+      <thead><tr><th>Employee</th><th>Email</th><th>Score</th><th>Result</th><th>Attempts</th><th>Last Taken</th></tr></thead>
+      <tbody id="training-body"></tbody>
+    </table>
+  </div>
+</div>
+</div><!-- end training tab -->
+
 <div id="modal" style="display:none;" class="modal" onclick="closeModal()">
   <div class="modal-box" onclick="event.stopPropagation()">
     <h2 id="m-name"></h2>
@@ -132,6 +173,74 @@ function field(label, val) {
 
 function closeModal() {
   document.getElementById('modal').style.display = 'none';
+}
+
+
+function showTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.className='tab-btn';});
+  document.querySelectorAll('.tab-content').forEach(function(c){c.className='tab-content';});
+  document.getElementById('tab-'+tab).className='tab-btn active';
+  document.getElementById('tab-'+tab+'-content').className='tab-content active';
+  if(tab==='training') loadTraining();
+}
+
+var trainingData = [];
+async function loadTraining() {
+  var statusFilter = document.getElementById('tr-filter-status').value;
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/training_results?order=completed_at.desc&limit=500', {
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var raw = await r.json();
+    if (!Array.isArray(raw)) return;
+
+    // Group by email — keep best score per person
+    var byEmail = {};
+    raw.forEach(function(r) {
+      var key = r.work_email || r.employee_name;
+      if (!byEmail[key]) byEmail[key] = {attempts:0, best:null, latest:null};
+      byEmail[key].attempts++;
+      if (!byEmail[key].best || r.percentage > byEmail[key].best.percentage) byEmail[key].best = r;
+      if (!byEmail[key].latest || new Date(r.completed_at) > new Date(byEmail[key].latest.completed_at)) byEmail[key].latest = r;
+    });
+
+    trainingData = Object.values(byEmail);
+    if (statusFilter === 'passed') trainingData = trainingData.filter(function(d){return d.best.passed;});
+    if (statusFilter === 'failed') trainingData = trainingData.filter(function(d){return !d.best.passed;});
+
+    // Summary
+    var total = trainingData.length;
+    var passed = trainingData.filter(function(d){return d.best.passed;}).length;
+    var failed = total - passed;
+    document.getElementById('training-summary').innerHTML =
+      '<div class="stat"><div class="val">'+total+'</div><div class="lbl">Total Employees Tested</div></div>'+
+      '<div class="stat"><div class="val" style="color:#166534;">'+passed+'</div><div class="lbl">Passed (80%+)</div></div>'+
+      '<div class="stat"><div class="val" style="color:#8B1A1A;">'+failed+'</div><div class="lbl">Need to Retake</div></div>';
+
+    // Table
+    var tbody = document.getElementById('training-body');
+    if (!trainingData.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#64748B;">No results yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = trainingData.map(function(d) {
+      var b = d.best;
+      var ts = '';
+      try { ts = new Date(d.latest.completed_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); } catch(e){}
+      var pct = b.percentage || 0;
+      return '<tr>'+
+        '<td><strong>'+b.employee_name+'</strong></td>'+
+        '<td>'+(b.work_email||'—')+'</td>'+
+        '<td>'+
+          '<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:'+Math.min(pct,100)+'%;background:'+(b.passed?'#166534':'#DC2626')+'"></div></div>'+
+          ' <strong>'+b.score+'/'+b.total+' ('+pct+'%)</strong>'+
+        '</td>'+
+        '<td>'+(b.passed?'<span class="pass-badge">✅ PASSED</span>':'<span class="fail-badge">❌ FAILED</span>')+'</td>'+
+        '<td style="text-align:center;">'+d.attempts+'</td>'+
+        '<td>'+ts+'</td>'+
+      '</tr>';
+    }).join('');
+  } catch(e) { console.log('Training load error:', e); }
 }
 
 load();
