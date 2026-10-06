@@ -392,6 +392,8 @@ async function sendEmail() {
 
 function safe(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function toast(msg,type){ var t=document.createElement('div'); t.className='toast'; t.textContent=msg; t.style.background=type==='err'?'#8B1A1A':'#166534'; document.body.appendChild(t); setTimeout(function(){ t.remove(); },3000); }
+
+document.addEventListener("DOMContentLoaded", function() { loadClient() });
 </script>
 </body>
 </html>
