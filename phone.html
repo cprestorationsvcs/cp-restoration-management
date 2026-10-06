@@ -56,21 +56,14 @@ input,textarea{width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-ra
     <span id="status-text">Not connected</span>
   </div>
 
-  <!-- JWT Login -->
-  <div id="login-section" class="card" style="max-width:500px;margin:0 auto 20px;">
-    <h2>&#128274; Connect to RingCentral</h2>
-    <div class="info-box">
-      <strong>How to get your JWT token:</strong><br>
-      1. Go to <strong>developers.ringcentral.com</strong><br>
-      2. Click your app (Client ID: 9XxWlKzJPckcCLW1TWZ0YO)<br>
-      3. Go to <strong>Credentials</strong> tab<br>
-      4. Click <strong>Create JWT</strong><br>
-      5. Copy the JWT token and paste it below
-    </div>
-    <label>JWT Token</label>
-    <textarea id="rc-jwt" placeholder="Paste your RingCentral JWT token here..." style="min-height:80px;font-family:monospace;font-size:11px;"></textarea>
-    <button class="btn btn-navy" style="width:100%;padding:12px;font-size:14px;" id="connect-btn" onclick="rcConnect()">&#128222; Connect to RingCentral</button>
-    <div id="login-msg" style="margin-top:10px;font-size:13px;text-align:center;min-height:20px;color:#8B1A1A;"></div>
+  <!-- Auto Connect -->
+  <div id="login-section" class="card" style="max-width:500px;margin:0 auto 20px;text-align:center;">
+    <h2>&#128222; Connecting to RingCentral...</h2>
+    <p style="color:#64748B;font-size:13px;margin-bottom:16px;">Please wait while we establish a secure connection.</p>
+    <div style="font-size:32px;margin-bottom:12px;">&#128260;</div>
+    <div id="login-msg" style="font-size:13px;color:#8B1A1A;"></div>
+    <button class="btn btn-navy" style="margin-top:12px;display:none;" id="connect-btn" onclick="rcConnect()">Retry Connection</button>
+    <textarea id="rc-jwt" style="display:none;"></textarea>
   </div>
 
   <!-- Phone UI -->
@@ -146,17 +139,16 @@ function dp(d) { document.getElementById('dial-num').value += d; }
 function setNum(n) { document.getElementById('dial-num').value = n; }
 
 async function rcConnect() {
-  var jwt = document.getElementById('rc-jwt').value.trim();
+  var jwt = (document.getElementById('rc-jwt') && document.getElementById('rc-jwt').value.trim()) || '';
   var msg = document.getElementById('login-msg');
   var btn = document.getElementById('connect-btn');
-  if (!jwt) { msg.textContent = 'Please paste your JWT token.'; return; }
   btn.textContent = 'Connecting...'; btn.disabled = true;
   msg.textContent = ''; setStatus('Connecting...', 'yellow');
   try {
     var resp = await fetch(PROXY, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ action: 'jwt', jwt: jwt })
+      body: JSON.stringify({ action: jwt ? 'jwt' : 'auto-auth', jwt: jwt })
     });
     var data = await resp.json();
     if (data.access_token) {
@@ -271,6 +263,9 @@ window.addEventListener('load', function() {
     document.getElementById('phone-ui').style.display = 'block';
     setStatus('Connected - RingCentral Ready', 'green');
     loadCallLog();
+  } else {
+    // Auto-connect using server-stored JWT
+    rcConnect();
   }
 });
 
