@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Dashboard — CP Restoration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1E293B;}
+header{background:#1B3A6B;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+header h1{color:white;font-size:16px;font-weight:800;}
+header a{color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;}
+.container{max-width:1100px;margin:0 auto;padding:20px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px;}
+.stat{background:white;border-radius:10px;border:1.5px solid #E2E8F0;padding:16px;text-align:center;}
+.stat-val{font-size:28px;font-weight:800;color:#1B3A6B;}
+.stat-lbl{font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;}
+.stat.green .stat-val{color:#166534;}
+.stat.gold .stat-val{color:#92400E;}
+.stat.red .stat-val{color:#8B1A1A;}
+.card{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:20px;margin-bottom:20px;}
+.card h2{font-size:15px;font-weight:700;color:#1B3A6B;margin-bottom:14px;}
+.dial-progress{background:#F1F5F9;border-radius:8px;height:12px;margin:8px 0;overflow:hidden;}
+.dial-fill{height:100%;background:#1B3A6B;border-radius:8px;transition:width 0.3s;}
+.dial-fill.done{background:#166534;}
+input,select,textarea{width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:10px;}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-navy{background:#1B3A6B;color:white;width:100%;padding:12px;}
+.btn-green{background:#166534;color:white;}
+.btn-gray{background:#F1F5F9;color:#475569;border:1.5px solid #E2E8F0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#F8FAFC;padding:10px;text-align:left;font-weight:700;font-size:11px;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;}
+td{padding:10px;border-bottom:1px solid #F1F5F9;}
+.badge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-red{background:#FEE2E2;color:#8B1A1A;}
+.badge-yellow{background:#FEF9C3;color:#92400E;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.commission-box{background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:10px;padding:16px;margin-bottom:20px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>&#128200; CP Restoration &mdash; Sales Dashboard</h1>
+  <a href="/dashboard.html">&larr; Back</a>
+</header>
+<div class="container">
+
+  <!-- Welcome / Rep Info -->
+  <div id="rep-login" class="card" style="max-width:460px;margin:0 auto 20px;">
+    <h2>&#128100; Select Your Name</h2>
+    <select id="rep-select">
+      <option value="">-- Select your name --</option>
+      <option value="Bukunmi Aina|bukunmi@mycprteam.com">Bukunmi Aina</option>
+    </select>
+    <button class="btn btn-navy" onclick="repLogin()">&#9654; Enter Dashboard</button>
+  </div>
+
+  <div id="rep-dashboard" style="display:none;">
+
+    <!-- Commission Info -->
+    <div class="commission-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:13px;color:#166534;font-weight:700;">&#128178; Commission Structure</div>
+          <div style="font-size:12px;color:#475569;margin-top:4px;">10% per sale &nbsp;|&nbsp; $100/week draw (advance against commission)</div>
+          <div style="font-size:12px;color:#475569;">Express $3,999 &rarr; <strong>$400</strong> &nbsp;|&nbsp; Standard $2,500 &rarr; <strong>$250</strong> &nbsp;|&nbsp; Financing &rarr; <strong>10% of collected</strong></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:22px;font-weight:800;color:#166534;" id="total-earned">$0</div>
+          <div style="font-size:11px;color:#64748B;">Total earned this week</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="dials-today">0</div><div class="stat-lbl">Dials Today</div></div>
+      <div class="stat"><div class="stat-val" id="dials-week">0</div><div class="stat-lbl">Dials This Week</div></div>
+      <div class="stat green"><div class="stat-val" id="sales-week">0</div><div class="stat-lbl">Sales This Week</div></div>
+      <div class="stat gold"><div class="stat-val" id="commission-week">$0</div><div class="stat-lbl">Commission Earned</div></div>
+      <div class="stat red"><div class="stat-val" id="draw-balance">$100</div><div class="stat-lbl">Draw Balance</div></div>
+    </div>
+
+    <!-- Daily Dial Progress -->
+    <div class="card">
+      <h2>&#128222; Today&rsquo;s Dial Progress</h2>
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;">
+        <span>Daily Target: 100 dials</span>
+        <span id="dial-pct">0%</span>
+      </div>
+      <div class="dial-progress">
+        <div class="dial-fill" id="dial-bar" style="width:0%"></div>
+      </div>
+      <div style="font-size:12px;color:#64748B;margin-top:6px;" id="dial-status">Keep dialing! Log each call below.</div>
+    </div>
+
+    <div class="grid2">
+      <!-- Log a Dial -->
+      <div class="card">
+        <h2>&#128221; Log a Call</h2>
+        <input type="text" id="lead-name" placeholder="Lead Name">
+        <input type="tel" id="lead-phone" placeholder="Phone Number">
+        <select id="call-outcome">
+          <option value="">-- Outcome --</option>
+          <option value="no_answer">No Answer</option>
+          <option value="voicemail">Voicemail</option>
+          <option value="callback">Callback Scheduled</option>
+          <option value="interested">Interested</option>
+          <option value="not_interested">Not Interested</option>
+          <option value="sold">&#127881; SOLD!</option>
+          <option value="wrong_number">Wrong Number</option>
+        </select>
+        <select id="sale-package" style="display:none;">
+          <option value="">-- Package Sold --</option>
+          <option value="express|3999">Express — $3,999</option>
+          <option value="standard|2500">Standard — $2,500</option>
+          <option value="financing|750">Financing — $750 down</option>
+        </select>
+        <textarea id="call-notes" placeholder="Notes..." style="min-height:60px;resize:none;"></textarea>
+        <button class="btn btn-navy" onclick="logDial()">&#128222; Log Call</button>
+        <div id="log-msg" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
+      </div>
+
+      <!-- Today's Script -->
+      <div class="card">
+        <h2>&#128221; Sales Script</h2>
+        <div style="font-size:12px;line-height:1.8;color:#475569;">
+          <p style="margin-bottom:8px;"><strong>Opening:</strong><br>
+          &ldquo;Hi, may I speak with [Name]? This is [Your Name] calling from CP Restoration Services. We help people remove negative items from their credit report. Do you have 2 minutes?&rdquo;</p>
+          <p style="margin-bottom:8px;"><strong>Pain Point:</strong><br>
+          &ldquo;Are you currently dealing with any collections, late payments, or hard inquiries dragging your score down?&rdquo;</p>
+          <p style="margin-bottom:8px;"><strong>Pitch:</strong><br>
+          &ldquo;We specialize in removing those items through our dispute process. We&rsquo;ve helped thousands of clients across the country improve their credit in 60&ndash;120 days.&rdquo;</p>
+          <p><strong>Close:</strong><br>
+          &ldquo;We have two options starting at $2,500 and $3,999. Which works better for your situation?&rdquo;</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call Log Table -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h2 style="margin:0;">&#128203; Today&rsquo;s Call Log</h2>
+        <button class="btn btn-gray" onclick="loadDialLog()" style="font-size:12px;padding:6px 14px;">&#8635; Refresh</button>
+      </div>
+      <table>
+        <thead><tr><th>Time</th><th>Lead Name</th><th>Phone</th><th>Outcome</th><th>Notes</th></tr></thead>
+        <tbody id="dial-log-tbody"><tr><td colspan="5" style="text-align:center;padding:20px;color:#94A3B8;">No calls logged today yet.</td></tr></tbody>
+      </table>
+    </div>
+
+  </div><!-- /rep-dashboard -->
+</div>
+
+<script>
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+var currentRep = null;
+
+function repLogin() {
+  var val = document.getElementById('rep-select').value;
+  if (!val) { alert('Please select your name.'); return; }
+  var parts = val.split('|');
+  currentRep = {name: parts[0], email: parts[1]};
+  document.getElementById('rep-login').style.display = 'none';
+  document.getElementById('rep-dashboard').style.display = 'block';
+  loadDialLog();
+  loadStats();
+}
+
+document.getElementById('call-outcome').addEventListener('change', function() {
+  document.getElementById('sale-package').style.display = this.value === 'sold' ? 'block' : 'none';
+});
+
+async function logDial() {
+  if (!currentRep) return;
+  var name = document.getElementById('lead-name').value.trim();
+  var phone = document.getElementById('lead-phone').value.trim();
+  var outcome = document.getElementById('call-outcome').value;
+  var notes = document.getElementById('call-notes').value.trim();
+  var pkg = document.getElementById('sale-package').value;
+  var msg = document.getElementById('log-msg');
+
+  if (!outcome) { msg.style.color='#8B1A1A'; msg.textContent='Select an outcome.'; return; }
+
+  var entry = {
+    rep_name: currentRep.name,
+    rep_email: currentRep.email,
+    lead_name: name || 'Unknown',
+    lead_phone: phone,
+    outcome: outcome,
+    notes: notes,
+    dialed_at: new Date().toISOString()
+  };
+
+  try {
+    msg.style.color='#64748B'; msg.textContent='Saving...';
+    await fetch(SUPA+'/dial_entries', {
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body: JSON.stringify(entry)
+    });
+
+    // If sold, also save commission
+    if (outcome === 'sold' && pkg) {
+      var pkgParts = pkg.split('|');
+      var amount = parseFloat(pkgParts[1]);
+      var commission = amount * 0.10;
+      await fetch(SUPA+'/commissions', {
+        method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+        body: JSON.stringify({
+          rep_name: currentRep.name,
+          rep_email: currentRep.email,
+          package: pkgParts[0],
+          sale_amount: amount,
+          commission_amount: commission,
+          draw_amount: 100,
+          status: 'pending',
+          sale_date: new Date().toISOString().split('T')[0]
+        })
+      });
+    }
+
+    msg.style.color='#166534'; msg.textContent='✅ Call logged!';
+    document.getElementById('lead-name').value='';
+    document.getElementById('lead-phone').value='';
+    document.getElementById('call-outcome').value='';
+    document.getElementById('call-notes').value='';
+    document.getElementById('sale-package').style.display='none';
+    setTimeout(function(){msg.textContent='';loadDialLog();loadStats();}, 1500);
+  } catch(e) { msg.style.color='#8B1A1A'; msg.textContent='Error: '+e.message; }
+}
+
+async function loadDialLog() {
+  if (!currentRep) return;
+  var today = new Date().toISOString().split('T')[0];
+  try {
+    var r = await fetch(SUPA+'/dial_entries?rep_email=eq.'+encodeURIComponent(currentRep.email)+'&dialed_at=gte.'+today+'T00:00:00&order=dialed_at.desc&limit=100',{headers:HDR});
+    var data = await r.json();
+    var tbody = document.getElementById('dial-log-tbody');
+    if (!Array.isArray(data) || !data.length) {
+      tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:#94A3B8;">No calls logged today.</td></tr>';
+      updateDialProgress(0); return;
+    }
+    var badges = {no_answer:'badge-yellow',voicemail:'badge-yellow',callback:'badge-blue',interested:'badge-blue',not_interested:'badge-red',sold:'badge-green',wrong_number:'badge-red'};
+    tbody.innerHTML = data.map(function(d){
+      var t = d.dialed_at ? new Date(d.dialed_at).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '';
+      var oc = (d.outcome||'').replace(/_/g,' ');
+      return '<tr><td>'+t+'</td><td>'+(d.lead_name||'')+'</td><td>'+(d.lead_phone||'')+'</td>'+
+        '<td><span class="badge '+(badges[d.outcome]||'badge-yellow')+'">'+oc+'</span></td>'+
+        '<td style="font-size:12px;color:#64748B;">'+(d.notes||'')+'</td></tr>';
+    }).join('');
+    updateDialProgress(data.length);
+    document.getElementById('dials-today').textContent = data.length;
+  } catch(e) { console.error(e); }
+}
+
+function updateDialProgress(count) {
+  var pct = Math.min(100, Math.round(count/100*100));
+  var bar = document.getElementById('dial-bar');
+  bar.style.width = pct+'%';
+  if (pct >= 100) bar.classList.add('done');
+  document.getElementById('dial-pct').textContent = pct+'%';
+  document.getElementById('dial-status').textContent = pct >= 100 ? '✅ Daily target met!' : (100-count)+' more dials to reach today's target.';
+}
+
+async function loadStats() {
+  if (!currentRep) return;
+  var monday = new Date(); monday.setDate(monday.getDate()-monday.getDay()+1);
+  var weekStart = monday.toISOString().split('T')[0];
+  try {
+    var r1 = await fetch(SUPA+'/dial_entries?rep_email=eq.'+encodeURIComponent(currentRep.email)+'&dialed_at=gte.'+weekStart+'T00:00:00',{headers:HDR});
+    var dials = await r1.json();
+    if (Array.isArray(dials)) {
+      document.getElementById('dials-week').textContent = dials.length;
+      document.getElementById('sales-week').textContent = dials.filter(function(d){return d.outcome==='sold';}).length;
+    }
+    var r2 = await fetch(SUPA+'/commissions?rep_email=eq.'+encodeURIComponent(currentRep.email)+'&sale_date=gte.'+weekStart,{headers:HDR});
+    var comms = await r2.json();
+    if (Array.isArray(comms)) {
+      var total = comms.reduce(function(s,c){return s+(parseFloat(c.commission_amount)||0);},0);
+      document.getElementById('commission-week').textContent = '$'+total.toFixed(0);
+      document.getElementById('total-earned').textContent = '$'+total.toFixed(0);
+      document.getElementById('draw-balance').textContent = '$'+Math.max(0,100-total).toFixed(0);
+    }
+  } catch(e) { console.error(e); }
+}
+
+window.addEventListener('load', function() {
+  var saved = localStorage.getItem('cp_logged_in_name');
+  var savedEmail = localStorage.getItem('cp_logged_in_user');
+  if (saved && savedEmail) {
+    currentRep = {name:saved, email:savedEmail};
+    document.getElementById('rep-login').style.display='none';
+    document.getElementById('rep-dashboard').style.display='block';
+    loadDialLog(); loadStats();
+  }
+});
+</script>
+</body>
+</html>
