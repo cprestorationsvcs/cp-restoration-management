@@ -683,3 +683,133 @@ async function loadDashboardData() {
     }
   } catch(e) { console.error('Revenue error:', e.message); }
 }
+
+
+var _SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var _KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var _H    = {'apikey':_KEY,'Authorization':'Bearer '+_KEY};
+
+function _set(id,v){ var e=document.getElementById(id); if(e) e.innerHTML=v; }
+function _txt(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
+function _$( n){ return '$'+(parseFloat(n)||0).toLocaleString('en-US',{minimumFractionDigits:0}); }
+
+function _tbl(selectors) {
+  for (var i=0; i<selectors.length; i++) {
+    var el = document.querySelector(selectors[i]);
+    if (el) return el;
+  }
+  return null;
+}
+
+async function loadTimetracker() {
+  try {
+    var r = await fetch(_SUPA+'/time_sessions?order=clock_in.desc&limit=100',{headers:_H});
+    var d = await r.json();
+    if (!Array.isArray(d)) return;
+    var tb = _tbl(['#tt-log-tbody','#page-timetracker tbody','[id*=timetracker] tbody']);
+    if (!tb) return;
+    tb.innerHTML = d.length ? d.map(function(s){
+      var dur='';
+      if(s.clock_in&&s.clock_out){var m=Math.round((new Date(s.clock_out)-new Date(s.clock_in))/60000);dur=Math.floor(m/60)+'h '+(m%60)+'m';}
+      var ci=s.clock_in?new Date(s.clock_in).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'';
+      var co=s.clock_out?new Date(s.clock_out).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'Active';
+      return '<tr><td>'+(s.employee_name||'')+'</td><td>'+(s.date||'')+'</td><td>'+ci+'</td><td>'+co+'</td><td>'+dur+'</td><td>'+(s.status||'')+'</td></tr>';
+    }).join('') : '<tr><td colspan="6" style="text-align:center;padding:16px;color:#64748B;">No time entries yet.</td></tr>';
+  } catch(e){console.error('loadTimetracker:',e.message);}
+}
+
+async function loadPayments() {
+  try {
+    var r = await fetch(_SUPA+'/payments?order=created_at.desc&limit=100',{headers:_H});
+    var d = await r.json();
+    if (!Array.isArray(d)) d=[];
+    _txt('payments-pending-count', d.filter(function(p){return p.status==='pending';}).length);
+    var tb = _tbl(['#payments-tbody','#page-payments tbody']);
+    if (!tb) return;
+    tb.innerHTML = d.length ? d.map(function(p){
+      return '<tr><td>'+(p.client_name||p.client_id||'')+'</td><td>'+_$(p.amount)+'</td><td>'+(p.type||'')+'</td><td>'+(p.status||'')+'</td><td>'+(p.created_at?new Date(p.created_at).toLocaleDateString():'')+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;padding:16px;color:#64748B;">No payments on file.</td></tr>';
+  } catch(e){console.error('loadPayments:',e.message);}
+}
+
+async function loadCompliance() {
+  try {
+    var r = await fetch(_SUPA+'/clients?select=id,name,status,end_date,package&status=eq.Active&order=end_date.asc&limit=500',{headers:_H});
+    var d = await r.json();
+    if (!Array.isArray(d)) d=[];
+    var today=new Date();
+    var exp=d.filter(function(c){return c.end_date&&(new Date(c.end_date)-today)/(86400000)<=30;});
+    _txt('compliance-expiring-count', exp.length);
+    _txt('compliance-active-count', d.length);
+    var tb = _tbl(['#compliance-tbody','#page-compliance tbody']);
+    if (!tb) return;
+    tb.innerHTML = exp.length ? exp.map(function(c){
+      var days=Math.round((new Date(c.end_date)-today)/86400000);
+      var color=days<=0?'#8B1A1A':'#F59E0B';
+      return '<tr><td>'+c.id+'</td><td>'+(c.name||'')+'</td><td>'+(c.package||'Standard')+'</td><td>'+(c.end_date||'')+'</td><td style="color:'+color+';font-weight:700;">'+(days<=0?'EXPIRED':days+' days')+'</td></tr>';
+    }).join('') : '<tr><td colspan="5" style="text-align:center;padding:16px;color:#64748B;">No contracts expiring within 30 days.</td></tr>';
+  } catch(e){console.error('loadCompliance:',e.message);}
+}
+
+async function loadReports() {
+  try {
+    var r = await fetch(_SUPA+'/clients?select=id,status,package',{headers:_H});
+    var d = await r.json();
+    if (!Array.isArray(d)) d=[];
+    var active=d.filter(function(c){return c.status==='Active';});
+    _txt('report-total-clients', d.length);
+    _txt('report-active-clients', active.length);
+    _txt('report-express-clients', active.filter(function(c){return (c.package||'').toLowerCase().includes('express');}).length);
+    _txt('report-standard-clients', active.filter(function(c){return !(c.package||'').toLowerCase().includes('express');}).length);
+  } catch(e){console.error('loadReports:',e.message);}
+}
+
+async function loadTraining() {
+  try {
+    var r = await fetch(_SUPA+'/training_results?order=completed_at.desc&limit=100',{headers:_H});
+    var d = await r.json();
+    if (!Array.isArray(d)) d=[];
+    var tb = _tbl(['#training-results-tbody','#page-training tbody']);
+    if (!tb) return;
+    tb.innerHTML = d.length ? d.map(function(t){
+      var p=t.passed?'<span style="color:#166534;font-weight:700;">PASS</span>':'<span style="color:#8B1A1A;font-weight:700;">FAIL</span>';
+      return '<tr><td>'+(t.employee_name||'')+'</td><td>'+(t.work_email||'')+'</td><td>'+(t.score||0)+'/'+(t.total||10)+'</td><td>'+(t.percentage||0)+'%</td><td>'+p+'</td><td>'+(t.completed_at?new Date(t.completed_at).toLocaleDateString():'')+'</td></tr>';
+    }).join('') : '<tr><td colspan="6" style="text-align:center;padding:16px;color:#64748B;">No quiz results yet.</td></tr>';
+  } catch(e){console.error('loadTraining:',e.message);}
+}
+
+function loadBroadcast(){}
+function loadSms(){}
+function loadSendgrid(){}
+function loadRingcentral(){
+  var el=document.getElementById('rc-log')||document.querySelector('#page-ringcentral p');
+  if(el) el.innerHTML='Call log available at <a href="/phone.html" target="_blank" style="color:#1B3A6B;font-weight:700;">Phone System</a>';
+}
+async function loadPasswords(){ if(typeof renderPwdTable==='function') renderPwdTable(); }
+
+var _pageLoaders = {
+  timetracker: loadTimetracker,
+  payments:    loadPayments,
+  compliance:  loadCompliance,
+  reports:     loadReports,
+  training:    loadTraining,
+  broadcast:   loadBroadcast,
+  sms:         loadSms,
+  passwords:   loadPasswords,
+  sendgrid:    loadSendgrid,
+  ringcentral: loadRingcentral,
+  dashboard:   function(){ if(typeof loadDashboard==='function') loadDashboard(); },
+  clients:     function(){ if(typeof loadClients==='function') loadClients(); },
+  disputes:    function(){ if(typeof loadDisputes==='function') loadDisputes(); },
+  bureau:      function(){ if(typeof loadBureau==='function') loadBureau(); },
+  sales:       function(){ if(typeof loadSales==='function') loadSales(); },
+  applications:function(){ if(typeof loadApplications==='function') loadApplications(); }
+};
+
+var _origShowPage = typeof showPage==='function' ? showPage : null;
+function showPage(page) {
+  if (_origShowPage) _origShowPage(page);
+  if (_pageLoaders[page]) {
+    setTimeout(function(){ try{ _pageLoaders[page](); }catch(e){console.error('loader:',page,e.message);} }, 150);
+  }
+}
