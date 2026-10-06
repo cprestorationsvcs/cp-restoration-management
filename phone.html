@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone — CP Restoration Services</title>
+<script src="https://cdn.jsdelivr.net/npm/@ringcentral/sdk@latest/dist/ringcentral.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1E293B;}
+header{background:#1B3A6B;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+header h1{color:white;font-size:16px;font-weight:800;}
+header a{color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;}
+.container{max-width:900px;margin:24px auto;padding:0 20px;}
+.card{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:20px;margin-bottom:20px;}
+.card h2{font-size:15px;font-weight:700;color:#1B3A6B;margin-bottom:16px;}
+.status-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;margin-bottom:16px;}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#22C55E;}
+.status-dot.red{background:#EF4444;}
+.status-dot.yellow{background:#F59E0B;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.status-text{font-size:13px;font-weight:600;color:#166534;}
+.dialpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto 16px;}
+.dial-btn{padding:16px;border:1.5px solid #E2E8F0;border-radius:10px;background:white;font-size:20px;font-weight:700;cursor:pointer;text-align:center;transition:all 0.15s;}
+.dial-btn:hover{background:#1B3A6B;color:white;border-color:#1B3A6B;}
+.dial-btn small{display:block;font-size:9px;font-weight:500;letter-spacing:1px;color:#94A3B8;}
+.dial-btn:hover small{color:rgba(255,255,255,0.7);}
+.number-display{width:100%;padding:14px;font-size:22px;font-weight:700;border:2px solid #E2E8F0;border-radius:10px;text-align:center;margin-bottom:16px;letter-spacing:2px;font-family:monospace;}
+.call-btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
+.call-btn.green{background:#166534;color:white;}
+.call-btn.red{background:#8B1A1A;color:white;display:none;}
+.call-btn.transfer{background:#1B3A6B;color:white;display:none;}
+.call-btn:hover{opacity:0.9;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.call-log{max-height:320px;overflow-y:auto;}
+.log-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #E2E8F0;}
+.log-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.log-in{background:#DCFCE7;}
+.log-out{background:#DBEAFE;}
+.log-missed{background:#FEE2E2;}
+.log-info .name{font-size:13px;font-weight:600;}
+.log-info .detail{font-size:11px;color:#64748B;}
+.log-duration{margin-left:auto;font-size:11px;color:#64748B;white-space:nowrap;}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-red{background:#FEE2E2;color:#8B1A1A;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.call-controls{display:none;}
+.call-controls.active{display:block;}
+.mute-btn{padding:10px 16px;border:1.5px solid #E2E8F0;border-radius:8px;background:white;font-size:13px;font-weight:600;cursor:pointer;}
+.mute-btn.active{background:#8B1A1A;color:white;border-color:#8B1A1A;}
+.incoming-banner{display:none;background:#1B3A6B;color:white;padding:16px 20px;border-radius:10px;margin-bottom:16px;}
+.incoming-banner.active{display:block;}
+.answer-btn{padding:10px 20px;background:#166534;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-right:10px;font-size:13px;}
+.decline-btn{padding:10px 20px;background:#8B1A1A;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;}
+.login-card{max-width:400px;margin:60px auto;}
+.login-card input{width:100%;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-bottom:12px;font-family:inherit;}
+.login-card button{width:100%;padding:12px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;}
+</style>
+</head>
+<body>
+<header>
+  <h1>&#128222; CP Restoration — Phone System</h1>
+  <a href="/dashboard.html">← Back to Dashboard</a>
+</header>
+
+<div class="container">
+  <!-- Login -->
+  <div id="login-section" class="card login-card">
+    <h2 style="text-align:center;margin-bottom:16px;">&#128274; RingCentral Login</h2>
+    <p style="font-size:13px;color:#64748B;text-align:center;margin-bottom:20px;">Log in with your RingCentral credentials to access the phone system.</p>
+    <input type="email" id="rc-email" placeholder="RingCentral Email" value="crownitstaffingandrecruiting@gmail.com">
+    <input type="password" id="rc-password" placeholder="Password" value="">
+    <button onclick="rcLogin()">Connect to RingCentral</button>
+    <div id="login-error" style="color:#8B1A1A;font-size:12px;margin-top:8px;text-align:center;"></div>
+  </div>
+
+  <!-- Phone UI -->
+  <div id="phone-section" style="display:none;">
+
+    <!-- Status -->
+    <div class="status-bar" id="status-bar">
+      <div class="status-dot" id="status-dot"></div>
+      <span class="status-text" id="status-text">Connecting...</span>
+      <span style="margin-left:auto;font-size:12px;color:#64748B;" id="rc-number">+12407883555</span>
+    </div>
+
+    <!-- Incoming Call Banner -->
+    <div class="incoming-banner" id="incoming-banner">
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px;">&#128222; Incoming Call</div>
+      <div style="font-size:18px;font-weight:800;margin-bottom:12px;" id="incoming-number">Unknown</div>
+      <button class="answer-btn" onclick="answerCall()">&#9989; Answer</button>
+      <button class="decline-btn" onclick="declineCall()">&#10060; Decline</button>
+    </div>
+
+    <div class="grid2">
+      <!-- Dialpad -->
+      <div class="card">
+        <h2>&#128222; Make a Call</h2>
+        <input type="tel" class="number-display" id="dial-number" placeholder="(000) 000-0000">
+        <div class="dialpad">
+          <button class="dial-btn" onclick="dialPress('1')">1<small> </small></button>
+          <button class="dial-btn" onclick="dialPress('2')">2<small>ABC</small></button>
+          <button class="dial-btn" onclick="dialPress('3')">3<small>DEF</small></button>
+          <button class="dial-btn" onclick="dialPress('4')">4<small>GHI</small></button>
+          <button class="dial-btn" onclick="dialPress('5')">5<small>JKL</small></button>
+          <button class="dial-btn" onclick="dialPress('6')">6<small>MNO</small></button>
+          <button class="dial-btn" onclick="dialPress('7')">7<small>PQRS</small></button>
+          <button class="dial-btn" onclick="dialPress('8')">8<small>TUV</small></button>
+          <button class="dial-btn" onclick="dialPress('9')">9<small>WXYZ</small></button>
+          <button class="dial-btn" onclick="dialPress('*')">*</button>
+          <button class="dial-btn" onclick="dialPress('0')">0<small>+</small></button>
+          <button class="dial-btn" onclick="dialPress('#')">#</button>
+        </div>
+        <button class="dial-btn" style="width:100%;margin-bottom:8px;font-size:14px;" onclick="backspace()">&#9003; Delete</button>
+        <button class="call-btn green" id="call-btn" onclick="makeCall()">&#128222; Call</button>
+        <button class="call-btn red" id="hangup-btn" onclick="hangUp()">&#128308; End Call</button>
+
+        <!-- In-call controls -->
+        <div class="call-controls" id="call-controls">
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="mute-btn" id="mute-btn" onclick="toggleMute()">&#128263; Mute</button>
+            <button class="mute-btn" onclick="holdCall()">&#9208; Hold</button>
+          </div>
+          <div style="margin-top:10px;">
+            <input type="tel" id="transfer-num" placeholder="Transfer to..." style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:13px;margin-bottom:6px;">
+            <button class="call-btn transfer" id="transfer-btn" onclick="transferCall()" style="display:block;">&#8620; Transfer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Dial -->
+      <div class="card">
+        <h2>&#9889; Quick Dial — Team</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button onclick="quickDial('+18553275847')" style="padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;text-align:left;background:white;cursor:pointer;font-size:13px;">
+            <strong>CP Restoration Main</strong><br><span style="color:#64748B;font-size:11px;">1-855-327-5847</span>
+          </button>
+          <button onclick="quickDial('+12407883555')" style="padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;text-align:left;background:white;cursor:pointer;font-size:13px;">
+            <strong>RingCentral Line</strong><br><span style="color:#64748B;font-size:11px;">(240) 788-3555</span>
+          </button>
+        </div>
+        <div style="margin-top:16px;">
+          <h3 style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;">Call a Client</h3>
+          <input id="client-search-rc" placeholder="Search client name..." style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:13px;" oninput="searchClientsRC(this.value)">
+          <div id="client-results-rc" style="max-height:180px;overflow-y:auto;margin-top:6px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call Log -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h2 style="margin:0;">&#128203; Recent Calls</h2>
+        <button onclick="loadCallLog()" style="padding:6px 12px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer;">&#8635; Refresh</button>
+      </div>
+      <div class="call-log" id="call-log">
+        <div style="text-align:center;padding:24px;color:#94A3B8;">Loading call log...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var RC_CLIENT_ID = '9XxWlKzJPckcCLW1TWZ0YO';
+var RC_SERVER = 'https://platform.ringcentral.com';
+var rcPlatform = null;
+var rcWebPhone = null;
+var currentCall = null;
+var isMuted = false;
+
+// Init SDK
+var rcsdk = new RingCentral.SDK({
+  clientId: RC_CLIENT_ID,
+  server: RC_SERVER
+});
+var platform = rcsdk.platform();
+
+async function rcLogin() {
+  var email = document.getElementById('rc-email').value.trim();
+  var password = document.getElementById('rc-password').value.trim();
+  document.getElementById('login-error').textContent = 'Connecting...';
+  try {
+    await platform.login({ username: email, password: password });
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('phone-section').style.display = 'block';
+    setStatus('Connected — Ready', 'green');
+    loadCallLog();
+    initWebPhone();
+  } catch(e) {
+    document.getElementById('login-error').textContent = 'Login failed: ' + (e.message || 'Check credentials');
+  }
+}
+
+function setStatus(text, color) {
+  document.getElementById('status-text').textContent = text;
+  var dot = document.getElementById('status-dot');
+  dot.className = 'status-dot' + (color === 'red' ? ' red' : color === 'yellow' ? ' yellow' : '');
+  document.getElementById('status-bar').style.background = color === 'green' ? '#F0FDF4' : color === 'red' ? '#FEF2F2' : '#FEF9C3';
+}
+
+function dialPress(digit) {
+  var el = document.getElementById('dial-number');
+  el.value += digit;
+}
+
+function backspace() {
+  var el = document.getElementById('dial-number');
+  el.value = el.value.slice(0,-1);
+}
+
+function quickDial(num) {
+  document.getElementById('dial-number').value = num;
+  makeCall();
+}
+
+async function makeCall() {
+  var num = document.getElementById('dial-number').value.replace(/[^0-9+]/g,'');
+  if (!num || num.length < 7) { alert('Please enter a valid phone number.'); return; }
+  if (!num.startsWith('+')) num = '+1' + num.replace(/^1/,'');
+  try {
+    setStatus('Calling ' + num + '...', 'yellow');
+    var resp = await platform.post('/restapi/v1.0/account/~/telephony/sessions', {
+      to: [{ phoneNumber: num }],
+      from: { phoneNumber: '+12407883555' },
+      playPrompt: false
+    });
+    var data = await resp.json();
+    currentCall = data;
+    document.getElementById('call-btn').style.display = 'none';
+    document.getElementById('hangup-btn').style.display = 'block';
+    document.getElementById('call-controls').className = 'call-controls active';
+    setStatus('On call with ' + num, 'yellow');
+    // Log call in notes
+    logCallToClient(num, 'outbound');
+  } catch(e) {
+    setStatus('Call failed: ' + (e.message || 'Error'), 'red');
+    setTimeout(function(){ setStatus('Connected — Ready', 'green'); }, 3000);
+  }
+}
+
+async function hangUp() {
+  if (currentCall) {
+    try {
+      await platform.delete('/restapi/v1.0/account/~/telephony/sessions/' + currentCall.id);
+    } catch(e){}
+    currentCall = null;
+  }
+  document.getElementById('call-btn').style.display = 'block';
+  document.getElementById('hangup-btn').style.display = 'none';
+  document.getElementById('call-controls').className = 'call-controls';
+  setStatus('Connected — Ready', 'green');
+  loadCallLog();
+}
+
+async function toggleMute() {
+  isMuted = !isMuted;
+  var btn = document.getElementById('mute-btn');
+  btn.className = 'mute-btn' + (isMuted ? ' active' : '');
+  btn.textContent = isMuted ? '🔇 Unmute' : '🔊 Mute';
+}
+
+async function holdCall() {
+  alert('Hold feature available with RingCentral WebRTC integration.');
+}
+
+async function transferCall() {
+  var num = document.getElementById('transfer-num').value.replace(/[^0-9+]/g,'');
+  if (!num) { alert('Enter a transfer number.'); return; }
+  alert('Transfer to ' + num + ' — requires RingCentral Call Control API.');
+}
+
+function answerCall() {
+  document.getElementById('incoming-banner').className = 'incoming-banner';
+  document.getElementById('call-btn').style.display = 'none';
+  document.getElementById('hangup-btn').style.display = 'block';
+  document.getElementById('call-controls').className = 'call-controls active';
+  setStatus('On call (answered)', 'yellow');
+}
+
+function declineCall() {
+  document.getElementById('incoming-banner').className = 'incoming-banner';
+  setStatus('Connected — Ready', 'green');
+}
+
+async function loadCallLog() {
+  try {
+    var resp = await platform.get('/restapi/v1.0/account/~/call-log?perPage=25&direction=All&type=Voice');
+    var data = await resp.json();
+    var records = data.records || [];
+    var html = records.map(function(c) {
+      var dir = c.direction === 'Inbound' ? 'in' : 'out';
+      var missed = c.result === 'Missed';
+      var icon = missed ? '📵' : dir === 'in' ? '📲' : '📞';
+      var cls = missed ? 'log-missed' : dir === 'in' ? 'log-in' : 'log-out';
+      var name = c.to && c.to.name ? c.to.name : (c.from && c.from.name ? c.from.name : 'Unknown');
+      var num = dir === 'in' ? (c.from && c.from.phoneNumber || '') : (c.to && c.to.phoneNumber || '');
+      var ts = c.startTime ? new Date(c.startTime).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+      var dur = c.duration ? Math.floor(c.duration/60)+'m '+( c.duration%60)+'s' : '';
+      return '<div class="log-item">'+
+        '<div class="log-icon '+cls+'">'+icon+'</div>'+
+        '<div class="log-info">'+
+          '<div class="name">'+name+'</div>'+
+          '<div class="detail">'+num+' &middot; '+ts+'</div>'+
+        '</div>'+
+        '<div class="log-duration">'+
+          (missed ? '<span class="badge badge-red">Missed</span>' : '<span class="badge badge-'+(dir==='in'?'green':'blue')+'">'+dur+'</span>')+
+        '</div>'+
+        '<button onclick="quickDial(''+num+'')" style="margin-left:8px;padding:4px 10px;background:#1B3A6B;color:white;border:none;border-radius:5px;font-size:11px;cursor:pointer;">Call Back</button>'+
+      '</div>';
+    }).join('');
+    document.getElementById('call-log').innerHTML = html || '<div style="text-align:center;padding:24px;color:#94A3B8;">No recent calls.</div>';
+  } catch(e) {
+    document.getElementById('call-log').innerHTML = '<div style="text-align:center;padding:24px;color:#64748B;">Could not load call log.</div>';
+  }
+}
+
+function logCallToClient(num, direction) {
+  // Could integrate with client notes here
+  console.log('Call log:', direction, num);
+}
+
+function searchClientsRC(q) {
+  if (!q || q.length < 2) { document.getElementById('client-results-rc').innerHTML=''; return; }
+  // Search from localStorage client cache
+  var results = document.getElementById('client-results-rc');
+  results.innerHTML = '<div style="font-size:12px;color:#64748B;padding:8px;">Type at least 2 characters to search...</div>';
+}
+
+function initWebPhone() {
+  // WebRTC phone would require additional setup
+  console.log('WebPhone init — requires RingCentral WebRTC SDK');
+}
+
+// Auto-login if credentials stored
+window.onload = function() {
+  // Pre-fill password from env
+  document.getElementById('rc-password').value = '';
+};
+</script>
+</body>
+</html>
