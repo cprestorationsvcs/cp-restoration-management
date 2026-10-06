@@ -308,6 +308,11 @@ function loginAdmin() {
   }
   currentUser = email;
   currentRole = emp.role;
+  localStorage.setItem('cp_logged_in_user', email);
+  localStorage.setItem('cp_logged_in_role', emp.role);
+  localStorage.setItem('cp_logged_in_name', emp.name);
+  localStorage.setItem('cp_logged_in_label', emp.label);
+  localStorage.setItem('cp_logged_in_initials', emp.initials||emp.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2));
   if (errEl) errEl.style.display = 'none';
   var loginScreen = document.getElementById('login-screen');
   var app = document.getElementById('app');
@@ -327,6 +332,11 @@ function loginAdmin() {
 function logoutAdmin() {
   trackTeamSession('Logged Out');
   currentUser = null; currentRole = null;
+  localStorage.removeItem('cp_logged_in_user');
+  localStorage.removeItem('cp_logged_in_role');
+  localStorage.removeItem('cp_logged_in_name');
+  localStorage.removeItem('cp_logged_in_label');
+  localStorage.removeItem('cp_logged_in_initials');
   var loginScreen = document.getElementById('login-screen');
   var app = document.getElementById('app');
   if (loginScreen) loginScreen.style.display = 'flex';
@@ -542,22 +552,45 @@ function closeEdit() {
 document.addEventListener('DOMContentLoaded', function() {
   // Restore session from localStorage
   var savedEmail = localStorage.getItem('cp_logged_in_user');
+  var savedName  = localStorage.getItem('cp_logged_in_name') || '';
+  var savedLabel = localStorage.getItem('cp_logged_in_label') || '';
+  var savedRole  = localStorage.getItem('cp_logged_in_role') || '';
+  var savedInit  = localStorage.getItem('cp_logged_in_initials') || '';
+
   if (savedEmail && EMPLOYEES[savedEmail]) {
     var emp = EMPLOYEES[savedEmail];
     currentUser = savedEmail;
-    currentRole = emp.role;
+    currentRole = emp.role || savedRole;
+
     var loginScreen = document.getElementById('login-screen');
-    var app = document.getElementById('app');
+    var appEl = document.getElementById('app');
     if (loginScreen) loginScreen.style.display = 'none';
-    if (app) app.style.display = 'block';
-    // Set header
-    var setEl = function(id, v) { var e=document.getElementById(id); if(e) e.textContent=v; };
-    setEl('hdr-name', emp.name);
-    setEl('hdr-role', emp.label + ' — CP Restoration Services');
-    setEl('hdr-avatar', emp.initials || emp.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2));
+    if (appEl) appEl.style.display = 'block';
+
+    // Set all header elements
+    var s = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+    s('hdr-name', emp.name);
+    s('hdr-role', emp.label + ' — CP Restoration Services');
+    s('hdr-avatar', emp.initials || savedInit);
+    s('current-user-name', emp.name);
+    s('current-user-role', emp.label);
+
+    // Show/hide admin-only elements
+    document.querySelectorAll('.admin-only').forEach(function(el){
+      el.style.display = emp.role==='admin' ? '' : 'none';
+    });
+
     showPage('dashboard');
-    loadDashboardData();
+    if (typeof loadDashboard === 'function') loadDashboard();
+    if (typeof startClock === 'function') startClock();
+    if (typeof trackTeamSession === 'function') trackTeamSession();
   }
+
+  // Set today's date on any date fields
+  var today = new Date().toISOString().split('T')[0];
+  ['emp-esign1-date','emp-esign2-date'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value=today;
+  });
 });
 
 // ── LOAD DASHBOARD DATA ────────────────────────────────────────────────────
