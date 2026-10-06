@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bureau Caller Dashboard — CP Restoration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1E293B;}
+header{background:#166534;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+header h1{color:white;font-size:16px;font-weight:800;}
+header a{color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;}
+.container{max-width:1000px;margin:0 auto;padding:20px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:20px;}
+.stat{background:white;border-radius:10px;border:1.5px solid #E2E8F0;padding:16px;text-align:center;}
+.stat-val{font-size:28px;font-weight:800;color:#166534;}
+.stat-lbl{font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;}
+.card{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:20px;margin-bottom:20px;}
+.card h2{font-size:15px;font-weight:700;color:#166534;margin-bottom:14px;}
+.quota-bar{background:#F1F5F9;border-radius:8px;height:14px;margin:8px 0;overflow:hidden;}
+.quota-fill{height:100%;background:#166534;border-radius:8px;transition:width 0.3s;}
+.quota-fill.over{background:#C9A84C;}
+input,select,textarea{width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:10px;}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-green{background:#166534;color:white;width:100%;padding:12px;}
+.btn-gray{background:#F1F5F9;color:#475569;border:1.5px solid #E2E8F0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#F8FAFC;padding:10px;text-align:left;font-weight:700;font-size:11px;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;}
+td{padding:10px;border-bottom:1px solid #F1F5F9;}
+.badge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-gold{background:#FEF9C3;color:#92400E;}
+.badge-blue{background:#DBEAFE;color:#1E40AF;}
+.badge-red{background:#FEE2E2;color:#8B1A1A;}
+.points-box{background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:10px;padding:14px;margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;}
+.pts-item{text-align:center;flex:1;}
+.pts-val{font-size:22px;font-weight:800;color:#166534;}
+.pts-lbl{font-size:11px;color:#64748B;}
+</style>
+</head>
+<body>
+<header>
+  <h1>&#128222; CP Restoration &mdash; Bureau Caller Dashboard</h1>
+  <a href="/dashboard.html">&larr; Back</a>
+</header>
+<div class="container">
+
+  <!-- Login -->
+  <div id="caller-login" class="card" style="max-width:400px;margin:0 auto 20px;">
+    <h2>&#128100; Select Your Name</h2>
+    <select id="caller-select">
+      <option value="">-- Select your name --</option>
+    </select>
+    <button class="btn btn-green" onclick="callerLogin()">&#9654; Enter Dashboard</button>
+  </div>
+
+  <div id="caller-dashboard" style="display:none;">
+
+    <!-- Points Summary -->
+    <div class="points-box">
+      <div class="pts-item"><div class="pts-val" id="pts-today">0</div><div class="pts-lbl">Points Today</div></div>
+      <div class="pts-item"><div class="pts-val" id="pts-week">0</div><div class="pts-lbl">Points This Week</div></div>
+      <div class="pts-item"><div class="pts-val">45</div><div class="pts-lbl">Weekly Target</div></div>
+      <div class="pts-item"><div class="pts-val" id="pts-remaining">45</div><div class="pts-lbl">Remaining</div></div>
+      <div class="pts-item"><div class="pts-val" id="pay-status">$100</div><div class="pts-lbl">Pay Status</div></div>
+    </div>
+
+    <!-- Weekly Progress -->
+    <div class="card">
+      <h2>&#128200; Weekly Progress</h2>
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;">
+        <span>Weekly Target: 45 points</span>
+        <span id="quota-pct">0%</span>
+      </div>
+      <div class="quota-bar">
+        <div class="quota-fill" id="quota-bar" style="width:0%"></div>
+      </div>
+      <div style="font-size:12px;color:#64748B;margin-top:8px;">
+        &#128274; Points: 1 = bureau call logged &nbsp;|&nbsp; 2 = fraud alert placed &nbsp;|&nbsp; 3 = confirmed deletion
+      </div>
+    </div>
+
+    <div class="grid2">
+      <!-- Log a Bureau Call -->
+      <div class="card">
+        <h2>&#128222; Log Bureau Call</h2>
+        <input type="text" id="bc-client-id" placeholder="Client ID (e.g. CPR-CP17430)">
+        <input type="text" id="bc-client-name" placeholder="Client Name">
+        <select id="bc-bureau">
+          <option value="">-- Bureau --</option>
+          <option value="Experian">Experian</option>
+          <option value="Equifax">Equifax</option>
+          <option value="TransUnion">TransUnion</option>
+          <option value="ChexSystems">ChexSystems</option>
+          <option value="LexisNexis">LexisNexis</option>
+        </select>
+        <select id="bc-outcome">
+          <option value="">-- Outcome --</option>
+          <option value="dispute_filed">Dispute Filed (1 pt)</option>
+          <option value="fraud_alert">Fraud Alert Placed (2 pts)</option>
+          <option value="security_freeze">Security Freeze (2 pts)</option>
+          <option value="deletion">&#127881; Confirmed Deletion (3 pts)</option>
+          <option value="update">Account Updated (1 pt)</option>
+          <option value="callback">Callback Scheduled (1 pt)</option>
+          <option value="no_change">No Change (1 pt)</option>
+        </select>
+        <input type="text" id="bc-ref" placeholder="Reference / Confirmation Number">
+        <input type="text" id="bc-agent" placeholder="Agent Name (who you spoke with)">
+        <input type="text" id="bc-items" placeholder="Items disputed (e.g. Collection - CapOne)">
+        <textarea id="bc-notes" placeholder="Notes..." style="min-height:60px;resize:none;"></textarea>
+        <button class="btn btn-green" onclick="logBureauCall()">&#128222; Log Bureau Call</button>
+        <div id="bc-msg" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
+      </div>
+
+      <!-- Bureau Numbers Quick Reference -->
+      <div class="card">
+        <h2>&#128222; Bureau Phone Numbers</h2>
+        <div style="font-size:13px;line-height:2.2;">
+          <div><strong>&#128997; Experian Disputes</strong><br>1-888-397-3742</div>
+          <div><strong>&#128994; Equifax Disputes</strong><br>1-866-349-5191</div>
+          <div><strong>&#128309; TransUnion Disputes</strong><br>1-800-916-8800</div>
+          <div><strong>&#128998; ChexSystems</strong><br>1-800-428-9623</div>
+          <div><strong>&#9899; LexisNexis</strong><br>1-888-497-0011</div>
+        </div>
+        <div style="margin-top:16px;padding:10px;background:#FEF9C3;border-radius:6px;font-size:12px;color:#92400E;">
+          &#9888;&#65039; Always log the agent name and reference number. Bureaus use these to track dispute status.
+        </div>
+      </div>
+    </div>
+
+    <!-- Call History -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h2 style="margin:0;">&#128203; Call History</h2>
+        <button class="btn btn-gray" onclick="loadCallHistory()" style="font-size:12px;padding:6px 14px;">&#8635; Refresh</button>
+      </div>
+      <table>
+        <thead><tr><th>Date/Time</th><th>Client</th><th>Bureau</th><th>Outcome</th><th>Ref #</th><th>Points</th></tr></thead>
+        <tbody id="bc-history"><tr><td colspan="6" style="text-align:center;padding:20px;color:#94A3B8;">No calls logged yet.</td></tr></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+var currentCaller = null;
+
+var OUTCOME_PTS = {dispute_filed:1,fraud_alert:2,security_freeze:2,deletion:3,update:1,callback:1,no_change:1};
+
+function callerLogin() {
+  var val = document.getElementById('caller-select').value;
+  if (!val) { alert('Select your name.'); return; }
+  var parts = val.split('|');
+  currentCaller = {name:parts[0], email:parts[1]};
+  document.getElementById('caller-login').style.display='none';
+  document.getElementById('caller-dashboard').style.display='block';
+  loadCallHistory(); loadWeeklyStats();
+}
+
+async function logBureauCall() {
+  if (!currentCaller) return;
+  var bureau = document.getElementById('bc-bureau').value;
+  var outcome = document.getElementById('bc-outcome').value;
+  var msg = document.getElementById('bc-msg');
+  if (!bureau || !outcome) { msg.style.color='#8B1A1A'; msg.textContent='Select bureau and outcome.'; return; }
+
+  var pts = OUTCOME_PTS[outcome] || 1;
+  var entry = {
+    caller_name: currentCaller.name,
+    caller_email: currentCaller.email,
+    client_id: document.getElementById('bc-client-id').value.trim(),
+    client_name: document.getElementById('bc-client-name').value.trim(),
+    bureau: bureau,
+    outcome: outcome,
+    reference_number: document.getElementById('bc-ref').value.trim(),
+    agent_name: document.getElementById('bc-agent').value.trim(),
+    items_disputed: document.getElementById('bc-items').value.trim(),
+    notes: document.getElementById('bc-notes').value.trim(),
+    points: pts,
+    call_date: new Date().toISOString().split('T')[0]
+  };
+
+  try {
+    msg.style.color='#64748B'; msg.textContent='Saving...';
+    await fetch(SUPA+'/bureau_calls', {
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body: JSON.stringify(entry)
+    });
+    msg.style.color='#166534'; msg.textContent='✅ Call logged! +'+pts+' point'+(pts>1?'s':'');
+    ['bc-client-id','bc-client-name','bc-ref','bc-agent','bc-items','bc-notes'].forEach(function(id){
+      document.getElementById(id).value='';
+    });
+    document.getElementById('bc-bureau').value='';
+    document.getElementById('bc-outcome').value='';
+    setTimeout(function(){msg.textContent='';loadCallHistory();loadWeeklyStats();},1500);
+  } catch(e) { msg.style.color='#8B1A1A'; msg.textContent='Error: '+e.message; }
+}
+
+async function loadCallHistory() {
+  if (!currentCaller) return;
+  try {
+    var r = await fetch(SUPA+'/bureau_calls?caller_email=eq.'+encodeURIComponent(currentCaller.email)+'&order=created_at.desc&limit=50',{headers:HDR});
+    var data = await r.json();
+    var tbody = document.getElementById('bc-history');
+    if (!Array.isArray(data)||!data.length) {
+      tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:#94A3B8;">No calls logged yet.</td></tr>'; return;
+    }
+    var badges = {deletion:'badge-green',fraud_alert:'badge-gold',dispute_filed:'badge-blue',no_change:'badge-red',update:'badge-blue',callback:'badge-blue',security_freeze:'badge-gold'};
+    tbody.innerHTML = data.map(function(c){
+      var t = c.created_at ? new Date(c.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+      var oc = (c.outcome||'').replace(/_/g,' ');
+      return '<tr><td style="font-size:12px;">'+t+'</td><td>'+(c.client_name||c.client_id||'')+'</td>'+
+        '<td>'+c.bureau+'</td>'+
+        '<td><span class="badge '+(badges[c.outcome]||'badge-blue')+'">'+oc+'</span></td>'+
+        '<td style="font-size:12px;color:#64748B;">'+(c.reference_number||'—')+'</td>'+
+        '<td><strong>+'+c.points+'</strong></td></tr>';
+    }).join('');
+    var todayPts = data.filter(function(c){
+      return c.call_date === new Date().toISOString().split('T')[0];
+    }).reduce(function(s,c){return s+( c.points||0);},0);
+    document.getElementById('pts-today').textContent = todayPts;
+  } catch(e) { console.error(e); }
+}
+
+async function loadWeeklyStats() {
+  if (!currentCaller) return;
+  var monday = new Date(); monday.setDate(monday.getDate()-monday.getDay()+1);
+  var weekStart = monday.toISOString().split('T')[0];
+  try {
+    var r = await fetch(SUPA+'/bureau_calls?caller_email=eq.'+encodeURIComponent(currentCaller.email)+'&call_date=gte.'+weekStart,{headers:HDR});
+    var data = await r.json();
+    if (!Array.isArray(data)) return;
+    var weekPts = data.reduce(function(s,c){return s+(c.points||0);},0);
+    var pct = Math.min(100, Math.round(weekPts/45*100));
+    document.getElementById('pts-week').textContent = weekPts;
+    document.getElementById('pts-remaining').textContent = Math.max(0,45-weekPts);
+    document.getElementById('quota-pct').textContent = pct+'%';
+    var bar = document.getElementById('quota-bar');
+    bar.style.width = pct+'%';
+    if (pct>=100) bar.classList.add('over');
+    document.getElementById('pay-status').textContent = weekPts >= 45 ? '✅ $100' : 'Pending';
+  } catch(e) { console.error(e); }
+}
+
+window.addEventListener('load', function() {
+  var saved = localStorage.getItem('cp_logged_in_name');
+  var savedEmail = localStorage.getItem('cp_logged_in_user');
+  // Populate select
+  var sel = document.getElementById('caller-select');
+  if (saved && savedEmail) {
+    currentCaller = {name:saved,email:savedEmail};
+    document.getElementById('caller-login').style.display='none';
+    document.getElementById('caller-dashboard').style.display='block';
+    loadCallHistory(); loadWeeklyStats();
+  }
+});
+</script>
+</body>
+</html>
