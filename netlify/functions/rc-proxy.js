@@ -9,37 +9,63 @@ const makeReq = (opts, data) => new Promise((res, rej) => {
   const req = https.request(opts, r => {
     let d = ''; r.on('data', c => d += c); r.on('end', () => res({status: r.statusCode, body: d}));
   });
-  req.on('error', rej); if (data) req.write(data); req.end();
+  req.on('error', rej);
+  if (data) req.write(data);
+  req.end();
 });
 
 exports.handler = async function(event) {
-  const headers = {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type','Access-Control-Allow-Methods':'POST,OPTIONS'};
-  if (event.httpMethod === 'OPTIONS') return {statusCode:200,headers,body:''};
-  try {
-    const {action, jwt, accessToken, method, path, reqBody} = JSON.parse(event.body || '{}');
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+  };
 
-    if (action === 'jwt' || action === 'auto-auth') {
-      // Use provided JWT or fall back to stored one
-      const jwtToUse = jwt || RC_JWT;
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
+
+  try {
+    const { action, accessToken, method, path, reqBody } = JSON.parse(event.body || '{}');
+
+    // JWT auth — always use stored JWT
+    if (action === 'auth' || action === 'jwt' || action === 'auto-auth') {
       const creds = Buffer.from(RC_CLIENT_ID + ':' + RC_CLIENT_SECRET).toString('base64');
-      const pd = 'grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=' + encodeURIComponent(jwtToUse);
+      const pd = 'grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=' + encodeURIComponent(RC_JWT);
       const r = await makeReq({
-        hostname: RC_HOST, path: '/restapi/oauth/token', method: 'POST',
-        headers: {'Authorization':'Basic '+creds,'Content-Type':'application/x-www-form-urlencoded','Content-Length':Buffer.byteLength(pd)}
+        hostname: RC_HOST,
+        path: '/restapi/oauth/token',
+        method: 'POST',
+        headers: {
+          'Authorization': 'Basic ' + creds,
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(pd)
+        }
       }, pd);
-      return {statusCode: r.status, headers, body: r.body};
+      return { statusCode: r.status, headers, body: r.body };
     }
 
+    // Proxy API call
     if (action === 'api') {
       const pd = reqBody ? JSON.stringify(reqBody) : null;
-      const rh = {'Authorization':'Bearer '+accessToken,'Accept':'application/json'};
-      if (pd) {rh['Content-Type']='application/json'; rh['Content-Length']=Buffer.byteLength(pd);}
-      const r = await makeReq({hostname:RC_HOST, path:path, method:method||'GET', headers:rh}, pd);
-      return {statusCode: r.status, headers, body: r.body};
+      const rh = {
+        'Authorization': 'Bearer ' + accessToken,
+        'Accept': 'application/json'
+      };
+      if (pd) {
+        rh['Content-Type'] = 'application/json';
+        rh['Content-Length'] = Buffer.byteLength(pd);
+      }
+      const r = await makeReq({
+        hostname: RC_HOST,
+        path: path,
+        method: method || 'GET',
+        headers: rh
+      }, pd);
+      return { statusCode: r.status, headers, body: r.body };
     }
 
-    return {statusCode:400, headers, body: JSON.stringify({error:'Unknown action'})};
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Unknown action' }) };
+
   } catch(e) {
-    return {statusCode:500, headers, body: JSON.stringify({error: e.message})};
+    return { statusCode: 500, headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: e.message }) };
   }
 };
