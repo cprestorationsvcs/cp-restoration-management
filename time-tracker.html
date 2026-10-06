@@ -436,6 +436,13 @@ async function clearScreenshots() {
 
 // Render on load
 renderScreenshots();
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  loadSessionsFromSupabase();
+  // Refresh every 30 seconds
+  setInterval(loadSessionsFromSupabase, 30000);
+});
 </script>
 </body>
 </html>
