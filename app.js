@@ -806,10 +806,30 @@ var _pageLoaders = {
   applications:function(){ if(typeof loadApplications==='function') loadApplications(); }
 };
 
-var _origShowPage = typeof showPage==='function' ? showPage : null;
-function showPage(page) {
-  if (_origShowPage) _origShowPage(page);
+// Page loader trigger — called from showPage in index.html
+// We do NOT override showPage to avoid infinite recursion.
+// Instead index.html's showPage calls _triggerPageLoader after showing the page.
+function _triggerPageLoader(page) {
   if (_pageLoaders[page]) {
     setTimeout(function(){ try{ _pageLoaders[page](); }catch(e){console.error('loader:',page,e.message);} }, 150);
   }
+}
+
+// Hook: patch showPage safely using a flag to prevent recursion
+var _showPagePatched = false;
+function _patchShowPage() {
+  if (_showPagePatched) return;
+  if (typeof showPage !== 'function') return;
+  _showPagePatched = true;
+  var _orig = showPage;
+  showPage = function(page) {
+    _orig(page);
+    _triggerPageLoader(page);
+  };
+}
+// Try to patch after DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _patchShowPage);
+} else {
+  setTimeout(_patchShowPage, 500);
 }
