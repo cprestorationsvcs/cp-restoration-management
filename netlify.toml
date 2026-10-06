@@ -96,6 +96,11 @@
   to = "/hr.html"
   status = 200
 
+[[redirects]]
+  from = "/phone"
+  to = "/phone.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]
