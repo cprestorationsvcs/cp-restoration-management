@@ -444,57 +444,79 @@ function startClock() {
 // ── DASHBOARD DATA ─────────────────────────────────────────────────
 function loadDashboard() {
   try {
-    // Client stats
+    // Client stats from localStorage cache
     var clients = JSON.parse(localStorage.getItem('cp_clients_v2')||'[]');
     var active = clients.filter(function(c){ return (c.status||'Active')==='Active'; }).length;
     set('stat-clients', active || clients.length || '0');
-
-    // Lead stats
     var leads = JSON.parse(localStorage.getItem('cp_leads')||'[]');
-    var newLeads = leads.filter(function(l){ return l.status==='new'; }).length;
-    set('stat-leads', newLeads);
+    set('stat-leads', leads.filter(function(l){return l.status==='new';}).length);
+  } catch(e) { console.error('loadDashboard local:', e); }
 
-    // Online now
-    var sessions = JSON.parse(localStorage.getItem('cp_team_sessions')||'{}');
-    var clientLog = JSON.parse(localStorage.getItem('cp_activity_log')||'[]');
-    var now = new Date();
-    var teamOnline = Object.values(sessions).filter(function(s){ return (now-new Date(s.lastSeen))<5*60*1000; }).length;
-    var clientsOnline = new Set(clientLog.filter(function(r){ return (now-new Date(r.time))<5*60*1000; }).map(function(r){ return r.id; })).size;
-    set('stat-online', teamOnline + clientsOnline);
+  // Load live team online from Supabase
+  loadTeamOnline();
+}
 
-    // Team online widget
+async function loadTeamOnline() {
+  var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+  var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+  var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY};
+  try {
+    var today = new Date().toISOString().split('T')[0];
+    var url = SUPA+'/time_sessions?select=employee_name,status,clock_in,last_seen&date=eq.'+today+'&order=last_seen.desc.nullslast';
+    var resp = await fetch(url, {headers:HDR});
+    if (!resp.ok) throw new Error('HTTP '+resp.status);
+    var sessions = await resp.json();
+    if (!Array.isArray(sessions)) throw new Error('Bad data');
+
+    // Deduplicate — keep latest session per employee
+    var seen = {};
+    var unique = [];
+    sessions.forEach(function(s) {
+      if (!seen[s.employee_name]) {
+        seen[s.employee_name] = true;
+        unique.push(s);
+      }
+    });
+
+    var online = unique.filter(function(s){ return s.status === 'active'; });
+    var away = unique.filter(function(s){ return s.status !== 'active'; });
+
+    // Update stat
+    set('stat-online', online.length);
+
+    // Update team online widget
     var teamEl = document.getElementById('team-online-widget');
     if (teamEl) {
-      var online = Object.values(sessions).filter(function(s){ return (now-new Date(s.lastSeen))<5*60*1000; });
-      teamEl.innerHTML = online.length ? online.map(function(s) {
-        var initials = (s.name||'?').split(' ').map(function(n){ return n[0]; }).join('').substring(0,2).toUpperCase();
-        var mins = Math.floor((now-new Date(s.lastSeen))/60000);
-        return '<div class="person-row">' +
-          '<div class="avatar">'+initials+'</div>' +
-          '<div style="flex:1;"><div style="font-size:13px;font-weight:700;">'+s.name+'</div>' +
-          '<div style="font-size:11px;color:var(--gray);">'+s.role+' -- '+s.page+'</div></div>' +
-          '<div style="font-size:10px;color:var(--green);font-weight:700;">'+(mins===0?'Now':mins+'m')+'</div>' +
-        '</div>';
-      }).join('') : '<div class="empty-sm">No team members online.<br>Ask Queen to log in.</div>';
+      if (unique.length === 0) {
+        teamEl.innerHTML = '<div class="empty-sm">No team members have clocked in today.</div>';
+      } else {
+        teamEl.innerHTML = unique.map(function(s) {
+          var isOnline = s.status === 'active';
+          var timeStr = s.clock_in ? new Date(s.clock_in).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '';
+          var lastSeenStr = s.last_seen ? new Date(s.last_seen).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '';
+          return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">'+
+            '<div style="width:32px;height:32px;border-radius:50%;background:'+(isOnline?'var(--green)':'#E5E7EB')+';display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;flex-shrink:0;">'+
+              s.employee_name.split(' ').map(function(w){return w[0];}).join('').substring(0,2)+
+            '</div>'+
+            '<div style="flex:1;">'+
+              '<div style="font-size:13px;font-weight:700;">'+s.employee_name+'</div>'+
+              '<div style="font-size:11px;color:var(--gray);">'+(isOnline ? '🟢 Online since '+timeStr : '⚫ Last seen '+lastSeenStr)+'</div>'+
+            '</div>'+
+            '<span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:'+(isOnline?'#DCFCE7':'#F1F5F9')+';color:'+(isOnline?'#166534':'#475569')+';white-space:nowrap;">'+
+              (isOnline?'Online':'Offline')+
+            '</span>'+
+          '</div>';
+        }).join('');
+      }
     }
+  } catch(e) {
+    console.error('Team online error:', e.message);
+    var teamEl = document.getElementById('team-online-widget');
+    if (teamEl) teamEl.innerHTML = '<div class="empty-sm" style="color:#8B1A1A;">Could not load team status: '+e.message+'</div>';
+  }
 
-    // Client activity widget
-    var clientEl = document.getElementById('client-activity-widget');
-    if (clientEl) {
-      var recent = clientLog.filter(function(r){ return r.type==='login'; }).slice(0,4);
-      clientEl.innerHTML = recent.length ? recent.map(function(r) {
-        var mins = Math.floor((now-new Date(r.time))/60000);
-        var ago = mins<1?'Just now':mins<60?mins+'m ago':Math.floor(mins/60)+'h ago';
-        return '<div class="person-row">' +
-          '<div class="avatar" style="background:#1A5C38;font-size:10px;">' + (r.id||'?').replace('CPR-','') + '</div>' +
-          '<div style="flex:1;"><div style="font-size:12px;font-weight:700;">'+(r.name||r.id)+'</div>' +
-          '<div style="font-size:11px;color:var(--gray);">Viewed: '+(r.page||'Portal')+'</div></div>' +
-          '<div style="font-size:10px;color:var(--gray);">'+ago+'</div>' +
-        '</div>';
-      }).join('') : '<div class="empty-sm">No client logins yet today.</div>';
-    }
-
-  } catch(e) {}
+  // Also reload every 60 seconds
+  setTimeout(loadTeamOnline, 60000);
 }
 
 // ── SESSION TRACKING ───────────────────────────────────────────────
