@@ -147,7 +147,7 @@ async function loadMessages() {
 
 function appendMsg(m) {
   var container = document.getElementById('messages');
-  var isMine = m.sender_name === currentUser.name;
+  var isMine = currentUser && m.sender_name === currentUser.name;
   var color = m.sender_color || '#1B3A6B';
   var ts = '';
   try { ts = new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); } catch(e){}
@@ -198,7 +198,34 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-document.addEventListener("DOMContentLoaded", function() { loadMessages(); setInterval(loadMessages, 5000); });
+document.addEventListener("DOMContentLoaded", function() {
+  // Auto-join from portal session
+  var savedEmail = localStorage.getItem('cp_logged_in_user');
+  var savedName  = localStorage.getItem('cp_logged_in_name');
+  var savedRole  = localStorage.getItem('cp_logged_in_label') || localStorage.getItem('cp_logged_in_role') || 'Team Member';
+  var savedInit  = localStorage.getItem('cp_logged_in_initials') || (savedName ? savedName.split(' ').map(function(w){return w[0];}).join('').substring(0,2) : 'CP');
+
+  var colors = {'admin':'#1B3A6B','compliance':'#166534','sales':'#92400E','cs':'#5B21B6'};
+  var role = localStorage.getItem('cp_logged_in_role') || 'cs';
+  var color = colors[role] || '#1B3A6B';
+
+  if (savedName) {
+    currentUser = {name: savedName, role: savedRole, color: color, initials: savedInit};
+    // Hide login screen, show chat
+    var ls = document.getElementById('login-screen');
+    var cs = document.getElementById('chat-screen');
+    if (ls) ls.style.display = 'none';
+    if (cs) { cs.style.display = 'flex'; cs.style.flexDirection = 'column'; }
+    var av = document.getElementById('my-avatar');
+    var nm = document.getElementById('my-name');
+    var rl = document.getElementById('my-role');
+    if (av) { av.textContent = savedInit; av.style.background = color; }
+    if (nm) nm.textContent = savedName;
+    if (rl) rl.textContent = savedRole;
+    loadMessages();
+    pollTimer = setInterval(loadMessages, 3000);
+  }
+});
 </script>
 </body>
 </html>
