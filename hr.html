@@ -244,6 +244,18 @@ async function loadTraining() {
 }
 
 load();
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Load onboarding submissions first (default tab)
+  if (typeof loadSubmissions === 'function') loadSubmissions();
+  else if (typeof loadOnboarding === 'function') loadOnboarding();
+  else if (typeof init === 'function') init();
+
+  // Also pre-load training results
+  if (typeof loadTrainingResults === 'function') loadTrainingResults();
+  else if (typeof loadTraining === 'function') loadTraining();
+});
+
 </script>
 </body>
 </html>
