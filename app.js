@@ -4,9 +4,13 @@
 
 // ── EMPLOYEES ──────────────────────────────────────────────────────
 var EMPLOYEES = {
-  'jason@mycprteam.com':   { password:'CPRAdmin2026',  name:'Jason Crown',        role:'admin',      label:'Admin' },
-  'queen@mycprteam.com':   { password:'CPRQueen2026',  name:'Queen Jearel Cruz',  role:'compliance', label:'Compliance' },
-  'bukunmi@mycprteam.com': { password:'CPRBuku2026',   name:'Bukunmi Aina',       role:'sales',      label:'Sales' }
+  'jason@mycprteam.com':   { password:'CPRAdmin2026',  name:'Jason Crown',       role:'admin',      label:'Admin',             initials:'JC' },
+  'queen@mycprteam.com':   { password:'CPRQueen2026',  name:'Queen Jearel Cruz', role:'compliance', label:'Compliance Officer', initials:'QC' },
+  'bukunmi@mycprteam.com': { password:'CPRBuku2026',   name:'Bukunmi Aina',      role:'sales',      label:'Sales Rep',          initials:'BA' },
+  'elna@mycprteam.com':    { password:'CPRElna2026',   name:'Elna Palabrica',    role:'cs',         label:'CS Agent',           initials:'EP' },
+  'jonah@mycprteam.com':   { password:'CPRJonah2026',  name:'Jonah De Guzman',   role:'cs',         label:'CS Agent',           initials:'JD' },
+  'alec@mycprteam.com':    { password:'CPRAlec2026',   name:'Alec Sarrosa',      role:'cs',         label:'CS Agent',           initials:'AS' },
+  'anthon@mycprteam.com':  { password:'CPRAnthon2026', name:'Anthon Sumbiling',  role:'cs',         label:'CS Agent',           initials:'AT' }
 };
 
 var currentUser = null;
@@ -531,4 +535,118 @@ function openEditModal(id) {
 function closeEdit() {
   var modal = document.getElementById('edit-modal');
   if (modal) modal.style.display = 'none';
+}
+
+
+// ── SESSION RESTORE + DASHBOARD INIT ────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  // Restore session from localStorage
+  var savedEmail = localStorage.getItem('cp_logged_in_user');
+  if (savedEmail && EMPLOYEES[savedEmail]) {
+    var emp = EMPLOYEES[savedEmail];
+    currentUser = savedEmail;
+    currentRole = emp.role;
+    var loginScreen = document.getElementById('login-screen');
+    var app = document.getElementById('app');
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (app) app.style.display = 'block';
+    // Set header
+    var setEl = function(id, v) { var e=document.getElementById(id); if(e) e.textContent=v; };
+    setEl('hdr-name', emp.name);
+    setEl('hdr-role', emp.label + ' — CP Restoration Services');
+    setEl('hdr-avatar', emp.initials || emp.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2));
+    showPage('dashboard');
+    loadDashboardData();
+  }
+});
+
+// ── LOAD DASHBOARD DATA ────────────────────────────────────────────────────
+async function loadDashboardData() {
+  var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+  var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+  var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY};
+
+  try {
+    // Load client counts
+    var r = await fetch(SUPA+'/clients?select=id,status,package,start_date',{headers:HDR});
+    var clients = await r.json();
+    if (!Array.isArray(clients)) throw new Error('Bad response');
+    var active = clients.filter(function(c){return (c.status||'Active')==='Active';});
+    var express = active.filter(function(c){return (c.package||'').toLowerCase().includes('express');});
+    var standard = active.filter(function(c){return !((c.package||'').toLowerCase().includes('express'));});
+    var setEl = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+    setEl('total-active', active.length);
+    setEl('express-clients', express.length);
+    setEl('standard-clients', standard.length);
+    setEl('financing-clients', '0');
+    // Backlog — active clients with no recent dispute
+    var today = new Date();
+    var backlog = active.filter(function(c){
+      if (!c.last_dispute_date) return true;
+      var d = new Date(c.last_dispute_date);
+      return (today-d)/(1000*60*60*24) > 30;
+    });
+    setEl('backlog-count', backlog.length);
+    setEl('overdue-count', '0');
+  } catch(e) { console.error('Dashboard stats error:', e.message); }
+
+  // Load active team from time_sessions
+  try {
+    var today2 = new Date().toISOString().split('T')[0];
+    var r2 = await fetch(SUPA+'/time_sessions?select=employee_name,status,clock_in&date=eq.'+today2+'&order=clock_in.desc',{headers:HDR});
+    var sessions = await r2.json();
+    var tbody = document.getElementById('active-team-tbody');
+    if (tbody && Array.isArray(sessions) && sessions.length > 0) {
+      var seen = {};
+      var rows = sessions.filter(function(s){
+        if(seen[s.employee_name]) return false;
+        seen[s.employee_name] = true; return true;
+      }).map(function(s){
+        var statusBadge = s.status==='active'
+          ? '<span style="background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">Online</span>'
+          : '<span style="background:#F1F5F9;color:#475569;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">Away</span>';
+        return '<tr><td><strong>'+s.employee_name+'</strong></td><td>CS Agent</td><td>'+statusBadge+'</td><td>—</td><td>—</td></tr>';
+      }).join('');
+      tbody.innerHTML = rows;
+    } else if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:12px;color:#64748B;">No team members clocked in today.</td></tr>';
+    }
+  } catch(e) { console.error('Team load error:', e.message); }
+
+  // Load recent activity
+  try {
+    var actEl = document.getElementById('live-activity-feed');
+    if (!actEl) actEl = document.querySelector('[id*="activity"]');
+    if (actEl) {
+      var r3 = await fetch(SUPA+'/time_sessions?select=employee_name,clock_in,status&order=clock_in.desc&limit=10',{headers:HDR});
+      var acts = await r3.json();
+      if (Array.isArray(acts) && acts.length > 0) {
+        actEl.innerHTML = acts.map(function(a){
+          var t = a.clock_in ? new Date(a.clock_in).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '';
+          return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F1F5F9;">' +
+            '<div style="width:8px;height:8px;border-radius:50%;background:'+(a.status==='active'?'#22C55E':'#94A3B8')+';flex-shrink:0;"></div>' +
+            '<div style="font-size:13px;"><strong>'+a.employee_name+'</strong> clocked '+(a.status==='active'?'in':'out')+' at '+t+'</div>' +
+          '</div>';
+        }).join('');
+      } else {
+        actEl.innerHTML = '<div style="font-size:13px;color:#64748B;">No activity today yet.</div>';
+      }
+    }
+  } catch(e) { console.error('Activity error:', e.message); }
+
+  // Load revenue from sales table
+  try {
+    var today3 = new Date().toISOString().split('T')[0];
+    var r4 = await fetch(SUPA+'/sales?select=amount,commission,package&created_at=gte.'+today3+'T00:00:00',{headers:HDR});
+    var sales = await r4.json();
+    if (Array.isArray(sales) && sales.length > 0) {
+      var totalRev = sales.reduce(function(s,sale){return s+(parseFloat(sale.amount)||0);},0);
+      var totalComm = sales.reduce(function(s,sale){return s+(parseFloat(sale.commission)||0);},0);
+      var fmt = function(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:0});};
+      var setEl2 = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+      setEl2('revenue-today', fmt(totalRev));
+      setEl2('sales-count', sales.length+' sale'+(sales.length!==1?'s':''));
+      setEl2('commission-owed', fmt(totalComm));
+    }
+  } catch(e) { console.error('Revenue error:', e.message); }
 }
