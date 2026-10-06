@@ -4361,13 +4361,13 @@ function renderScreenshots() {
   }
   container.innerHTML = [...ttScreenshots].reverse().map(s => {
     if(s.type === 'screenshot') {
-      return `<div style="border:2px solid var(--border);border-radius:10px;overflow:hidden;">
-        <img src="${s.image}" style="width:100%;display:block;" alt="Screenshot">
+      return "<div style="border:2px solid var(--border);border-radius:10px;overflow:hidden;">
+        <img src=""+(s.image||"")" style="width:100%;display:block;" alt="Screenshot">
         <div style="padding:10px;background:var(--light-blue);">
-          <div style="font-size:12px;font-weight:700;color:var(--blue);">${s.emp}</div>
-          <div style="font-size:11px;color:var(--gray);">${s.date} at ${s.time}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--blue);">"+(s.emp||"")+"</div>
+          <div style="font-size:11px;color:var(--gray);">"+(s.date||"")+" at "+(s.time||"")+""</div>
         </div>
-      </div>`;
+      </div>";
     } else {
       return `<div style="border:2px solid var(--red);border-radius:10px;padding:16px;background:var(--light-red);">
         <div style="font-size:12px;font-weight:700;color:var(--red);">⚠️ ${s.type === 'screenshot-denied' ? 'SCREENSHOT DENIED' : 'CAPTURE UNAVAILABLE'}</div>
@@ -6689,7 +6689,7 @@ async function renderPwdTable() {
     var r = await fetch(_SUPA+'/clients?select=id,name,email,portal_pwd&order=name.asc&limit=500',{headers:_HDR});
     var d = await r.json();
     el.innerHTML = Array.isArray(d) ? d.map(function(c){
-      return '<tr><td>'+(c.id||'')+'</td><td>'+(c.name||'')+'</td><td>'+(c.email||'')+'</td><td><code>'+(c.portal_pwd||'restore2026')+'</code> <button onclick="copyPw(''+c.id+'')" style="padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:4px;cursor:pointer;">Copy</button></td></tr>';
+      return '<tr><td>'+(c.id||'')+'</td><td>'+(c.name||'')+'</td><td>'+(c.email||'')+'</td><td><code>'+(c.portal_pwd||'restore2026')+'</code></td></tr>';
     }).join('') : '<tr><td colspan="4">No data</td></tr>';
   } catch(e){el.innerHTML='<tr><td colspan="4" style="color:red;">Error: '+e.message+'</td></tr>';}
 }
