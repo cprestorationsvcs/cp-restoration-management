@@ -418,6 +418,13 @@ function renderActions(c){
         '<button class="btn btn-green btn-sm" onclick="sendPortalLink()" style="width:100%;">&#9993; Email Portal Login to Client</button>'+
       '</div>'+
     '</div>'+
+    '<div class="action-card">'+
+      '<div class="action-card-head ac-navy">&#128222; Call Client via RingCentral</div>'+
+      '<div class="action-card-body">'+
+        '<p style="font-size:12px;color:#475569;margin-bottom:10px;">Opens the phone system to call this client directly using RingCentral.</p>'+
+        '<button class="btn btn-sm btn-navy" style="width:100%;" onclick="openPhone()">&#128222; Open Phone &amp; Call Client</button>'+
+      '</div>'+
+    '</div>'+
 
     // ── Invalid Bureau Login ──────────────────────────────────────────
     '<div class="action-card">'+
@@ -468,6 +475,11 @@ async function submitLoginIssue(){
   showAction('');
 }
 
+function openPhone() {
+  var phone = currentClient && (currentClient.phone || '');
+  var url = '/phone.html' + (phone ? '?number='+encodeURIComponent(phone) : '');
+  window.open(url, '_blank', 'width=960,height=700');
+}
 async function submitStatusRequest(){
   if(!currentClient) return;
   var reason=document.getElementById('su-reason').value;
