@@ -511,6 +511,23 @@ async function submitStatusRequest(){
   var tag='\n[STATUS REQUEST '+new Date().toLocaleString()+']: '+reason+(notes?' — '+notes:'');
   currentClient.notes=(currentClient.notes||'')+tag;
   await saveNotes();
+  // Save to Supabase requests table
+  try {
+    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/requests', {
+      method:'POST',
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({
+        type:'status_update',
+        client_id: currentClient.id,
+        client_name: currentClient.name,
+        reason: reason,
+        notes: notes,
+        status:'pending',
+        submitted_by: currentAgentName || 'CS Agent',
+        created_at: new Date().toISOString()
+      })
+    });
+  } catch(e){ console.log('Supabase request save error:', e.message); }
   // Email dispute dept
   await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
@@ -533,6 +550,23 @@ async function submitRefundRequest(){
   var tag='\n[REFUND REQUEST '+new Date().toLocaleString()+']: '+reason+(notes?' — '+notes:'');
   currentClient.notes=(currentClient.notes||'')+tag;
   await saveNotes();
+  // Save to Supabase requests table
+  try {
+    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/requests', {
+      method:'POST',
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({
+        type:'refund',
+        client_id: currentClient.id,
+        client_name: currentClient.name,
+        reason: reason,
+        notes: notes,
+        status:'pending',
+        submitted_by: currentAgentName || 'CS Agent',
+        created_at: new Date().toISOString()
+      })
+    });
+  } catch(e){ console.log('Supabase request save error:', e.message); }
   // Email Queen in compliance
   await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
