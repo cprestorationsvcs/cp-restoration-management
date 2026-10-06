@@ -280,6 +280,8 @@ loadMessages();
 
 // Auto-refresh every 10 seconds
 setInterval(loadMessages, 10000);
+
+document.addEventListener("DOMContentLoaded", function() { loadMessages() });
 </script>
 </body>
 </html>
