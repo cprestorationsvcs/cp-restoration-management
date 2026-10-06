@@ -851,9 +851,13 @@ window.addEventListener('load', function(){
   var savedUser = localStorage.getItem('cp_logged_in_user');
   if (savedUser) {
     var TEAM2 = {
-      'jason@mycprteam.com':   { name:'Jason Crown',       role:'admin',      label:'Owner & Admin',       initials:'JC', pass:'CPRAdmin2026' },
-      'queen@mycprteam.com':   { name:'Queen Jearel Cruz', role:'compliance', label:'Compliance Officer',  initials:'QC', pass:'CPRQueen2026' },
-      'bukunmi@mycprteam.com': { name:'Bukunmi Aina',      role:'sales',      label:'Sales Representative',initials:'BA', pass:'CPRBuku2026' }
+      'jason@mycprteam.com':   { name:'Jason Crown',        role:'admin',      label:'Owner & Admin',        initials:'JC', pass:'CPRAdmin2026'  },
+      'queen@mycprteam.com':   { name:'Queen Jearel Cruz',  role:'compliance', label:'Compliance Officer',   initials:'QC', pass:'CPRQueen2026'  },
+      'bukunmi@mycprteam.com': { name:'Bukunmi Aina',       role:'sales',      label:'Sales Representative', initials:'BA', pass:'CPRBuku2026'   },
+      'elna@mycprteam.com':    { name:'Elna Palabrica',     role:'cs',         label:'CS Agent',             initials:'EP', pass:'CPRElna2026'   },
+      'jonah@mycprteam.com':   { name:'Jonah De Guzman',    role:'cs',         label:'CS Agent',             initials:'JD', pass:'CPRJonah2026'  },
+      'alec@mycprteam.com':    { name:'Alec Sarrosa',       role:'cs',         label:'CS Agent',             initials:'AS', pass:'CPRAlec2026'   },
+      'anthon@mycprteam.com':  { name:'Anthon Sumbiling',   role:'cs',         label:'CS Agent',             initials:'AT', pass:'CPRAnthon2026' }
     };
     var emp2 = TEAM2[savedUser];
     if (emp2) {
