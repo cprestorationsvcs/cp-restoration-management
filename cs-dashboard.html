@@ -227,7 +227,7 @@ var refreshTimer=null;
 // ── LOAD CLIENTS ──
 async function loadClients(){
   try{
-    var r=await fetch(SUPA+'/clients?select=*&order=updated_at.desc&limit=1000',{headers:HDR});
+    var r=await fetch(SUPA+'/clients?select=*&order=updated_at.desc&limit=5000',{headers:HDR});
     var data=await r.json();
     if(!Array.isArray(data)){
       document.getElementById('client-list').innerHTML='<div style="padding:16px;color:#E53E3E;font-size:12px;">Error loading clients: '+(data.message||data.error||JSON.stringify(data).substring(0,100))+'</div>';
@@ -279,13 +279,23 @@ function renderClientList(list){
 var searchTimer;
 function filterClients(q){
   clearTimeout(searchTimer);
-  searchTimer=setTimeout(function(){
-    var ql=q.toLowerCase();
-    var filtered=q?allClients.filter(function(c){
+  searchTimer=setTimeout(async function(){
+    var ql=q.toLowerCase().trim();
+    if(!ql){renderClientList(allClients);return;}
+    // First filter local cache
+    var filtered=allClients.filter(function(c){
       return(c.name||'').toLowerCase().includes(ql)||(c.id||'').toLowerCase().includes(ql)||(c.email||'').toLowerCase().includes(ql)||(c.phone||'').includes(q);
-    }):allClients;
-    renderClientList(filtered);
-  },200);
+    });
+    if(filtered.length>0){renderClientList(filtered);return;}
+    // If nothing found locally, search Supabase directly
+    try{
+      var url=SUPA+'/clients?select=*&or=(name.ilike.*'+encodeURIComponent(ql)+'*,id.ilike.*'+encodeURIComponent(ql)+'*,email.ilike.*'+encodeURIComponent(ql)+'*,phone.ilike.*'+encodeURIComponent(ql)+'*)&limit=50';
+      var r=await fetch(url,{headers:HDR});
+      var data=await r.json();
+      if(Array.isArray(data)&&data.length>0){renderClientList(data);}
+      else{renderClientList([]);}
+    }catch(e){renderClientList(filtered);}
+  },300);
 }
 
 // ── OPEN CLIENT ──
