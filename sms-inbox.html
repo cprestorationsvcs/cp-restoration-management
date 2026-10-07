@@ -59,6 +59,31 @@ textarea{min-height:80px;resize:vertical;}
     <div class="stat"><div class="sv" style="color:#1B3A6B;" id="ct-out">0</div><div class="sl">Sent</div></div>
   </div>
 
+  <!-- FTC Code Monitor -->
+  <div id="ftc-banner" style="display:none;background:#FEF9C3;border:2px solid #F59E0B;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <span style="font-size:24px;">&#9888;&#65039;</span>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:#92400E;">&#128274; FTC Verification Code Received!</div>
+        <div style="font-size:12px;color:#78350F;">Enter this code on identitytheft.gov to download the FTC report</div>
+      </div>
+      <button onclick="document.getElementById('ftc-banner').style.display='none'" style="margin-left:auto;background:none;border:none;font-size:20px;cursor:pointer;color:#92400E;">&#10005;</button>
+    </div>
+    <div id="ftc-codes"></div>
+  </div>
+
+  <!-- FTC Number Reference -->
+  <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;">
+    <div style="font-weight:800;color:#1B3A6B;margin-bottom:6px;">&#128222; FTC / identitytheft.gov Phone Numbers</div>
+    <div style="color:#1E3A5F;line-height:2;">
+      When identitytheft.gov asks for a phone number to send a verification code, use one of these numbers:<br>
+      <strong>Primary:</strong> +1 (754) 600-4934 &nbsp;|&nbsp;
+      <strong>Backup:</strong> +1 (754) 714-8877 &nbsp;|&nbsp;
+      <strong>Backup:</strong> +1 (754) 345-3951<br>
+      The code will appear in this inbox within seconds. Check the <span style="color:#92400E;font-weight:700;">&#9888; FTC Code</span> filter below.
+    </div>
+  </div>
+
   <!-- Compose -->
   <div class="compose">
     <h2>&#9993; Send SMS via Close</h2>
@@ -85,6 +110,7 @@ textarea{min-height:80px;resize:vertical;}
     <button class="fb" data-f="inbound">&#128229; Inbound</button>
     <button class="fb" data-f="outbound">&#128228; Outbound</button>
     <button class="fb" data-f="unread">&#128308; Unread</button>
+    <button class="fb" data-f="ftc" style="background:#FEF9C3;border-color:#F59E0B;color:#92400E;" id="ftc-filter-btn">&#9888; FTC Codes</button>
     <button class="fb" onclick="load()" style="margin-left:auto;">&#8635; Refresh</button>
   </div>
 
@@ -238,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   load();
 });
-setInterval(load, 15000);
+setInterval(load, 5000);
 </script>
 </body>
 </html>
