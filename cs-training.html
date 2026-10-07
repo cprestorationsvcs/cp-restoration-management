@@ -942,6 +942,30 @@ function showTab(name) {
       <label style="display:block;"><input type="radio" name="q10" value="d"> Phone calls only</label>
     </div>
 
+    <div class="q-block" style="margin-bottom:20px;padding:16px;background:#F8FAFC;border-radius:10px;border:1.5px solid #1B3A6B;">
+      <p style="font-weight:700;margin-bottom:10px;">11. A client cannot receive the bureau verification code because they no longer have access to their email on file. What do you do? (Step 6B)</p>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q11" value="a"> Ask the client to call the bureau themselves</label>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q11" value="b"> Create a new Gmail (cprclient.[firstname][lastname]@gmail.com), update the bureau email during the call, log it in Bureau Logins, and notify the Dispute Department</label>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q11" value="c"> Skip the bureau and only dispute at the two others</label>
+      <label style="display:block;"><input type="radio" name="q11" value="d"> Escalate to Queen and wait for her to handle it</label>
+    </div>
+
+    <div class="q-block" style="margin-bottom:20px;padding:16px;background:#F8FAFC;border-radius:10px;border:1.5px solid #1B3A6B;">
+      <p style="font-weight:700;margin-bottom:10px;">12. What is the correct email format for a new client bureau Gmail account?</p>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q12" value="a"> [clientname]@cprteam.com</label>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q12" value="b"> cprclient.[firstname][lastname]@gmail.com</label>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q12" value="c"> [firstname].[lastname]@cprestoration.com</label>
+      <label style="display:block;"><input type="radio" name="q12" value="d"> bureau.[clientid]@gmail.com</label>
+    </div>
+
+    <div class="q-block" style="margin-bottom:20px;padding:16px;background:#F8FAFC;border-radius:10px;border:1.5px solid #1B3A6B;">
+      <p style="font-weight:700;margin-bottom:10px;">13. After you create a new bureau Gmail for a client and update their bureau account, what are the next two steps? (Step 6B)</p>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q13" value="a"> Email the client the new credentials and close the ticket</label>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q13" value="b"> Log the new email and password in Bureau Logins in the portal, then notify the Dispute Department</label>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q13" value="c"> Send the credentials to Jason by email and wait for approval</label>
+      <label style="display:block;"><input type="radio" name="q13" value="d"> Nothing — the bureau will notify the dispute team automatically</label>
+    </div>
+
     <div style="margin-bottom:16px;">
       <label style="font-size:13px;font-weight:700;color:#1B3A6B;display:block;margin-bottom:6px;">Your Name *</label>
       <input type="text" id="quiz-name" placeholder="Enter your full name" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;">
@@ -958,7 +982,7 @@ function showTab(name) {
 </div>
 
 <script>
-var ANSWERS = {q1:'b',q2:'b',q3:'b',q4:'b',q5:'b',q6:'b',q7:'b',q8:'b',q9:'b',q10:'c'};
+var ANSWERS = {q1:'b',q2:'b',q3:'b',q4:'b',q5:'b',q6:'b',q7:'b',q8:'b',q9:'b',q10:'c', q11:'b', q12:'b', q13:'b'};
 
 async function submitQuiz() {
   var name = document.getElementById('quiz-name').value.trim();
