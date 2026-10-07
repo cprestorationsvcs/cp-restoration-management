@@ -212,6 +212,7 @@ table.dt td{padding:8px 10px;border-bottom:1px solid #F8FAFC;vertical-align:midd
       <div class="rtab active" id="rtab-info" onclick="showRTab('info')">&#128101; Client Info</div>
       <div class="rtab" id="rtab-logins" onclick="showRTab('logins')">&#128272; Bureau Logins</div>
       <div class="rtab" id="rtab-disputes" onclick="showRTab('disputes')">&#128202; Disputes</div>
+      <div class="rtab" id="rtab-log" onclick="showRTab('log')">&#128222; Contact Log</div>
     </div>
     <div class="right-body" id="right-body">
       <div class="empty-state"><div class="ico">&#128101;</div><div>Select a client to view their file</div></div>
@@ -839,6 +840,89 @@ refreshTimer=setInterval(function(){
   }
   loadClients();
 },30000);
+
+// ── CONTACT LOG ──────────────────────────────────────────────
+function renderContactLog(){
+  if(!currentClient){ return; }
+  var body = document.getElementById('right-body');
+  var logs = [];
+  // Parse contact log from client notes
+  if(currentClient.notes){
+    var lines = currentClient.notes.split('\n');
+    lines.forEach(function(line){
+      if(line.startsWith('[CONTACT]') || line.startsWith('[CALL]') || 
+         line.startsWith('[EMAIL]') || line.startsWith('[SMS]') || 
+         line.startsWith('[NOTE]') || line.startsWith('[UPDATE]')){
+        logs.push(line);
+      }
+    });
+  }
+
+  var logHTML = '<div style="margin-bottom:12px;">' +
+    '<div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:10px;">&#128222; Contact History</div>' +
+    '<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">' +
+      '<select id="log-type" style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;">' +
+        '<option value="CALL">&#128222; Phone Call</option>' +
+        '<option value="EMAIL">&#9993; Email</option>' +
+        '<option value="SMS">&#128172; SMS</option>' +
+        '<option value="UPDATE">&#128203; Status Update</option>' +
+        '<option value="NOTE">&#128221; Internal Note</option>' +
+      '</select>' +
+    '</div>' +
+    '<textarea id="log-entry" placeholder="What was communicated? What did the client say? Outcome? Next steps?" ' +
+    'style="width:100%;min-height:70px;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;resize:none;margin-bottom:6px;"></textarea>' +
+    '<button onclick="addContactLog()" style="width:100%;padding:8px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">&#43; Log Contact</button>' +
+  '</div>';
+
+  if(logs.length){
+    logHTML += '<div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">History (newest first)</div>';
+    var reversed = logs.slice().reverse();
+    logHTML += reversed.map(function(line){
+      var type = 'NOTE';
+      var color = '#64748B';
+      var bg = '#F8FAFC';
+      if(line.includes('[CALL]')){ type='CALL'; color='#1B3A6B'; bg='#EFF6FF'; }
+      else if(line.includes('[EMAIL]')){ type='EMAIL'; color='#166534'; bg='#DCFCE7'; }
+      else if(line.includes('[SMS]')){ type='SMS'; color='#7C3AED'; bg='#EDE9FE'; }
+      else if(line.includes('[UPDATE]')){ type='UPDATE'; color='#92400E'; bg='#FEF9C3'; }
+      var content = line.replace(/\[(?:CONTACT|CALL|EMAIL|SMS|NOTE|UPDATE)\]\s*/,'').replace(/\[\d{4}-\d{2}-\d{2}[^\]]*\]/,'').trim();
+      var dateMatch = line.match(/\[(\d{4}-\d{2}-\d{2}[^\]]*)\]/);
+      var dateStr = dateMatch ? dateMatch[1] : '';
+      return '<div style="background:'+bg+';border-left:3px solid '+color+';border-radius:0 6px 6px 0;padding:8px 10px;margin-bottom:6px;">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
+          '<span style="font-size:10px;font-weight:700;color:'+color+';">'+type+'</span>' +
+          '<span style="font-size:10px;color:#94A3B8;">'+dateStr+'</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:#1E293B;line-height:1.5;">'+content+'</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    logHTML += '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">No contact history yet.<br>Log your first contact above.</div>';
+  }
+
+  body.innerHTML = logHTML;
+}
+
+async function addContactLog(){
+  if(!currentClient) return;
+  var type = document.getElementById('log-type').value;
+  var entry = document.getElementById('log-entry').value.trim();
+  if(!entry){ alert('Please enter contact details.'); return; }
+  
+  var agentName = localStorage.getItem('cp_logged_in_name') || 'CS Agent';
+  var now = new Date();
+  var dateStr = now.toISOString().split('T')[0] + ' ' + 
+    now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  
+  var logLine = '['+type+'] ['+dateStr+'] ['+agentName+'] ' + entry;
+  
+  if(!currentClient.notes) currentClient.notes = '';
+  currentClient.notes = currentClient.notes + (currentClient.notes ? '\n' : '') + logLine;
+  
+  await saveNotes();
+  document.getElementById('log-entry').value = '';
+  renderContactLog();
+}
 </script>
 
 <!-- RingCentral Embeddable Softphone -->
