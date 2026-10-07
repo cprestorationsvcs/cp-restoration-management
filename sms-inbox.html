@@ -65,13 +65,9 @@ textarea{min-height:80px;resize:vertical;}
     <div class="row2">
       <input id="sms-to" placeholder="To: +1 (954) 555-1234" type="tel">
       <select id="sms-from">
-        <option value="jason@mycprteam.com">Jason — +1 754-600-4934</option>
-        <option value="queen@mycprteam.com">Queen — +1 754-714-8877</option>
-        <option value="bukunmi@mycprteam.com">Bukunmi — +1 754-345-3951</option>
-        <option value="elna@mycprteam.com">Elna — +1 754-704-8665</option>
-        <option value="jonah@mycprteam.com">Jonah — +1 754-298-2046</option>
-        <option value="alec@mycprteam.com">Alec — +1 754-334-4660</option>
-        <option value="anthon@mycprteam.com">Anthon — +1 754-600-4934</option>
+        <option value="jason@mycprteam.com">Jason (Admin) — +1 754-600-4934</option>
+        <option value="queen@mycprteam.com">Queen (Compliance) — +1 754-714-8877</option>
+        <option value="anthon@mycprteam.com">Dispute Dept — +1 754-600-4934</option>
       </select>
     </div>
     <div class="row2">
@@ -227,7 +223,21 @@ if (myEmail) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', load);
+document.addEventListener('DOMContentLoaded', function() {
+  // Role check — CS reps cannot access SMS inbox
+  var role = localStorage.getItem('cp_logged_in_role') || '';
+  var csRoles = ['cs','cs agent','customer service'];
+  if (csRoles.includes(role.toLowerCase())) {
+    document.body.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#64748B;">' +
+      '<div style="font-size:48px;margin-bottom:16px;">&#128683;</div>' +
+      '<div style="font-size:18px;font-weight:700;color:#1B3A6B;margin-bottom:8px;">Access Restricted</div>' +
+      '<div style="font-size:14px;">SMS Inbox is available to Dispute Department and Compliance only.</div>' +
+      '<a href="/cs-dashboard.html" style="margin-top:20px;color:#1B3A6B;font-weight:700;">Return to CS Dashboard</a>' +
+    '</div>';
+    return;
+  }
+  load();
+});
 setInterval(load, 15000);
 </script>
 </body>
