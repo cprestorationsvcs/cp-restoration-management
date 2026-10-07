@@ -141,6 +141,16 @@ table.dt td{padding:8px 10px;border-bottom:1px solid #F8FAFC;vertical-align:midd
   <a href="/client-manager.html">&#128101; Clients</a>
   <a href="/dashboard.html">&#8962; Dashboard</a>
 </div>
+<div id="vpn-banner" style="background:#FEF9C3;border-bottom:2px solid #F59E0B;padding:10px 20px;display:flex;align-items:center;gap:12px;font-size:13px;flex-wrap:wrap;">
+  <span style="font-size:18px;">&#128274;</span>
+  <div style="flex:1;">
+    <strong style="color:#92400E;">VPN REQUIRED BEFORE ACCESSING BUREAU ACCOUNTS</strong>
+    <span style="color:#78350F;margin-left:8px;">Philippine IP addresses are blocked by Experian and TransUnion.</span>
+    <a href="https://protonvpn.com/download" target="_blank" style="margin-left:10px;background:#1B3A6B;color:white;padding:4px 12px;border-radius:4px;text-decoration:none;font-weight:700;font-size:12px;">&#11015; Download Proton VPN (Free)</a>
+  </div>
+  <div id="vpn-status" style="font-size:12px;color:#64748B;white-space:nowrap;">Checking IP...</div>
+</div>
+
 
 <div class="layout">
 
@@ -900,5 +910,20 @@ function rcCallClient(number) {
 }
 </script>
 
+<script>
+fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(function(d){
+  var el=document.getElementById('vpn-status');
+  var bn=document.getElementById('vpn-banner');
+  if(!el) return;
+  if(d.country_code==='US'){
+    el.innerHTML='&#9989; US IP — VPN Active';
+    el.style.color='#166534'; el.style.fontWeight='700';
+    if(bn) bn.style.background='#DCFCE7';
+  } else {
+    el.innerHTML='&#10060; '+( d.country_name||'Non-US')+' IP — Connect VPN Now';
+    el.style.color='#8B1A1A'; el.style.fontWeight='700';
+  }
+}).catch(function(){});
+</script>
 </body>
 </html>
