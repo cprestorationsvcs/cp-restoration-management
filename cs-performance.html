@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS Team Performance — CP Restoration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1E293B;}
+header{background:#1B3A6B;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+header img{height:30px;filter:brightness(0) invert(1);}
+header h1{color:white;font-size:15px;font-weight:800;flex:1;}
+header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
+.wrap{max-width:1100px;margin:0 auto;padding:20px;}
+.date-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.date-bar input{padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;}
+.date-bar button{padding:8px 16px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.date-bar span{font-size:13px;color:#64748B;}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:24px;}
+.rep-card{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:16px;}
+.rep-name{font-size:14px;font-weight:800;color:#1B3A6B;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#E2E8F0;}
+.status-dot.on{background:#166534;}
+.metric{margin-bottom:10px;}
+.metric-row{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:3px;}
+.metric-label{color:#64748B;}
+.metric-val{color:#1E293B;}
+.metric-val.hit{color:#166534;}
+.metric-val.miss{color:#8B1A1A;}
+.bar{background:#F1F5F9;border-radius:4px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .3s;}
+.bar-fill.calls{background:#1B3A6B;}
+.bar-fill.files{background:#166534;}
+.bar-fill.logs{background:#7C3AED;}
+.bar-fill.queue{background:#8B1A1A;}
+.bar-fill.done{background:#166534 !important;}
+.summary-table{background:white;border-radius:12px;border:1.5px solid #E2E8F0;overflow:hidden;}
+.summary-table table{width:100%;border-collapse:collapse;font-size:13px;}
+.summary-table th{background:#F0F4FF;padding:12px;text-align:left;font-weight:700;font-size:11px;color:#64748B;text-transform:uppercase;border-bottom:2px solid #E2E8F0;}
+.summary-table td{padding:12px;border-bottom:1px solid #F1F5F9;}
+.badge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-red{background:#FEE2E2;color:#8B1A1A;}
+.badge-yellow{background:#FEF9C3;color:#92400E;}
+h2{font-size:14px;font-weight:800;color:#1B3A6B;margin-bottom:14px;}
+</style>
+</head>
+<body>
+<header>
+  <img src="/images/logo.png" alt="CP Restoration">
+  <h1>&#127919; CS Team Performance Monitor</h1>
+  <a href="/dashboard.html">&larr; Back</a>
+  <a href="/hr.html" style="margin-left:12px;">HR Dashboard</a>
+</header>
+
+<div class="wrap">
+  <div class="date-bar">
+    <label style="font-size:13px;font-weight:700;color:#1B3A6B;">Date:</label>
+    <input type="date" id="perf-date">
+    <button onclick="load()">&#128269; Load</button>
+    <span id="last-updated"></span>
+  </div>
+
+  <h2>&#128101; Rep Performance Cards</h2>
+  <div class="team-grid" id="team-grid">
+    <div style="text-align:center;padding:40px;color:#94A3B8;grid-column:1/-1;">Loading team data...</div>
+  </div>
+
+  <h2 style="margin-top:8px;">&#128203; Full Performance Table</h2>
+  <div class="summary-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Rep Name</th>
+          <th>Calls (Target: 15)</th>
+          <th>Files (Target: 10)</th>
+          <th>Contacts Logged</th>
+          <th>Queue Cleared</th>
+          <th>Overall</th>
+        </tr>
+      </thead>
+      <tbody id="perf-tbody">
+        <tr><td colspan="6" style="text-align:center;padding:20px;color:#94A3B8;">No data for selected date.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR  = {apikey:KEY,'Authorization':'Bearer '+KEY};
+
+var REPS = [
+  'Elna Palabrica',
+  'Jonah De Guzman',
+  'Alec Sarrosa',
+  'Anthon Sumbiling'
+];
+
+var QUOTAS = {calls:15, files:10};
+
+document.getElementById('perf-date').value = new Date().toISOString().split('T')[0];
+
+async function load() {
+  var date = document.getElementById('perf-date').value;
+  if (!date) return;
+
+  try {
+    var r = await fetch(SUPA+'/cs_quotas?date=eq.'+date+'&order=calls.desc',{headers:HDR});
+    var data = await r.json();
+    if (!Array.isArray(data)) data=[];
+
+    // Build map
+    var byRep = {};
+    data.forEach(function(d){ byRep[d.agent_name]=d; });
+
+    // Ensure all reps appear even with 0
+    REPS.forEach(function(name){
+      if (!byRep[name]) byRep[name]={agent_name:name,calls:0,files_reviewed:0,contacts_logged:0,queue_cleared:0,date:date};
+    });
+
+    renderCards(byRep);
+    renderTable(byRep);
+    document.getElementById('last-updated').textContent = 'Updated: '+new Date().toLocaleTimeString();
+  } catch(e){ console.error(e); }
+}
+
+function renderCards(byRep) {
+  var grid = document.getElementById('team-grid');
+  grid.innerHTML = Object.values(byRep).map(function(rep) {
+    var calls = rep.calls||0;
+    var files = rep.files_reviewed||0;
+    var logs  = rep.contacts_logged||0;
+    var queue = rep.queue_cleared||0;
+    var callPct = Math.min(100,Math.round(calls/QUOTAS.calls*100));
+    var filePct = Math.min(100,Math.round(files/QUOTAS.files*100));
+    var overall = (callPct+filePct)/2;
+    var overallClass = overall>=100?'badge-green':overall>=60?'badge-yellow':'badge-red';
+    var overallLabel = overall>=100?'ON TRACK':overall>=60?'BEHIND':'NEEDS ATTENTION';
+
+    return '<div class="rep-card">' +
+      '<div class="rep-name">'+rep.agent_name+
+        '<span class="badge '+overallClass+'">'+overallLabel+'</span>'+
+      '</div>' +
+      metric('Calls Made','calls',calls,QUOTAS.calls,callPct) +
+      metric('Files Reviewed','files',files,QUOTAS.files,filePct) +
+      metric('Contacts Logged','logs',logs,0,Math.min(100,logs*10)) +
+      metric('Queue Items Cleared','queue',queue,0,Math.min(100,queue*20)) +
+    '</div>';
+  }).join('');
+}
+
+function metric(label,cls,val,target,pct) {
+  var valClass = target>0?(val>=target?'hit':val>0?'':'miss'):'';
+  return '<div class="metric">' +
+    '<div class="metric-row">' +
+      '<span class="metric-label">'+label+'</span>' +
+      '<span class="metric-val '+valClass+'">'+(target>0?val+'/'+target:val)+'</span>' +
+    '</div>' +
+    '<div class="bar"><div class="bar-fill '+cls+(pct>=100?' done':'') +'" style="width:'+pct+'%;"></div></div>' +
+  '</div>';
+}
+
+function renderTable(byRep) {
+  var tbody = document.getElementById('perf-tbody');
+  var rows = Object.values(byRep);
+  if (!rows.length) {
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:#94A3B8;">No data for this date.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(function(rep) {
+    var calls=rep.calls||0,files=rep.files_reviewed||0,logs=rep.contacts_logged||0,queue=rep.queue_cleared||0;
+    var callOK=calls>=QUOTAS.calls,fileOK=files>=QUOTAS.files;
+    var overall = callOK&&fileOK?'badge-green':calls>0||files>0?'badge-yellow':'badge-red';
+    var overallLabel = callOK&&fileOK?'✅ On Track':calls>0||files>0?'⚠ Behind':'❌ No Activity';
+    return '<tr>' +
+      '<td style="font-weight:700;">'+rep.agent_name+'</td>' +
+      '<td><span class="badge '+(callOK?'badge-green':calls>0?'badge-yellow':'badge-red')+'">'+calls+'/'+QUOTAS.calls+'</span></td>' +
+      '<td><span class="badge '+(fileOK?'badge-green':files>0?'badge-yellow':'badge-red')+'">'+files+'/'+QUOTAS.files+'</span></td>' +
+      '<td>'+logs+'</td>' +
+      '<td>'+queue+'</td>' +
+      '<td><span class="badge '+overall+'">'+overallLabel+'</span></td>' +
+    '</tr>';
+  }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', load);
+setInterval(load, 60000);
+</script>
+</body>
+</html>
