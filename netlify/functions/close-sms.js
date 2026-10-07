@@ -4,16 +4,8 @@ const CLOSE_API_KEY = 'api_312FaoQHfbRRZ1iI0q0f5D.18sSZzANivUMiKRjU8kbYg';
 const SUPA_URL = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
 
-// Rep number assignments
-const REP_NUMBERS = {
-  "jason@mycprteam.com": "+17546004934",
-  "queen@mycprteam.com": "+17547148877",
-  "bukunmi@mycprteam.com": "+17543453951",
-  "elna@mycprteam.com": "+17547048665",
-  "jonah@mycprteam.com": "+17542982046",
-  "alec@mycprteam.com": "+17543344660",
-  "anthon@mycprteam.com": "+17546004934"
-};
+const REP_NUMBERS = {"jason@mycprteam.com": "+17546004934", "queen@mycprteam.com": "+17547148877", "bukunmi@mycprteam.com": "+17543453951", "elna@mycprteam.com": "+17547048665", "jonah@mycprteam.com": "+17542982046", "alec@mycprteam.com": "+17543344660", "anthon@mycprteam.com": "+17546004934"};
+const PHONE_IDS   = {"+17546004934": "phon_juCP7Mny5wqanNYNFVuASq3esj0vanPKQ6LcJFV1Vqe", "+17547148877": "phon_duuqMuG4t8DrDZSMW4C6I2oCC1eubLLsBcSXcUOuwvO", "+17543453951": "phon_YC8IjXje1RZT209WWCnXPKnqwHPhe3L3v1Fd7YdMWv6", "+17547048665": "phon_WEMnX6aROPOClXIe58rXTiCSgSpaUVN7vmHqoFzme7c", "+17542982046": "phon_nCgFxNpnC3UvEYSOSz9RS0m4wneREq1u7u761c4qESH", "+17543344660": "phon_6USAFBsCJYOKRpHIpImgkRYHM6UCuGNtuUQsvdRCji3"};
 
 function closeRequest(method, path, body) {
   return new Promise((resolve, reject) => {
@@ -81,21 +73,23 @@ exports.handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body || '{}');
-    const action = body.action || event.queryStringParameters?.action;
+    const action = body.action || (event.queryStringParameters && event.queryStringParameters.action);
 
-    // ── SEND SMS ──
+    // ── SEND OUTBOUND SMS ──
     if (action === 'send') {
       const { to, message, from_email, client_id, client_name } = body;
-      if (!to || !message) return {statusCode:400,headers,body:JSON.stringify({error:'Missing to or message'})}; 
+      if (!to || !message) return {statusCode:400,headers,body:JSON.stringify({error:'Missing to or message'})};
 
       const fromNumber = REP_NUMBERS[from_email] || REP_NUMBERS['jason@mycprteam.com'];
+      const localPhone = PHONE_IDS[fromNumber] || PHONE_IDS['+17546004934'];
 
-      // Send via Close
+      // Send via Close SMS API
       const result = await closeRequest('POST', '/activity/sms/', {
         _type: 'SMS',
         direction: 'outbound',
         phone: to,
         local_phone: fromNumber,
+        local_phone_id: localPhone,
         text: message,
         status: 'sent'
       });
@@ -113,17 +107,20 @@ exports.handler = async (event) => {
         created_at: new Date().toISOString()
       });
 
-      return {statusCode:200,headers,body:JSON.stringify({success:true, result:result.body})};
+      if (result.status >= 400) {
+        return {statusCode:result.status,headers,body:JSON.stringify({error:result.body})};
+      }
+      return {statusCode:200,headers,body:JSON.stringify({success:true,result:result.body})};
     }
 
-    // ── RECEIVE WEBHOOK (from Close) ──
-    if (action === 'webhook' || event.httpMethod === 'POST' && !body.action) {
-      const event_type = body.event?.type || body.event_type;
-      if (event_type === 'create' && body.data?._type === 'SMS' && body.data?.direction === 'inbound') {
-        const sms = body.data;
-        const from = sms.phone || sms.remote_phone;
-        const text = sms.text || sms.body || '';
-        const toNum = sms.local_phone || '';
+    // ── INBOUND WEBHOOK FROM CLOSE ──
+    if (action === 'webhook' || !body.action) {
+      const evt = body.event || {};
+      const data = body.data || {};
+      if (evt.type === 'created' && data._type === 'SMS' && data.direction === 'inbound') {
+        const from = data.remote_phone || data.phone || '';
+        const text = data.text || data.body || '';
+        const toNum = data.local_phone || '';
         const now = new Date().toISOString();
 
         // Save to sms_inbox
@@ -136,15 +133,15 @@ exports.handler = async (event) => {
           created_at: now
         });
 
-        // Also add to call queue as HIGH priority
+        // Add to call queue as HIGH priority
         await supaPost('requests', {
           type: 'call_queue',
           client_name: from,
           client_phone: from,
           priority: 'high',
           assigned_to: 'Any Available',
-          reason: 'Inbound SMS received: ' + text.substring(0, 200),
-          notes: 'Client texted in via Close SMS. Reply from SMS Inbox.',
+          reason: 'Inbound SMS: ' + text.substring(0, 200),
+          notes: 'Client texted in via Close SMS to ' + toNum + '. Reply from SMS Inbox at /sms-inbox.html',
           status: 'pending',
           created_at: now
         });
@@ -152,13 +149,13 @@ exports.handler = async (event) => {
       return {statusCode:200,headers,body:JSON.stringify({received:true})};
     }
 
-    // ── GET MESSAGES ──
+    // ── GET INBOX FROM CLOSE ──
     if (action === 'inbox') {
-      const result = await closeRequest('GET', '/activity/sms/?_limit=50&direction=inbound');
+      const result = await closeRequest('GET', '/activity/sms/?_limit=50');
       return {statusCode:200,headers,body:JSON.stringify(result.body)};
     }
 
-    return {statusCode:400,headers,body:JSON.stringify({error:'Unknown action'})}; 
+    return {statusCode:400,headers,body:JSON.stringify({error:'Unknown action'})};
 
   } catch(e) {
     return {statusCode:500,headers,body:JSON.stringify({error:e.message})};
