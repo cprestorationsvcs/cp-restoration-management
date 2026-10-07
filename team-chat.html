@@ -4,154 +4,169 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Team Chat — CP Restoration</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',sans-serif;background:#F0F4F8;color:#1E293B;height:100vh;display:flex;flex-direction:column;}
-header{background:#1B3A6B;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-header h1{color:white;font-size:16px;font-weight:800;}
-header .online{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.8);}
-.online-dot{width:8px;height:8px;background:#22C55E;border-radius:50%;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
-.user-bar{background:#1B3A6B;border-top:1px solid rgba(255,255,255,0.1);padding:8px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.user-bar .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0;}
-.user-bar .name{color:white;font-size:13px;font-weight:600;}
-.user-bar .role{color:rgba(255,255,255,0.6);font-size:11px;}
-.channels{display:flex;background:#1E3A5F;padding:8px 16px;gap:8px;flex-shrink:0;overflow-x:auto;}
-.channel-btn{padding:5px 14px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.1);color:white;white-space:nowrap;}
-.channel-btn.active{background:white;color:#1B3A6B;}
-.messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
-.msg{display:flex;gap:10px;align-items:flex-start;}
-.msg.mine{flex-direction:row-reverse;}
-.msg-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;}
-.msg-body{max-width:70%;}
-.msg.mine .msg-body{align-items:flex-end;display:flex;flex-direction:column;}
-.msg-name{font-size:11px;font-weight:600;color:#64748B;margin-bottom:3px;}
-.msg-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
-.msg.mine .msg-bubble{background:#1B3A6B;color:white;}
-.msg-time{font-size:10px;color:#94A3B8;margin-top:3px;}
-.input-area{background:white;padding:12px 16px;border-top:1px solid #E2E8F0;display:flex;gap:10px;align-items:center;flex-shrink:0;}
-.input-area input{flex:1;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:24px;font-size:13px;font-family:inherit;outline:none;}
-.input-area input:focus{border-color:#1B3A6B;}
-.send-btn{width:40px;height:40px;background:#1B3A6B;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.send-btn svg{fill:white;width:18px;height:18px;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F0F4FF;height:100vh;display:flex;flex-direction:column;}
+header{background:#1B3A6B;padding:12px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+header img{height:28px;filter:brightness(0) invert(1);}
+header h1{color:white;font-size:14px;font-weight:800;flex:1;}
+header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
+#status-bar{display:none;padding:8px 16px;font-size:12px;font-weight:700;text-align:center;flex-shrink:0;}
+#who-bar{background:white;border-bottom:1.5px solid #E2E8F0;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#who-bar .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white;flex-shrink:0;}
+#who-bar .info{font-size:13px;}
+#who-bar .name{font-weight:700;color:#1B3A6B;}
+#who-bar .role{font-size:11px;color:#64748B;}
+#messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.msg-wrap{display:flex;gap:8px;align-items:flex-end;}
+.msg-wrap.mine{flex-direction:row-reverse;}
+.avatar-sm{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;flex-shrink:0;}
+.bubble{max-width:70%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;}
+.bubble.theirs{background:white;color:#1E293B;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+.bubble.mine{background:#1B3A6B;color:white;border-bottom-right-radius:4px;}
+.bubble .sender{font-size:10px;font-weight:700;margin-bottom:3px;opacity:0.7;}
+.bubble .time{font-size:10px;opacity:0.6;margin-top:4px;text-align:right;}
 .system-msg{text-align:center;font-size:11px;color:#94A3B8;padding:4px 0;}
-.login-screen{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;}
-.login-box{background:white;border-radius:14px;padding:32px;max-width:360px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.1);}
-.login-box h2{font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:6px;}
-.login-box p{font-size:13px;color:#64748B;margin-bottom:20px;}
-.login-box select,.login-box input{width:100%;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-bottom:12px;font-family:inherit;}
-.login-box button{width:100%;padding:12px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;}
+#input-bar{background:white;border-top:1.5px solid #E2E8F0;padding:12px 16px;display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
+#msg-input{flex:1;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:20px;font-size:13px;font-family:inherit;resize:none;min-height:42px;max-height:120px;outline:none;}
+#msg-input:focus{border-color:#1B3A6B;}
+#send-btn{background:#1B3A6B;color:white;border:none;border-radius:50%;width:42px;height:42px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#send-btn:disabled{opacity:0.5;}
+.empty-chat{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94A3B8;}
+.empty-chat .ico{font-size:48px;margin-bottom:12px;}
 </style>
 </head>
 <body>
 
-<!-- Login Screen -->
-<div id="login-screen" class="login-screen">
-  <div class="login-box">
-    <div style="font-size:40px;margin-bottom:12px;">&#128172;</div>
-    <h2>CP Restoration Team Chat</h2>
-    <p>Select your name to join the chat</p>
-    <select id="login-select">
-      <option value="">Select your name...</option>
-      <option value="Jason Crown|Admin|#1B3A6B|JC">Jason Crown (Admin)</option>
-      <option value="Queen Jearel Cruz|Compliance|#7C3AED|QC">Queen (Compliance)</option>
-      <option value="Bukunmi Aina|Sales|#166534|BU">Bukunmi (Sales)</option>
-      <option value="Elna Palabrica|CS Agent|#DC2626|EP">Elna (CS Agent)</option>
-      <option value="Jonah De Guzman|CS Agent|#EA580C|JD">Jonah (CS Agent)</option>
-      <option value="Alec Sarrosa|CS Agent|#0891B2|AS">Alec (CS Agent)</option>
-      <option value="Anthon Sumbiling|CS Agent|#059669|AT">Anthon (CS Agent)</option>
-    </select>
-    <button onclick="joinChat()">Join Chat →</button>
+<header>
+  <img src="/images/logo.png" alt="CP Restoration">
+  <h1>&#128172; Team Chat</h1>
+  <span id="online-count" style="font-size:11px;color:rgba(255,255,255,.6);"></span>
+  <a href="/dashboard.html">&larr; Back</a>
+</header>
+
+<div id="status-bar"></div>
+
+<div id="who-bar" style="display:none;">
+  <div class="avatar" id="my-avatar">?</div>
+  <div class="info">
+    <div class="name" id="my-name">Loading...</div>
+    <div class="role" id="my-role"></div>
   </div>
+  <div style="margin-left:auto;font-size:11px;color:#94A3B8;" id="conn-status">Connecting...</div>
 </div>
 
-<!-- Chat Screen -->
-<div id="chat-screen" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-  <header>
-    <h1>&#128172; CP Restoration — Team Chat</h1>
-    <div class="online"><div class="online-dot"></div><span id="online-count">Live</span></div>
-  </header>
-  <div class="user-bar">
-    <div class="avatar" id="my-avatar"></div>
-    <div><div class="name" id="my-name"></div><div class="role" id="my-role"></div></div>
-  </div>
-  <div class="channels">
-    <button class="channel-btn active" onclick="setChannel('general',this)">&#127760; General</button>
-    <button class="channel-btn" onclick="setChannel('cs-team',this)">&#128101; CS Team</button>
-    <button class="channel-btn" onclick="setChannel('disputes',this)">&#128202; Disputes</button>
-    <button class="channel-btn" onclick="setChannel('urgent',this)">&#128680; Urgent</button>
-    <button class="channel-btn" onclick="setChannel('management',this)">&#128081; Management</button>
-  </div>
-  <div class="messages" id="messages"></div>
-  <div class="input-area">
-    <input id="msg-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()">
-    <button class="send-btn" onclick="sendMsg()">
-      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
-    </button>
-  </div>
+<div id="messages"></div>
+
+<div id="input-bar">
+  <textarea id="msg-input" placeholder="Type a message..." rows="1"></textarea>
+  <button id="send-btn" onclick="sendMsg()">&#9654;</button>
 </div>
 
 <script>
-var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
 var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
-var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR  = {apikey:KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
 var currentUser = null;
-var currentChannel = 'general';
 var lastId = 0;
 var pollTimer = null;
-var userColors = {};
+var sending = false;
 
-function joinChat() {
-  var val = document.getElementById('login-select').value;
-  if (!val) { alert('Please select your name.'); return; }
-  var parts = val.split('|');
-  currentUser = {name:parts[0],role:parts[1],color:parts[2],initials:parts[3]};
-  document.getElementById('login-screen').style.display = 'none';
-  var cs = document.getElementById('chat-screen');
-  cs.style.display = 'flex';
-  cs.style.flexDirection = 'column';
-  document.getElementById('my-avatar').textContent = currentUser.initials;
-  document.getElementById('my-avatar').style.background = currentUser.color;
-  document.getElementById('my-name').textContent = currentUser.name;
-  document.getElementById('my-role').textContent = currentUser.role;
-  loadMessages();
-  pollTimer = setInterval(loadMessages, 3000);
+function showStatus(msg, type) {
+  var bar = document.getElementById('status-bar');
+  bar.style.display = 'block';
+  bar.style.background = type==='error' ? '#FEE2E2' : '#DCFCE7';
+  bar.style.color = type==='error' ? '#8B1A1A' : '#166534';
+  bar.textContent = msg;
+  if (type !== 'error') setTimeout(function(){ bar.style.display='none'; }, 3000);
 }
 
-function setChannel(ch, btn) {
-  currentChannel = ch;
-  document.querySelectorAll('.channel-btn').forEach(function(b){b.className='channel-btn';});
-  btn.className = 'channel-btn active';
-  lastId = 0;
-  document.getElementById('messages').innerHTML = '';
-  loadMessages();
+function initUser() {
+  var name  = localStorage.getItem('cp_logged_in_name');
+  var email = localStorage.getItem('cp_logged_in_user');
+  var role  = localStorage.getItem('cp_logged_in_role') || 'Team Member';
+
+  if (!name) {
+    // Show login prompt
+    document.getElementById('messages').innerHTML =
+      '<div class="empty-chat"><div class="ico">&#128274;</div><div>Please <a href="/dashboard.html" style="color:#1B3A6B;font-weight:700;">log into the portal</a> first, then come back to Team Chat.</div></div>';
+    document.getElementById('input-bar').style.display = 'none';
+    return false;
+  }
+
+  var colors = {admin:'#1B3A6B',compliance:'#166534',sales:'#92400E',cs:'#7C3AED'};
+  var color = colors[role.toLowerCase()] || '#1B3A6B';
+  var initials = name.split(' ').map(function(w){return w[0]||'';}).join('').substring(0,2).toUpperCase();
+
+  currentUser = {name:name, email:email, role:role, color:color, initials:initials};
+
+  var av = document.getElementById('my-avatar');
+  av.textContent = initials;
+  av.style.background = color;
+  document.getElementById('my-name').textContent = name;
+  document.getElementById('my-role').textContent = role;
+  document.getElementById('who-bar').style.display = 'flex';
+  return true;
 }
 
-async function loadMessages() {
+async function loadMessages(initial) {
   try {
-    var url = SUPA+'/team_chat?channel=eq.'+currentChannel+'&order=id.asc&limit=100';
-    if (lastId > 0) url += '&id=gt.'+lastId;
+    var url = SUPA+'/team_chat?channel=eq.general&order=id.asc&limit=100';
+    if (!initial && lastId > 0) url += '&id=gt.'+lastId;
+
     var r = await fetch(url, {headers:HDR});
+
+    if (!r.ok) {
+      var err = await r.text();
+      showStatus('Error loading messages: '+err.substring(0,80), 'error');
+      document.getElementById('conn-status').textContent = 'Connection error';
+      return;
+    }
+
     var msgs = await r.json();
-    if (!Array.isArray(msgs) || !msgs.length) return;
-    var container = document.getElementById('messages');
-    var wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+    if (!Array.isArray(msgs)) {
+      showStatus('Unexpected response from server', 'error');
+      return;
+    }
+
+    document.getElementById('conn-status').textContent = 'Connected';
+
+    if (initial) {
+      // Clear and render all
+      var container = document.getElementById('messages');
+      container.innerHTML = '';
+      if (!msgs.length) {
+        container.innerHTML = '<div class="empty-chat"><div class="ico">&#128172;</div><div>No messages yet. Say hello!</div></div>';
+      }
+    }
+
     msgs.forEach(function(m) {
-      if (m.id > lastId) lastId = m.id;
-      appendMsg(m);
+      if (m.id > lastId) {
+        lastId = m.id;
+        appendMsg(m);
+        // Remove empty state if present
+        var empty = document.querySelector('.empty-chat');
+        if (empty) empty.remove();
+      }
     });
-    if (wasAtBottom) container.scrollTop = container.scrollHeight;
+
+    // Scroll to bottom
+    var container = document.getElementById('messages');
+    container.scrollTop = container.scrollHeight;
+
   } catch(e) {
-    showStatus("Load error: " + e.message, "red"); console.log('Load error:', e); }
+    showStatus('Network error: '+e.message, 'error');
+    document.getElementById('conn-status').textContent = 'Offline';
+  }
 }
 
 function appendMsg(m) {
   var container = document.getElementById('messages');
   var isMine = currentUser && m.sender_name === currentUser.name;
   var color = m.sender_color || '#1B3A6B';
-  var ts = '';
-  try { ts = new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); } catch(e){}
+  var initials = m.sender_initials || (m.sender_name||'?').substring(0,2).toUpperCase();
+  var time = '';
+  try { time = new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); } catch(e){}
 
   if (m.type === 'system') {
     var sys = document.createElement('div');
@@ -161,92 +176,113 @@ function appendMsg(m) {
     return;
   }
 
-  var div = document.createElement('div');
-  div.className = 'msg' + (isMine ? ' mine' : '');
-  div.innerHTML =
-    '<div class="msg-avatar" style="background:'+color+'">'+m.sender_initials+'</div>'+
-    '<div class="msg-body">'+
-      (!isMine ? '<div class="msg-name">'+m.sender_name+' &middot; '+m.sender_role+'</div>' : '')+
-      '<div class="msg-bubble">'+escHtml(m.message)+'</div>'+
-      '<div class="msg-time">'+ts+'</div>'+
-    '</div>';
-  container.appendChild(div);
+  var wrap = document.createElement('div');
+  wrap.className = 'msg-wrap' + (isMine?' mine':'');
+
+  var av = document.createElement('div');
+  av.className = 'avatar-sm';
+  av.style.background = color;
+  av.textContent = initials;
+
+  var bub = document.createElement('div');
+  bub.className = 'bubble ' + (isMine?'mine':'theirs');
+
+  if (!isMine) {
+    var sender = document.createElement('div');
+    sender.className = 'sender';
+    sender.textContent = m.sender_name || 'Unknown';
+    bub.appendChild(sender);
+  }
+
+  var txt = document.createElement('div');
+  txt.textContent = m.message;
+  bub.appendChild(txt);
+
+  var ts = document.createElement('div');
+  ts.className = 'time';
+  ts.textContent = time;
+  bub.appendChild(ts);
+
+  wrap.appendChild(av);
+  wrap.appendChild(bub);
+  container.appendChild(wrap);
 }
 
 async function sendMsg() {
+  if (!currentUser || sending) return;
   var input = document.getElementById('msg-input');
   var text = input.value.trim();
   if (!text) return;
+
+  sending = true;
+  var btn = document.getElementById('send-btn');
+  btn.disabled = true;
   input.value = '';
+
   try {
-    var res = await fetch(SUPA+'/team_chat', {
-      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=representation'}),
+    var r = await fetch(SUPA+'/team_chat', {
+      method:'POST',
+      headers:Object.assign({},HDR,{Prefer:'return=representation'}),
       body:JSON.stringify({
-        channel: currentChannel,
+        channel:'general',
         sender_name: currentUser.name,
         sender_role: currentUser.role,
         sender_color: currentUser.color,
         sender_initials: currentUser.initials,
         message: text,
-        type: 'message'
+        type:'message',
+        created_at: new Date().toISOString()
       })
     });
-    if (!res.ok) {
-      var errText = await res.text();
-      showStatus('Error saving message: ' + errText.substring(0,100), 'red');
-      console.error('Send failed:', res.status, errText);
+
+    if (!r.ok) {
+      var err = await r.text();
+      showStatus('Failed to send: '+err.substring(0,100), 'error');
+      input.value = text; // restore
     } else {
-      loadMessages();
+      var saved = await r.json();
+      if (Array.isArray(saved) && saved.length) {
+        var m = saved[0];
+        if (m.id > lastId) { lastId = m.id; appendMsg(m); }
+        var empty = document.querySelector('.empty-chat');
+        if (empty) empty.remove();
+        var container = document.getElementById('messages');
+        container.scrollTop = container.scrollHeight;
+      } else {
+        // Fallback — reload all
+        lastId = 0;
+        await loadMessages(true);
+      }
     }
   } catch(e) {
-    console.log('Send error:', e);
-    showStatus('Send failed: ' + e.message, 'red');
+    showStatus('Send error: '+e.message, 'error');
+    input.value = text;
   }
+
+  sending = false;
+  btn.disabled = false;
+  input.focus();
 }
 
-function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-  // Auto-join from portal session
-  var savedEmail = localStorage.getItem('cp_logged_in_user');
-  var savedName  = localStorage.getItem('cp_logged_in_name');
-  var savedRole  = localStorage.getItem('cp_logged_in_label') || localStorage.getItem('cp_logged_in_role') || 'Team Member';
-  var savedInit  = localStorage.getItem('cp_logged_in_initials') || (savedName ? savedName.split(' ').map(function(w){return w[0];}).join('').substring(0,2) : 'CP');
-
-  var colors = {'admin':'#1B3A6B','compliance':'#166534','sales':'#92400E','cs':'#5B21B6'};
-  var role = localStorage.getItem('cp_logged_in_role') || 'cs';
-  var color = colors[role] || '#1B3A6B';
-
-  if (savedName) {
-    currentUser = {name: savedName, role: savedRole, color: color, initials: savedInit};
-    // Hide login screen, show chat
-    var ls = document.getElementById('login-screen');
-    var cs = document.getElementById('chat-screen');
-    if (ls) ls.style.display = 'none';
-    if (cs) { cs.style.display = 'flex'; cs.style.flexDirection = 'column'; }
-    var av = document.getElementById('my-avatar');
-    var nm = document.getElementById('my-name');
-    var rl = document.getElementById('my-role');
-    if (av) { av.textContent = savedInit; av.style.background = color; }
-    if (nm) nm.textContent = savedName;
-    if (rl) rl.textContent = savedRole;
-    loadMessages();
-    pollTimer = setInterval(loadMessages, 3000);
+// Enter to send
+document.getElementById('msg-input').addEventListener('keydown', function(e) {
+  if (e.key==='Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMsg();
   }
 });
 
-function showStatus(msg, color) {
-  var bar = document.getElementById('status-bar');
-  if (!bar) return;
-  bar.style.display = 'block';
-  bar.style.background = color === 'red' ? '#FEE2E2' : '#DCFCE7';
-  bar.style.color = color === 'red' ? '#8B1A1A' : '#166534';
-  bar.textContent = msg;
-  setTimeout(function(){ bar.style.display = 'none'; }, 5000);
-}
+// Auto-resize textarea
+document.getElementById('msg-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120)+'px';
+});
 
+document.addEventListener('DOMContentLoaded', function() {
+  if (!initUser()) return;
+  loadMessages(true);
+  pollTimer = setInterval(function(){ loadMessages(false); }, 3000);
+});
 </script>
 </body>
 </html>
