@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSR Call Queue — CP Restoration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1E293B;}
+header{background:#8B1A1A;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+header img{height:30px;filter:brightness(0) invert(1);}
+header h1{color:white;font-size:15px;font-weight:800;flex:1;}
+header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;margin-left:12px;}
+.container{max-width:1000px;margin:0 auto;padding:20px;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:10px;border:1.5px solid #E2E8F0;padding:14px;text-align:center;}
+.stat-val{font-size:28px;font-weight:800;}
+.stat-lbl{font-size:11px;color:#64748B;margin-top:3px;font-weight:600;text-transform:uppercase;}
+.stat.red .stat-val{color:#8B1A1A;}
+.stat.gold .stat-val{color:#92400E;}
+.stat.green .stat-val{color:#166534;}
+.stat.blue .stat-val{color:#1B3A6B;}
+
+/* Add form */
+.add-card{background:white;border-radius:12px;border:2px solid #8B1A1A;padding:20px;margin-bottom:20px;}
+.add-card h2{font-size:14px;font-weight:800;color:#8B1A1A;margin-bottom:14px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+input,select,textarea{width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;}
+textarea{min-height:60px;resize:none;}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-red{background:#8B1A1A;color:white;width:100%;padding:12px;font-size:14px;}
+.btn-green{background:#166534;color:white;}
+.btn-gray{background:#F1F5F9;color:#475569;border:1.5px solid #E2E8F0;}
+
+/* Queue */
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.filter-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid #E2E8F0;background:white;color:#64748B;}
+.filter-btn.active{background:#8B1A1A;color:white;border-color:#8B1A1A;}
+.queue-list{display:grid;gap:12px;}
+
+.call-card{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:16px;border-left:5px solid #8B1A1A;}
+.call-card.priority-urgent{border-left-color:#8B1A1A;}
+.call-card.priority-high{border-left-color:#F59E0B;}
+.call-card.priority-normal{border-left-color:#1B3A6B;}
+.call-card.status-called{opacity:.65;border-left-color:#166534;}
+.call-card.status-resolved{opacity:.4;}
+
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.client-name{font-size:16px;font-weight:800;color:#1B3A6B;}
+.client-meta{font-size:12px;color:#64748B;margin-top:3px;line-height:1.8;}
+.client-meta a{color:#1B3A6B;font-weight:700;text-decoration:none;}
+.reason-box{background:#FEF2F2;border-radius:6px;padding:10px 12px;font-size:13px;color:#7F1D1D;margin:10px 0;line-height:1.6;border-left:3px solid #8B1A1A;}
+.reason-box.high{background:#FEF9C3;color:#78350F;border-left-color:#F59E0B;}
+.reason-box.normal{background:#EFF6FF;color:#1E3A5F;border-left-color:#1B3A6B;}
+.badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;}
+.badge-urgent{background:#FEE2E2;color:#8B1A1A;}
+.badge-high{background:#FEF9C3;color:#92400E;}
+.badge-normal{background:#DBEAFE;color:#1E40AF;}
+.badge-called{background:#DCFCE7;color:#166534;}
+.badge-resolved{background:#F1F5F9;color:#64748B;}
+.time-ago{font-size:11px;color:#94A3B8;white-space:nowrap;}
+.card-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.empty{text-align:center;padding:60px 20px;color:#94A3B8;font-size:14px;}
+.empty .ico{font-size:48px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+<header>
+  <img src="/images/logo.png" alt="CP Restoration">
+  <h1>&#128222; CSR Call Queue — Urgent Callbacks</h1>
+  <a href="/dashboard.html">&larr; Back</a>
+  <a href="/requests-inbox.html">Requests Inbox</a>
+</header>
+
+<div class="container">
+
+  <!-- Add to Queue Form (Jason/Admin adds emails/calls here) -->
+  <div class="add-card">
+    <h2>&#43; Add Client to Call Queue</h2>
+    <div class="form-row">
+      <input type="text" id="cq-name" placeholder="Client Full Name *">
+      <input type="text" id="cq-id" placeholder="Client ID (e.g. CPR-CP17430)">
+    </div>
+    <div class="form-row">
+      <input type="tel" id="cq-phone" placeholder="Phone Number *">
+      <input type="email" id="cq-email" placeholder="Email Address">
+    </div>
+    <div class="form-row">
+      <select id="cq-priority">
+        <option value="urgent">🔴 URGENT — Call within 1 hour</option>
+        <option value="high">🟡 HIGH — Call today</option>
+        <option value="normal">🔵 NORMAL — Call this week</option>
+      </select>
+      <select id="cq-rep">
+        <option value="">Assign to (optional)</option>
+        <option value="Elna Palabrica">Elna Palabrica</option>
+        <option value="Jonah De Guzman">Jonah De Guzman</option>
+        <option value="Alec Sarrosa">Alec Sarrosa</option>
+        <option value="Anthon Sumbiling">Anthon Sumbiling</option>
+        <option value="Any Available">Any Available Rep</option>
+      </select>
+    </div>
+    <textarea id="cq-reason" placeholder="Reason for call / what the client emailed / issue summary *"></textarea>
+    <button class="btn btn-red" onclick="addToQueue()">&#128222; Add to Call Queue</button>
+    <div id="cq-msg" style="font-size:12px;text-align:center;margin-top:8px;min-height:16px;"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat red"><div class="stat-val" id="ct-urgent">0</div><div class="stat-lbl">Urgent</div></div>
+    <div class="stat gold"><div class="stat-val" id="ct-high">0</div><div class="stat-lbl">High Priority</div></div>
+    <div class="stat blue"><div class="stat-val" id="ct-normal">0</div><div class="stat-lbl">Normal</div></div>
+    <div class="stat green"><div class="stat-val" id="ct-resolved">0</div><div class="stat-lbl">Resolved Today</div></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('urgent',this)">🔴 Urgent</button>
+    <button class="filter-btn" onclick="setFilter('high',this)">🟡 High</button>
+    <button class="filter-btn" onclick="setFilter('normal',this)">🔵 Normal</button>
+    <button class="filter-btn" onclick="setFilter('called',this)">✅ Called</button>
+    <button class="filter-btn" onclick="loadQueue()" style="margin-left:auto;">&#8635; Refresh</button>
+  </div>
+
+  <!-- Queue -->
+  <div class="queue-list" id="queue-list">
+    <div class="empty"><div class="ico">&#128222;</div><div>Loading call queue...</div></div>
+  </div>
+
+</div>
+
+<script>
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+var allItems = [];
+var currentFilter = 'all';
+
+async function addToQueue() {
+  var name = document.getElementById('cq-name').value.trim();
+  var phone = document.getElementById('cq-phone').value.trim();
+  var reason = document.getElementById('cq-reason').value.trim();
+  var msg = document.getElementById('cq-msg');
+
+  if (!name || !phone || !reason) {
+    msg.style.color='#8B1A1A'; msg.textContent='Please fill in name, phone, and reason.'; return;
+  }
+
+  var entry = {
+    type: 'call_queue',
+    client_name: name,
+    client_id: document.getElementById('cq-id').value.trim() || null,
+    client_phone: phone,
+    client_email: document.getElementById('cq-email').value.trim() || null,
+    priority: document.getElementById('cq-priority').value,
+    assigned_to: document.getElementById('cq-rep').value || 'Any Available',
+    reason: reason,
+    status: 'pending',
+    created_at: new Date().toISOString()
+  };
+
+  try {
+    msg.style.color='#64748B'; msg.textContent='Adding...';
+    var r = await fetch(SUPA+'/requests', {
+      method:'POST',
+      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body: JSON.stringify(entry)
+    });
+    if (r.ok) {
+      msg.style.color='#166534'; msg.textContent='✅ Added to call queue!';
+      ['cq-name','cq-id','cq-phone','cq-email','cq-reason'].forEach(function(id){
+        document.getElementById(id).value='';
+      });
+      document.getElementById('cq-priority').value='urgent';
+      document.getElementById('cq-rep').value='';
+      setTimeout(function(){msg.textContent='';loadQueue();},1500);
+    } else {
+      msg.style.color='#8B1A1A'; msg.textContent='Error saving. Try again.';
+    }
+  } catch(e) { msg.style.color='#8B1A1A'; msg.textContent='Error: '+e.message; }
+}
+
+async function loadQueue() {
+  try {
+    var r = await fetch(SUPA+'/requests?type=eq.call_queue&order=created_at.desc&limit=200',{headers:HDR});
+    allItems = await r.json();
+    if (!Array.isArray(allItems)) allItems=[];
+    updateCounts();
+    renderQueue();
+  } catch(e) { console.error(e); }
+}
+
+function updateCounts() {
+  var today = new Date().toDateString();
+  document.getElementById('ct-urgent').textContent = allItems.filter(function(i){return i.priority==='urgent'&&i.status==='pending';}).length;
+  document.getElementById('ct-high').textContent = allItems.filter(function(i){return i.priority==='high'&&i.status==='pending';}).length;
+  document.getElementById('ct-normal').textContent = allItems.filter(function(i){return i.priority==='normal'&&i.status==='pending';}).length;
+  document.getElementById('ct-resolved').textContent = allItems.filter(function(i){
+    return i.status==='resolved' && new Date(i.created_at).toDateString()===today;
+  }).length;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderQueue();
+}
+
+function renderQueue() {
+  var filtered = allItems.filter(function(i) {
+    if (currentFilter === 'urgent') return i.priority==='urgent' && i.status==='pending';
+    if (currentFilter === 'high') return i.priority==='high' && i.status==='pending';
+    if (currentFilter === 'normal') return i.priority==='normal' && i.status==='pending';
+    if (currentFilter === 'called') return i.status==='called';
+    return i.status !== 'resolved';
+  });
+
+  // Sort: urgent first, then high, then normal, then by date
+  var order = {urgent:0,high:1,normal:2};
+  filtered.sort(function(a,b) {
+    var po = (order[a.priority]||2) - (order[b.priority]||2);
+    if (po !== 0) return po;
+    return new Date(a.created_at) - new Date(b.created_at);
+  });
+
+  var list = document.getElementById('queue-list');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty"><div class="ico">&#9989;</div><div>No pending calls in the queue.</div></div>';
+    return;
+  }
+
+  var priorityLabels = {urgent:'🔴 URGENT',high:'🟡 HIGH',normal:'🔵 NORMAL'};
+  var priorityBadge = {urgent:'badge-urgent',high:'badge-high',normal:'badge-normal'};
+  var reasonClass = {urgent:'',high:'high',normal:'normal'};
+
+  list.innerHTML = filtered.map(function(item) {
+    var ago = timeAgo(item.created_at);
+    var badge = '<span class="badge '+(priorityBadge[item.priority]||'badge-normal')+'">'+(priorityLabels[item.priority]||'NORMAL')+'</span>';
+    var statusBadge = item.status==='called' ? '<span class="badge badge-called" style="margin-left:6px;">CALLED</span>' : '';
+    var reasonCls = 'reason-box '+(reasonClass[item.priority]||'normal');
+
+    return '<div class="call-card priority-'+(item.priority||'normal')+' status-'+(item.status||'pending')+'">' +
+      '<div class="card-top">' +
+        '<div>' +
+          '<div class="client-name">'+(item.client_name||'Unknown')+'</div>' +
+          '<div class="client-meta">' +
+            (item.client_id?'ID: '+item.client_id+'<br>':'') +
+            (item.client_phone?'<a href="tel:'+item.client_phone+'">&#128222; '+item.client_phone+'</a><br>':'') +
+            (item.client_email?'<a href="mailto:'+item.client_email+'">&#9993; '+item.client_email+'</a><br>':'') +
+            (item.assigned_to?'<span style="color:#1B3A6B;font-weight:700;">Assigned: '+item.assigned_to+'</span>':'') +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:right;">' +
+          badge + statusBadge + '<br>' +
+          '<span class="time-ago">'+ago+'</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="'+reasonCls+'">'+(item.reason||'No details provided')+'</div>' +
+      '<div class="card-actions">' +
+        (item.client_phone?'<a href="tel:'+item.client_phone+'" class="btn btn-red" style="text-decoration:none;">&#128222; Call Now</a>':'') +
+        '<button class="btn btn-green" onclick="markStatus(''+item.id+'','called')">&#9989; Mark Called</button>' +
+        '<button class="btn btn-green" onclick="markStatus(''+item.id+'','resolved')" style="background:#64748B;">&#10003; Resolve</button>' +
+        (item.client_id?'<a href="/cs-dashboard.html?client='+item.client_id+'" target="_blank" class="btn btn-gray" style="text-decoration:none;">&#128269; View File</a>':'') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function markStatus(id, status) {
+  try {
+    await fetch(SUPA+'/requests?id=eq.'+id, {
+      method:'PATCH',
+      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({status:status, updated_at:new Date().toISOString()})
+    });
+    var item = allItems.find(function(i){return i.id==id;});
+    if (item) item.status = status;
+    updateCounts(); renderQueue();
+  } catch(e){console.error(e);}
+}
+
+function timeAgo(ts) {
+  if (!ts) return '';
+  var s = Math.round((Date.now()-new Date(ts))/1000);
+  if (s<60) return s+'s ago';
+  if (s<3600) return Math.floor(s/60)+'m ago';
+  if (s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+
+document.addEventListener('DOMContentLoaded', loadQueue);
+setInterval(loadQueue, 30000);
+</script>
+</body>
+</html>
