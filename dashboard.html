@@ -410,6 +410,8 @@ function doLogin() {
   set('hdr-avatar', emp.initials);
   set('hdr-name', emp.name);
   set('hdr-role', emp.label + ' -- CP Restoration Services');
+  // Auto clock-in on login
+  clockInOnLogin(emp.name, email, emp.role || emp.label);
   // Greeting
   var hr = new Date().getHours();
   var greet = hr<12 ? 'Good morning, ' : hr<17 ? 'Good afternoon, ' : 'Good evening, ';
@@ -956,6 +958,48 @@ function showTTModal() {
   document.body.insertAdjacentHTML('beforeend', html);
   var closeBtn = document.getElementById('tt-close-btn');
   if (closeBtn) closeBtn.onclick = function(){ this.closest('[style*="position:fixed"]').remove(); };
+}
+
+
+// ── AUTO CLOCK-IN ON LOGIN ────────────────────────────────────
+async function clockInOnLogin(name, email, role) {
+  try {
+    var today = new Date().toISOString().split('T')[0];
+    var now = new Date().toISOString();
+    // Check if already clocked in today
+    var checkUrl = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?employee_email=eq.'+encodeURIComponent(email)+'&date=eq.'+today+'&status=eq.active&limit=1';
+    var check = await fetch(checkUrl, {
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var existing = await check.json();
+    if (Array.isArray(existing) && existing.length > 0) {
+      console.log('Already clocked in today');
+      return;
+    }
+    // Clock in
+    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions', {
+      method:'POST',
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({
+        employee_name: name,
+        employee_email: email,
+        role: role || 'Team Member',
+        date: today,
+        clock_in: now,
+        status: 'active',
+        last_seen: now
+      })
+    });
+    console.log('Clocked in:', name, now);
+    // Update last_seen every 5 minutes
+    setInterval(async function() {
+      await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?employee_email=eq.'+encodeURIComponent(email)+'&date=eq.'+today+'&status=eq.active', {
+        method:'PATCH',
+        headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({last_seen:new Date().toISOString()})
+      });
+    }, 300000);
+  } catch(e) { console.log('Clock-in error:', e.message); }
 }
 
 </script>
