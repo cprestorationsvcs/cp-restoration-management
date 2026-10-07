@@ -359,7 +359,13 @@ function filterClients(q){
 }
 
 // ── OPEN CLIENT ──
-function openClient(c,el){
+async function openClient(c,el){
+  // Fetch full client record from Supabase when selected
+  try {
+    var r=await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(c.id)+'&limit=1',{headers:HDR});
+    var data=await r.json();
+    if(Array.isArray(data)&&data.length) c=data[0];
+  } catch(e){ console.log('Full client fetch error:',e.message); }
   currentClient=c;
   try{var d=typeof c.disputes==='string'?JSON.parse(c.disputes):c.disputes;disputes=Array.isArray(d)&&d.length?d:[];}catch(e){disputes=[];}
   if(!disputes.length&&c.notes) disputes=parseNotes(c.notes);
