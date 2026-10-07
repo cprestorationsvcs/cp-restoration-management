@@ -89,6 +89,10 @@ header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
     <button class="filter-btn" onclick="setFilter('called',this)">&#128222; Called</button>
     <button class="filter-btn" onclick="setFilter('interested',this)">&#9989; Interested</button>
     <button class="filter-btn" onclick="setFilter('sold',this)">&#127881; Sold</button>
+    <span style="margin:0 6px;color:#CBD5E1;">|</span>
+    <button class="filter-btn src-btn" onclick="setSource('all',this)" style="background:#1B3A6B;color:white;">&#127760; All Sources</button>
+    <button class="filter-btn src-btn" onclick="setSource('ebook-funnel',this)">&#128218; Credit Guide</button>
+    <button class="filter-btn src-btn" onclick="setSource('funding-landing-page',this)">&#128176; Funding</button>
     <input type="text" class="search-box" id="search-box" placeholder="Search name, email, phone..." oninput="renderLeads()">
     <button class="filter-btn" onclick="loadLeads()" style="margin-left:auto;">&#8635; Refresh</button>
   </div>
@@ -112,12 +116,12 @@ header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
 
     <div class="step">
       <div class="step-title"><span class="step-num">2</span> Confirm They Got the Guide</div>
-      <div class="script-box">"Hi [Name], I'm calling from CP Restoration Services — you recently downloaded our free credit repair guide. Did you get a chance to look at it yet?"<br><br><em>(If yes: "Great! Did anything in there apply to your situation?")</em><br><em>(If no: "No worries at all — that's actually why I'm calling, to walk you through the key points.")</em></div>
+      <div class="script-box">"Hi [Name], I am calling from CP Restoration Services — you recently downloaded our free credit repair guide. Did you get a chance to look at it yet?"<br><br><em>(If yes: "Great! Did anything in there apply to your situation?")</em><br><em>(If no: "No worries at all — that is actually why I am calling, to walk you through the key points.")</em></div>
     </div>
 
     <div class="step">
       <div class="step-title"><span class="step-num">3</span> Identify the Pain Point</div>
-      <div class="script-box">"Can I ask — what's going on with your credit right now? Are you dealing with collections, late payments, or anything that's been holding you back?"<br><br><em>(Listen. Let them talk. The more they share, the easier the close.)</em></div>
+      <div class="script-box">"Can I ask — what's going on with your credit right now? Are you dealing with collections, late payments, or anything that is been holding you back?"<br><br><em>(Listen. Let them talk. The more they share, the easier the close.)</em></div>
     </div>
 
     <div class="step">
@@ -127,20 +131,20 @@ header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
 
     <div class="step">
       <div class="step-title"><span class="step-num">5</span> Present Pricing</div>
-      <div class="script-box">"We have two programs. Our Express program is $3,999 and gets you results in 60 business days — that's our fastest. Our Standard program is $2,500 and runs 120 business days. We also offer a financing option where you can get started for as little as $750 down and $292 a month. Which of those sounds like it fits your situation best?"</div>
+      <div class="script-box">"We have two programs. Our Express program is $3,999 and gets you results in 60 business days — that is our fastest. Our Standard program is $2,500 and runs 120 business days. We also offer a financing option where you can get started for as little as $750 down and $292 a month. Which of those sounds like it fits your situation best?"</div>
     </div>
 
     <div class="step">
       <div class="step-title"><span class="step-num">6</span> Handle Objections</div>
       <div class="objection"><strong>"I need to think about it"</strong> — "I completely understand. Can I ask what specifically you need to think about? Is it the price, the timing, or something else? I want to make sure you have everything you need to make the right decision."</div>
-      <div class="objection" style="margin-top:6px;"><strong>"I can't afford it"</strong> — "That's exactly why we have the financing option — you can get started for $750 today and pay $292 a month. Most people find that the improvement in their credit score saves them way more than that in lower interest rates alone."</div>
-      <div class="objection" style="margin-top:6px;"><strong>"I tried credit repair before and it didn't work"</strong> — "I hear that a lot. The difference with us is we have a dedicated team of dispute specialists, not just automated letters. We work each file manually and we've been doing it since 2014. Can I ask who you used before?"</div>
+      <div class="objection" style="margin-top:6px;"><strong>"I cannot afford it"</strong> — "That's exactly why we have the financing option — you can get started for $750 today and pay $292 a month. Most people find that the improvement in their credit score saves them way more than that in lower interest rates alone."</div>
+      <div class="objection" style="margin-top:6px;"><strong>"I tried credit repair before and it did not work"</strong> — "I hear that a lot. The difference with us is we have a dedicated team of dispute specialists, not just automated letters. We work each file manually and we've been doing it since 2014. Can I ask who you used before?"</div>
       <div class="objection" style="margin-top:6px;"><strong>"Is this legit?"</strong> — "Absolutely. We're a Florida-based company, we've been in business since 2014, and all our work is done under the Fair Credit Reporting Act. You can look us up at 35daycreditrepair.com."</div>
     </div>
 
     <div class="step">
       <div class="step-title"><span class="step-num">7</span> Close</div>
-      <div class="script-box">"Alright [Name], let's get you started. I just need a few minutes to take down your information and we can have your file opened today. Which package works best for you — the Express at $3,999, the Standard at $2,500, or the financing option at $750 down?"</div>
+      <div class="script-box">"Alright [Name], let us get you started. I just need a few minutes to take down your information and we can have your file opened today. Which package works best for you — the Express at $3,999, the Standard at $2,500, or the financing option at $750 down?"</div>
     </div>
 
     <div class="modal-footer">
@@ -186,43 +190,49 @@ function setFilter(f, btn) {
 }
 
 function renderLeads() {
-  var q = document.getElementById('search-box').value.toLowerCase();
   var filtered = allLeads.filter(function(l) {
     if (currentFilter !== 'all' && l.status !== currentFilter) return false;
-    if (q && !((l.name||'').toLowerCase().includes(q) || (l.email||'').toLowerCase().includes(q) || (l.phone||'').includes(q))) return false;
+    if (typeof currentSource !== 'undefined' && currentSource !== 'all' && (l.source||'') !== currentSource) return false;
     return true;
   });
-
-  var grid = document.getElementById('lead-grid');
+  var list = document.getElementById('lead-list');
+  list.innerHTML = '';
   if (!filtered.length) {
-    grid.innerHTML = '<div class="empty">No leads match this filter.</div>'; return;
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8;">No leads found.</div>';
+    return;
   }
-
-  grid.innerHTML = filtered.map(function(l) {
-    var ago = timeAgo(l.created_at);
-    var statusBadge = '<span class="badge badge-'+(l.status||'new')+'">'+(l.status||'new').replace('_',' ').toUpperCase()+'</span>';
-    var srcBadge = l.source ? '<span class="badge badge-ebook" style="margin-left:4px;">'+l.source.replace(/-/g,' ')+'</span>' : '';
-    return '<div class="lead-card '+(l.status||'new')+'">' +
-      '<div>' +
-        '<div class="lead-name">'+escHtml(l.name||'Unknown')+'</div>' +
-        '<div class="lead-meta">' +
-          (l.email ? '<a href="mailto:'+l.email+'">&#9993; '+l.email+'</a><br>' : '') +
-          (l.phone ? '<a href="tel:'+l.phone+'">&#128222; '+l.phone+'</a><br>' : '') +
-          (l.notes ? '<span style="color:#94A3B8;">'+escHtml(l.notes)+'</span>' : '') +
-        '</div>' +
-        '<div style="margin-top:8px;">'+statusBadge+srcBadge+'</div>' +
-        '<div class="lead-actions">' +
-          '<button class="btn btn-call" onclick="openScript(''+l.id+'',''+escAttr(l.name)+'',''+escAttr(l.phone)+'',''+escAttr(l.email)+'')">&#128222; Call Script</button>' +
-          (l.phone ? '<a href="tel:'+l.phone+'" class="btn btn-call" style="text-decoration:none;">&#128222; Dial</a>' : '') +
-          (l.email ? '<a href="mailto:'+l.email+'" class="btn btn-sms" style="text-decoration:none;">&#9993; Email</a>' : '') +
-          '<button class="btn btn-interested" onclick="updateStatus(''+l.id+'','interested')">&#9989; Interested</button>' +
-          '<button class="btn btn-sold" onclick="updateStatus(''+l.id+'','sold')">&#127881; Sold</button>' +
-          '<button class="btn btn-notint" onclick="updateStatus(''+l.id+'','not_interested')">&#10060;</button>' +
-        '</div>' +
+  filtered.forEach(function(l) {
+    var card = document.createElement('div');
+    card.className = 'lead-card';
+    var statusColors = {new:'#1B3A6B',called:'#92400E',interested:'#166534',sold:'#C9A84C',not_interested:'#64748B'};
+    var color = statusColors[l.status||'new'] || '#1B3A6B';
+    card.innerHTML =
+      '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">' +
+        '<div><div style="font-size:15px;font-weight:800;color:#1B3A6B;">' + esc(l.name||'Unknown') + '</div>' +
+        '<div style="font-size:12px;color:#64748B;margin-top:3px;line-height:1.8;">' +
+          (l.phone?'<a href="tel:'+l.phone+'" style="color:#1B3A6B;font-weight:700;text-decoration:none;">'+esc(l.phone)+'</a><br>':'') +
+          (l.email?'<a href="mailto:'+l.email+'" style="color:#1B3A6B;text-decoration:none;">'+esc(l.email)+'</a><br>':'') +
+          (l.source?'<span style="background:#EFF6FF;color:#1B3A6B;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">'+esc(l.source.replace(/-/g,' '))+'</span>':'') +
+        '</div></div>' +
+        '<div style="text-align:right;"><span style="background:'+color+';color:white;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">'+(l.status||'new').toUpperCase()+'</span>' +
+        '<div style="font-size:10px;color:#94A3B8;margin-top:4px;">'+(l.created_at?new Date(l.created_at).toLocaleDateString():'')+'</div></div>' +
       '</div>' +
-      '<div class="action-col"><span class="time-badge">'+ago+'</span></div>' +
-    '</div>';
-  }).join('');
+      (l.notes?'<div style="font-size:12px;color:#475569;margin-top:8px;background:#F8FAFC;padding:8px;border-radius:6px;">'+esc(l.notes)+'</div>':'') +
+      '<div class="lead-actions"></div>';
+    var actions = card.querySelector('.lead-actions');
+    function makeBtn(label, cls, fn) {
+      var b = document.createElement('button');
+      b.className = 'btn ' + cls; b.innerHTML = label;
+      b.addEventListener('click', fn); actions.appendChild(b);
+    }
+    makeBtn('&#128222; Call Script', 'btn-call', function(){ openScript(l.id, l.name||'', l.phone||'', l.email||''); });
+    if (l.phone) { var d=document.createElement('a'); d.href='tel:'+l.phone; d.className='btn btn-call'; d.style.textDecoration='none'; d.innerHTML='&#128222; Dial'; actions.appendChild(d); }
+    if (l.email) { var e=document.createElement('a'); e.href='mailto:'+l.email; e.className='btn btn-sms'; e.style.textDecoration='none'; e.innerHTML='&#9993; Email'; actions.appendChild(e); }
+    [{s:'called',cls:'btn-call',lbl:'&#128222; Mark Called'},{s:'interested',cls:'btn-interested',lbl:'&#9989; Interested'},{s:'sold',cls:'btn-sold',lbl:'&#127881; Sold'},{s:'not_interested',cls:'btn-notint',lbl:'&#10060; Not Interested'}].forEach(function(item){
+      makeBtn(item.lbl, item.cls, function(){ updateStatus(l.id, item.s); });
+    });
+    list.appendChild(card);
+  });
 }
 
 function openScript(id, name, phone, email) {
@@ -232,7 +242,7 @@ function openScript(id, name, phone, email) {
     (phone ? '&#128222; <a href="tel:'+phone+'">'+phone+'</a> &nbsp;|&nbsp; ' : '') +
     (email ? '&#9993; <a href="mailto:'+email+'">'+email+'</a>' : '');
   document.getElementById('script-opening').innerHTML =
-    '"Hi, may I speak with '+escHtml(name)+'? Hi '+escHtml(name.split(' ')[0])+', my name is [Your Name] and I'm calling from CP Restoration Services. You recently downloaded our free credit repair guide — did you get a chance to see it?"';
+    '"Hi, may I speak with '+escHtml(name)+'? Hi '+escHtml(name.split(' ')[0])+', my name is [Your Name] and I am calling from CP Restoration Services. You recently downloaded our free credit repair guide — did you get a chance to see it?"';
   document.getElementById('script-modal').classList.add('open');
 }
 
