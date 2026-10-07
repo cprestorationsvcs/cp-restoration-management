@@ -330,10 +330,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div class="card">
         <div class="card-head"><div class="card-title">💬 Message Thread</div></div>
         <div class="card-body">
-          <div class="msg-thread" id="msg-thread">
-            <div class="msg-bubble-wrap team">
-              <div class="msg-bbl">Welcome to the CP Restoration client portal. Your file is active and we are working on your disputes. Feel free to message us any questions here and we will respond within 24 hours.</div>
-              <div class="msg-meta-sm">CP Restoration Team · Today</div>
+          <div class="msg-thread" id="status-updates-list" style="margin-bottom:12px;"></div>
+            <div id="msg-thread">
             </div>
           </div>
           <div class="msg-form">
@@ -935,39 +933,35 @@ function renderDocuments() {
 // ── SEND MESSAGE ──────────────────────────────────────────────────
 async function sendMessage() {
   var input = document.getElementById('msg-input');
-  if(!input || !input.value.trim() || !currentClient) return;
+  if(!input || !input.value.trim() || !currentClientId) return;
   var msgText = input.value.trim();
   var btn = document.getElementById('send-msg-btn');
   if(btn) btn.disabled = true;
   input.value = '';
-
-  var newMsg = { from:'client', text:msgText, date:new Date().toISOString() };
-  if(!currentClient.messages) currentClient.messages = [];
-  currentClient.messages.push(newMsg);
-  renderMessages();
-
-  // Save to Supabase
   try {
-    var supaKey = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
-    await fetch(_PORTAL_SUPA+'?id=eq.'+encodeURIComponent(currentClientId), {
-      method:'PATCH',
-      headers:{'Content-Type':'application/json','apikey':supaKey,'Authorization':'Bearer '+supaKey},
-      body: JSON.stringify({ notes: (currentClient.notes||'') + '\n\n[CLIENT MESSAGE '+new Date().toLocaleDateString()+']: ' + msgText })
-    });
-    showToast('Message sent. Our team will respond within 24 hours Monday-Friday.');
-    // Also send email notification via Netlify function
-    fetch('/.netlify/functions/email-proxy', {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/client_messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        personalizations:[{to:[{email:'jason@mycprteam.com'}]}],
-        from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Portal'},
-        subject:'New Client Message — '+currentClientId+' '+currentClient.name,
-        content:[{type:'text/plain',value:'Client: '+currentClient.name+' ('+currentClientId+')\nMessage: '+msgText+'\n\nLog in to respond: portal-cprestorationsvcs.com/client-manager.html'}]
+      headers:{apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({
+        client_id: currentClientId,
+        client_name: currentClient ? currentClient.name : '',
+        from_role: 'client',
+        from_name: currentClient ? currentClient.name : 'Client',
+        message: msgText,
+        is_read: false,
+        created_at: new Date().toISOString()
       })
-    }).catch(function(){});
+    });
+    if(r.ok) {
+      showToast('Message sent!','success');
+      await loadPortalMessages();
+    } else {
+      showToast('Error sending message','error');
+      input.value = msgText;
+    }
   } catch(e) {
-    showToast('Message saved locally. Team will be notified.');
+    showToast('Error: '+e.message,'error');
+    input.value = msgText;
   }
   if(btn) btn.disabled = false;
 }
@@ -1048,9 +1042,11 @@ var _MSG_HDR = {apikey:_MSG_KEY,'Authorization':'Bearer '+_MSG_KEY};
 async function loadPortalMessages() {
   if (!currentClientId) return;
   try {
-    var r = await fetch(_MSG_SUPA+'/client_messages?client_id=eq.'+encodeURIComponent(currentClientId)+'&order=created_at.asc&limit=100', {headers:_MSG_HDR});
+    var r = await fetch(_MSG_SUPA+'/client_messages?client_id=eq.'+encodeURIComponent(currentClientId)+'&limit=50', {headers:_MSG_HDR});
     var msgs = await r.json();
     if (!Array.isArray(msgs)) return;
+    // Sort oldest first client-side
+    msgs.sort(function(a,b){ return new Date(a.created_at||0)-new Date(b.created_at||0); });
     var thread = document.getElementById('msg-thread');
     if (!thread) return;
 
@@ -1081,7 +1077,7 @@ async function loadPortalMessages() {
 async function loadPortalStatusUpdates() {
   if (!currentClientId) return;
   try {
-    var r = await fetch(_MSG_SUPA+'/client_status_updates?client_id=eq.'+encodeURIComponent(currentClientId)+'&order=created_at.desc&limit=10', {headers:_MSG_HDR});
+    var r = await fetch(_MSG_SUPA+'/client_status_updates?client_id=eq.'+encodeURIComponent(currentClientId)+'&limit=10', {headers:_MSG_HDR});
     var updates = await r.json();
     if (!Array.isArray(updates) || !updates.length) return;
     var container = document.getElementById('status-updates-list');
