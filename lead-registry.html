@@ -279,6 +279,22 @@ function escAttr(s) { return (s||'').replace(/'/g,"\'"); }
 
 document.addEventListener('DOMContentLoaded', loadLeads);
 setInterval(loadLeads, 30000);
+
+function setSource(src, btn) {
+  currentSource = src;
+  document.querySelectorAll('.src-btn').forEach(function(b) {
+    b.style.background = '';
+    b.style.color = '';
+    b.style.borderColor = '';
+  });
+  if (btn) {
+    btn.style.background = '#1B3A6B';
+    btn.style.color = 'white';
+    btn.style.borderColor = '#1B3A6B';
+  }
+  renderLeads();
+}
+
 </script>
 </body>
 </html>
