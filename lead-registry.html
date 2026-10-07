@@ -195,7 +195,7 @@ function renderLeads() {
     if (typeof currentSource !== 'undefined' && currentSource !== 'all' && (l.source||'') !== currentSource) return false;
     return true;
   });
-  var list = document.getElementById('lead-list');
+  var list = document.getElementById('lead-grid');
   list.innerHTML = '';
   if (!filtered.length) {
     list.innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8;">No leads found.</div>';
