@@ -477,6 +477,8 @@ async function dbGetClients(searchTerm) {
     if (!resp.ok) throw new Error('HTTP '+resp.status);
     var data = await resp.json();
     if (!Array.isArray(data)) throw new Error('Bad response');
+    // Always keep last results so openView can find any client
+    _clientCache = data; _cacheTime = Date.now();
     var clients = data.map(function(row){
       return {
         id: row.id||'', name: row.name||'', email: row.email||'',
