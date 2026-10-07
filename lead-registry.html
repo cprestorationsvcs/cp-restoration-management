@@ -301,6 +301,8 @@ function setSource(src, btn) {
   renderLeads();
 }
 
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
