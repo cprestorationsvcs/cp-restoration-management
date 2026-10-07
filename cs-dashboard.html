@@ -598,6 +598,7 @@ async function saveCallNotes(){
   if(!notes){toast('Enter notes first','err');return;}
   var tag='\n[CS NOTE '+new Date().toLocaleString()+']: '+notes;
   currentClient.notes=(currentClient.notes||'')+tag;
+  trackLog();
   await saveNotes();
   document.getElementById('call-notes').value='';
   toast('Notes saved');
@@ -924,6 +925,98 @@ async function addContactLog(){
   document.getElementById('log-entry').value = '';
   renderContactLog();
 }
+
+// ── QUOTA TRACKER ────────────────────────────────────────────
+var quotaCalls = 0;
+var quotaFiles = 0;
+var quotaLogs  = 0;
+var quotaQueue = 0;
+
+function updateQuotaBar(id, barId, val, target) {
+  var el = document.getElementById(id);
+  var bar = document.getElementById(barId);
+  if (el) el.textContent = val + (target ? '/'+target : '');
+  if (bar) {
+    var pct = target ? Math.min(100, Math.round(val/target*100)) : Math.min(100, val*10);
+    bar.style.width = pct+'%';
+    if (pct >= 100) bar.style.background = '#166534';
+  }
+}
+
+function trackCall() {
+  quotaCalls++;
+  updateQuotaBar('q-calls','q-calls-bar', quotaCalls, 15);
+  saveQuotaToday();
+}
+
+function trackFile() {
+  quotaFiles++;
+  updateQuotaBar('q-files','q-files-bar', quotaFiles, 10);
+  saveQuotaToday();
+}
+
+function trackLog() {
+  quotaLogs++;
+  updateQuotaBar('q-logs','q-logs-bar', quotaLogs, 0);
+  saveQuotaToday();
+}
+
+function trackQueueItem() {
+  quotaQueue++;
+  updateQuotaBar('q-queue','q-queue-bar', quotaQueue, 0);
+  saveQuotaToday();
+}
+
+async function saveQuotaToday() {
+  var agentName = localStorage.getItem('cp_logged_in_name') || 'Unknown';
+  var today = new Date().toISOString().split('T')[0];
+  var key = 'quota_'+agentName+'_'+today;
+  var data = {calls:quotaCalls, files:quotaFiles, logs:quotaLogs, queue:quotaQueue, date:today};
+  localStorage.setItem(key, JSON.stringify(data));
+  // Also save to Supabase for Jason to see
+  try {
+    // Upsert today's quota record
+    await fetch(SUPA+'/cs_quotas?agent_name=eq.'+encodeURIComponent(agentName)+'&date=eq.'+today, {
+      method:'GET', headers:HDR
+    }).then(async function(r){
+      var existing = await r.json();
+      if (Array.isArray(existing) && existing.length > 0) {
+        // Update
+        await fetch(SUPA+'/cs_quotas?agent_name=eq.'+encodeURIComponent(agentName)+'&date=eq.'+today, {
+          method:'PATCH',
+          headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+          body:JSON.stringify({calls:quotaCalls,files_reviewed:quotaFiles,contacts_logged:quotaLogs,queue_cleared:quotaQueue})
+        });
+      } else {
+        // Insert
+        await fetch(SUPA+'/cs_quotas', {
+          method:'POST',
+          headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+          body:JSON.stringify({agent_name:agentName,date:today,calls:quotaCalls,files_reviewed:quotaFiles,contacts_logged:quotaLogs,queue_cleared:quotaQueue})
+        });
+      }
+    });
+  } catch(e){ /* quota save non-critical */ }
+}
+
+function loadQuotaToday() {
+  var agentName = localStorage.getItem('cp_logged_in_name') || 'Unknown';
+  var today = new Date().toISOString().split('T')[0];
+  var key = 'quota_'+agentName+'_'+today;
+  var saved = localStorage.getItem(key);
+  if (saved) {
+    try {
+      var d = JSON.parse(saved);
+      quotaCalls = d.calls||0; quotaFiles = d.files||0;
+      quotaLogs  = d.logs||0;  quotaQueue = d.queue||0;
+      updateQuotaBar('q-calls','q-calls-bar', quotaCalls, 15);
+      updateQuotaBar('q-files','q-files-bar', quotaFiles, 10);
+      updateQuotaBar('q-logs','q-logs-bar',   quotaLogs,  0);
+      updateQuotaBar('q-queue','q-queue-bar', quotaQueue, 0);
+    } catch(e){}
+  }
+}
+
 </script>
 
 <!-- RingCentral Embeddable Softphone -->
