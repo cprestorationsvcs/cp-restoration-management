@@ -198,7 +198,11 @@ function renderLeads() {
   allLeads.sort(function(a,b){ return (b.id||0)-(a.id||0); });
   var filtered = allLeads.filter(function(l) {
     if (currentFilter !== 'all' && l.status !== currentFilter) return false;
-    if (typeof currentSource !== 'undefined' && currentSource !== 'all' && (l.source||'') !== currentSource) return false;
+    if (typeof currentSource !== 'undefined' && currentSource !== 'all') {
+      var src = (l.source||'').toLowerCase();
+      if (currentSource === 'ebook-funnel' && src.indexOf('ebook') === -1) return false;
+      if (currentSource === 'funding-landing-page' && src.indexOf('funding') === -1) return false;
+    }
     return true;
   });
   var list = document.getElementById('lead-grid');
