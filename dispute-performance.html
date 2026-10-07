@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dispute Team Performance — CP Restoration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1E293B;}
+header{background:#166534;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+header img{height:30px;filter:brightness(0) invert(1);}
+header h1{color:white;font-size:15px;font-weight:800;flex:1;}
+header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
+.wrap{max-width:1100px;margin:0 auto;padding:20px;}
+.date-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.date-bar label{font-size:13px;font-weight:700;color:#166534;}
+.date-bar input{padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;}
+.date-bar select{padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;}
+.date-bar button{padding:8px 16px;background:#166534;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+h2{font-size:14px;font-weight:800;color:#166534;margin-bottom:14px;}
+
+/* Quota reference */
+.quota-ref{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:16px 20px;margin-bottom:20px;}
+.quota-ref h3{font-size:13px;font-weight:800;color:#166534;margin-bottom:10px;}
+.quota-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+.quota-item{background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;padding:10px 14px;}
+.quota-item .val{font-size:20px;font-weight:800;color:#166534;}
+.quota-item .lbl{font-size:11px;color:#64748B;margin-top:2px;font-weight:600;text-transform:uppercase;}
+.quota-item .per{font-size:10px;color:#94A3B8;margin-top:1px;}
+
+/* Rep cards */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:24px;}
+.rep-card{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:16px;}
+.rep-name{font-size:14px;font-weight:800;color:#166534;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.metric{margin-bottom:10px;}
+.metric-row{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:3px;}
+.metric-label{color:#64748B;}
+.metric-val{color:#1E293B;}
+.metric-val.hit{color:#166534;}
+.metric-val.miss{color:#8B1A1A;}
+.bar{background:#F1F5F9;border-radius:4px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .3s;background:#166534;}
+.bar-fill.done{background:#166534;}
+.bar-fill.behind{background:#F59E0B;}
+.bar-fill.miss{background:#8B1A1A;}
+.badge{padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-yellow{background:#FEF9C3;color:#92400E;}
+.badge-red{background:#FEE2E2;color:#8B1A1A;}
+
+/* Summary table */
+.summary{background:white;border-radius:12px;border:1.5px solid #E2E8F0;overflow:hidden;}
+.summary table{width:100%;border-collapse:collapse;font-size:13px;}
+.summary th{background:#F0FDF4;padding:12px;text-align:left;font-weight:700;font-size:11px;color:#166534;text-transform:uppercase;border-bottom:2px solid #E2E8F0;}
+.summary td{padding:12px;border-bottom:1px solid #F1F5F9;}
+.add-entry{background:white;border-radius:12px;border:2px solid #166534;padding:20px;margin-bottom:20px;}
+.add-entry h3{font-size:13px;font-weight:800;color:#166534;margin-bottom:12px;}
+.form-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:10px;}
+input,select{width:100%;padding:9px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:13px;font-family:inherit;}
+.btn-green{width:100%;padding:11px;background:#166534;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+#entry-msg{font-size:12px;text-align:center;margin-top:8px;min-height:16px;}
+</style>
+</head>
+<body>
+<header>
+  <img src="/images/logo.png" alt="CP Restoration">
+  <h1>&#128196; Dispute Team Performance Monitor</h1>
+  <a href="/dashboard.html">&larr; Back</a>
+</header>
+
+<div class="wrap">
+
+  <!-- Quota Reference -->
+  <div class="quota-ref">
+    <h3>&#127919; Official Dispute Specialist Quotas</h3>
+    <div class="quota-grid">
+      <div class="quota-item"><div class="val">20</div><div class="lbl">Letters / Day</div><div class="per">100+ per week</div></div>
+      <div class="quota-item"><div class="val">10</div><div class="lbl">Files / Day</div><div class="per">50+ per week</div></div>
+      <div class="quota-item"><div class="val">100%</div><div class="lbl">Follow-ups</div><div class="per">All 30-day deadlines</div></div>
+      <div class="quota-item"><div class="val">As needed</div><div class="lbl">FTC Reports</div><div class="per">Per client request</div></div>
+      <div class="quota-item"><div class="val">24hrs</div><div class="lbl">Response Time</div><div class="per">Status update requests</div></div>
+    </div>
+  </div>
+
+  <!-- Manual Entry (Dispute specialists log their own daily work) -->
+  <div class="add-entry">
+    <h3>&#43; Log Today's Activity</h3>
+    <div class="form-row">
+      <select id="e-name">
+        <option value="">Select Your Name</option>
+        <option>Lyka Basco Creer</option>
+        <option>Marcelo Torres</option>
+        <option>Leith Allen Perez</option>
+        <option>Kimwell Ablaza</option>
+        <option>Christian Bautista</option>
+        <option>Annabel Curada</option>
+      </select>
+      <input type="date" id="e-date">
+      <input type="number" id="e-letters" placeholder="Dispute letters filed" min="0">
+      <input type="number" id="e-files" placeholder="Client files worked" min="0">
+      <input type="number" id="e-followups" placeholder="Bureau follow-ups done" min="0">
+      <input type="number" id="e-ftc" placeholder="FTC reports filed" min="0">
+    </div>
+    <input type="text" id="e-notes" placeholder="Notes (optional)" style="margin-bottom:10px;">
+    <button class="btn-green" onclick="logActivity()">&#128190; Save Today's Activity</button>
+    <div id="entry-msg"></div>
+  </div>
+
+  <!-- Date filter -->
+  <div class="date-bar">
+    <label>Week of:</label>
+    <input type="date" id="week-start">
+    <label>to</label>
+    <input type="date" id="week-end">
+    <button onclick="load()">&#128269; Load</button>
+    <span id="last-updated" style="font-size:12px;color:#94A3B8;margin-left:auto;"></span>
+  </div>
+
+  <h2>&#128101; Specialist Performance Cards</h2>
+  <div class="team-grid" id="team-grid">
+    <div style="text-align:center;padding:40px;color:#94A3B8;grid-column:1/-1;">Loading...</div>
+  </div>
+
+  <h2>&#128203; Weekly Summary Table</h2>
+  <div class="summary">
+    <table>
+      <thead>
+        <tr>
+          <th>Specialist</th>
+          <th>Letters (Target: 100)</th>
+          <th>Files (Target: 50)</th>
+          <th>Follow-ups</th>
+          <th>FTC Reports</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="summary-tbody">
+        <tr><td colspan="6" style="text-align:center;padding:20px;color:#94A3B8;">Select a date range and click Load.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR  = {apikey:KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+
+var SPECIALISTS = [
+  'Lyka Basco Creer','Marcelo Torres','Leith Allen Perez',
+  'Kimwell Ablaza','Christian Bautista','Annabel Curada'
+];
+
+var QUOTAS = {letters:100, files:50};
+
+// Set default date range to current week
+(function(){
+  var today = new Date();
+  var day = today.getDay();
+  var monday = new Date(today);
+  monday.setDate(today.getDate() - (day===0?6:day-1));
+  var sunday = new Date(monday);
+  sunday.setDate(monday.getDate()+6);
+  document.getElementById('week-start').value = monday.toISOString().split('T')[0];
+  document.getElementById('week-end').value = sunday.toISOString().split('T')[0];
+  document.getElementById('e-date').value = today.toISOString().split('T')[0];
+})();
+
+async function logActivity() {
+  var name = document.getElementById('e-name').value;
+  var date = document.getElementById('e-date').value;
+  var letters = parseInt(document.getElementById('e-letters').value)||0;
+  var files = parseInt(document.getElementById('e-files').value)||0;
+  var followups = parseInt(document.getElementById('e-followups').value)||0;
+  var ftc = parseInt(document.getElementById('e-ftc').value)||0;
+  var notes = document.getElementById('e-notes').value.trim();
+  var msg = document.getElementById('entry-msg');
+
+  if (!name||!date) { msg.style.color='#8B1A1A'; msg.textContent='Please select your name and date.'; return; }
+  msg.style.color='#64748B'; msg.textContent='Saving...';
+
+  try {
+    // Check if entry exists for this person/date
+    var check = await fetch(SUPA+'/dispute_quotas?agent_name=eq.'+encodeURIComponent(name)+'&date=eq.'+date+'&limit=1',{headers:HDR});
+    var existing = await check.json();
+
+    var payload = {
+      agent_name:name, date:date,
+      letters_filed:letters, files_worked:files,
+      followups_done:followups, ftc_reports:ftc, notes:notes
+    };
+
+    var method, url;
+    if (Array.isArray(existing)&&existing.length) {
+      method='PATCH'; url=SUPA+'/dispute_quotas?agent_name=eq.'+encodeURIComponent(name)+'&date=eq.'+date;
+    } else {
+      method='POST'; url=SUPA+'/dispute_quotas';
+    }
+
+    var r = await fetch(url,{method,headers:Object.assign({},HDR,{Prefer:'return=minimal'}),body:JSON.stringify(payload)});
+    if(r.ok) {
+      msg.style.color='#166534'; msg.textContent='Activity saved!';
+      document.getElementById('e-letters').value='';
+      document.getElementById('e-files').value='';
+      document.getElementById('e-followups').value='';
+      document.getElementById('e-ftc').value='';
+      document.getElementById('e-notes').value='';
+      setTimeout(function(){msg.textContent='';load();},1500);
+    } else { msg.style.color='#8B1A1A'; msg.textContent='Error saving. Try again.'; }
+  } catch(e){ msg.style.color='#8B1A1A'; msg.textContent='Error: '+e.message; }
+}
+
+async function load() {
+  var start = document.getElementById('week-start').value;
+  var end = document.getElementById('week-end').value;
+  if(!start||!end) return;
+
+  try {
+    var r = await fetch(SUPA+'/dispute_quotas?date=gte.'+start+'&date=lte.'+end+'&limit=200',{headers:HDR});
+    var data = await r.json();
+    if(!Array.isArray(data)) data=[];
+
+    // Aggregate by specialist
+    var byRep = {};
+    SPECIALISTS.forEach(function(name){
+      byRep[name]={name:name,letters:0,files:0,followups:0,ftc:0};
+    });
+    data.forEach(function(d){
+      if(!byRep[d.agent_name]) byRep[d.agent_name]={name:d.agent_name,letters:0,files:0,followups:0,ftc:0};
+      byRep[d.agent_name].letters += (d.letters_filed||0);
+      byRep[d.agent_name].files   += (d.files_worked||0);
+      byRep[d.agent_name].followups += (d.followups_done||0);
+      byRep[d.agent_name].ftc     += (d.ftc_reports||0);
+    });
+
+    renderCards(byRep);
+    renderTable(byRep);
+    document.getElementById('last-updated').textContent='Updated: '+new Date().toLocaleTimeString();
+  } catch(e){ console.error(e); }
+}
+
+function pct(val,target){ return Math.min(100,Math.round(val/target*100)); }
+
+function renderCards(byRep) {
+  var grid = document.getElementById('team-grid');
+  grid.innerHTML = Object.values(byRep).map(function(rep) {
+    var lPct = pct(rep.letters,QUOTAS.letters);
+    var fPct = pct(rep.files,QUOTAS.files);
+    var overall = (lPct+fPct)/2;
+    var badge = overall>=100?'badge-green':overall>=60?'badge-yellow':'badge-red';
+    var label = overall>=100?'ON TRACK':overall>=60?'BEHIND':'NEEDS ATTENTION';
+
+    return '<div class="rep-card">' +
+      '<div class="rep-name">'+rep.name+'<span class="badge '+badge+'">'+label+'</span></div>' +
+      metric('Letters Filed','bar-fill'+(lPct>=100?' done':lPct>=60?' behind':' miss'),rep.letters,QUOTAS.letters,lPct) +
+      metric('Files Worked','bar-fill'+(fPct>=100?' done':fPct>=60?' behind':' miss'),rep.files,QUOTAS.files,fPct) +
+      metric('Follow-ups Done','bar-fill done',rep.followups,0,Math.min(100,rep.followups*5)) +
+      metric('FTC Reports','bar-fill done',rep.ftc,0,Math.min(100,rep.ftc*20)) +
+    '</div>';
+  }).join('');
+}
+
+function metric(label,barCls,val,target,p) {
+  var valCls = target>0?(val>=target?'hit':val>0?'':'miss'):'';
+  return '<div class="metric">' +
+    '<div class="metric-row"><span class="metric-label">'+label+'</span>' +
+    '<span class="metric-val '+valCls+'">'+(target>0?val+'/'+target:val)+'</span></div>' +
+    '<div class="bar"><div class="bar-fill '+barCls+'" style="width:'+p+'%;"></div></div>' +
+  '</div>';
+}
+
+function renderTable(byRep) {
+  var tbody = document.getElementById('summary-tbody');
+  var rows = Object.values(byRep);
+  tbody.innerHTML = rows.map(function(rep){
+    var lOK=rep.letters>=QUOTAS.letters, fOK=rep.files>=QUOTAS.files;
+    var badge = lOK&&fOK?'badge-green':rep.letters>0||rep.files>0?'badge-yellow':'badge-red';
+    var label = lOK&&fOK?'&#9989; On Track':rep.letters>0||rep.files>0?'&#9888; Behind':'&#10060; No Activity';
+    return '<tr>' +
+      '<td style="font-weight:700;">'+rep.name+'</td>' +
+      '<td><span class="badge '+(rep.letters>=QUOTAS.letters?'badge-green':rep.letters>0?'badge-yellow':'badge-red')+'">'+rep.letters+'/'+QUOTAS.letters+'</span></td>' +
+      '<td><span class="badge '+(rep.files>=QUOTAS.files?'badge-green':rep.files>0?'badge-yellow':'badge-red')+'">'+rep.files+'/'+QUOTAS.files+'</span></td>' +
+      '<td>'+rep.followups+'</td>' +
+      '<td>'+rep.ftc+'</td>' +
+      '<td><span class="badge '+badge+'">'+label+'</span></td>' +
+    '</tr>';
+  }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', load);
+setInterval(load, 60000);
+</script>
+</body>
+</html>
