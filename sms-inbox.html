@@ -2,286 +2,233 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CP Restoration — SMS Inbox</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SMS Inbox — CP Restoration</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',Arial,sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;}
-.topbar{background:#1B3A6B;padding:14px 24px;display:flex;align-items:center;gap:16px;}
-.topbar h1{color:white;font-size:16px;font-weight:800;}
-.topbar a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
-.container{max-width:800px;margin:0 auto;padding:24px;}
-.card{background:white;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:20px;overflow:hidden;}
-.card-header{padding:16px 20px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;}
-.card-title{font-size:15px;font-weight:700;color:#1B3A6B;}
-.card-sub{font-size:12px;color:#64748B;margin-top:2px;}
-.btn{padding:9px 18px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
-.btn-navy{background:#1B3A6B;color:white;}
-.btn-green{background:#166534;color:white;}
-.btn-outline{background:white;color:#1B3A6B;border:1.5px solid #1B3A6B;}
-.btn-sm{padding:6px 12px;font-size:12px;}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
-.badge-green{background:#DCFCE7;color:#166534;}
-.badge-gold{background:#FDF8EE;color:#92400E;}
-.badge-blue{background:#EFF4FF;color:#1B3A6B;}
-.number-box{background:#EFF4FF;border:2px solid #1B3A6B;border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.number-display{font-size:24px;font-weight:800;color:#1B3A6B;letter-spacing:2px;}
-.sms-item{padding:16px 20px;border-bottom:1px solid #F1F5F9;display:flex;gap:14px;}
-.sms-item:last-child{border-bottom:none;}
-.sms-item.new{background:#F0FFF4;border-left:4px solid #166534;}
-.sms-from{font-size:11px;font-weight:700;color:#64748B;margin-bottom:4px;}
-.sms-body{font-size:14px;color:#1E293B;line-height:1.5;}
-.sms-code{font-size:28px;font-weight:800;color:#1B3A6B;letter-spacing:4px;background:#EFF4FF;padding:8px 16px;border-radius:8px;display:inline-block;margin:8px 0;}
-.sms-time{font-size:11px;color:#94A3B8;margin-top:4px;}
-.sms-icon{width:40px;height:40px;border-radius:50%;background:#EFF4FF;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.empty{text-align:center;padding:40px;color:#94A3B8;font-size:14px;}
-.pulse{animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-.guide-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #F1F5F9;}
-.guide-step:last-child{border-bottom:none;}
-.step-num{width:28px;height:28px;border-radius:50%;background:#1B3A6B;color:white;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.alert-gold{background:#FDF8EE;border:1.5px solid #C9A84C;border-radius:10px;padding:14px 16px;font-size:13px;color:#7A5F00;margin-bottom:16px;}
-.alert-green{background:#F0FFF4;border:1.5px solid #166534;border-radius:10px;padding:14px 16px;font-size:13px;color:#166534;margin-bottom:16px;}
-.refresh-indicator{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748B;}
-.dot{width:8px;height:8px;border-radius:50%;background:#166534;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1E293B;}
+header{background:#1B3A6B;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+header img{height:30px;filter:brightness(0) invert(1);}
+header h1{color:white;font-size:15px;font-weight:800;flex:1;}
+header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
+.wrap{max-width:900px;margin:0 auto;padding:20px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:10px;border:1.5px solid #E2E8F0;padding:14px;text-align:center;}
+.sv{font-size:26px;font-weight:800;color:#1B3A6B;}.sl{font-size:11px;color:#64748B;margin-top:3px;text-transform:uppercase;font-weight:600;}
+.compose{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:20px;margin-bottom:20px;}
+.compose h2{font-size:14px;font-weight:800;color:#1B3A6B;margin-bottom:14px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:600px){.row2{grid-template-columns:1fr;}}
+input,select,textarea{width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;}
+textarea{min-height:80px;resize:vertical;}
+.btn-send{width:100%;padding:12px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;}
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.fb{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid #E2E8F0;background:white;color:#64748B;}
+.fb.active{background:#1B3A6B;color:white;border-color:#1B3A6B;}
+.msg-list{display:grid;gap:10px;}
+.msg-card{background:white;border-radius:10px;border:1.5px solid #E2E8F0;padding:14px;}
+.msg-card.inbound{border-left:4px solid #166534;}
+.msg-card.outbound{border-left:4px solid #1B3A6B;}
+.msg-card.unread{background:#F0FDF4;}
+.mtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+.mfrom{font-size:13px;font-weight:800;color:#1B3A6B;}
+.mbadge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;}
+.b-in{background:#DCFCE7;color:#166534;}
+.b-out{background:#DBEAFE;color:#1E40AF;}
+.b-unread{background:#FEF9C3;color:#92400E;}
+.mtext{font-size:13px;color:#1E293B;line-height:1.6;margin-bottom:10px;}
+.mtime{font-size:11px;color:#94A3B8;}
+.reply-area{display:flex;gap:8px;margin-top:10px;}
+.reply-area textarea{min-height:50px;flex:1;}
+.btn-reply{padding:8px 16px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.empty{text-align:center;padding:60px;color:#94A3B8;}
+#send-msg{font-size:12px;text-align:center;margin-top:8px;min-height:16px;}
 </style>
 </head>
 <body>
+<header>
+  <img src="/images/logo.png" alt="CP Restoration">
+  <h1>&#128172; SMS Inbox — Close Integration</h1>
+  <a href="/dashboard.html">&larr; Back</a>
+</header>
+<div class="wrap">
 
-<div class="topbar">
-  <h1>&#128241; CP Restoration — SMS Inbox</h1>
-  <a href="/dispute-center.html">&#8592; Back to Dispute Center</a>
-</div>
-
-<div class="container">
-
-  <!-- FTC NUMBER BOX -->
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <div class="card-title">&#127381; Your FTC Verification Number</div>
-        <div class="card-sub">Give this number to the FTC when filing at IdentityTheft.gov — SMS codes arrive below</div>
-      </div>
-      <a href="https://www.identitytheft.gov/" target="_blank" class="btn btn-navy btn-sm">Open IdentityTheft.gov &#8599;</a>
-    </div>
-    <div style="padding:20px;">
-      <div class="number-box">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:4px;">FTC VERIFICATION NUMBER</div>
-          <div class="number-display" id="ftc-number">Loading...</div>
-          <div style="font-size:11px;color:#64748B;margin-top:4px;">Use this number when the FTC asks for a phone number</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <button class="btn btn-navy" onclick="copyNumber()">&#128203; Copy Number</button>
-          <button class="btn btn-outline btn-sm" onclick="checkNumbers()">&#128260; Change Number</button>
-        </div>
-      </div>
-      <div class="alert-green">
-        &#9989; <strong>How it works:</strong> When the FTC sends an SMS code to this number, it appears in the inbox below within seconds. The page auto-refreshes every 10 seconds.
-      </div>
-    </div>
+  <div class="stats">
+    <div class="stat"><div class="sv" id="ct-total">0</div><div class="sl">Total</div></div>
+    <div class="stat"><div class="sv" style="color:#166534;" id="ct-unread">0</div><div class="sl">Unread</div></div>
+    <div class="stat"><div class="sv" style="color:#1B3A6B;" id="ct-out">0</div><div class="sl">Sent</div></div>
   </div>
 
-  <!-- SMS INBOX -->
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <div class="card-title">&#128messagebox; Incoming SMS Messages</div>
-        <div class="card-sub">Auto-refreshes every 10 seconds — FTC codes appear here instantly</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div class="refresh-indicator">
-          <div class="dot pulse"></div>
-          <span id="refresh-status">Live</span>
-        </div>
-        <button class="btn btn-outline btn-sm" onclick="loadMessages().catch(function(e){console.error(e);})">&#128260; Refresh Now</button>
-      </div>
+  <!-- Compose -->
+  <div class="compose">
+    <h2>&#9993; Send SMS via Close</h2>
+    <div class="row2">
+      <input id="sms-to" placeholder="To: +1 (954) 555-1234" type="tel">
+      <select id="sms-from">
+        <option value="jason@mycprteam.com">Jason — +1 754-600-4934</option>
+        <option value="queen@mycprteam.com">Queen — +1 754-714-8877</option>
+        <option value="bukunmi@mycprteam.com">Bukunmi — +1 754-345-3951</option>
+        <option value="elna@mycprteam.com">Elna — +1 754-704-8665</option>
+        <option value="jonah@mycprteam.com">Jonah — +1 754-298-2046</option>
+        <option value="alec@mycprteam.com">Alec — +1 754-334-4660</option>
+        <option value="anthon@mycprteam.com">Anthon — +1 754-600-4934</option>
+      </select>
     </div>
-    <div id="sms-inbox">
-      <div class="empty">&#128241; Loading messages...</div>
+    <div class="row2">
+      <input id="sms-client-id" placeholder="Client ID (optional)">
+      <input id="sms-client-name" placeholder="Client Name (optional)">
     </div>
+    <textarea id="sms-text" placeholder="Type your message..."></textarea>
+    <button class="btn-send" onclick="sendSMS()">&#9654; Send SMS</button>
+    <div id="send-msg"></div>
   </div>
 
-  <!-- HOW TO BUY A NUMBER -->
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <div class="card-title">&#127775; Buy a Dedicated FTC Number on Twilio</div>
-        <div class="card-sub">One-time setup — takes 2 minutes — costs $1/month</div>
-      </div>
-    </div>
-    <div style="padding:20px;">
-      <div class="alert-gold">
-        &#9888; <strong>Recommended:</strong> Buy a dedicated phone number just for FTC filings so it never conflicts with your main business line.
-      </div>
-      <div class="guide-step">
-        <div class="step-num">1</div>
-        <div><strong>Go to Twilio Console</strong><br><a href="https://console.twilio.com/us1/develop/phone-numbers/manage/search" target="_blank" style="color:#1B3A6B;">console.twilio.com → Phone Numbers → Buy a Number</a></div>
-      </div>
-      <div class="guide-step">
-        <div class="step-num">2</div>
-        <div><strong>Search for a number</strong><br>Select <strong>United States</strong>, check <strong>SMS</strong> capability, choose any number (~$1.15/month)</div>
-      </div>
-      <div class="guide-step">
-        <div class="step-num">3</div>
-        <div><strong>Buy the number</strong><br>Click <strong>Buy</strong> — it's active immediately</div>
-      </div>
-      <div class="guide-step">
-        <div class="step-num">4</div>
-        <div><strong>Enter it below</strong><br>Type the new number and save — it will be used as your FTC verification number going forward</div>
-      </div>
-      <div style="margin-top:16px;display:flex;gap:8px;">
-        <input id="new-number-input" placeholder="+1 (XXX) XXX-XXXX" style="flex:1;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:14px;font-family:inherit;">
-        <button class="btn btn-green" onclick="saveNumber()">&#10003; Save Number</button>
-      </div>
-      <div id="save-status" style="margin-top:8px;font-size:12px;color:#166534;"></div>
-    </div>
+  <!-- Filters -->
+  <div class="filters">
+    <button class="fb active" data-f="all">All</button>
+    <button class="fb" data-f="inbound">&#128229; Inbound</button>
+    <button class="fb" data-f="outbound">&#128228; Outbound</button>
+    <button class="fb" data-f="unread">&#128308; Unread</button>
+    <button class="fb" onclick="load()" style="margin-left:auto;">&#8635; Refresh</button>
   </div>
 
+  <div class="msg-list" id="msg-list">
+    <div class="empty">Loading SMS inbox...</div>
+  </div>
 </div>
 
 <script>
-// Default to your existing Twilio SMS number until a dedicated one is set
-var DEFAULT_NUMBER = '+12014298918';
-var FTC_NUMBER_KEY = 'cp_ftc_sms_number';
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR  = {apikey:KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+var all  = [];
+var filt = 'all';
 
-function getFTCNumber() {
-  return localStorage.getItem(FTC_NUMBER_KEY) || DEFAULT_NUMBER;
+async function load() {
+  try {
+    var r = await fetch(SUPA+'/sms_inbox?order=created_at.desc&limit=200',{headers:HDR});
+    all = await r.json();
+    if (!Array.isArray(all)) all=[];
+    counts(); render();
+  } catch(e){ console.error(e); }
 }
 
-function formatNumber(n) {
-  var d = n.replace(/\D/g,'');
-  if(d.length===11) d=d.slice(1);
-  if(d.length===10) return '('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6);
-  return n;
+function counts() {
+  document.getElementById('ct-total').textContent = all.length;
+  document.getElementById('ct-unread').textContent = all.filter(function(m){return m.status==='unread';}).length;
+  document.getElementById('ct-out').textContent = all.filter(function(m){return m.direction==='outbound';}).length;
 }
 
-function toE164(n) {
-  var d = n.replace(/\D/g,'');
-  if(d.length===10) return '+1'+d;
-  if(d.length===11) return '+'+d;
-  return n;
-}
+function render() {
+  var items = all.filter(function(m){
+    if (filt==='inbound') return m.direction==='inbound';
+    if (filt==='outbound') return m.direction==='outbound';
+    if (filt==='unread') return m.status==='unread';
+    return true;
+  });
+  var list = document.getElementById('msg-list');
+  if (!items.length) { list.innerHTML='<div class="empty">No messages.</div>'; return; }
+  list.innerHTML = items.map(function(m){
+    var isIn = m.direction==='inbound';
+    var time = m.created_at?new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    var from = isIn?(m.from_number||'Unknown'):(m.sent_by||'CP Restoration');
+    return '<div class="msg-card '+(m.direction||'')+' '+(m.status==='unread'?'unread':'')+'" data-id="'+m.id+'">' +
+      '<div class="mtop">' +
+        '<div class="mfrom">'+(isIn?'&#128229; From: ':'&#128228; To: ')+(isIn?m.from_number:m.to_number)+'</div>' +
+        '<div style="display:flex;gap:6px;align-items:center;">' +
+          '<span class="mbadge '+(isIn?'b-in':'b-out')+'">'+(isIn?'INBOUND':'OUTBOUND')+'</span>' +
+          (m.status==='unread'?'<span class="mbadge b-unread">UNREAD</span>':'') +
+        '</div>' +
+      '</div>' +
+      '<div class="mtext">'+esc(m.message||'')+'</div>' +
+      '<div class="mtime">'+time+(m.client_name?' &bull; Client: '+esc(m.client_name):'')+(from?' &bull; '+esc(from):'')+'</div>' +
+      (isIn?'<div class="reply-area">' +
+        '<textarea class="reply-ta" placeholder="Type reply..." data-to="'+m.from_number+'"></textarea>' +
+        '<button class="btn-reply" onclick="replyTo(this)">Reply</button>' +
+      '</div>':'') +
+    '</div>';
+  }).join('');
 
-function displayNumber() {
-  var num = getFTCNumber();
-  document.getElementById('ftc-number').textContent = formatNumber(num);
-}
-
-function copyNumber() {
-  var num = getFTCNumber();
-  navigator.clipboard.writeText(formatNumber(num)).then(function(){
-    showToast('Number copied to clipboard!');
+  // Mark unread as read when viewed
+  items.filter(function(m){return m.status==='unread';}).forEach(function(m){
+    fetch(SUPA+'/sms_inbox?id=eq.'+m.id,{
+      method:'PATCH',headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+      body:JSON.stringify({status:'read'})
+    });
   });
 }
 
-function saveNumber() {
-  var input = document.getElementById('new-number-input').value.trim();
-  if(!input){ showToast('Please enter a phone number','error'); return; }
-  var e164 = toE164(input);
-  localStorage.setItem(FTC_NUMBER_KEY, e164);
-  displayNumber();
-  document.getElementById('save-status').textContent = '✅ Number saved: ' + formatNumber(e164);
-  loadMessages();
-}
-
-function checkNumbers() {
-  window.open('https://console.twilio.com/us1/develop/phone-numbers/manage/incoming','_blank');
-}
-
-// Extract code from SMS body
-function extractCode(body) {
-  if (!body) return null;
-  // Look for "code is XXXXXX" pattern first
-  var codeIs = body.match(/code is[:\s]+([\d]{4,8})/i);
-  if (codeIs) return codeIs[1];
-  // Look for "verification code: XXXXXX"
-  var verCode = body.match(/(?:code|pin|otp)[:\s]+([\d]{4,8})/i);
-  if (verCode) return verCode[1];
-  // Look for standalone 4-8 digit number
-  var matches = body.match(/\b(\d{4,8})\b/g);
-  if (matches) return matches[0];
-  return null;
-}
-
-function timeAgo(dateStr) {
-  var d = new Date(dateStr);
-  var diff = Math.floor((Date.now() - d.getTime())/1000);
-  if(diff < 60) return diff + 's ago';
-  if(diff < 3600) return Math.floor(diff/60) + 'm ago';
-  if(diff < 86400) return Math.floor(diff/3600) + 'h ago';
-  return d.toLocaleDateString();
-}
-
-async function loadMessages() {
-  var num = getFTCNumber();
-  var inbox = document.getElementById('sms-inbox');
-  if(inbox) inbox.innerHTML = '<div class="empty" style="color:#1B3A6B;">&#128260; Loading messages...</div>';
+async function sendSMS() {
+  var to   = document.getElementById('sms-to').value.trim().replace(/\D/g,'');
+  var from_email = document.getElementById('sms-from').value;
+  var text = document.getElementById('sms-text').value.trim();
+  var msg  = document.getElementById('send-msg');
+  if (!to||!text) { msg.style.color='#8B1A1A'; msg.textContent='Phone number and message required.'; return; }
+  msg.style.color='#64748B'; msg.textContent='Sending...';
   try {
-    var resp = await fetch('/.netlify/functions/twilio-sms?to='+encodeURIComponent(num)+'&t='+Date.now());
-    var wrapper = await resp.json();
-    // Handle debug wrapper format
-    var data = wrapper.parsed || wrapper;
-    var sw_status = wrapper.signalwire_status || wrapper.twilio_status;
-    if (sw_status && sw_status !== 200) {
-      document.getElementById('sms-inbox').innerHTML = '<div class="empty">&#10060; Twilio error '+wrapper.twilio_status+': '+JSON.stringify(data)+'</div>';
-      return;
+    var r = await fetch('/.netlify/functions/close-sms', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'send', to:'+'+to, message:text,
+        from_email, 
+        client_id:document.getElementById('sms-client-id').value.trim()||null,
+        client_name:document.getElementById('sms-client-name').value.trim()||null
+      })
+    });
+    var d = await r.json();
+    if (d.success) {
+      msg.style.color='#166534'; msg.textContent='SMS sent!';
+      document.getElementById('sms-to').value='';
+      document.getElementById('sms-text').value='';
+      document.getElementById('sms-client-id').value='';
+      document.getElementById('sms-client-name').value='';
+      setTimeout(function(){msg.textContent='';load();},1500);
+    } else {
+      msg.style.color='#8B1A1A'; msg.textContent='Error: '+(d.error||JSON.stringify(d));
     }
-    var msgs = data.messages || [];
-    var inbox = document.getElementById('sms-inbox');
+  } catch(e){ msg.style.color='#8B1A1A'; msg.textContent='Error: '+e.message; }
+}
 
-    if(!msgs.length) {
-      inbox.innerHTML = '<div class="empty">&#128241; No messages yet. The FTC code will appear here within seconds of sending.</div>';
-      return;
-    }
+async function replyTo(btn) {
+  var ta = btn.previousElementSibling;
+  var to = ta.getAttribute('data-to');
+  var text = ta.value.trim();
+  if (!text) return;
+  var from_email = localStorage.getItem('cp_logged_in_user') || 'jason@mycprteam.com';
+  btn.disabled=true; btn.textContent='Sending...';
+  try {
+    var r = await fetch('/.netlify/functions/close-sms', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'send',to,message:text,from_email})
+    });
+    var d = await r.json();
+    if (d.success) { ta.value=''; btn.textContent='Sent!'; setTimeout(function(){btn.textContent='Reply';btn.disabled=false;load();},1500); }
+    else { btn.textContent='Error'; btn.disabled=false; alert('Error: '+(d.error||'Unknown')); }
+  } catch(e){ btn.textContent='Error'; btn.disabled=false; }
+}
 
-    var html = msgs.map(function(m, i) {
-      var code = extractCode(m.body || '');
-      var isNew = i === 0;
-      var isRecent = (Date.now() - new Date(m.date_created).getTime()) < 300000; // 5 min
-      return '<div class="sms-item ' + (isNew && isRecent ? 'new' : '') + '">' +
-        '<div class="sms-icon">' + (code ? '&#128272;' : '&#128241;') + '</div>' +
-        '<div style="flex:1;">' +
-          '<div class="sms-from">From: ' + (m.from || 'Unknown') + (isNew && isRecent ? ' &nbsp;<span class="badge badge-green">NEW</span>' : '') + '</div>' +
-          (code ? '<div class="sms-code">' + code + '</div>' : '') +
-          '<div class="sms-body" style="white-space:pre-wrap;word-break:break-word;">' + (m.body || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' +
-          '<div class="sms-time">' + timeAgo(m.date_created) + ' &mdash; ' + new Date(m.date_created).toLocaleString() + '</div>' +
-        '</div>' +
-        (code ? '<button onclick="copyCode(\''+code+'\')" class="btn btn-green btn-sm" style="align-self:center;">&#128203; Copy Code</button>' : '') +
-      '</div>';
-    }).join('');
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    inbox.innerHTML = html;
-    document.getElementById('refresh-status').textContent = 'Updated ' + new Date().toLocaleTimeString();
-  } catch(e) {
-    var inbox = document.getElementById('sms-inbox');
-    if(inbox) inbox.innerHTML = '<div class="empty">&#10060; Error: ' + e.message + '<br><small>Check console for details</small></div>';
-    console.error('SMS load error:', e);
+document.querySelectorAll('.fb[data-f]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    filt=this.getAttribute('data-f');
+    document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('active');});
+    this.classList.add('active');
+    render();
+  });
+});
+
+// Auto-select rep's number from session
+var myEmail = localStorage.getItem('cp_logged_in_user');
+if (myEmail) {
+  var sel = document.getElementById('sms-from');
+  for (var i=0;i<sel.options.length;i++) {
+    if (sel.options[i].value === myEmail) { sel.selectedIndex=i; break; }
   }
 }
 
-function copyCode(code) {
-  navigator.clipboard.writeText(code).then(function(){
-    showToast('Code ' + code + ' copied! Paste it into the FTC form.');
-  });
-}
-
-function showToast(msg, type) {
-  var t = document.createElement('div');
-  t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + (type==='error'?'#8B1A1A':'#166534') + ';color:white;padding:12px 24px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap;';
-  document.body.appendChild(t);
-  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 3000);
-}
-
-// Init
-displayNumber();
-loadMessages();
-
-// Auto-refresh every 10 seconds
-setInterval(loadMessages, 10000);
-
-document.addEventListener("DOMContentLoaded", function() { loadMessages() });
+document.addEventListener('DOMContentLoaded', load);
+setInterval(load, 15000);
 </script>
 </body>
 </html>
