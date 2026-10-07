@@ -80,7 +80,16 @@ tr:hover td{background:#FAFBFF;}
   <a href="/cs-dashboard.html">&#127908; CS Dashboard</a>
   <a href="/dashboard.html">&#8962; Dashboard</a>
 </div>
-<div class="container">
+  <div id="vpn-banner" style="background:#FEF9C3;border-bottom:2px solid #F59E0B;padding:10px 20px;display:flex;align-items:center;gap:12px;font-size:13px;">
+    <span style="font-size:18px;">&#128274;</span>
+    <div>
+      <strong style="color:#92400E;">VPN REQUIRED</strong>
+      <span style="color:#78350F;margin-left:8px;">You must connect to a US VPN before accessing bureau accounts. Philippine IP addresses are blocked by Experian and TransUnion.</span>
+      <a href="https://protonvpn.com/download" target="_blank" style="margin-left:12px;background:#1B3A6B;color:white;padding:4px 12px;border-radius:4px;text-decoration:none;font-weight:700;font-size:12px;">&#11015; Download Proton VPN (Free)</a>
+    </div>
+    <div id="vpn-status" style="margin-left:auto;font-size:12px;color:#64748B;">Checking IP...</div>
+  </div>
+  <div class="container">
 
   <!-- NAV TABS -->
   <div class="tabs">
@@ -276,9 +285,9 @@ tr:hover td{background:#FAFBFF;}
               <li>Enter their credentials — when prompted for a verification code, ask the client to check their email and read it to you</li>
               <li>Enter the code to get into the account</li>
               <li>Go to <strong>Account Settings &rarr; Email</strong> and update it to:<br>
-                <strong>cprclient.[firstname][lastname]@gmail.com</strong><br>
+                <strong>cprclient.[firstname][lastname]@proton.me</strong><br>
                 <em>Example: cprclient.ronaldlewis@gmail.com &nbsp;|&nbsp; Password: CPRestore2026!</em></li>
-              <li>Set recovery email to: <strong>cprestorationsvcs@gmail.com</strong></li>
+              <li>Set recovery email (backup email) to: <strong>cprestorationsvcs@gmail.com</strong></li>
               <li>Save the changes</li>
               <li>Go to the client's file in the CS Dashboard &rarr; Bureau Logins &rarr; update with the new email and password</li>
               <li>Send a message in Team Chat or email Queen: <em>"Bureau email updated for [Client Name] — [bureau name] now uses cprclient.[name]@gmail.com"</em></li>
@@ -945,7 +954,7 @@ function showTab(name) {
     <div class="q-block" style="margin-bottom:20px;padding:16px;background:#F8FAFC;border-radius:10px;border:1.5px solid #1B3A6B;">
       <p style="font-weight:700;margin-bottom:10px;">11. A client cannot receive the bureau verification code because they no longer have access to their email on file. What do you do? (Step 6B)</p>
       <label style="display:block;margin-bottom:6px;"><input type="radio" name="q11" value="a"> Ask the client to call the bureau themselves</label>
-      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q11" value="b"> Create a new Gmail (cprclient.[firstname][lastname]@gmail.com), update the bureau email during the call, log it in Bureau Logins, and notify the Dispute Department</label>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q11" value="b"> Create a new Gmail (cprclient.[firstname][lastname]@proton.me), update the bureau email during the call, log it in Bureau Logins, and notify the Dispute Department</label>
       <label style="display:block;margin-bottom:6px;"><input type="radio" name="q11" value="c"> Skip the bureau and only dispute at the two others</label>
       <label style="display:block;"><input type="radio" name="q11" value="d"> Escalate to Queen and wait for her to handle it</label>
     </div>
@@ -953,7 +962,7 @@ function showTab(name) {
     <div class="q-block" style="margin-bottom:20px;padding:16px;background:#F8FAFC;border-radius:10px;border:1.5px solid #1B3A6B;">
       <p style="font-weight:700;margin-bottom:10px;">12. What is the correct email format for a new client bureau Gmail account?</p>
       <label style="display:block;margin-bottom:6px;"><input type="radio" name="q12" value="a"> [clientname]@cprteam.com</label>
-      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q12" value="b"> cprclient.[firstname][lastname]@gmail.com</label>
+      <label style="display:block;margin-bottom:6px;"><input type="radio" name="q12" value="b"> cprclient.[firstname][lastname]@proton.me</label>
       <label style="display:block;margin-bottom:6px;"><input type="radio" name="q12" value="c"> [firstname].[lastname]@cprestoration.com</label>
       <label style="display:block;"><input type="radio" name="q12" value="d"> bureau.[clientid]@gmail.com</label>
     </div>
@@ -1045,5 +1054,28 @@ async function submitQuiz() {
 document.addEventListener("DOMContentLoaded", function() { if(typeof initTraining==="function") initTraining(); });
 </script>
 
+
+<script>
+// VPN / IP check
+fetch('https://ipapi.co/json/')
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var el = document.getElementById('vpn-status');
+    var banner = document.getElementById('vpn-banner');
+    if (!el) return;
+    if (d.country_code === 'US') {
+      el.innerHTML = '&#9989; US IP detected — VPN active';
+      el.style.color = '#166534';
+      if (banner) banner.style.background = '#DCFCE7';
+    } else {
+      el.innerHTML = '&#10060; Non-US IP (' + (d.country_name||'Unknown') + ') — Connect VPN now';
+      el.style.color = '#8B1A1A';
+      el.style.fontWeight = '700';
+    }
+  }).catch(function(){
+    var el = document.getElementById('vpn-status');
+    if (el) el.textContent = 'IP check unavailable';
+  });
+</script>
 </body>
 </html>
