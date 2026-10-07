@@ -2,636 +2,273 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CP Restoration — Lead Registry</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lead Registry — CP Restoration</title>
 <style>
-:root{
-  --navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;
-  --gray:#6B7280;--border:#E2E8F0;--bg:#F8FAFC;--text:#1E293B;
-  --lb:#EFF4FF;--lg:#F0FFF4;--lgold:#FDF8EE;--lr:#FFF0F0;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-.hdr{background:var(--navy);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
-.hdr-title{font-size:15px;font-weight:800;color:white;}
-.hdr-right{display:flex;gap:10px;align-items:center;}
-.btn{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
-.btn-gold{background:var(--gold);color:var(--navy);}
-.btn-navy{background:var(--navy);color:white;}
-.btn-green{background:#166534;color:white;}
-.btn-outline{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;}
-.btn-sm{padding:5px 11px;font-size:11px;}
-.btn-red{background:var(--red);color:white;}
-.content{padding:20px;max-width:1200px;margin:0 auto;}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:20px;}
-.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
-.stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
-.stat-value{font-size:24px;font-weight:800;color:var(--navy);}
-.stat-sub{font-size:11px;color:var(--gray);margin-top:3px;}
-.stat.green .stat-value{color:var(--green);}
-.stat.gold .stat-value{color:var(--gold);}
-.stat.red .stat-value{color:var(--red);}
-.card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;}
-.card-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.card-title{font-size:14px;font-weight:800;color:var(--navy);}
-.badge{padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block;}
-.badge-green{background:#D1FAE5;color:#065F46;}
-.badge-gold{background:#FEF3C7;color:#92400E;}
-.badge-blue{background:#DBEAFE;color:#1E40AF;}
-.badge-red{background:#FEE2E2;color:#991B1B;}
-.badge-gray{background:#F3F4F6;color:#374151;}
-.badge-purple{background:#E0E7FF;color:#3730A3;}
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--border);align-items:center;}
-.filter-btn{padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);background:white;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--gray);transition:all .15s;}
-.filter-btn.active{background:var(--navy);color:white;border-color:var(--navy);}
-input[type=text],input[type=tel],input[type=email],select,textarea{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border .2s;color:var(--text);background:white;}
-input:focus,select:focus,textarea:focus{border-color:var(--navy);}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-thead tr{background:var(--navy);}
-thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:white;white-space:nowrap;}
-tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
-tbody tr:hover{background:var(--lb);}
-tbody tr.contacted td{background:#F0FFF4;}
-tbody tr.converted td{background:#EFF4FF;}
-.empty{text-align:center;padding:48px;color:var(--gray);font-size:13px;line-height:1.8;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;color:#1E293B;}
+header{background:#1B3A6B;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+header img{height:32px;filter:brightness(0) invert(1);}
+header h1{color:white;font-size:15px;font-weight:800;flex:1;}
+header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
+.container{max-width:1100px;margin:0 auto;padding:20px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:10px;border:1.5px solid #E2E8F0;padding:14px;text-align:center;}
+.stat-val{font-size:26px;font-weight:800;color:#1B3A6B;}
+.stat-lbl{font-size:11px;color:#64748B;margin-top:3px;font-weight:600;text-transform:uppercase;}
+.stat.red .stat-val{color:#8B1A1A;}
+.stat.green .stat-val{color:#166534;}
+.stat.gold .stat-val{color:#92400E;}
+.filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.filter-btn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid #E2E8F0;background:white;color:#64748B;transition:all .2s;}
+.filter-btn.active{background:#1B3A6B;color:white;border-color:#1B3A6B;}
+.search-box{padding:8px 14px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;flex:1;min-width:200px;font-family:inherit;}
+.lead-grid{display:grid;gap:14px;}
+.lead-card{background:white;border-radius:12px;border:1.5px solid #E2E8F0;padding:16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;}
+.lead-card.new{border-left:4px solid #1B3A6B;}
+.lead-card.called{border-left:4px solid #F59E0B;}
+.lead-card.interested{border-left:4px solid #166534;}
+.lead-card.sold{border-left:4px solid #C9A84C;background:#FFFBEB;}
+.lead-card.not_interested{border-left:4px solid #94A3B8;opacity:.7;}
+.lead-name{font-size:15px;font-weight:800;color:#1B3A6B;}
+.lead-meta{font-size:12px;color:#64748B;margin-top:3px;line-height:1.8;}
+.lead-meta a{color:#1B3A6B;font-weight:600;text-decoration:none;}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;}
+.badge-new{background:#DBEAFE;color:#1E40AF;}
+.badge-called{background:#FEF9C3;color:#92400E;}
+.badge-interested{background:#DCFCE7;color:#166534;}
+.badge-sold{background:#FEF3C7;color:#92400E;}
+.badge-not_interested{background:#F1F5F9;color:#64748B;}
+.badge-ebook{background:#EDE9FE;color:#6D28D9;}
+.lead-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.btn{padding:7px 13px;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-call{background:#1B3A6B;color:white;}
+.btn-interested{background:#166534;color:white;}
+.btn-sold{background:#C9A84C;color:#0A1628;}
+.btn-notint{background:#F1F5F9;color:#475569;border:1.5px solid #E2E8F0;}
+.btn-sms{background:#7C3AED;color:white;}
+.action-col{display:flex;flex-direction:column;gap:6px;align-items:flex-end;}
+.time-badge{font-size:11px;color:#94A3B8;white-space:nowrap;}
 
-/* ADD LEAD MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
-.modal{background:white;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
-.modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.modal-title{font-size:15px;font-weight:800;color:var(--navy);}
-.modal-body{padding:20px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-.form-field{margin-bottom:12px;}
-.form-field label{display:block;font-size:11px;font-weight:700;color:var(--text);margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase;}
-.form-field input,.form-field select,.form-field textarea{width:100%;}
-.form-field textarea{resize:vertical;min-height:70px;}
-
-/* STATUS DOTS */
-.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;}
-.dot-new{background:#F59E0B;}
-.dot-contacted{background:#22c55e;}
-.dot-converted{background:#3B82F6;}
-.dot-lost{background:#EF4444;}
-.dot-callback{background:#8B5CF6;}
-
-/* ACTIONS */
-.action-btns{display:flex;gap:5px;flex-wrap:wrap;}
-
-@media(max-width:600px){
-  .form-row{grid-template-columns:1fr;}
-  .stat-grid{grid-template-columns:1fr 1fr;}
-}
+/* Script Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;overflow-y:auto;padding:20px;}
+.modal-bg.open{display:flex;align-items:flex-start;justify-content:center;}
+.modal{background:white;border-radius:16px;max-width:640px;width:100%;padding:28px;margin:auto;}
+.modal h2{font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:4px;}
+.modal .lead-info{background:#F0F4FF;border-radius:8px;padding:12px;margin:12px 0;font-size:13px;}
+.step{margin-bottom:16px;}
+.step-num{display:inline-block;background:#1B3A6B;color:white;width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:800;text-align:center;line-height:24px;margin-right:8px;flex-shrink:0;}
+.step-title{font-size:13px;font-weight:700;color:#1E293B;margin-bottom:4px;display:flex;align-items:center;}
+.script-box{background:#F8FAFC;border-left:3px solid #1B3A6B;border-radius:0 8px 8px 0;padding:12px 14px;font-size:13px;line-height:1.7;color:#334155;margin-top:6px;font-style:italic;}
+.objection{background:#FEF9C3;border-radius:8px;padding:10px 12px;font-size:12px;margin-top:8px;}
+.objection strong{color:#92400E;}
+.modal-close{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#64748B;}
+.modal-footer{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+.empty{text-align:center;padding:60px 20px;color:#94A3B8;font-size:14px;}
 </style>
 </head>
 <body>
+<header>
+  <img src="/images/logo.png" alt="CP Restoration">
+  <h1>Lead Registry &mdash; eBook Funnel</h1>
+  <a href="/dashboard.html">&larr; Back</a>
+</header>
+<div class="container">
 
-<div class="hdr">
-  <div class="hdr-title">📋 Lead Registry — CP Restoration Services</div>
-  <div class="hdr-right">
-    <span id="lead-count-hdr" style="font-size:11px;color:rgba(255,255,255,.5);">0 leads</span>
-    <button class="btn btn-outline" onclick="syncFromSheet();showToast('Syncing from Aria...','success')" style="margin-right:8px;">&#x1F504; Sync Aria Leads</button>
-    <button onclick="exportCSV()">⬇ Export CSV</button>
-    <button class="btn btn-gold" onclick="openAddModal()">+ Add Lead</button>
-    <a href="/index.html" class="btn btn-outline">← Portal</a>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="ct-total">0</div><div class="stat-lbl">Total Leads</div></div>
+    <div class="stat red"><div class="stat-val" id="ct-new">0</div><div class="stat-lbl">New (Uncalled)</div></div>
+    <div class="stat gold"><div class="stat-val" id="ct-called">0</div><div class="stat-lbl">Called</div></div>
+    <div class="stat green"><div class="stat-val" id="ct-interested">0</div><div class="stat-lbl">Interested</div></div>
+    <div class="stat green"><div class="stat-val" id="ct-sold">0</div><div class="stat-lbl">Sold</div></div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('new',this)">&#128308; New</button>
+    <button class="filter-btn" onclick="setFilter('called',this)">&#128222; Called</button>
+    <button class="filter-btn" onclick="setFilter('interested',this)">&#9989; Interested</button>
+    <button class="filter-btn" onclick="setFilter('sold',this)">&#127881; Sold</button>
+    <input type="text" class="search-box" id="search-box" placeholder="Search name, email, phone..." oninput="renderLeads()">
+    <button class="filter-btn" onclick="loadLeads()" style="margin-left:auto;">&#8635; Refresh</button>
+  </div>
+
+  <div class="lead-grid" id="lead-grid">
+    <div class="empty">Loading leads...</div>
   </div>
 </div>
 
-<div class="content">
-
-  <!-- STATS -->
-  <div class="stat-grid">
-    <div class="stat gold"><div class="stat-label">New Leads</div><div class="stat-value" id="stat-new">0</div><div class="stat-sub">Needs follow-up</div></div>
-    <div class="stat"><div class="stat-label">Callback Scheduled</div><div class="stat-value" id="stat-callback">0</div></div>
-    <div class="stat green"><div class="stat-label">Contacted</div><div class="stat-value" id="stat-contacted">0</div></div>
-    <div class="stat"><div class="stat-label">Converted</div><div class="stat-value" id="stat-converted">0</div><div class="stat-sub">Became clients</div></div>
-    <div class="stat red"><div class="stat-label">Not Interested</div><div class="stat-value" id="stat-lost">0</div></div>
-    <div class="stat"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-total">0</div><div class="stat-sub">All time</div></div>
-  </div>
-
-  <!-- LEAD TABLE -->
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">📞 All Leads</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input type="text" id="search-input" placeholder="Search name, phone, notes..." style="width:220px;padding:7px 12px;font-size:12px;" oninput="renderTable()">
-        <button class="btn btn-outline btn-sm" style="background:white;color:var(--text);border-color:var(--border);" onclick="renderTable()">↻</button>
-      </div>
-    </div>
-    <div class="filter-bar">
-      <span style="font-size:11px;font-weight:700;color:var(--gray);">Filter:</span>
-      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-      <button class="filter-btn" onclick="setFilter('new',this)">🟡 New</button>
-      <button class="filter-btn" onclick="setFilter('callback',this)">🟣 Callback</button>
-      <button class="filter-btn" onclick="setFilter('contacted',this)">🟢 Contacted</button>
-      <button class="filter-btn" onclick="setFilter('converted',this)">🔵 Converted</button>
-      <button class="filter-btn" onclick="setFilter('lost',this)">🔴 Not Interested</button>
-      <button class="filter-btn" onclick="setFilter('aria',this)">🤖 From Aria</button>
-      <button class="filter-btn" onclick="setFilter('today',this)">📅 Today</button>
-    </div>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>Date / Time</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Source</th>
-            <th>Interest</th>
-            <th>Status</th>
-            <th>Assigned To</th>
-            <th>Notes</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="leads-tbody">
-          <tr><td colspan="9" class="empty">No leads yet.<br><br>Leads appear here automatically when Aria collects caller information,<br>or you can add them manually using the <strong>+ Add Lead</strong> button.</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
-
-<!-- ADD / EDIT LEAD MODAL -->
-<div class="modal-overlay" id="lead-modal">
+<!-- Call Script Modal -->
+<div class="modal-bg" id="script-modal">
   <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="modal-title">Add New Lead</div>
-      <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);">×</button>
+    <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    <h2>&#128222; Call Script</h2>
+    <div class="lead-info" id="modal-lead-info"></div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">1</span> Opening — Build Rapport (first 10 seconds)</div>
+      <div class="script-box" id="script-opening"></div>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="edit-id">
-      <div class="form-row">
-        <div class="form-field">
-          <label>Full Name *</label>
-          <input type="text" id="lead-name" placeholder="First Last">
-        </div>
-        <div class="form-field">
-          <label>Phone *</label>
-          <input type="tel" id="lead-phone" placeholder="(555) 555-5555">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-field">
-          <label>Email</label>
-          <input type="email" id="lead-email" placeholder="email@example.com">
-        </div>
-        <div class="form-field">
-          <label>Source</label>
-          <select id="lead-source">
-            <option value="aria">Aria (Voice AI)</option>
-            <option value="phone">Phone Call</option>
-            <option value="email">Email</option>
-            <option value="referral">Referral</option>
-            <option value="website">Website</option>
-            <option value="social">Social Media</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-field">
-          <label>Interest / Package</label>
-          <select id="lead-interest">
-            <option value="">Not specified</option>
-            <option value="Standard ($2,499)">Standard — $2,499</option>
-            <option value="Express ($3,999)">Express — $3,999</option>
-            <option value="Financing ($750 down)">Financing — $750 down</option>
-            <option value="Single Bureau ($1,000)">Single Bureau — $1,000</option>
-            <option value="Inquiries Only">Inquiries Only</option>
-            <option value="General Inquiry">General Inquiry</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Status</label>
-          <select id="lead-status">
-            <option value="new">🟡 New</option>
-            <option value="callback">🟣 Callback Scheduled</option>
-            <option value="contacted">🟢 Contacted</option>
-            <option value="converted">🔵 Converted to Client</option>
-            <option value="lost">🔴 Not Interested</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-field">
-          <label>Assigned To</label>
-          <select id="lead-assigned">
-            <option value="">Unassigned</option>
-            <option value="Jason Crown">Jason Crown</option>
-            <option value="Queen Jearel Cruz">Queen Jearel Cruz</option>
-            <option value="Bukunmi Aina">Bukunmi Aina</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Callback Date</label>
-          <input type="date" id="lead-callback">
-        </div>
-      </div>
-      <div class="form-field">
-        <label>Notes</label>
-        <textarea id="lead-notes" placeholder="What did they ask about? What was their situation?"></textarea>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
-        <button class="btn" style="background:var(--border);color:var(--text);" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-navy" onclick="saveLead()">Save Lead</button>
-      </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">2</span> Confirm They Got the Guide</div>
+      <div class="script-box">"Hi [Name], I'm calling from CP Restoration Services — you recently downloaded our free credit repair guide. Did you get a chance to look at it yet?"<br><br><em>(If yes: "Great! Did anything in there apply to your situation?")</em><br><em>(If no: "No worries at all — that's actually why I'm calling, to walk you through the key points.")</em></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">3</span> Identify the Pain Point</div>
+      <div class="script-box">"Can I ask — what's going on with your credit right now? Are you dealing with collections, late payments, or anything that's been holding you back?"<br><br><em>(Listen. Let them talk. The more they share, the easier the close.)</em></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">4</span> Present the Solution</div>
+      <div class="script-box">"So what we do at CP Restoration is we have a team of dispute specialists who go directly to Experian, Equifax, and TransUnion and challenge every negative item on your report. We've been doing this since 2014 and we've helped over 4,900 clients improve their scores. Most people start seeing results within 60 days."</div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">5</span> Present Pricing</div>
+      <div class="script-box">"We have two programs. Our Express program is $3,999 and gets you results in 60 business days — that's our fastest. Our Standard program is $2,500 and runs 120 business days. We also offer a financing option where you can get started for as little as $750 down and $292 a month. Which of those sounds like it fits your situation best?"</div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">6</span> Handle Objections</div>
+      <div class="objection"><strong>"I need to think about it"</strong> — "I completely understand. Can I ask what specifically you need to think about? Is it the price, the timing, or something else? I want to make sure you have everything you need to make the right decision."</div>
+      <div class="objection" style="margin-top:6px;"><strong>"I can't afford it"</strong> — "That's exactly why we have the financing option — you can get started for $750 today and pay $292 a month. Most people find that the improvement in their credit score saves them way more than that in lower interest rates alone."</div>
+      <div class="objection" style="margin-top:6px;"><strong>"I tried credit repair before and it didn't work"</strong> — "I hear that a lot. The difference with us is we have a dedicated team of dispute specialists, not just automated letters. We work each file manually and we've been doing it since 2014. Can I ask who you used before?"</div>
+      <div class="objection" style="margin-top:6px;"><strong>"Is this legit?"</strong> — "Absolutely. We're a Florida-based company, we've been in business since 2014, and all our work is done under the Fair Credit Reporting Act. You can look us up at 35daycreditrepair.com."</div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">7</span> Close</div>
+      <div class="script-box">"Alright [Name], let's get you started. I just need a few minutes to take down your information and we can have your file opened today. Which package works best for you — the Express at $3,999, the Standard at $2,500, or the financing option at $750 down?"</div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-call" onclick="updateStatus(currentLeadId,'called');closeModal()">&#128222; Mark as Called</button>
+      <button class="btn btn-interested" onclick="updateStatus(currentLeadId,'interested');closeModal()">&#9989; Mark Interested</button>
+      <button class="btn btn-sold" onclick="updateStatus(currentLeadId,'sold');closeModal()">&#127881; Mark SOLD</button>
+      <button class="btn btn-notint" onclick="updateStatus(currentLeadId,'not_interested');closeModal()">&#10060; Not Interested</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── STORAGE ───────────────────────────────────────────────────────
-var LEADS_KEY = 'cp_leads';
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+var allLeads = [];
 var currentFilter = 'all';
-var editingId = null;
+var currentLeadId = null;
 
-var SHEET_URL = 'https://script.google.com/macros/s/AKfycbwzqGmdxHmtqMbK-WgagIB6wqBj4sjBarljCesbmmUaLom4jon3Wb5_uUk3AaG7redt/exec';
-
-function getLeads() {
-  try { return JSON.parse(localStorage.getItem(LEADS_KEY) || '[]'); }
-  catch(e) { return []; }
+async function loadLeads() {
+  try {
+    var r = await fetch(SUPA+'/leads?order=created_at.desc&limit=500',{headers:HDR});
+    allLeads = await r.json();
+    if (!Array.isArray(allLeads)) allLeads=[];
+    updateCounts();
+    renderLeads();
+  } catch(e) { console.error(e); }
 }
 
-function syncFromSheet() {
-  // Read published CSV from Google Sheet — no CORS issues
-  var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkWS-5_3ndhXRW1gINWGcRHbddhTQzFUB0r2HTtXxQFPHiBVKkIz1pF9Bb39POmCvKIJtcjAuea9I0/pub?gid=0&single=true&output=csv&cachebust=' + Date.now();
-  
-  fetch(CSV_URL)
-    .then(function(r) { return r.text(); })
-    .then(function(csv) {
-      var lines = csv.trim().split('\n');
-      if (lines.length < 2) { showToast('No leads in sheet yet.', 'info'); return; }
-      
-      // Parse CSV headers from row 1
-      var headers = lines[0].split(',').map(function(h) { return h.trim().toLowerCase().replace(/"/g,''); });
-      
-      var local = getLeads();
-      var localIds = local.map(function(l) { return l.id; });
-      var added = 0;
-      
-      lines.slice(1).forEach(function(line) {
-        if (!line.trim()) return;
-        // Simple CSV parse
-        var vals = [];
-        var cur = ''; var inQ = false;
-        for (var i = 0; i < line.length; i++) {
-          var c = line[i];
-          if (c === '"') { inQ = !inQ; }
-          else if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
-          else { cur += c; }
-        }
-        vals.push(cur.trim());
-        
-        var row = {};
-        headers.forEach(function(h, i) { row[h] = vals[i] || ''; });
-        
-        var id = row.id || '';
-        if (!id) return;
-        if (localIds.indexOf(id) !== -1) return;
-        
-        local.unshift({
-          id:        id,
-          name:      row.name || '',
-          phone:     row.phone || '',
-          dept:      row.department || row.dept || '',
-          reason:    row.reason || '',
-          status:    row.status || 'new',
-          assigned:  row.assigned || '',
-          source:    row.source || 'aria',
-          notes:     row.notes || '',
-          createdAt: row.created || new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
-        added++;
-      });
-      
-      if (added > 0) {
-        localStorage.setItem(LEADS_KEY, JSON.stringify(local));
-        renderLeads();
-        showToast(added + ' new Aria lead(s) synced!', 'success');
-      } else {
-        showToast('Lead registry is up to date.', 'info');
-      }
-    })
-    .catch(function(e) {
-      console.log('CSV sync error:', e);
-      showToast('Sync failed — make sure sheet is published to web.', 'error');
-    });
+function updateCounts() {
+  document.getElementById('ct-total').textContent = allLeads.length;
+  document.getElementById('ct-new').textContent = allLeads.filter(function(l){return l.status==='new';}).length;
+  document.getElementById('ct-called').textContent = allLeads.filter(function(l){return l.status==='called';}).length;
+  document.getElementById('ct-interested').textContent = allLeads.filter(function(l){return l.status==='interested';}).length;
+  document.getElementById('ct-sold').textContent = allLeads.filter(function(l){return l.status==='sold';}).length;
 }
 
-function saveLeads(leads) {
-  try { localStorage.setItem(LEADS_KEY, JSON.stringify(leads)); }
-  catch(e) { alert('Could not save lead. Storage full.'); }
-}
-
-function genId() {
-  return 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-}
-
-// ── STATS ─────────────────────────────────────────────────────────
-function updateStats() {
-  var leads = getLeads();
-  var counts = { new:0, callback:0, contacted:0, converted:0, lost:0 };
-  leads.forEach(function(l){ if(counts[l.status]!==undefined) counts[l.status]++; });
-  set('stat-new',       counts.new);
-  set('stat-callback',  counts.callback);
-  set('stat-contacted', counts.contacted);
-  set('stat-converted', counts.converted);
-  set('stat-lost',      counts.lost);
-  set('stat-total',     leads.length);
-  set('lead-count-hdr', leads.length + ' lead' + (leads.length!==1?'s':''));
-}
-
-// ── FILTER ────────────────────────────────────────────────────────
 function setFilter(f, btn) {
   currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-  renderTable();
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderLeads();
 }
 
-// ── RENDER TABLE ──────────────────────────────────────────────────
-function renderTable() {
-  var leads  = getLeads();
-  var search = (document.getElementById('search-input')||{}).value || '';
-  search = search.toLowerCase().trim();
-  var now = new Date();
-  var todayStr = now.toISOString().split('T')[0];
-
-  var filtered = leads.filter(function(l) {
-    if (currentFilter === 'today')  return l.createdAt && l.createdAt.startsWith(todayStr);
-    if (currentFilter === 'aria')   return l.source === 'aria';
-    if (currentFilter !== 'all')    return l.status === currentFilter;
+function renderLeads() {
+  var q = document.getElementById('search-box').value.toLowerCase();
+  var filtered = allLeads.filter(function(l) {
+    if (currentFilter !== 'all' && l.status !== currentFilter) return false;
+    if (q && !((l.name||'').toLowerCase().includes(q) || (l.email||'').toLowerCase().includes(q) || (l.phone||'').includes(q))) return false;
     return true;
   });
 
-  if (search) {
-    filtered = filtered.filter(function(l) {
-      return (l.name||'').toLowerCase().includes(search) ||
-             (l.phone||'').includes(search) ||
-             (l.notes||'').toLowerCase().includes(search) ||
-             (l.email||'').toLowerCase().includes(search);
-    });
-  }
-
-  // Newest first
-  filtered.sort(function(a,b){ return (b.createdAt||'').localeCompare(a.createdAt||''); });
-
-  var tbody = document.getElementById('leads-tbody');
-  if (!tbody) return;
-
+  var grid = document.getElementById('lead-grid');
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty">No leads match this filter.</td></tr>';
-    return;
+    grid.innerHTML = '<div class="empty">No leads match this filter.</div>'; return;
   }
 
-  var statusMap = {
-    new:       '<span class="status-dot dot-new"></span><span class="badge badge-gold">New</span>',
-    callback:  '<span class="status-dot dot-callback"></span><span class="badge badge-purple" style="background:#E0E7FF;color:#3730A3;">Callback</span>',
-    contacted: '<span class="status-dot dot-contacted"></span><span class="badge badge-green">Contacted</span>',
-    converted: '<span class="status-dot dot-converted"></span><span class="badge badge-blue">Converted ✅</span>',
-    lost:      '<span class="status-dot dot-lost"></span><span class="badge badge-red">Not Interested</span>'
-  };
-
-  var sourceMap = {
-    aria:     '🤖 Aria',
-    phone:    '📞 Phone',
-    email:    '📧 Email',
-    referral: '👥 Referral',
-    website:  '🌐 Website',
-    social:   '📱 Social',
-    other:    '📋 Other'
-  };
-
-  var rowClass = { contacted:'contacted', converted:'converted' };
-
-  tbody.innerHTML = filtered.map(function(l) {
-    var d = l.createdAt ? new Date(l.createdAt) : new Date();
-    var dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    var mins = Math.floor((now-d)/60000);
-    var ago = mins<1?'Just now':mins<60?mins+'m ago':mins<1440?Math.floor(mins/60)+'h ago':Math.floor(mins/1440)+'d ago';
-    return '<tr class="'+(rowClass[l.status]||'')+'">' +
-      '<td style="white-space:nowrap;"><div style="font-size:12px;">'+dateStr+'</div><div style="font-size:10px;color:var(--gray);">'+ago+'</div></td>' +
-      '<td style="font-weight:700;">' + esc(l.name||'—') + '</td>' +
-      '<td><a href="tel:'+esc(l.phone||'')+'" style="color:var(--navy);font-weight:600;text-decoration:none;">'+esc(l.phone||'—')+'</a></td>' +
-      '<td style="font-size:12px;">'+(sourceMap[l.source]||l.source||'—')+'</td>' +
-      '<td style="font-size:12px;">'+(l.interest||'—')+'</td>' +
-      '<td>'+(statusMap[l.status]||l.status)+'</td>' +
-      '<td style="font-size:12px;">'+(l.assigned||'<span style="color:var(--gray);">Unassigned</span>')+'</td>' +
-      '<td style="font-size:12px;max-width:200px;word-break:break-word;">'+(esc(l.notes||'').replace(/\n/g,'<br>')||'—')+'</td>' +
-      '<td><div class="action-btns">' +
-        '<button class="btn btn-sm btn-navy" onclick="editLead(\''+l.id+'\')">Edit</button>' +
-        '<button class="btn btn-sm btn-green" onclick="quickStatus(\''+l.id+'\',\'contacted\')">✓ Called</button>' +
-        '<button class="btn btn-sm" style="background:#E0E7FF;color:#3730A3;" onclick="quickStatus(\''+l.id+'\',\'converted\')">🔵 Won</button>' +
-        '<button class="btn btn-sm" style="background:#F3F4F6;color:var(--gray);" onclick="deleteLead(\''+l.id+'\')">✕</button>' +
-      '</div></td>' +
-    '</tr>';
+  grid.innerHTML = filtered.map(function(l) {
+    var ago = timeAgo(l.created_at);
+    var statusBadge = '<span class="badge badge-'+(l.status||'new')+'">'+(l.status||'new').replace('_',' ').toUpperCase()+'</span>';
+    var srcBadge = l.source ? '<span class="badge badge-ebook" style="margin-left:4px;">'+l.source.replace(/-/g,' ')+'</span>' : '';
+    return '<div class="lead-card '+(l.status||'new')+'">' +
+      '<div>' +
+        '<div class="lead-name">'+escHtml(l.name||'Unknown')+'</div>' +
+        '<div class="lead-meta">' +
+          (l.email ? '<a href="mailto:'+l.email+'">&#9993; '+l.email+'</a><br>' : '') +
+          (l.phone ? '<a href="tel:'+l.phone+'">&#128222; '+l.phone+'</a><br>' : '') +
+          (l.notes ? '<span style="color:#94A3B8;">'+escHtml(l.notes)+'</span>' : '') +
+        '</div>' +
+        '<div style="margin-top:8px;">'+statusBadge+srcBadge+'</div>' +
+        '<div class="lead-actions">' +
+          '<button class="btn btn-call" onclick="openScript(''+l.id+'',''+escAttr(l.name)+'',''+escAttr(l.phone)+'',''+escAttr(l.email)+'')">&#128222; Call Script</button>' +
+          (l.phone ? '<a href="tel:'+l.phone+'" class="btn btn-call" style="text-decoration:none;">&#128222; Dial</a>' : '') +
+          (l.email ? '<a href="mailto:'+l.email+'" class="btn btn-sms" style="text-decoration:none;">&#9993; Email</a>' : '') +
+          '<button class="btn btn-interested" onclick="updateStatus(''+l.id+'','interested')">&#9989; Interested</button>' +
+          '<button class="btn btn-sold" onclick="updateStatus(''+l.id+'','sold')">&#127881; Sold</button>' +
+          '<button class="btn btn-notint" onclick="updateStatus(''+l.id+'','not_interested')">&#10060;</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="action-col"><span class="time-badge">'+ago+'</span></div>' +
+    '</div>';
   }).join('');
 }
 
-// ── QUICK STATUS ──────────────────────────────────────────────────
-function quickStatus(id, status) {
-  var leads = getLeads();
-  var idx   = leads.findIndex(function(l){ return l.id===id; });
-  if (idx === -1) return;
-  leads[idx].status = status;
-  leads[idx].updatedAt = new Date().toISOString();
-  saveLeads(leads);
-  updateStats();
-  renderTable();
-  showToast(status === 'contacted' ? '✅ Marked as contacted' : '🔵 Marked as converted!');
-}
-
-// ── ADD / EDIT MODAL ──────────────────────────────────────────────
-function openAddModal() {
-  editingId = null;
-  set('modal-title', 'Add New Lead');
-  clearForm();
-  document.getElementById('lead-modal').style.display = 'flex';
-}
-
-function editLead(id) {
-  var leads = getLeads();
-  var lead  = leads.find(function(l){ return l.id===id; });
-  if (!lead) return;
-  editingId = id;
-  set('modal-title', 'Edit Lead');
-  val('lead-name',     lead.name||'');
-  val('lead-phone',    lead.phone||'');
-  val('lead-email',    lead.email||'');
-  val('lead-source',   lead.source||'other');
-  val('lead-interest', lead.interest||'');
-  val('lead-status',   lead.status||'new');
-  val('lead-assigned', lead.assigned||'');
-  val('lead-callback', lead.callbackDate||'');
-  val('lead-notes',    lead.notes||'');
-  document.getElementById('lead-modal').style.display = 'flex';
-}
-
-function clearForm() {
-  ['lead-name','lead-phone','lead-email','lead-notes','lead-callback'].forEach(function(id){ val(id,''); });
-  val('lead-source','aria');
-  val('lead-interest','');
-  val('lead-status','new');
-  val('lead-assigned','');
-}
-
-function saveLead() {
-  var name  = (document.getElementById('lead-name')||{}).value || '';
-  var phone = (document.getElementById('lead-phone')||{}).value || '';
-  if (!name.trim() || !phone.trim()) {
-    showToast('Name and phone are required.', 'error');
-    return;
-  }
-  var leads = getLeads();
-  var now   = new Date().toISOString();
-  if (editingId) {
-    var idx = leads.findIndex(function(l){ return l.id===editingId; });
-    if (idx !== -1) {
-      leads[idx] = Object.assign(leads[idx], {
-        name: name.trim(), phone: phone.trim(),
-        email:        (document.getElementById('lead-email')||{}).value||'',
-        source:       (document.getElementById('lead-source')||{}).value||'other',
-        interest:     (document.getElementById('lead-interest')||{}).value||'',
-        status:       (document.getElementById('lead-status')||{}).value||'new',
-        assigned:     (document.getElementById('lead-assigned')||{}).value||'',
-        callbackDate: (document.getElementById('lead-callback')||{}).value||'',
-        notes:        (document.getElementById('lead-notes')||{}).value||'',
-        updatedAt:    now
-      });
-    }
-  } else {
-    leads.unshift({
-      id: genId(),
-      name: name.trim(), phone: phone.trim(),
-      email:        (document.getElementById('lead-email')||{}).value||'',
-      source:       (document.getElementById('lead-source')||{}).value||'aria',
-      interest:     (document.getElementById('lead-interest')||{}).value||'',
-      status:       (document.getElementById('lead-status')||{}).value||'new',
-      assigned:     (document.getElementById('lead-assigned')||{}).value||'',
-      callbackDate: (document.getElementById('lead-callback')||{}).value||'',
-      notes:        (document.getElementById('lead-notes')||{}).value||'',
-      createdAt:    now,
-      updatedAt:    now
-    });
-  }
-  saveLeads(leads);
-  closeModal();
-  updateStats();
-  renderTable();
-  showToast(editingId ? 'Lead updated.' : 'Lead added!', 'success');
-}
-
-function deleteLead(id) {
-  if (!confirm('Delete this lead? This cannot be undone.')) return;
-  var leads = getLeads().filter(function(l){ return l.id!==id; });
-  saveLeads(leads);
-  updateStats();
-  renderTable();
-  showToast('Lead deleted.');
+function openScript(id, name, phone, email) {
+  currentLeadId = id;
+  document.getElementById('modal-lead-info').innerHTML =
+    '<strong>'+escHtml(name)+'</strong><br>' +
+    (phone ? '&#128222; <a href="tel:'+phone+'">'+phone+'</a> &nbsp;|&nbsp; ' : '') +
+    (email ? '&#9993; <a href="mailto:'+email+'">'+email+'</a>' : '');
+  document.getElementById('script-opening').innerHTML =
+    '"Hi, may I speak with '+escHtml(name)+'? Hi '+escHtml(name.split(' ')[0])+', my name is [Your Name] and I'm calling from CP Restoration Services. You recently downloaded our free credit repair guide — did you get a chance to see it?"';
+  document.getElementById('script-modal').classList.add('open');
 }
 
 function closeModal() {
-  document.getElementById('lead-modal').style.display = 'none';
-  editingId = null;
+  document.getElementById('script-modal').classList.remove('open');
+  currentLeadId = null;
 }
 
-// ── EXPORT CSV ───────────────────────────────────────────────────
-function exportCSV() {
-  var leads = getLeads();
-  if (!leads.length) { showToast('No leads to export.', 'error'); return; }
-  var headers = ['Date','Name','Phone','Email','Source','Interest','Status','Assigned To','Callback Date','Notes'];
-  var rows = leads.map(function(l) {
-    return [
-      l.createdAt ? new Date(l.createdAt).toLocaleDateString() : '',
-      l.name||'', l.phone||'', l.email||'', l.source||'',
-      l.interest||'', l.status||'', l.assigned||'',
-      l.callbackDate||'',
-      (l.notes||'').replace(/,/g,';').replace(/\n/g,' ')
-    ].map(function(v){ return '"'+v+'"'; }).join(',');
-  });
-  var csv = [headers.join(','), ...rows].join('\n');
-  var a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = 'cp_leads_' + new Date().toISOString().split('T')[0] + '.csv';
-  a.click();
-}
-
-// ── IMPORT ARIA LOGS ─────────────────────────────────────────────
-// Checks localStorage for any leads captured by Aria via client portal bridge
-function importAriaLeads() {
+async function updateStatus(id, status) {
   try {
-    var ariaLeads = JSON.parse(localStorage.getItem('cp_aria_leads') || '[]');
-    if (!ariaLeads.length) return;
-    var leads    = getLeads();
-    var existing = new Set(leads.map(function(l){ return l.phone; }));
-    var added    = 0;
-    ariaLeads.forEach(function(al) {
-      if (!existing.has(al.phone)) {
-        leads.unshift({
-          id: genId(),
-          name: al.name || 'Unknown',
-          phone: al.phone || '',
-          email: '',
-          source: 'aria',
-          interest: al.topic || '',
-          status: 'new',
-          assigned: '',
-          callbackDate: '',
-          notes: 'Collected by Aria on ' + (al.time ? new Date(al.time).toLocaleString() : 'unknown date'),
-          createdAt: al.time || new Date().toISOString(),
-          updatedAt: al.time || new Date().toISOString()
-        });
-        existing.add(al.phone);
-        added++;
-      }
+    await fetch(SUPA+'/leads?id=eq.'+id, {
+      method:'PATCH',
+      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body: JSON.stringify({status:status})
     });
-    if (added > 0) {
-      saveLeads(leads);
-      updateStats();
-      renderTable();
-      showToast(added + ' new lead' + (added>1?'s':'') + ' imported from Aria!', 'success');
-    }
-    // Clear imported leads
-    localStorage.removeItem('cp_aria_leads');
-  } catch(e) {}
+    var lead = allLeads.find(function(l){return l.id==id;});
+    if (lead) lead.status = status;
+    updateCounts();
+    renderLeads();
+  } catch(e) { console.error(e); }
 }
 
-// ── HELPERS ──────────────────────────────────────────────────────
-function set(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
-function val(id,v){   var el=document.getElementById(id); if(el) el.value=v; }
-function esc(t){ return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function showToast(msg, type) {
-  var bg = type==='error'?'#8B1A1A':type==='success'?'#166534':'#1B3A6B';
-  var t = document.createElement('div');
-  t.textContent = msg;
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+bg+';color:white;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3);white-space:nowrap;font-family:Inter,sans-serif;';
-  document.body.appendChild(t);
-  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },3000);
+function timeAgo(ts) {
+  if (!ts) return '';
+  var s = Math.round((Date.now()-new Date(ts))/1000);
+  if (s<60) return s+'s ago';
+  if (s<3600) return Math.floor(s/60)+'m ago';
+  if (s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
 }
 
-// Close modal on overlay click
-document.getElementById('lead-modal').addEventListener('click', function(e){
-  if (e.target === this) closeModal();
-});
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s) { return (s||'').replace(/'/g,"\'"); }
 
-// ── INIT ─────────────────────────────────────────────────────────
-updateStats();
-renderTable();
-importAriaLeads();
-
-// Auto-refresh every 30 seconds to pick up new Aria leads
-setInterval(function(){
-  importAriaLeads();
-  updateStats();
-  renderTable();
-}, 30000);
+document.addEventListener('DOMContentLoaded', loadLeads);
+setInterval(loadLeads, 30000);
 </script>
 </body>
 </html>
