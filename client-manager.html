@@ -689,6 +689,7 @@ async function renderTable(){
 document.getElementById('tbl-body').addEventListener('click',function(e){
   var btn=e.target.closest('button[data-act]');
   if(!btn) return;
+  e.stopPropagation();
   var id=btn.getAttribute('data-id');
   var act=btn.getAttribute('data-act');
   if(act==='view') openView(id);
@@ -723,8 +724,17 @@ function exportCSV(){
 
 // ── VIEW MODAL ────────────────────────────────────────────────────
 var viewId=null;
-function openView(id){
-  var arr=_clientCache||getClientsLocal(); var c=arr.find(function(x){return x.id===id;});
+async function openView(id){
+  var arr=_clientCache||getClientsLocal();
+  var c=arr.find(function(x){return String(x.id)===String(id);});
+  // If not in cache, try fetching directly from Supabase
+  if(!c){
+    try {
+      var r=await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(id)+'&limit=1',{headers:HDR});
+      var data=await r.json();
+      if(Array.isArray(data)&&data.length){c=data[0];}
+    } catch(e){}
+  }
   if(!c){toast('Client not found — try refreshing','error');return;}
   viewId=id;
   document.getElementById('v-name').textContent=c.name||'';
