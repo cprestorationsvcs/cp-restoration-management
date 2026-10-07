@@ -166,12 +166,16 @@ var currentLeadId = null;
 
 async function loadLeads() {
   try {
-    var r = await fetch(SUPA+'/leads?order=created_at.desc&limit=500',{headers:HDR});
+    var r = await fetch(SUPA+'/leads?limit=200',{headers:HDR});
     allLeads = await r.json();
     if (!Array.isArray(allLeads)) allLeads=[];
     updateCounts();
     renderLeads();
-  } catch(e) { console.error(e); }
+  } catch(e) {
+    console.error('loadLeads error:', e);
+    var el = document.getElementById('lead-grid');
+    if (el) el.innerHTML = '<div style="padding:20px;color:#8B1A1A;text-align:center;">Error loading leads: '+e.message+'<br><br><button onclick="loadLeads()" style="padding:6px 12px;background:#1B3A6B;color:white;border:none;border-radius:4px;cursor:pointer;">Retry</button></div>';
+  }
 }
 
 function updateCounts() {
@@ -190,6 +194,8 @@ function setFilter(f, btn) {
 }
 
 function renderLeads() {
+  // Sort newest first in JS since we can't use ORDER BY (causes timeout)
+  allLeads.sort(function(a,b){ return (b.id||0)-(a.id||0); });
   var filtered = allLeads.filter(function(l) {
     if (currentFilter !== 'all' && l.status !== currentFilter) return false;
     if (typeof currentSource !== 'undefined' && currentSource !== 'all' && (l.source||'') !== currentSource) return false;
