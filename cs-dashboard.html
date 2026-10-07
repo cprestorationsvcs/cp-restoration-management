@@ -727,10 +727,11 @@ async function notifyCompliance(type){
 // ── RIGHT TABS ──
 function showRTab(tab){
   activeRTab=tab;
-  ['info','logins','disputes'].forEach(function(t){document.getElementById('rtab-'+t).classList.toggle('active',t===tab);});
+  ['info','logins','disputes','log'].forEach(function(t){document.getElementById('rtab-'+t).classList.toggle('active',t===tab);});
   if(tab==='info') renderInfo();
   else if(tab==='logins') renderLogins();
-  else renderDisputes();
+  else if(tab==='disputes') renderDisputes();
+  else if(tab==='log') renderContactLog();
 }
 
 function renderInfo(){
