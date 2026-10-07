@@ -1002,6 +1002,49 @@ async function clockInOnLogin(name, email, role) {
   } catch(e) { console.log('Clock-in error:', e.message); }
 }
 
+
+// ── AUTO CLOCK-OUT ────────────────────────────────────────────
+async function clockOut(email) {
+  try {
+    var today = new Date().toISOString().split('T')[0];
+    var now = new Date().toISOString();
+    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?employee_email=eq.'+encodeURIComponent(email)+'&date=eq.'+today+'&status=eq.active', {
+      method:'PATCH',
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({clock_out:now, status:'completed', last_seen:now})
+    });
+    console.log('Clocked out:', email, now);
+  } catch(e) { console.log('Clock-out error:', e.message); }
+}
+
+// Clock out on page unload (browser close, tab close, navigate away)
+window.addEventListener('beforeunload', function() {
+  var email = localStorage.getItem('cp_logged_in_user');
+  if (!email) return;
+  // Use sendBeacon for reliability on page close
+  var today = new Date().toISOString().split('T')[0];
+  var now = new Date().toISOString();
+  var url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?employee_email=eq.'+encodeURIComponent(email)+'&date=eq.'+today+'&status=eq.active';
+  var data = JSON.stringify({clock_out:now,status:'completed',last_seen:now});
+  navigator.sendBeacon(url + '&_method=PATCH', new Blob([data], {type:'application/json'}));
+});
+
+// Also clock out on explicit logout
+var _origSignOut = typeof signOut === 'function' ? signOut : null;
+function signOut() {
+  var email = localStorage.getItem('cp_logged_in_user');
+  if (email) clockOut(email);
+  if (_origSignOut) _origSignOut();
+  else {
+    localStorage.removeItem('cp_logged_in_user');
+    localStorage.removeItem('cp_logged_in_name');
+    localStorage.removeItem('cp_logged_in_role');
+    localStorage.removeItem('cp_logged_in_initials');
+    localStorage.removeItem('cp_logged_in_label');
+    window.location.reload();
+  }
+}
+
 </script>
 </body>
 </html>
