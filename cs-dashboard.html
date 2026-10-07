@@ -278,7 +278,10 @@ var refreshTimer=null;
 // ── LOAD CLIENTS ──
 async function loadClients(){
   try{
-    var r=await fetch(SUPA+'/clients?select=*&order=updated_at.desc&limit=5000',{headers:HDR});
+    var controller=new AbortController();
+    var timeout=setTimeout(function(){controller.abort();},15000);
+    var r=await fetch(SUPA+'/clients?select=*&order=name.asc&limit=5000',{headers:HDR,signal:controller.signal});
+    clearTimeout(timeout);
     var data=await r.json();
     if(!Array.isArray(data)){
       document.getElementById('client-list').innerHTML='<div style="padding:16px;color:#E53E3E;font-size:12px;">Error loading clients: '+(data.message||data.error||JSON.stringify(data).substring(0,100))+'</div>';
@@ -292,7 +295,11 @@ async function loadClients(){
       return new Date(b.updated_at)-new Date(a.updated_at);
     });
     renderClientList(allClients);
-  }catch(e){console.error(e);}
+  }catch(e){
+    console.error('loadClients error:',e);
+    var el=document.getElementById('client-list');
+    if(el) el.innerHTML='<div style="padding:16px;color:#E53E3E;font-size:12px;">&#10006; Error loading clients: '+e.message+'<br><br><button onclick="loadClients()" style="padding:6px 12px;background:#1B3A6B;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">&#8635; Retry</button></div>';
+  }
 }
 
 function hasUnread(c){
