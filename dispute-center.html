@@ -3217,5 +3217,20 @@ if (document.readyState === 'loading') {
 }
 
 </script>
+<script>
+fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(function(d){
+  var el=document.getElementById('vpn-status');
+  var bn=document.getElementById('vpn-banner');
+  if(!el) return;
+  if(d.country_code==='US'){
+    el.innerHTML='&#9989; US IP — VPN Active';
+    el.style.color='#166534'; el.style.fontWeight='700';
+    if(bn) bn.style.background='#DCFCE7';
+  } else {
+    el.innerHTML='&#10060; '+( d.country_name||'Non-US')+' IP — Connect VPN Now';
+    el.style.color='#8B1A1A'; el.style.fontWeight='700';
+  }
+}).catch(function(){});
+</script>
 </body>
 </html>
