@@ -248,6 +248,17 @@ async function loadWeeklyStats() {
   } catch(e) { console.error(e); }
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+  var saved = localStorage.getItem('cp_logged_in_name');
+  var savedEmail = localStorage.getItem('cp_logged_in_user');
+  if (saved && savedEmail) {
+    currentCaller = {name: saved, email: savedEmail};
+    document.getElementById('caller-login').style.display='none';
+    document.getElementById('caller-dashboard').style.display='block';
+    loadCallHistory(); loadWeeklyStats();
+  }
+});
+
 window.addEventListener('load', function() {
   var saved = localStorage.getItem('cp_logged_in_name');
   var savedEmail = localStorage.getItem('cp_logged_in_user');
