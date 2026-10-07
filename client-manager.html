@@ -685,15 +685,15 @@ async function renderTable(){
   document.getElementById('cnt-hdr').textContent=arr.length+' client'+(arr.length!==1?'s':'');
 }
 
-// Table click delegation
-document.getElementById('tbl-body').addEventListener('click',function(e){
+// Table click delegation — on document so it survives innerHTML rewrites
+document.addEventListener('click',function(e){
   var btn=e.target.closest('button[data-act]');
   if(!btn) return;
   e.stopPropagation();
   var id=btn.getAttribute('data-id');
   var act=btn.getAttribute('data-act');
-  if(act==='view') openView(id);
-  if(act==='del') delClient(id);
+  if(act==='view'){ openView(id); }
+  if(act==='del'){ delClient(id); }
 });
 
 function updateStats(){
