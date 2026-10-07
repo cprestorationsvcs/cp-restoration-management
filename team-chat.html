@@ -142,7 +142,8 @@ async function loadMessages() {
       appendMsg(m);
     });
     if (wasAtBottom) container.scrollTop = container.scrollHeight;
-  } catch(e) { console.log('Load error:', e); }
+  } catch(e) {
+    showStatus("Load error: " + e.message, "red"); console.log('Load error:', e); }
 }
 
 function appendMsg(m) {
@@ -178,8 +179,8 @@ async function sendMsg() {
   if (!text) return;
   input.value = '';
   try {
-    await fetch(SUPA+'/team_chat', {
-      method:'POST', headers:HDR,
+    var res = await fetch(SUPA+'/team_chat', {
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=representation'}),
       body:JSON.stringify({
         channel: currentChannel,
         sender_name: currentUser.name,
@@ -190,8 +191,17 @@ async function sendMsg() {
         type: 'message'
       })
     });
-    loadMessages();
-  } catch(e) { console.log('Send error:', e); }
+    if (!res.ok) {
+      var errText = await res.text();
+      showStatus('Error saving message: ' + errText.substring(0,100), 'red');
+      console.error('Send failed:', res.status, errText);
+    } else {
+      loadMessages();
+    }
+  } catch(e) {
+    console.log('Send error:', e);
+    showStatus('Send failed: ' + e.message, 'red');
+  }
 }
 
 function escHtml(s) {
@@ -226,6 +236,17 @@ document.addEventListener("DOMContentLoaded", function() {
     pollTimer = setInterval(loadMessages, 3000);
   }
 });
+
+function showStatus(msg, color) {
+  var bar = document.getElementById('status-bar');
+  if (!bar) return;
+  bar.style.display = 'block';
+  bar.style.background = color === 'red' ? '#FEE2E2' : '#DCFCE7';
+  bar.style.color = color === 'red' ? '#8B1A1A' : '#166534';
+  bar.textContent = msg;
+  setTimeout(function(){ bar.style.display = 'none'; }, 5000);
+}
+
 </script>
 </body>
 </html>
