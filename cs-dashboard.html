@@ -278,9 +278,11 @@ var refreshTimer=null;
 // ── LOAD CLIENTS ──
 async function loadClients(){
   try{
+    // Load only list-essential columns — full data loads on client select
     var controller=new AbortController();
-    var timeout=setTimeout(function(){controller.abort();},15000);
-    var r=await fetch(SUPA+'/clients?select=*&order=name.asc&limit=5000',{headers:HDR,signal:controller.signal});
+    var timeout=setTimeout(function(){controller.abort();},20000);
+    var cols='id,name,status,phone,email,package,notes,bureau_logins,disputes';
+    var r=await fetch(SUPA+'/clients?select='+cols+'&order=name.asc&limit=200',{headers:HDR,signal:controller.signal});
     clearTimeout(timeout);
     var data=await r.json();
     if(!Array.isArray(data)){
@@ -347,7 +349,7 @@ function filterClients(q){
     if(filtered.length>0){renderClientList(filtered);return;}
     // If nothing found locally, search Supabase directly
     try{
-      var url=SUPA+'/clients?select=*&or=(name.ilike.*'+encodeURIComponent(ql)+'*,id.ilike.*'+encodeURIComponent(ql)+'*,email.ilike.*'+encodeURIComponent(ql)+'*,phone.ilike.*'+encodeURIComponent(ql)+'*)&limit=50';
+      var url=SUPA+'/clients?select=id,name,status,phone,email,package,notes,bureau_logins,disputes&or=(name.ilike.*'+encodeURIComponent(ql)+'*,id.ilike.*'+encodeURIComponent(ql)+'*,email.ilike.*'+encodeURIComponent(ql)+'*,phone.ilike.*'+encodeURIComponent(ql)+'*)&limit=50';
       var r=await fetch(url,{headers:HDR});
       var data=await r.json();
       if(Array.isArray(data)&&data.length>0){renderClientList(data);}
