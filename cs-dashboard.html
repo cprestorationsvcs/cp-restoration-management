@@ -278,12 +278,9 @@ var refreshTimer=null;
 // ── LOAD CLIENTS ──
 async function loadClients(){
   try{
-    // Load only list-essential columns — full data loads on client select
-    var controller=new AbortController();
-    var timeout=setTimeout(function(){controller.abort();},20000);
-    var cols='id,name,status,phone,email,package,notes,bureau_logins,disputes';
-    var r=await fetch(SUPA+'/clients?select='+cols+'&order=name.asc&limit=200',{headers:HDR,signal:controller.signal});
-    clearTimeout(timeout);
+    // Load list — no ORDER BY to avoid timeout on large tables
+    var cols='id,name,status,phone,email,package';
+    var r=await fetch(SUPA+'/clients?select='+cols+'&limit=100',{headers:HDR});
     var data=await r.json();
     if(!Array.isArray(data)){
       document.getElementById('client-list').innerHTML='<div style="padding:16px;color:#E53E3E;font-size:12px;">Error loading clients: '+(data.message||data.error||JSON.stringify(data).substring(0,100))+'</div>';
