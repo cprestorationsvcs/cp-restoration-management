@@ -404,6 +404,17 @@ function doLogin() {
   }
   currentUser = email;
   localStorage.setItem('cp_logged_in_user', email);
+  localStorage.setItem('cp_logged_in_name', emp.name);
+  localStorage.setItem('cp_logged_in_role', emp.role||emp.label);
+
+  // ── Redirect if user came from another page ──
+  var _redirect = localStorage.getItem('cp_redirect_after_login');
+  if (_redirect) {
+    localStorage.removeItem('cp_redirect_after_login');
+    window.location.href = _redirect;
+    return;
+  }
+
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   // Set header
@@ -428,13 +439,6 @@ function doLogin() {
     return;
   }
   trackSession(emp);
-  // Check if user was trying to go somewhere before login
-  var redirect = localStorage.getItem('cp_redirect_after_login');
-  if (redirect) {
-    localStorage.removeItem('cp_redirect_after_login');
-    window.location.href = redirect;
-    return;
-  }
   loadDashboard();
   // Show dispute quick links if dispute role
   if (emp.role === 'dispute') {
