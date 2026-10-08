@@ -428,6 +428,13 @@ function doLogin() {
     return;
   }
   trackSession(emp);
+  // Check if user was trying to go somewhere before login
+  var redirect = localStorage.getItem('cp_redirect_after_login');
+  if (redirect) {
+    localStorage.removeItem('cp_redirect_after_login');
+    window.location.href = redirect;
+    return;
+  }
   loadDashboard();
   // Show dispute quick links if dispute role
   if (emp.role === 'dispute') {
