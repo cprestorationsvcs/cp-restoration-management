@@ -106,3 +106,5 @@
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Cache-Control = "no-cache"
+
+# Cache bust: 2026-10-08T12:05:01.564476
