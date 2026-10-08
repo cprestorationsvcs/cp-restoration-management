@@ -785,8 +785,6 @@ function showRTab(tab){
   ['info','logins','disputes','log','messages','payment'].forEach(function(t){
     var el=document.getElementById('rtab-'+t);
     if(el) el.classList.toggle('active',t===tab);
-    var panel=document.getElementById('rpanel-'+t);
-    if(panel) panel.style.display=(t===tab?'block':'none');
   });
   if(tab==='info') renderInfo();
   else if(tab==='logins') renderLogins();
@@ -1252,27 +1250,38 @@ document.addEventListener('input', function(e) {
 
 // ── PAYMENT PLAN ───────────────────────────────────────────────
 async function loadPaymentPlan(client) {
-  var panel = document.getElementById('payment-plan-content');
-  if (!panel) return;
-  panel.innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:13px;">Loading payment plan...</div>';
+  var rb = document.getElementById('right-body');
+  if (!rb) return;
+  if (!client) {
+    rb.innerHTML = '<div class="empty-state"><div class="ico">&#128178;</div><div>Select a client to view payment plan</div></div>';
+    return;
+  }
+  rb.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:13px;">&#128178; Loading payment plan...</div>';
 
   try {
     var plan = null;
 
-    // 1. Check client.payment_plan from Supabase
-    if (client.payment_plan) {
+    // 1. Check Supabase payment_plan column (most reliable)
+    try {
+      var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(client.id)+'&select=payment_plan&limit=1', {headers:HDR});
+      var fresh = await r.json();
+      if (Array.isArray(fresh) && fresh[0] && fresh[0].payment_plan) {
+        plan = typeof fresh[0].payment_plan === 'string' ? JSON.parse(fresh[0].payment_plan) : fresh[0].payment_plan;
+      }
+    } catch(e) {}
+
+    // 2. Check client object
+    if (!plan && client.payment_plan) {
       try { plan = typeof client.payment_plan === 'string' ? JSON.parse(client.payment_plan) : client.payment_plan; } catch(e) {}
     }
 
-    // 2. Check localStorage — set by payments dashboard Link or Open in Portal
+    // 3. Check localStorage (set by payments dashboard)
     if (!plan) {
       var lsKey = 'pp_' + (client.name||'').toLowerCase().replace(/\s+/g,'_');
-      var lsData = localStorage.getItem(lsKey);
-      if (!lsData) lsData = localStorage.getItem('pp_transfer_data');
+      var lsData = localStorage.getItem(lsKey) || localStorage.getItem('pp_transfer_data');
       if (lsData) {
         try {
           var lsPlan = JSON.parse(lsData);
-          // Only use if name matches
           if (lsPlan && lsPlan.name && client.name &&
               lsPlan.name.toLowerCase().trim() === client.name.toLowerCase().trim()) {
             plan = lsPlan;
@@ -1281,66 +1290,85 @@ async function loadPaymentPlan(client) {
       }
     }
 
-    // 3. Fetch fresh from Supabase in case it was just linked
-    if (!plan && client.id) {
-      try {
-        var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(client.id)+'&select=payment_plan&limit=1', {headers:HDR});
-        var fresh = await r.json();
-        if (Array.isArray(fresh) && fresh[0] && fresh[0].payment_plan) {
-          plan = typeof fresh[0].payment_plan === 'string' ? JSON.parse(fresh[0].payment_plan) : fresh[0].payment_plan;
-        }
-      } catch(e) {}
-    }
-
     if (!plan) {
-      panel.innerHTML =
-        '<div style="text-align:center;padding:24px;">' +
-        '<div style="font-size:30px;margin-bottom:8px;">&#128178;</div>' +
-        '<div style="font-weight:700;color:#1B3A6B;margin-bottom:8px;">No Payment Plan on File</div>' +
-        '<div style="font-size:12px;color:#64748B;margin-bottom:16px;">Import from the Payment Dashboard or add manually.</div>' +
-        '<a href="/payments-dashboard.html" target="_blank" style="background:#1B3A6B;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;">&#128200; Open Payment Dashboard</a>' +
+      rb.innerHTML =
+        '<div style="padding:20px;text-align:center;">' +
+        '<div style="font-size:40px;margin-bottom:12px;">&#128178;</div>' +
+        '<div style="font-weight:800;color:#1B3A6B;font-size:15px;margin-bottom:8px;">No Payment Plan on File</div>' +
+        '<div style="font-size:13px;color:#64748B;margin-bottom:20px;">This client does not have a payment plan linked yet.</div>' +
+        '<a href="/payments-dashboard.html" target="_blank" style="background:#1B3A6B;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;display:inline-block;">&#128200; Open Payments Dashboard</a>' +
+        '<div style="font-size:12px;color:#94A3B8;margin-top:12px;">Find this client and click Link to Portal</div>' +
         '</div>';
       return;
     }
 
-    var pct = plan.total > 0 ? Math.min(100, Math.round(plan.paid / plan.total * 100)) : 0;
-    var balance = plan.total - plan.paid;
-    var statusColor = plan.status === 'ACTIVE' ? '#166534' : plan.status === 'PAID' ? '#1B3A6B' : '#92400E';
+    var pct = plan.total > 0 ? Math.min(100, Math.round((plan.paid||0) / plan.total * 100)) : 0;
+    var balance = (plan.total||0) - (plan.paid||0);
+    var statusColor = (plan.status||'').toUpperCase() === 'ACTIVE' ? '#166534' : (plan.status||'').toUpperCase() === 'PAID' ? '#1B3A6B' : '#92400E';
     var barColor = pct >= 100 ? '#166534' : pct >= 50 ? '#F59E0B' : '#8B1A1A';
 
-    panel.innerHTML =
-      '<div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:10px;padding:16px;margin-bottom:14px;">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
-          '<div style="font-weight:800;color:#166534;font-size:14px;">&#128178; Payment Plan</div>' +
-          '<span style="background:' + statusColor + ';color:white;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;">' + (plan.status||'UNKNOWN') + '</span>' +
-        '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">' +
-          '<div style="background:white;border-radius:8px;padding:10px;text-align:center;">' +
-            '<div style="font-size:18px;font-weight:800;color:#1B3A6B;">$' + Number(plan.total||0).toLocaleString() + '</div>' +
-            '<div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;">Plan Total</div>' +
-          '</div>' +
-          '<div style="background:white;border-radius:8px;padding:10px;text-align:center;">' +
-            '<div style="font-size:18px;font-weight:800;color:#166534;">$' + Number(plan.paid||0).toLocaleString() + '</div>' +
-            '<div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;">Total Paid</div>' +
-          '</div>' +
-          '<div style="background:white;border-radius:8px;padding:10px;text-align:center;">' +
-            '<div style="font-size:18px;font-weight:800;color:' + (balance > 0 ? '#8B1A1A' : '#166534') + ';">' + (balance > 0 ? '$' + Number(balance).toLocaleString() : 'PAID OFF') + '</div>' +
-            '<div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;">Balance Owed</div>' +
-          '</div>' +
-        '</div>' +
-        '<div style="margin-bottom:6px;font-size:12px;font-weight:700;color:#475569;">' + pct + '% Paid</div>' +
-        '<div style="background:#E2E8F0;border-radius:6px;height:10px;overflow:hidden;">' +
-          '<div style="width:' + pct + '%;height:100%;background:' + barColor + ';border-radius:6px;transition:width .5s;"></div>' +
-        '</div>' +
-        (plan.rep ? '<div style="margin-top:10px;font-size:12px;color:#64748B;">Sales Rep: <strong>' + plan.rep + '</strong></div>' : '') +
-        (plan.date ? '<div style="font-size:12px;color:#64748B;">Start Date: <strong>' + plan.date + '</strong></div>' : '') +
-      '</div>' +
-      '<a href="/payments-dashboard.html" target="_blank" style="display:block;text-align:center;background:#EFF6FF;color:#1B3A6B;padding:10px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;border:1.5px solid #BFDBFE;">&#128200; View Full Payment Dashboard</a>';
+    var historyHtml = '';
+    if (plan.payment_history && plan.payment_history.length) {
+      historyHtml = '<div style="margin-top:16px;">' +
+        '<div style="font-size:12px;font-weight:800;color:#1B3A6B;margin-bottom:8px;">Payment History</div>' +
+        plan.payment_history.slice().reverse().map(function(h) {
+          return '<div style="background:#F8FAFC;border-radius:6px;padding:8px 12px;margin-bottom:6px;border-left:3px solid #166534;">' +
+            '<div style="display:flex;justify-content:space-between;">' +
+              '<span style="font-weight:700;color:#166534;">+$'+Number(h.amount||0).toFixed(2)+'</span>' +
+              '<span style="font-size:11px;color:#94A3B8;">'+(h.date||'')+'</span>' +
+            '</div>' +
+            '<div style="font-size:11px;color:#64748B;">'+(h.method||'')+(h.ref?' · Ref: '+h.ref:'')+'</div>' +
+            (h.notes?'<div style="font-size:11px;color:#94A3B8;">'+h.notes+'</div>':'') +
+          '</div>';
+        }).join('') +
+        '</div>';
+    }
 
+    rb.innerHTML =
+      '<div style="padding:4px;">' +
+      '<div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:10px;padding:16px;margin-bottom:12px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">' +
+          '<div style="font-weight:800;color:#166534;font-size:14px;">&#128178; Payment Plan</div>' +
+          '<span style="background:'+statusColor+';color:white;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;">'+(plan.status||'UNKNOWN')+'</span>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">' +
+          '<div style="background:white;border-radius:8px;padding:10px;text-align:center;">' +
+            '<div style="font-size:18px;font-weight:800;color:#1B3A6B;">$'+Number(plan.total||0).toLocaleString()+'</div>' +
+            '<div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;margin-top:2px;">Plan Total</div>' +
+          '</div>' +
+          '<div style="background:white;border-radius:8px;padding:10px;text-align:center;">' +
+            '<div style="font-size:18px;font-weight:800;color:#166534;">$'+Number(plan.paid||0).toLocaleString()+'</div>' +
+            '<div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;margin-top:2px;">Total Paid</div>' +
+          '</div>' +
+          '<div style="background:white;border-radius:8px;padding:10px;text-align:center;">' +
+            '<div style="font-size:18px;font-weight:800;color:'+(balance>0?'#8B1A1A':'#166534')+';">'+(balance>0?'$'+Number(balance).toLocaleString():'PAID OFF')+'</div>' +
+            '<div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;margin-top:2px;">Balance Owed</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-bottom:6px;font-size:12px;font-weight:700;color:#475569;">'+pct+'% Paid</div>' +
+        '<div style="background:#E2E8F0;border-radius:6px;height:10px;overflow:hidden;">' +
+          '<div style="width:'+pct+'%;height:100%;background:'+barColor+';border-radius:6px;"></div>' +
+        '</div>' +
+        (plan.rep?'<div style="margin-top:10px;font-size:12px;color:#64748B;">Sales Rep: <strong>'+plan.rep+'</strong></div>':'')+
+        (plan.date?'<div style="font-size:12px;color:#64748B;">Start Date: <strong>'+plan.date+'</strong></div>':'')+
+      '</div>' +
+      (balance>0?
+        '<div style="background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:8px;padding:12px;margin-bottom:12px;">' +
+          '<div style="font-weight:800;color:#8B1A1A;font-size:13px;margin-bottom:4px;">&#9888; Balance Due: $'+Number(balance).toLocaleString()+'</div>' +
+          '<div style="font-size:12px;color:#64748B;margin-bottom:10px;">Collection methods:</div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+            '<div style="background:white;border:1px solid #E2E8F0;border-radius:6px;padding:8px 12px;font-size:12px;"><strong>CashApp:</strong> $ccpro2020</div>' +
+            '<div style="background:white;border:1px solid #E2E8F0;border-radius:6px;padding:8px 12px;font-size:12px;"><strong>Zelle:</strong> cprsvcs2026@gmail.com</div>' +
+          '</div>' +
+        '</div>':'') +
+      historyHtml +
+      '<a href="/payments-dashboard.html" target="_blank" style="display:block;text-align:center;background:#EFF6FF;color:#1B3A6B;padding:10px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700;border:1.5px solid #BFDBFE;margin-top:12px;">&#128200; Open Full Payment Dashboard</a>' +
+      '</div>';
   } catch(e) {
-    panel.innerHTML = '<div style="padding:16px;color:#8B1A1A;">Error loading payment plan: ' + e.message + '</div>';
+    rb.innerHTML = '<div style="padding:16px;color:#8B1A1A;">Error: '+e.message+'</div>';
   }
 }
+
 
 </script>
 
