@@ -193,12 +193,19 @@ function copyText(txt) {
 
 async function loadPortalClients() {
   try {
-    var r = await fetch(SUPA+'/clients?select=id,name,payment_plan&limit=5000', {headers:{apikey:KEY,'Authorization':'Bearer '+KEY}});
-    var data = await r.json();
-    if (!Array.isArray(data)) return;
-    data.forEach(function(c) {
-      if (c.name) PORTAL_CLIENTS[c.name.toLowerCase().trim()] = {id:c.id, payment_plan:c.payment_plan};
-    });
+    var loaded = 0, pageSize = 1000;
+    while (true) {
+      var r = await fetch(SUPA+'/clients?select=id,name,payment_plan&limit='+pageSize+'&offset='+loaded,
+        {headers:{apikey:KEY,'Authorization':'Bearer '+KEY,'Range-Unit':'items','Range':loaded+'-'+(loaded+pageSize-1)}});
+      var data = await r.json();
+      if (!Array.isArray(data) || !data.length) break;
+      data.forEach(function(c) {
+        if (c.name) PORTAL_CLIENTS[c.name.toLowerCase().trim()] = {id:c.id, payment_plan:c.payment_plan};
+      });
+      loaded += data.length;
+      if (data.length < pageSize) break;
+    }
+    console.log('Portal clients loaded:', loaded);
     render();
   } catch(e) { console.log('Portal load error:', e.message); }
 }
@@ -206,16 +213,61 @@ async function loadPortalClients() {
 function getPortalClient(name) {
   if (!name) return null;
   var key = name.toLowerCase().trim();
+  // Exact match
   if (PORTAL_CLIENTS[key]) return PORTAL_CLIENTS[key];
+  // First + last name word match
+  var words = key.split(' ').filter(function(w){ return w.length > 2; });
   for (var pName in PORTAL_CLIENTS) {
-    if (pName.includes(key) || key.includes(pName)) return PORTAL_CLIENTS[pName];
+    var pWords = pName.split(' ').filter(function(w){ return w.length > 2; });
+    var common = words.filter(function(w){ return pWords.includes(w); });
+    if (common.length >= 2) return PORTAL_CLIENTS[pName];
+    // At least first name + last name first letter
+    if (words.length >= 2 && pWords.length >= 2 &&
+        words[0] === pWords[0] && words[words.length-1][0] === pWords[pWords.length-1][0]) {
+      return PORTAL_CLIENTS[pName];
+    }
   }
+  return null;
+}
+
+// Search Supabase directly for a client by name when not in local cache
+async function searchPortalByName(name) {
+  try {
+    var parts = name.trim().split(' ');
+    var first = parts[0];
+    var r = await fetch(SUPA+'/clients?select=id,name&name=ilike.*'+encodeURIComponent(first)+'*&limit=10',
+      {headers:{apikey:KEY,'Authorization':'Bearer '+KEY}});
+    var results = await r.json();
+    if (!Array.isArray(results) || !results.length) return null;
+    // Find best match
+    var nameLow = name.toLowerCase();
+    var best = results.find(function(c){
+      return c.name && c.name.toLowerCase() === nameLow;
+    }) || results.find(function(c){
+      if (!c.name) return false;
+      var cw = c.name.toLowerCase().split(' ');
+      var nw = nameLow.split(' ');
+      return nw.filter(function(w){ return cw.includes(w); }).length >= 2;
+    }) || results[0];
+    if (best) {
+      PORTAL_CLIENTS[name.toLowerCase()] = {id:best.id, payment_plan:null};
+      return {id:best.id, payment_plan:null};
+    }
+  } catch(e) { console.log('Search error:', e.message); }
   return null;
 }
 
 async function linkToPortal(plan, btn) {
   var pc = getPortalClient(plan.name);
-  if (!pc) { toast('Client not found in portal by name. Search manually in CS Dashboard.','#8B1A1A'); return; }
+  if (!pc) {
+    btn.textContent = 'Searching...'; btn.disabled = true;
+    pc = await searchPortalByName(plan.name);
+  }
+  if (!pc) {
+    toast('Client not found in portal — search manually in CS Dashboard','#8B1A1A');
+    btn.textContent = 'Link to Portal'; btn.disabled = false;
+    return;
+  }
   btn.textContent = 'Linking...'; btn.disabled = true;
   try {
     var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(pc.id), {
