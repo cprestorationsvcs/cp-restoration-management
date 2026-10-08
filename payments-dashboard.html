@@ -377,7 +377,7 @@ function render() {
       var pfCls=pct>=100?'pf-green':pct>=50?'pf-yellow':'pf-red';
       var pc=getPortalClient(p.name);
       var linkBtn=pc?
-        '<button class="btn-sm btn-blue" style="margin-bottom:4px;" onclick="window.open('/cs-dashboard.html','_blank')">&#128203; Portal</button>':
+        '<button class="btn-sm btn-blue" style="margin-bottom:4px;" onclick="window.open(\'cs-dashboard.html\',\'_blank\')">&#128203; Portal</button>':
         '<button class="btn-sm" style="background:#E2E8F0;color:#64748B;margin-bottom:4px;" disabled>Not matched</button>';
       var linkedStatus=pc&&pc.payment_plan?'<span class="linked-badge">&#9989; Linked</span>':'';
       return '<tr>'+
