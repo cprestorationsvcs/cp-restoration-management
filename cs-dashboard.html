@@ -782,12 +782,18 @@ async function notifyCompliance(type){
 // ── RIGHT TABS ──
 function showRTab(tab){
   activeRTab=tab;
-  ['info','logins','disputes','log','messages'].forEach(function(t){document.getElementById('rtab-'+t).classList.toggle('active',t===tab);});
+  ['info','logins','disputes','log','messages','payment'].forEach(function(t){
+    var el=document.getElementById('rtab-'+t);
+    if(el) el.classList.toggle('active',t===tab);
+    var panel=document.getElementById('rpanel-'+t);
+    if(panel) panel.style.display=(t===tab?'block':'none');
+  });
   if(tab==='info') renderInfo();
   else if(tab==='logins') renderLogins();
   else if(tab==='disputes') renderDisputes();
   else if(tab==='log') renderContactLog();
   else if(tab==='messages') renderClientMessages();
+  else if(tab==='payment') loadPaymentPlan(currentClient);
 }
 
 function renderInfo(){
