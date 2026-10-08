@@ -1248,13 +1248,42 @@ document.addEventListener('input', function(e) {
 async function loadPaymentPlan(client) {
   var panel = document.getElementById('payment-plan-content');
   if (!panel) return;
-  panel.innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:13px;">Loading...</div>';
+  panel.innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:13px;">Loading payment plan...</div>';
 
   try {
-    // Fetch from payment_plan column on client record
     var plan = null;
+
+    // 1. Check client.payment_plan from Supabase
     if (client.payment_plan) {
       try { plan = typeof client.payment_plan === 'string' ? JSON.parse(client.payment_plan) : client.payment_plan; } catch(e) {}
+    }
+
+    // 2. Check localStorage — set by payments dashboard Link or Open in Portal
+    if (!plan) {
+      var lsKey = 'pp_' + (client.name||'').toLowerCase().replace(/\s+/g,'_');
+      var lsData = localStorage.getItem(lsKey);
+      if (!lsData) lsData = localStorage.getItem('pp_transfer_data');
+      if (lsData) {
+        try {
+          var lsPlan = JSON.parse(lsData);
+          // Only use if name matches
+          if (lsPlan && lsPlan.name && client.name &&
+              lsPlan.name.toLowerCase().trim() === client.name.toLowerCase().trim()) {
+            plan = lsPlan;
+          }
+        } catch(e) {}
+      }
+    }
+
+    // 3. Fetch fresh from Supabase in case it was just linked
+    if (!plan && client.id) {
+      try {
+        var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(client.id)+'&select=payment_plan&limit=1', {headers:HDR});
+        var fresh = await r.json();
+        if (Array.isArray(fresh) && fresh[0] && fresh[0].payment_plan) {
+          plan = typeof fresh[0].payment_plan === 'string' ? JSON.parse(fresh[0].payment_plan) : fresh[0].payment_plan;
+        }
+      } catch(e) {}
     }
 
     if (!plan) {
