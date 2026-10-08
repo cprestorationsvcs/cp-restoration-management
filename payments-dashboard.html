@@ -276,7 +276,11 @@ async function linkToPortal(plan, btn) {
     });
     if (r.ok) {
       toast('✅ Payment plan linked to '+plan.name+' in portal!','#166534');
-      PORTAL_CLIENTS[plan.name.toLowerCase().trim()].payment_plan = plan;
+      if (PORTAL_CLIENTS[plan.name.toLowerCase().trim()]) {
+        PORTAL_CLIENTS[plan.name.toLowerCase().trim()].payment_plan = plan;
+      }
+      // Also store in localStorage as backup for CS dashboard
+      localStorage.setItem('pp_'+plan.name.toLowerCase().replace(/\s+/g,'_'), JSON.stringify(plan));
       btn.textContent = '✅ Linked'; btn.style.background='#166534'; btn.style.color='white';
     } else {
       toast('Error linking. Try again.','#8B1A1A');
@@ -499,6 +503,15 @@ document.addEventListener('DOMContentLoaded',function(){
   render();
   loadPortalClients();
 });
+
+function openInPortal(plan) {
+  // Store payment plan in localStorage so CS dashboard can read it
+  localStorage.setItem('pp_transfer_name', plan.name);
+  localStorage.setItem('pp_transfer_data', JSON.stringify(plan));
+  // Open CS dashboard with client name as search param
+  window.open('cs-dashboard.html?search=' + encodeURIComponent(plan.name), '_blank');
+}
+
 </script>
 </body>
 </html>
