@@ -1145,5 +1145,85 @@ fetch('https://ipapi.co/json/')
     if (el) el.textContent = 'IP check unavailable';
   });
 </script>
+
+    <!-- PAYMENT COLLECTION MODULE -->
+    <div class="section" id="section-payment">
+      <div class="section-header" onclick="toggleSection('payment')">
+        <span>&#128178; Module 6 — Payment Collection</span>
+        <span class="toggle-icon">&#9660;</span>
+      </div>
+      <div class="section-body" id="body-payment">
+
+        <div class="info-box green">
+          <strong>Your job includes collecting overdue payments.</strong> When a client has a balance due, it is your responsibility to call them, explain the situation professionally, and guide them through sending payment. This is not optional — collecting payments keeps the business running and keeps clients accountable.
+        </div>
+
+        <h3>Step 1 — Start Your Day at the Payments Dashboard</h3>
+        <p>Every morning, before calling any client, open the Payments Dashboard at <strong>portal-cprestorationsvcs.com/payments-dashboard.html</strong>. The first tab — <strong>Call for Payment</strong> — shows every client who has a balance due, sorted from highest to lowest. These are your first calls of the day.</p>
+
+        <h3>Step 2 — Check the Payment Plan Tab in Every Client File</h3>
+        <p>When you open any client file in the CS Dashboard, click the <strong>&#128178; Payment Plan</strong> tab. This shows:</p>
+        <ul>
+          <li><strong>Plan Total</strong> — what the client originally agreed to pay</li>
+          <li><strong>Total Paid</strong> — how much they have paid so far</li>
+          <li><strong>Balance Owed</strong> — what they still owe (shown in red if overdue)</li>
+          <li><strong>Payment History</strong> — every payment ever recorded</li>
+          <li><strong>Collection info</strong> — CashApp and Zelle displayed automatically when balance is due</li>
+        </ul>
+        <p>If the tab says <em>"No Payment Plan on File"</em> go to the Payments Dashboard, search the client, and click <strong>Link to Portal</strong>. Then come back and refresh.</p>
+
+        <h3>Step 3 — The Collection Call Script</h3>
+        <div class="script-box">
+          "Hi, may I speak with [Client Name]?<br><br>
+          Hi [Name], this is [Your Name] calling from CP Restoration Services. I am reaching out today regarding your payment plan balance of [amount owed].<br><br>
+          Your next payment is now due. Would you like to take care of that today?<br><br>
+          We accept payment via CashApp at <strong>$ccpro2020</strong> or Zelle at <strong>cprsvcs2026@gmail.com</strong>.<br><br>
+          Once you send the payment, please share the transaction ID with me and I will get your account updated right away.<br><br>
+          Do you have any questions?"
+        </div>
+
+        <h3>Step 4 — Payment Methods (Share With Client)</h3>
+        <div class="info-box">
+          <div style="display:flex;gap:20px;flex-wrap:wrap;">
+            <div><strong>CashApp</strong><br><span style="font-size:16px;font-weight:800;color:#1B3A6B;">$ccpro2020</span></div>
+            <div><strong>Zelle</strong><br><span style="font-size:16px;font-weight:800;color:#1B3A6B;">cprsvcs2026@gmail.com</span></div>
+          </div>
+        </div>
+
+        <h3>Step 5 — Recording the Payment After Client Pays</h3>
+        <p>Once a client confirms they sent payment, do all four of these steps:</p>
+        <ol>
+          <li>Go to <strong>payments-dashboard.html</strong></li>
+          <li>Find the client &rarr; click <strong>&#128178; Record Payment</strong></li>
+          <li>Enter the amount, select CashApp or Zelle, enter the transaction ID</li>
+          <li>Click <strong>Save Payment</strong> — the portal and client file update automatically</li>
+          <li>Go back to the CS Dashboard &rarr; client file &rarr; <strong>Contact Log</strong> tab &rarr; log the call with a note: "Payment of $[amount] received via [method]. Transaction ID: [id]"</li>
+        </ol>
+
+        <h3>Step 6 — What NOT to Do</h3>
+        <div class="warning-box">
+          <ul>
+            <li>&#10060; Do NOT tell a client their balance is waived, forgiven, or reduced without Jason or Queen approval</li>
+            <li>&#10060; Do NOT agree to a payment arrangement that differs from the original plan without approval</li>
+            <li>&#10060; Do NOT accept payment to your personal account — only CashApp $ccpro2020 or Zelle cprsvcs2026@gmail.com</li>
+            <li>&#10060; Do NOT skip logging the payment — every payment must be recorded in the system</li>
+          </ul>
+        </div>
+
+        <h3>Step 7 — If a Client Disputes the Amount</h3>
+        <p>If a client says they do not owe what the system shows, do NOT argue. Say:</p>
+        <div class="script-box">
+          "I completely understand. Let me flag this for our billing team and have someone get back to you within 24 hours to clarify. I want to make sure everything is accurate for you."
+        </div>
+        <p>Then immediately message Jason and Queen in Team Chat with the client name, ID, and what the client said.</p>
+
+        <h3>Step 8 — If a Client Cannot Pay Right Now</h3>
+        <div class="script-box">
+          "I understand. Let us schedule a follow-up call for [specific date] to revisit this. In the meantime, even a partial payment would help keep your account in good standing. Is there any amount you can send today?"
+        </div>
+        <p>Log the outcome in the Contact Log and add the client back to the call queue with a follow-up date.</p>
+
+      </div>
+    </div>
 </body>
 </html>
