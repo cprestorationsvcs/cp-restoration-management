@@ -421,8 +421,19 @@ function doLogin() {
     document.getElementById('creds-section').style.display='block';
     document.getElementById('creds-grid').style.display='grid';
   }
+  // Dispute specialists go directly to dispute center
+  if (emp.role==='dispute') {
+    trackSession(emp);
+    window.location.href = 'dispute-center.html';
+    return;
+  }
   trackSession(emp);
   loadDashboard();
+  // Show dispute quick links if dispute role
+  if (emp.role === 'dispute') {
+    var disputeBar = document.getElementById('dispute-quick-bar');
+    if (disputeBar) disputeBar.style.display = 'flex';
+  }
   startClock();
   setTimeout(function(){ initScreenshots(emp.name); }, 2000);
 }
