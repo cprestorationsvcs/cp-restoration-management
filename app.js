@@ -13,7 +13,8 @@ var EMPLOYEES = {
 
   'marcelo@mycprteam.com': { password:'CPRMarcelo2026', name:'Marcelo Torres',     role:'dispute',    label:'Dispute Specialist', initials:'MT' },
   'kimwell@mycprteam.com': { password:'CPRKimwell2026', name:'Kimwell Ablaza',     role:'dispute',    label:'Dispute Specialist', initials:'KA' },
-  'annabel@mycprteam.com': { password:'CPRAnnabel2026', name:'Annabel Curada',     role:'dispute',    label:'Dispute Specialist', initials:'AC' }
+  'annabel@mycprteam.com': { password:'CPRAnnabel2026', name:'Annabel Curada',     role:'dispute',    label:'Dispute Specialist', initials:'AC' },
+  'jay@mycprteam.com':     { password:'CPRJay2026',     name:'Jay Rico',           role:'sales',      label:'Sales Rep',          initials:'JR' }
 };
 
 var currentUser = null;
