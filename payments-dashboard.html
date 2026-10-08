@@ -115,8 +115,9 @@ tr:hover td{background:#F8FAFC;}
 
   <!-- Filters -->
   <div class="filters">
-    <input type="text" id="srch" placeholder="&#128269; Search name, email, phone..." oninput="render()">
+    <input type="text" id="srch" placeholder="&#128269; Search name, phone, email..." oninput="render()" style="min-width:260px;">
     <select id="rep-filter" onchange="render()"><option value="">All Reps</option></select>
+    <span style="font-size:12px;color:#64748B;background:#FEF9C3;padding:6px 10px;border-radius:6px;border:1px solid #FDE68A;">&#128161; Can't find a client? Search by their exact name from the portal. Use <a href="/cs-dashboard.html" target="_blank" style="color:#1B3A6B;font-weight:700;">CS Dashboard</a> to look up their ID first.</span>
   </div>
 
   <div class="tbl-wrap">
@@ -422,7 +423,16 @@ function render() {
       if(currentTab==='followup'&&p.status.toUpperCase()!=='PAUSED'&&p.balance<=0) return false;
       if(currentTab==='followup'&&p.balance<=0) return false;
       if(repF&&p.rep!==repF) return false;
-      if(srch&&!(p.name||'').toLowerCase().includes(srch)&&!(p.email||'').toLowerCase().includes(srch)&&!(p.phone||'').toLowerCase().includes(srch)) return false;
+      if(srch){
+        var sl=srch.toLowerCase();
+        var nameMatch=(p.name||'').toLowerCase().includes(sl);
+        var emailMatch=(p.email||'').toLowerCase().includes(sl);
+        var phoneMatch=(p.phone||'').replace(/\D/g,'').includes(sl.replace(/\D/g,''));
+        // Also try word-by-word match on name
+        var words=sl.split(' ').filter(function(w){return w.length>1;});
+        var wordMatch=words.length>0&&words.every(function(w){return (p.name||'').toLowerCase().includes(w);});
+        if(!nameMatch&&!emailMatch&&!phoneMatch&&!wordMatch) return false;
+      }
       return true;
     });
     if(currentTab==='followup') data.sort(function(a,b){return (b.balance||0)-(a.balance||0);});
