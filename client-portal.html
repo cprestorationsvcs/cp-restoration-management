@@ -631,7 +631,7 @@ async function showPage(name, silent) {
           if(Array.isArray(_dd) && _dd.length) {
             currentDisputes = _dd.map(function(d){
               return {
-                name: d.notes || d.bureaus || 'Dispute Item',
+                name: d.bureaus ? 'Dispute: ' + d.bureaus : (d.items_count ? d.items_count + ' Item(s) Disputed' : 'Dispute Filed'),
                 bureau: d.bureaus || 'All Bureaus',
                 status: 'filed',
                 date: d.filed_at ? d.filed_at.split('T')[0] : '',
@@ -1098,15 +1098,28 @@ var _MSG_HDR = {apikey:_MSG_KEY,'Authorization':'Bearer '+_MSG_KEY};
 async function loadPortalMessages() {
   if (!currentClientId) return;
   try {
-    var r = await fetch(_MSG_SUPA+'/client_messages?client_id=eq.'+encodeURIComponent(currentClientId)+'&limit=50', {headers:_MSG_HDR});
-    var msgs = await r.json();
-    if (!Array.isArray(msgs)) return;
-    // Sort oldest first client-side
-    msgs.sort(function(a,b){ return new Date(a.created_at||0)-new Date(b.created_at||0); });
+    // Load from client_messages table
+    var r1 = await fetch(_MSG_SUPA+'/client_messages?client_id=eq.'+encodeURIComponent(currentClientId)+'&order=created_at.asc&limit=100', {headers:_MSG_HDR});
+    var msgs = await r1.json();
+    if (!Array.isArray(msgs)) msgs = [];
+
+    // Also load status updates with update_type='message' from client_status_updates
+    var r2 = await fetch(_MSG_SUPA+'/client_status_updates?client_id=eq.'+encodeURIComponent(currentClientId)+'&update_type=eq.message&order=created_at.asc&limit=100', {headers:_MSG_HDR});
+    var suMsgs = await r2.json();
+    if (Array.isArray(suMsgs) && suMsgs.length) {
+      suMsgs.forEach(function(su) {
+        msgs.push({
+          from_role: 'cs',
+          from_name: su.posted_by || 'CP Restoration Team',
+          message: su.update_text || su.message || '',
+          created_at: su.created_at
+        });
+      });
+      msgs.sort(function(a,b){ return new Date(a.created_at||0)-new Date(b.created_at||0); });
+    }
+
     var thread = document.getElementById('msg-thread');
     if (!thread) return;
-
-    // Clear and rebuild
     thread.innerHTML = '';
 
     if (!msgs.length) {
@@ -1120,9 +1133,10 @@ async function loadPortalMessages() {
       wrap.className = 'msg-bubble-wrap ' + (isClient ? 'client' : 'team');
       var time = m.created_at ? new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
       var name = isClient ? 'You' : (m.from_name || 'CP Restoration Team');
+      var fullMsg = (m.message || '').replace(/\n/g,'<br>');
       wrap.innerHTML =
         '<div class="msg-meta">' + escPortal(name) + ' &bull; ' + time + '</div>' +
-        '<div class="msg-bbl" style="white-space:pre-wrap;word-break:break-word;">' + escPortal(m.message || '').replace(/\n/g,'<br>') + '</div>';
+        '<div class="msg-bbl" style="white-space:pre-wrap;word-break:break-word;">' + escPortal(m.message||'').replace(/\n/g,'<br>') + '</div>';
       thread.appendChild(wrap);
     });
 
