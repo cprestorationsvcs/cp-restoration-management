@@ -1312,13 +1312,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function assignAnalyst(clientId, analyst) {
   if (!clientId || !analyst) return;
+  var key = Array.isArray(SUPA_KEY) ? SUPA_KEY.join('') : SUPA_KEY;
+  var hdrs = {'Content-Type':'application/json','apikey':key,'Authorization':'Bearer '+key,'Prefer':'return=minimal'};
   try {
-    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(clientId), {
+    var r = await fetch(SUPA_API+'?id=eq.'+encodeURIComponent(clientId), {
       method:'PATCH',
-      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      headers:hdrs,
       body:JSON.stringify({assigned_to: analyst})
     });
-    showToast && showToast('Assigned to '+analyst);
+    if (r.ok) {
+      // Update cache so table reflects change without reload
+      if (_clientCache) {
+        var c = _clientCache.find(function(x){ return x.id===clientId; });
+        if (c) c.assigned_to = analyst;
+      }
+      var sel = document.querySelector('.analyst-sel[data-clientid="'+clientId+'"]');
+      if (sel) { sel.options[0].text = analyst; }
+    } else {
+      alert('Failed to assign: HTTP '+r.status);
+    }
   } catch(e) { alert('Error: '+e.message); }
 }
 
