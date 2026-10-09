@@ -123,6 +123,21 @@ var KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6I
 var HDR={'apikey':KEY,'Authorization':'Bearer '+KEY};
 var allRequests=[], currentTab='all';
 
+function isStatusType(t) {
+  if (!t) return false;
+  var tl = t.toLowerCase().replace(/[_\s-]/g,'');
+  return tl.includes('status') || tl==='su' || tl==='update';
+}
+function isRefundType(t) {
+  if (!t) return false;
+  var tl = t.toLowerCase().replace(/[_\s-]/g,'');
+  return tl.includes('refund') || tl.includes('chargeback') || tl==='rr';
+}
+function normalizeType(t) {
+  if (isRefundType(t)) return 'refund';
+  return 'status';
+}
+
 function parseRequests(clients) {
   var reqs=[];
   clients.forEach(function(c){
@@ -192,8 +207,8 @@ async function loadRequests(){
     // From requests table
     directRequests.forEach(function(req){
       items.push({
-        label: req.type==='refund'||req.type==='refund_request' ? 'REFUND REQUEST' : 'STATUS UPDATE',
-        type: (req.type==='refund'||req.type==='refund_request') ? 'refund' : 'status',
+        label: isRefundType(req.type) ? 'REFUND REQUEST' : 'STATUS UPDATE',
+        type: normalizeType(req.type),
         clientId: req.client_id||'',
         clientName: req.client_name||'Unknown',
         detail: (req.reason||'') + (req.notes ? ' — '+req.notes : ''),
