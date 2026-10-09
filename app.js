@@ -915,3 +915,51 @@ function processPayment() {
     else { alert('❌ Error saving payment. Please try again.'); }
   }).catch(function(e) { alert('❌ Network error: ' + e.message); });
 }
+
+// ── DISPUTES TABLE ───────────────────────────────────────────────
+async function loadDisputesTable() {
+  var tbody = document.getElementById('disputes-table');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:32px;">Loading dispute files...</td></tr>';
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/disputes?order=filed_at.desc&limit=200', {
+      headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var disputes = await r.json();
+    if (!Array.isArray(disputes) || !disputes.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:32px;">No dispute files found.</td></tr>';
+      // Update stats
+      var s = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+      s('open-files','0'); s('backlog-90','0'); s('completed-month','0');
+      return;
+    }
+    var now = new Date();
+    var monthAgo = new Date(now.getFullYear(), now.getMonth(), 1);
+    var ninetyAgo = new Date(now - 90*24*60*60*1000);
+    var open = disputes.filter(function(d){ return (d.status||'open').toLowerCase() !== 'completed'; });
+    var backlog = open.filter(function(d){ return d.filed_at && new Date(d.filed_at) < ninetyAgo; });
+    var completed = disputes.filter(function(d){ return d.status === 'completed' && d.filed_at && new Date(d.filed_at) >= monthAgo; });
+    var s = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+    s('open-files', open.length);
+    s('backlog-90', backlog.length);
+    s('completed-month', completed.length);
+    tbody.innerHTML = disputes.map(function(d) {
+      var date = d.filed_at ? new Date(d.filed_at).toLocaleDateString() : '—';
+      var status = d.status || 'Open';
+      var statusColor = status.toLowerCase()==='completed' ? 'var(--green)' : status.toLowerCase()==='pending' ? 'var(--gold)' : 'var(--blue)';
+      return '<tr>' +
+        '<td style="font-size:12px;">' + (d.client_id||'—') + '</td>' +
+        '<td style="font-weight:600;">' + (d.client_name||'—') + '</td>' +
+        '<td style="font-size:12px;">' + (d.bureaus||d.bureau||'—') + '</td>' +
+        '<td style="font-size:12px;">' + (d.items_count||d.bureaus_count||'—') + '</td>' +
+        '<td style="font-size:12px;">' + date + '</td>' +
+        '<td style="font-size:12px;">' + (d.specialist||d.assigned_to||'—') + '</td>' +
+        '<td><span style="background:' + statusColor + '22;color:' + statusColor + ';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">' + status + '</span></td>' +
+        '<td style="font-size:12px;">' + (d.notes||'—').substring(0,40) + '</td>' +
+      '</tr>';
+    }).join('');
+  } catch(e) {
+    var tbody2 = document.getElementById('disputes-table');
+    if (tbody2) tbody2.innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;padding:32px;">Error loading disputes: ' + e.message + '</td></tr>';
+  }
+}
