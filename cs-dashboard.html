@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+      <a href="/cs-faq.html" target="_blank" style="color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;margin-left:12px;">&#128172; FAQ & Scripts</a><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1378,6 +1379,47 @@ async function loadPaymentPlan(client) {
   }
 }
 
+
+
+// ── PAUSE FILE (chargeback / refund) ──────────────────────
+async function pauseFile(reason) {
+  if (!currentClient) return;
+  var r = confirm('Pause file for ' + currentClient.name + '? Reason: ' + reason);
+  if (!r) return;
+  try {
+    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
+      method:'PATCH', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+      body:JSON.stringify({status:'Paused', notes:(currentClient.notes||'') + '\n[PAUSED ' + new Date().toLocaleDateString() + ' — ' + reason + ' — by ' + (localStorage.getItem('cp_logged_in_name')||'Agent') + ']'})
+    });
+    // Post status update
+    await fetch(SUPA+'/client_status_updates', {
+      method:'POST', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+      body:JSON.stringify({client_id:currentClient.id, client_name:currentClient.name,
+        update_text:'File PAUSED — Reason: '+reason+'. File will remain paused pending review by management.',
+        update_type:'status', posted_by:localStorage.getItem('cp_logged_in_name')||'Agent', created_at:new Date().toISOString()})
+    });
+    toast && toast('File paused for ' + currentClient.name, '#92400E');
+    loadClient(currentClient.id);
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ── ASSIGN FILE ──────────────────────────────────────────
+async function assignFileTo(agent) {
+  if (!currentClient || !agent) return;
+  try {
+    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
+      method:'PATCH', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+      body:JSON.stringify({assigned_to: agent, updated_at: new Date().toISOString()})
+    });
+    await fetch(SUPA+'/client_status_updates', {
+      method:'POST', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+      body:JSON.stringify({client_id:currentClient.id, client_name:currentClient.name,
+        update_text:'File assigned to: '+agent+' by '+( localStorage.getItem('cp_logged_in_name')||'Compliance')+'.',
+        update_type:'general', posted_by:localStorage.getItem('cp_logged_in_name')||'Compliance', created_at:new Date().toISOString()})
+    });
+    alert('File assigned to ' + agent);
+  } catch(e) { alert('Error: ' + e.message); }
+}
 
 </script>
 
