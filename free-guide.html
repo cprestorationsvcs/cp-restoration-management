@@ -272,8 +272,8 @@ async function submitLead() {
   btn.textContent = 'Sending...'; btn.disabled = true;
   await saveLead(name, email, phone, 'ebook-funnel-hero');
   await sendWelcomeEmail(name, email);
-  document.getElementById('lead-form').style.display = 'none';
-  document.getElementById('success-msg').style.display = 'block';
+  // Redirect to thank you page
+  window.location.href = '/thank-you-guide.html';
 }
 
 async function submitLead2() {
