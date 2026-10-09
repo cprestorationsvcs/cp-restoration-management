@@ -685,7 +685,10 @@ async function renderTable(){
     if(s&&!(c.name||'').toLowerCase().includes(s)&&!(c.id||'').toLowerCase().includes(s)&&!(c.email||'').toLowerCase().includes(s)&&!(c.phone||'').includes(s)) return false;
     if(st&&(c.status||'Active')!==st) return false;
     if(pk&&(c.package||'')!==pk) return false;
-    if(sd&&!(c.startDate||'').startsWith(sd)) return false;
+    var sdFrom = gv('srch-date-from');
+    var sdTo = gv('srch-date-to');
+    if(sdFrom && (c.startDate||'') < sdFrom) return false;
+    if(sdTo && (c.startDate||'') > sdTo) return false;
     if(an){
       if(an==='Unassigned'&&(c.assigned_to||'')) return false;
       if(an!=='Unassigned'&&(c.assigned_to||'')!==an) return false;
