@@ -208,31 +208,64 @@ async function logActivity() {
 
 async function load() {
   var start = document.getElementById('week-start').value;
-  var end = document.getElementById('week-end').value;
+  var end   = document.getElementById('week-end').value;
   if(!start||!end) return;
 
   try {
-    var r = await fetch(SUPA+'/dispute_quotas?date=gte.'+start+'&date=lte.'+end+'&limit=200',{headers:HDR});
-    var data = await r.json();
-    if(!Array.isArray(data)) data=[];
+    // ── AUTO-CALCULATE from disputes table (Queen's design) ──────────────
+    // Fetch all Filed disputes within the date range
+    var r = await fetch(
+      SUPA+'/disputes?status=eq.Filed&filed_at=gte.'+start+'T00:00:00&filed_at=lte.'+end+'T23:59:59&limit=1000',
+      {headers:HDR}
+    );
+    var disputes = await r.json();
+    if(!Array.isArray(disputes)) disputes=[];
+
+    // Also fetch manual quota entries (for followups/FTC which aren't in disputes)
+    var r2 = await fetch(SUPA+'/dispute_quotas?date=gte.'+start+'&date=lte.'+end+'&limit=200',{headers:HDR});
+    var manualData = await r2.json();
+    if(!Array.isArray(manualData)) manualData=[];
 
     // Aggregate by specialist
     var byRep = {};
     SPECIALISTS.forEach(function(name){
-      byRep[name]={name:name,letters:0,files:0,followups:0,ftc:0};
-    });
-    data.forEach(function(d){
-      if(!byRep[d.agent_name]) byRep[d.agent_name]={name:d.agent_name,letters:0,files:0,followups:0,ftc:0};
-      byRep[d.agent_name].letters += (d.letters_filed||0);
-      byRep[d.agent_name].files   += (d.files_worked||0);
-      byRep[d.agent_name].followups += (d.followups_done||0);
-      byRep[d.agent_name].ftc     += (d.ftc_reports||0);
+      byRep[name]={name:name, letters:0, files:0, uniqueClients:new Set(), followups:0, ftc:0, dateRange:[]};
     });
 
-    renderCards(byRep);
+    // AUTO-COUNT from disputes table per Queen's logic:
+    // - letters = count bureaus selected per dispute (each bureau = 1 letter)
+    // - files   = unique clients where specialist filed
+    // - date_worked captured from filed_at
+    disputes.forEach(function(d){
+      var sp = d.specialist;
+      if(!sp || !byRep[sp]) return;
+      // Count letters: each bureau in the bureaus field = 1 letter
+      var bureauList = (d.bureaus||'').split(',').map(function(b){return b.trim();}).filter(Boolean);
+      byRep[sp].letters += bureauList.length;
+      // Unique clients
+      if(d.client_id) byRep[sp].uniqueClients.add(d.client_id);
+      else if(d.client_name) byRep[sp].uniqueClients.add(d.client_name);
+      // Date worked
+      if(d.filed_at) byRep[sp].dateRange.push(d.filed_at.split('T')[0]);
+    });
+
+    // Add followups/FTC from manual entries
+    manualData.forEach(function(d){
+      var sp = d.agent_name;
+      if(!sp || !byRep[sp]) return;
+      byRep[sp].followups += (d.followups_done||0);
+      byRep[sp].ftc       += (d.ftc_reports||0);
+    });
+
+    // Convert unique clients Set to count
+    SPECIALISTS.forEach(function(name){
+      byRep[name].files = byRep[name].uniqueClients.size;
+    });
+
+    renderCards(byRep, start, end);
     renderTable(byRep);
-    document.getElementById('last-updated').textContent='Updated: '+new Date().toLocaleTimeString();
-  } catch(e){ console.error(e); }
+
+  } catch(e) { console.error('load error:', e); }
 }
 
 function pct(val,target){ return Math.min(100,Math.round(val/target*100)); }
