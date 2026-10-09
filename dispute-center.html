@@ -1565,10 +1565,12 @@ async function fileDispute() {
       client_email: clientEmail || null,
       client_phone: clientPhone || null,
       bureaus: bureaus.join(', '),
+      bureaus_count: bureaus.length,
       items_count: items.length,
       specialist: specialist,
       status: 'Filed',
       filed_at: today,
+      date_worked: today.split('T')[0],
       next_action: new Date(Date.now() + 30*24*60*60*1000).toISOString(),
       notes: items.map(function(it){ return it.name + ' (' + (it.bureau||'All') + ')'; }).join('; ')
     };
