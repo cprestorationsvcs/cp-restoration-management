@@ -658,10 +658,17 @@ async function renderTable(){
   var s=gv('srch').toLowerCase();
   var st=gv('srch-status');
   var pk=gv('srch-pkg');
+  var sd=gv('srch-start-date');
+  var an=gv('srch-analyst');
   arr=arr.filter(function(c){
     if(s&&!(c.name||'').toLowerCase().includes(s)&&!(c.id||'').toLowerCase().includes(s)&&!(c.email||'').toLowerCase().includes(s)&&!(c.phone||'').includes(s)) return false;
     if(st&&(c.status||'Active')!==st) return false;
     if(pk&&(c.package||'')!==pk) return false;
+    if(sd&&!(c.startDate||'').startsWith(sd)) return false;
+    if(an){
+      if(an==='Unassigned'&&(c.assigned_to||'')) return false;
+      if(an!=='Unassigned'&&(c.assigned_to||'')!==an) return false;
+    }
     return true;
   });
   var tbody=document.getElementById('tbl-body');
@@ -1173,6 +1180,19 @@ async function saveDisputeChanges() {
 document.addEventListener('DOMContentLoaded', function() {
   renderTable();
 });
+
+async function assignAnalyst(clientId, analyst) {
+  if (!clientId || !analyst) return;
+  try {
+    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(clientId), {
+      method:'PATCH',
+      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({assigned_to: analyst})
+    });
+    showToast && showToast('Assigned to '+analyst);
+  } catch(e) { alert('Error: '+e.message); }
+}
+
 </script>
 </body>
 </html>
