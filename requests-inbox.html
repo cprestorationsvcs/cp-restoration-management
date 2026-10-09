@@ -287,8 +287,17 @@ function renderList(){
   container.innerHTML='';
   filtered.forEach(function(req){
     var gi=allRequests.indexOf(req);
-    var c=req.client;
-    var isStatus=req.type==='status';
+    // Handle both item shapes (directRequests have clientName/clientId, legacy have .client)
+    var c = req.client || {
+      id: req.clientId || '',
+      name: req.clientName || 'Unknown',
+      email: req.clientEmail || '',
+      phone: req.clientPhone || '',
+      package: req.package || 'Standard',
+      start_date: req.startDate || '',
+      notes: ''
+    };
+    var isStatus=normalizeType(req.type)==='status';
     var card=document.createElement('div');
     card.className='card '+(isStatus?'status-req':'refund-req')+(req.done?' completed':'');
     var typeText=req.done?'&#10003; Completed':(isStatus?'&#128202; Status Update Request':'&#128176; Refund Request');
