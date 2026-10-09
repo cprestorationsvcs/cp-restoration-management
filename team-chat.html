@@ -74,6 +74,11 @@ header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
   <div class="conn" id="conn-status">Connecting...</div>
 </div>
 
+<div style="padding:8px 12px;background:#F8FAFC;border-bottom:1.5px solid #E2E8F0;">
+  <input type="text" id="chat-search" placeholder="&#128269; Search messages..." 
+    oninput="searchMessages(this.value)"
+    style="width:100%;padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;background:white;outline:none;">
+</div>
 <div id="messages"></div>
 
 <div id="input-bar">
@@ -374,6 +379,22 @@ document.addEventListener('DOMContentLoaded',function(){
   loadMessages(true);
   pollTimer=setInterval(function(){loadMessages(false);},3000);
 });
+
+function searchMessages(query) {
+  var container = document.getElementById('messages');
+  if (!container) return;
+  var q = (query||'').toLowerCase().trim();
+  Array.from(container.children).forEach(function(el) {
+    if (!q) { el.style.display=''; return; }
+    var text = (el.textContent||el.innerText||'').toLowerCase();
+    el.style.display = text.includes(q) ? '' : 'none';
+  });
+  // Highlight count
+  var visible = Array.from(container.children).filter(function(el){ return el.style.display!=='none'; }).length;
+  var srch = document.getElementById('chat-search');
+  if (srch && q) srch.style.borderColor = visible > 0 ? '#166534' : '#8B1A1A';
+  else if (srch) srch.style.borderColor = '#E2E8F0';
+}
 </script>
 </body>
 </html>
