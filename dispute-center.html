@@ -1,4 +1,23 @@
 <!DOCTYPE html>
+
+// Auto-select logged-in user as specialist
+(function() {
+  var name = localStorage.getItem('cp_logged_in_name');
+  if (name) {
+    var sel = document.getElementById('default-specialist');
+    if (sel) {
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === name) { sel.selectedIndex = i; break; }
+      }
+      // If not found, add them
+      if (sel.value !== name) {
+        var opt = document.createElement('option');
+        opt.value = name; opt.text = name; opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+  }
+})();
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -934,10 +953,10 @@ cprestorationsvcs@gmail.com
         <div class="form-grid">
           <div class="field"><label>Default Dispute Specialist</label>
             <select id="default-specialist">
-              <option>Julius Velitario</option>
-              <option>Lyslejane Ogue</option>
-              <option>Queen Jearel Cruz</option>
-              <option>Dean Macaraeg</option>
+              <option>Marcelo Torres</option>
+              <option>Kimwell Ablaza</option>
+              <option>Annabel Curada</option>
+              <option>Queen Cruz</option>
               <option>Jason Crown</option>
             </select>
           </div>
@@ -1982,7 +2001,7 @@ function renderByEmployee(filteredDisputes, filteredCalls) {
   const tbody = document.getElementById('by-emp-table');
   if(!tbody) return;
 
-  const specialists = ['Julius Velitario','Lyslejane Ogue','Queen Jearel Cruz','Dean Macaraeg','Jason Crown'];
+  const specialists = ['Marcelo Torres','Kimwell Ablaza','Annabel Curada','Queen Cruz','Jason Crown'];
   const rows = specialists.map(name => {
     const empDisputes = filteredDisputes.filter(d => d.specialist === name);
     const empCalls = filteredCalls.filter(c => c.specialist === name);
@@ -2618,7 +2637,7 @@ function renderEmployeeNotificationCards(data) {
   const container = document.getElementById('employee-notification-cards');
   if(!container) return;
 
-  const specialists = ['Julius Velitario','Lyslejane Ogue','Queen Jearel Cruz','Dean Macaraeg','Jason Crown'];
+  const specialispecialists = ['Marcelo Torres','Kimwell Ablaza','Annabel Curada','Queen Cruz','Jason Crown'];
 
   container.innerHTML = specialists.map(name => {
     const myClients = data.filter(r => r.dispute.specialist === name);
@@ -2687,7 +2706,7 @@ async function notifyEmployee(specialistName) {
 }
 
 async function notifyAllEmployees() {
-  const specialists = ['Julius Velitario','Lyslejane Ogue','Queen Jearel Cruz','Dean Macaraeg'];
+  const specialispecialists = ['Marcelo Torres','Kimwell Ablaza','Annabel Curada','Queen Cruz','Jason Crown'];
   const statusEl = document.getElementById('notify-status');
   if(statusEl) statusEl.textContent = 'Sending notifications...';
 
