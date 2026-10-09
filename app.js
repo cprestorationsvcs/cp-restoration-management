@@ -612,7 +612,10 @@ async function loadDashboardData() {
     var r = await fetch(SUPA+'/clients?select=id,status,package,start_date',{headers:HDR});
     var clients = await r.json();
     if (!Array.isArray(clients)) throw new Error('Bad response');
-    var active = clients.filter(function(c){return (c.status||'Active')==='Active';});
+    var active = clients.filter(function(c){
+      var s = (c.status||'').toLowerCase();
+      return s !== 'inactive' && s !== 'cancelled' && s !== 'canceled' && s !== 'refunded' && s !== 'closed';
+    });
     var express = active.filter(function(c){return (c.package||'').toLowerCase().includes('express');});
     var standard = active.filter(function(c){return !((c.package||'').toLowerCase().includes('express'));});
     var setEl = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
