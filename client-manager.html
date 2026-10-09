@@ -200,7 +200,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
           <th>Client ID</th><th>Name</th><th>Email</th><th>Phone</th>
           <th>Package</th><th>Start Date</th><th>Status</th><th>Portal Pass</th><th>Actions</th>
         </tr></thead>
-        <tbody id="tbl-body"><tr><td colspan="9" class="empty-row">Loading...</td></tr></tbody>
+        <tbody id="tbl-body"><tr><td colspan="10" class="empty-row">Loading...</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -693,7 +693,7 @@ async function renderTable(){
     return true;
   });
   var tbody=document.getElementById('tbl-body');
-  if(!arr.length){tbody.innerHTML='<tr><td colspan="9" class="empty-row">No clients found.</td></tr>';return;}
+  if(!arr.length){tbody.innerHTML='<tr><td colspan="10" class="empty-row">No clients found.</td></tr>';return;}
   var bmap={Active:'badge-green',Pending:'badge-gold',Completed:'badge-blue',Cancelled:'badge-red'};
   tbody.innerHTML=arr.map(function(c){
     return '<tr>'+
@@ -703,6 +703,13 @@ async function renderTable(){
       '<td style="font-size:12px;">'+esc(c.phone||'')+'</td>'+
       '<td style="font-size:12px;">'+esc(c.package||'')+'</td>'+
       '<td style="font-size:12px;">'+(c.startDate?fmtDate(c.startDate):'')+'</td>'+
+      '<td id="ana-'+esc(c.id)+'"><select style="font-size:11px;padding:3px 5px;border:1px solid #E2E8F0;border-radius:4px;max-width:130px;" data-clientid="'+esc(c.id)+'" class="analyst-sel">'+
+        '<option value="">'+(c.assigned_to||'— Assign —')+'</option>'+
+        '<option value="Marcelo Torres"'+(c.assigned_to==='Marcelo Torres'?' selected':'')+'>Marcelo Torres</option>'+
+        '<option value="Kimwell Ablaza"'+(c.assigned_to==='Kimwell Ablaza'?' selected':'')+'>Kimwell Ablaza</option>'+
+        '<option value="Annabel Curada"'+(c.assigned_to==='Annabel Curada'?' selected':'')+'>Annabel Curada</option>'+
+        '<option value="Queen Cruz"'+(c.assigned_to==='Queen Cruz'?' selected':'')+'>Queen Cruz</option>'+
+      '</select></td>'+
       '<td><span class="badge '+(bmap[c.status||'Active']||'badge-gray')+'">'+(c.status||'Active')+'</span></td>'+
       '<td style="font-family:monospace;font-size:11px;">'+esc(c.portalPwd||'restore2026')+'</td>'+
       '<td><div style="display:flex;gap:5px;">'+
@@ -1214,6 +1221,15 @@ async function assignAnalyst(clientId, analyst) {
   } catch(e) { alert('Error: '+e.message); }
 }
 
+
+// Analyst dropdown delegation
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.classList.contains('analyst-sel')) {
+    var clientId = e.target.getAttribute('data-clientid');
+    var analyst = e.target.value;
+    if (clientId && analyst) assignAnalyst(clientId, analyst);
+  }
+});
 </script>
 </body>
 </html>
