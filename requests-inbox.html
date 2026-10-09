@@ -254,8 +254,8 @@ async function loadRequests(){
 
 
 function updateStats(){
-  var ps=allRequests.filter(function(r){return r.type==='status'&&!r.done;}).length;
-  var pr=allRequests.filter(function(r){return r.type==='refund'&&!r.done;}).length;
+  var ps=allRequests.filter(function(r){return normalizeType(r.type)==='status'&&!r.done;}).length;
+  var pr=allRequests.filter(function(r){return normalizeType(r.type)==='refund'&&!r.done;}).length;
   var dt=allRequests.filter(function(r){return r.done&&new Date(r.date).toDateString()===new Date().toDateString();}).length;
   document.getElementById('stat-status').textContent=ps;
   document.getElementById('stat-refund').textContent=pr;
@@ -361,7 +361,7 @@ async function markComplete(gi,type){
   var note='\n'+tag+new Date().toLocaleString()+']: '+(outcome||'Completed')+( resolution?' | Notes: '+resolution:'');
   req.client.notes=(req.client.notes||'')+note;
   try{
-    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(req.client.id),{
+    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent((req.client&&req.client.id)||req.clientId||''),{
       method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
       body:JSON.stringify({notes:req.client.notes,updated_at:new Date().toISOString()})
     });
@@ -370,13 +370,13 @@ async function markComplete(gi,type){
 }
 
 async function sendDecisionEmail(req,approved,notes){
-  if(!req.client.email) return;
+  var _ce = (req.client&&req.client.email)||req.clientEmail||''; if(!_ce) return;
   var subject='Your Refund Request — Decision from CP Restoration Services';
   var body=approved?
-    'Dear '+req.client.name+',\n\nAfter reviewing your file, CP Restoration Services has approved your refund request.\n\n'+notes+'\n\nPlease allow 5-7 business days for processing.\n\nCP Restoration Services\n1-855-327-5847':
-    'Dear '+req.client.name+',\n\nAfter a thorough review of your file, your refund request does not qualify at this time.\n\n'+notes+'\n\nIf you have questions please call 1-855-327-5847 or message us through your portal.\n\nCP Restoration Services\n1-855-327-5847';
+    'Dear '+(req.client&&req.client.name||req.clientName||'Valued Client')+',\n\nAfter reviewing your file, CP Restoration Services has approved your refund request.\n\n'+notes+'\n\nPlease allow 5-7 business days for processing.\n\nCP Restoration Services\n1-855-327-5847':
+    'Dear '+(req.client&&req.client.name||req.clientName||'Valued Client')+',\n\nAfter a thorough review of your file, your refund request does not qualify at this time.\n\n'+notes+'\n\nIf you have questions please call 1-855-327-5847 or message us through your portal.\n\nCP Restoration Services\n1-855-327-5847';
   await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({personalizations:[{to:[{email:req.client.email,name:req.client.name}]}],
+    body:JSON.stringify({personalizations:[{to:[{email:(req.client&&req.client.email)||req.clientEmail||'',name:(req.client&&req.client.name)||req.clientName||'Client'}]}],
       from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
       subject:subject,content:[{type:'text/plain',value:body}]})
   });
