@@ -441,6 +441,12 @@ function doLogin() {
     window.location.href = 'dispute-center.html';
     return;
   }
+  // Sales reps go directly to sales dashboard
+  if (emp.role==='sales') {
+    trackSession(emp);
+    window.location.href = 'sales-dashboard.html';
+    return;
+  }
   trackSession(emp);
   loadDashboard();
   // Show dispute quick links if dispute role
