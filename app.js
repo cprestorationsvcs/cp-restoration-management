@@ -376,6 +376,8 @@ function showPage(name) {
   if (name==='broadcast') { if (typeof updateBCAudience   ==='function') updateBCAudience(); }
   if (name==='payroll')   { if (typeof renderPayrollTable ==='function') renderPayrollTable(); }
   if (name==='accounting'){ if (typeof renderAccountingPage==='function') renderAccountingPage(); }
+  if (name==='disputes')  { loadDisputesTable(); }
+  if (name==='sales')     { loadSalesData(); }
 }
 
 // ── MODAL ──────────────────────────────────────────────────────────
@@ -962,4 +964,101 @@ async function loadDisputesTable() {
     var tbody2 = document.getElementById('disputes-table');
     if (tbody2) tbody2.innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;padding:32px;">Error loading disputes: ' + e.message + '</td></tr>';
   }
+}
+
+// ── SALES PAGE ───────────────────────────────────────────────────
+var _salesPeriod = 'month';
+function setSalesPeriod(period) {
+  _salesPeriod = period;
+  document.querySelectorAll('.sales-period-btn').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('sp-'+period);
+  if (btn) btn.classList.add('active');
+  loadSalesData();
+}
+
+async function loadSalesData() {
+  try {
+    var now = new Date();
+    var from;
+    if (_salesPeriod==='day') from = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    else if (_salesPeriod==='week') { var d=now.getDay(); from = new Date(now - d*86400000); }
+    else from = new Date(now.getFullYear(),now.getMonth(),1);
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients?start_date=gte.'+from.toISOString().split('T')[0]+'&select=id,name,package,start_date,referred_by', {
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var clients = await r.json();
+    if (!Array.isArray(clients)) clients = [];
+    var el = document.getElementById('sales-summary');
+    if (el) el.textContent = clients.length + ' new clients in this period';
+  } catch(e) { console.error('Sales data error:', e); }
+}
+
+function showSalesTab(tab) {
+  document.querySelectorAll('.sales-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.sales-tab-pane').forEach(function(p){ p.style.display='none'; });
+  var pane = document.getElementById('sales-tab-'+tab);
+  if (pane) pane.style.display='block';
+  var btns = document.querySelectorAll('[onclick*="showSalesTab"]');
+  btns.forEach(function(b){ if ((b.getAttribute('onclick')||'').includes("'"+tab+"'")) b.classList.add('active'); });
+  if (tab==='rep') loadSalesRep();
+  if (tab==='leads') loadLeadTracker();
+  if (tab==='diallog') loadDialLog();
+}
+
+async function loadSalesRep() {
+  var el = document.getElementById('sales-rep-table');
+  if (!el) return;
+  el.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--gray);">Loading...</td></tr>';
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients?select=referred_by,package&limit=500', {
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var clients = await r.json();
+    if (!Array.isArray(clients)) { el.innerHTML='<tr><td colspan="4">No data.</td></tr>'; return; }
+    var reps = {};
+    clients.forEach(function(c) {
+      var rep = c.referred_by || 'Unassigned';
+      if (!reps[rep]) reps[rep] = {count:0};
+      reps[rep].count++;
+    });
+    el.innerHTML = Object.entries(reps).sort(function(a,b){return b[1].count-a[1].count;}).map(function(e){
+      return '<tr><td>'+e[0]+'</td><td>'+e[1].count+'</td><td>—</td><td>—</td></tr>';
+    }).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;">No rep data found.</td></tr>';
+  } catch(e) { el.innerHTML='<tr><td colspan="4" style="color:red;">Error: '+e.message+'</td></tr>'; }
+}
+
+async function loadLeadTracker() {
+  var el = document.getElementById('lead-tracker-list');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--gray);padding:20px;text-align:center;">Loading leads...</div>';
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/leads?order=created_at.desc&limit=100', {
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var leads = await r.json();
+    if (!Array.isArray(leads) || !leads.length) { el.innerHTML='<div style="color:var(--gray);padding:20px;text-align:center;">No leads found.</div>'; return; }
+    el.innerHTML = leads.map(function(l){
+      return '<div style="padding:10px;border-bottom:1px solid var(--border);font-size:13px;">'+
+        '<strong>'+(l.name||l.first_name||'Unknown')+'</strong> — '+(l.email||'')+'<br>'+
+        '<span style="color:var(--gray);font-size:11px;">'+(l.source||'')+'  '+(l.created_at?new Date(l.created_at).toLocaleDateString():'')+'</span></div>';
+    }).join('');
+  } catch(e) { el.innerHTML='<div style="color:red;padding:20px;">Error: '+e.message+'</div>'; }
+}
+
+async function loadDialLog() {
+  var el = document.getElementById('dial-log-list');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--gray);padding:20px;text-align:center;">Loading dial log...</div>';
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/call_log?order=created_at.desc&limit=100', {
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var calls = await r.json();
+    if (!Array.isArray(calls) || !calls.length) { el.innerHTML='<div style="color:var(--gray);padding:20px;text-align:center;">No calls logged yet.</div>'; return; }
+    el.innerHTML = calls.map(function(c){
+      return '<div style="padding:10px;border-bottom:1px solid var(--border);font-size:13px;">'+
+        '<strong>'+(c.contact_name||c.client_name||'Unknown')+'</strong> — '+(c.outcome||c.status||'Called')+'<br>'+
+        '<span style="color:var(--gray);font-size:11px;">'+(c.agent||c.rep||'')+'  '+(c.created_at?new Date(c.created_at).toLocaleDateString():'')+'</span></div>';
+    }).join('');
+  } catch(e) { el.innerHTML='<div style="color:red;padding:20px;">Error: '+e.message+'</div>'; }
 }
