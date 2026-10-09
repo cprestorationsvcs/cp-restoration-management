@@ -178,7 +178,7 @@ function render() {
 
 function showDetail(i) {
   var d = allData[i];
-  document.getElementById('m-name').textContent = (d.firstName||d.name||d.source||'Unknown');
+  document.getElementById('m-name').textContent = ((d.firstName||'') + ' ' + (d.lastName||'')).trim() || 'Unknown';
   document.getElementById('m-body').innerHTML =
     field('Work Email', d.workEmail) +
     field('Personal Email', d.email) +
