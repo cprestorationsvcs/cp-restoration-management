@@ -74,10 +74,14 @@ header a{color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;}
   <div class="conn" id="conn-status">Connecting...</div>
 </div>
 
-<div style="padding:8px 12px;background:#F8FAFC;border-bottom:1.5px solid #E2E8F0;">
-  <input type="text" id="chat-search" placeholder="&#128269; Search messages..." 
+<div style="padding:8px 12px;background:#EFF6FF;border-bottom:2px solid #BFDBFE;display:flex;gap:8px;align-items:center;">
+  <span style="font-size:14px;">&#128269;</span>
+  <input type="text" id="chat-search" placeholder="Search messages, names, keywords..." 
     oninput="searchMessages(this.value)"
-    style="width:100%;padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;background:white;outline:none;">
+    style="flex:1;padding:7px 12px;border:1.5px solid #BFDBFE;border-radius:8px;font-size:13px;font-family:inherit;background:white;outline:none;">
+  <span id="search-count" style="font-size:11px;color:#1B3A6B;font-weight:700;display:none;"></span>
+  <button onclick="document.getElementById('chat-search').value='';searchMessages('');document.getElementById('search-count').style.display='none';" 
+    id="search-clear" style="display:none;background:#1B3A6B;color:white;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;">Clear</button>
 </div>
 <div id="messages"></div>
 
@@ -201,11 +205,13 @@ async function loadMessages(initial) {
       var empty=document.querySelector('.empty-chat');
       if(empty)empty.remove();
     });
-    // Only auto-scroll if user is already near the bottom (within 150px)
+    // Auto-scroll logic: never interrupt user when they are scrolling up
     var c=document.getElementById('messages');
     var isNearBottom = (c.scrollHeight - c.scrollTop - c.clientHeight) < 150;
-    if (isNearBottom || initial) {
-      c.scrollTop=c.scrollHeight;
+    if (initial) {
+      c.scrollTop = c.scrollHeight;
+    } else if (!userScrolling && isNearBottom) {
+      c.scrollTop = c.scrollHeight;
     }
   } catch(e){showStatus('Network error: '+e.message,'error');}
 }
@@ -384,16 +390,41 @@ function searchMessages(query) {
   var container = document.getElementById('messages');
   if (!container) return;
   var q = (query||'').toLowerCase().trim();
-  Array.from(container.children).forEach(function(el) {
-    if (!q) { el.style.display=''; return; }
-    var text = (el.textContent||el.innerText||'').toLowerCase();
-    el.style.display = text.includes(q) ? '' : 'none';
-  });
-  // Highlight count
-  var visible = Array.from(container.children).filter(function(el){ return el.style.display!=='none'; }).length;
+  var countEl = document.getElementById('search-count');
+  var clearBtn = document.getElementById('search-clear');
   var srch = document.getElementById('chat-search');
-  if (srch && q) srch.style.borderColor = visible > 0 ? '#166534' : '#8B1A1A';
-  else if (srch) srch.style.borderColor = '#E2E8F0';
+
+  if (!q) {
+    Array.from(container.children).forEach(function(el){ el.style.display=''; });
+    if (countEl) countEl.style.display='none';
+    if (clearBtn) clearBtn.style.display='none';
+    if (srch) srch.style.borderColor='#BFDBFE';
+    userScrolling = false;
+    return;
+  }
+
+  // Pause auto-scroll while searching
+  userScrolling = true;
+
+  var visible = 0;
+  Array.from(container.children).forEach(function(el) {
+    var text = (el.textContent||el.innerText||'').toLowerCase();
+    var match = text.includes(q);
+    el.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+
+  if (countEl) {
+    countEl.textContent = visible + ' result' + (visible===1?'':'s');
+    countEl.style.display = 'inline';
+    countEl.style.color = visible > 0 ? '#166534' : '#8B1A1A';
+  }
+  if (clearBtn) clearBtn.style.display = 'inline';
+  if (srch) srch.style.borderColor = visible > 0 ? '#166534' : '#8B1A1A';
+
+  // Scroll to first match
+  var first = Array.from(container.children).find(function(el){ return el.style.display!=='none'; });
+  if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
 }
 </script>
 </body>
