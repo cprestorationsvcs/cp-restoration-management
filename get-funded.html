@@ -288,8 +288,8 @@ async function submitFundingLead() {
       })
     });
   } catch(e) { console.log(e); }
-  document.getElementById('funding-form').style.display='none';
-  document.getElementById('funding-success').style.display='block';
+  // Redirect to thank you page
+  window.location.href = '/thank-you-funded.html';
 }
 </script>
 </body>
