@@ -572,26 +572,36 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
 // ── STORAGE ───────────────────────────────────────────────────────
 var KEY = 'cp_clients_v2';
 var SUPA_API='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients';
-var SUPA_KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'.join('.');
 var _clientCache=null,_cacheTime=0;
 
 async function dbGetClients(searchTerm) {
-  // If no search term, return cache or load first 100
   if (!searchTerm && _clientCache && (Date.now()-_cacheTime)<30000) return _clientCache;
+  var key = Array.isArray(SUPA_KEY) ? SUPA_KEY.join('') : SUPA_KEY;
+  var hdrs = {'Content-Type':'application/json','apikey':key,'Authorization':'Bearer '+key};
   try {
-    var url = SUPA_API + '?select=*&order=name.asc&limit=100';
+    var data = [];
     if (searchTerm && searchTerm.length >= 2) {
       var s = encodeURIComponent(searchTerm);
-      url = SUPA_API + '?select=*&or=(name.ilike.*'+s+'*,id.ilike.*'+s+'*,email.ilike.*'+s+'*,phone.ilike.*'+s+'*)&order=name.asc&limit=50';
+      var url = SUPA_API + '?select=*&or=(name.ilike.*'+s+'*,id.ilike.*'+s+'*,email.ilike.*'+s+'*,phone.ilike.*'+s+'*)&order=name.asc&limit=500';
+      var resp = await fetch(url, {headers:hdrs});
+      if (!resp.ok) throw new Error('HTTP '+resp.status);
+      data = await resp.json();
+      if (!Array.isArray(data)) throw new Error('Bad response');
+    } else {
+      // Paginate — load ALL clients
+      var pageSize=1000, offset=0, fetching=true;
+      while(fetching) {
+        var url = SUPA_API+'?select=*&order=name.asc&limit='+pageSize+'&offset='+offset;
+        var resp = await fetch(url, {headers:hdrs});
+        if (!resp.ok) throw new Error('HTTP '+resp.status);
+        var page = await resp.json();
+        if (!Array.isArray(page)) throw new Error('Bad response');
+        data = data.concat(page);
+        if (page.length < pageSize) fetching=false;
+        else offset += pageSize;
+      }
     }
-    var resp = await fetch(url, {
-      headers: {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-    });
-    if (!resp.ok) throw new Error('HTTP '+resp.status);
-    var data = await resp.json();
-    if (!Array.isArray(data)) throw new Error('Bad response');
-    // Always keep last results so openView can find any client
-    _clientCache = data; _cacheTime = Date.now();
     var clients = data.map(function(row){
       return {
         id: row.id||'', name: row.name||'', email: row.email||'',
@@ -603,13 +613,13 @@ async function dbGetClients(searchTerm) {
         portalPwd: row.portal_pwd||'restore2026',
         assignedEmail: row.assigned_email||'',
         salesAgent: row.sales_agent||'',
+        assigned_to: row.assigned_to||'',
         notes: row.notes||'',
         disputes: row.disputes||'',
         bureauLogins: row.bureau_logins||{},
         docs: row.docs||{}
       };
     });
-    // Add any local-only clients
     var local = getClientsLocal ? getClientsLocal() : [];
     local.forEach(function(lc){
       if (!clients.find(function(c){return c.id===lc.id;})) clients.push(lc);
@@ -618,7 +628,6 @@ async function dbGetClients(searchTerm) {
     return clients;
   } catch(e) {
     console.error('Supabase error:', e);
-    toast('Search error: '+e.message, 'err');
     return _clientCache || (getClientsLocal ? getClientsLocal() : []);
   }
 }
