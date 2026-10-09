@@ -194,13 +194,89 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
         <option value="Inquiries Only">Inquiries Only</option>
       </select>
       <label style="font-size:11px;color:#64748B;font-weight:600;align-self:center;white-space:nowrap;">Start Date:</label>
-      <input type="date" id="srch-date-from" onchange="renderTable()" 
-        style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;background:white;"
-        title="From date">
+      <select id="srch-date-from" onchange="renderTable()" style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;background:white;">
+        <option value="">From Month</option>
+        <option value="2024-01">Jan 2024</option>
+        <option value="2024-02">Feb 2024</option>
+        <option value="2024-03">Mar 2024</option>
+        <option value="2024-04">Apr 2024</option>
+        <option value="2024-05">May 2024</option>
+        <option value="2024-06">Jun 2024</option>
+        <option value="2024-07">Jul 2024</option>
+        <option value="2024-08">Aug 2024</option>
+        <option value="2024-09">Sep 2024</option>
+        <option value="2024-10">Oct 2024</option>
+        <option value="2024-11">Nov 2024</option>
+        <option value="2024-12">Dec 2024</option>
+        <option value="2025-01">Jan 2025</option>
+        <option value="2025-02">Feb 2025</option>
+        <option value="2025-03">Mar 2025</option>
+        <option value="2025-04">Apr 2025</option>
+        <option value="2025-05">May 2025</option>
+        <option value="2025-06">Jun 2025</option>
+        <option value="2025-07">Jul 2025</option>
+        <option value="2025-08">Aug 2025</option>
+        <option value="2025-09">Sep 2025</option>
+        <option value="2025-10">Oct 2025</option>
+        <option value="2025-11">Nov 2025</option>
+        <option value="2025-12">Dec 2025</option>
+        <option value="2026-01">Jan 2026</option>
+        <option value="2026-02">Feb 2026</option>
+        <option value="2026-03">Mar 2026</option>
+        <option value="2026-04">Apr 2026</option>
+        <option value="2026-05">May 2026</option>
+        <option value="2026-06">Jun 2026</option>
+        <option value="2026-07">Jul 2026</option>
+        <option value="2026-08">Aug 2026</option>
+        <option value="2026-09">Sep 2026</option>
+        <option value="2026-10">Oct 2026</option>
+        <option value="2026-11">Nov 2026</option>
+        <option value="2026-12">Dec 2026</option>
+      </select>
       <span style="font-size:12px;color:#64748B;align-self:center;">—</span>
-      <input type="date" id="srch-date-to" onchange="renderTable()" 
-        style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;background:white;"
-        title="To date">
+      <select id="srch-date-to" onchange="renderTable()" style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;background:white;">
+        <option value="">To Month</option>
+        <option value="2024-01">Jan 2024</option>
+        <option value="2024-02">Feb 2024</option>
+        <option value="2024-03">Mar 2024</option>
+        <option value="2024-04">Apr 2024</option>
+        <option value="2024-05">May 2024</option>
+        <option value="2024-06">Jun 2024</option>
+        <option value="2024-07">Jul 2024</option>
+        <option value="2024-08">Aug 2024</option>
+        <option value="2024-09">Sep 2024</option>
+        <option value="2024-10">Oct 2024</option>
+        <option value="2024-11">Nov 2024</option>
+        <option value="2024-12">Dec 2024</option>
+        <option value="2025-01">Jan 2025</option>
+        <option value="2025-02">Feb 2025</option>
+        <option value="2025-03">Mar 2025</option>
+        <option value="2025-04">Apr 2025</option>
+        <option value="2025-05">May 2025</option>
+        <option value="2025-06">Jun 2025</option>
+        <option value="2025-07">Jul 2025</option>
+        <option value="2025-08">Aug 2025</option>
+        <option value="2025-09">Sep 2025</option>
+        <option value="2025-10">Oct 2025</option>
+        <option value="2025-11">Nov 2025</option>
+        <option value="2025-12">Dec 2025</option>
+        <option value="2026-01">Jan 2026</option>
+        <option value="2026-02">Feb 2026</option>
+        <option value="2026-03">Mar 2026</option>
+        <option value="2026-04">Apr 2026</option>
+        <option value="2026-05">May 2026</option>
+        <option value="2026-06">Jun 2026</option>
+        <option value="2026-07">Jul 2026</option>
+        <option value="2026-08">Aug 2026</option>
+        <option value="2026-09">Sep 2026</option>
+        <option value="2026-10">Oct 2026</option>
+        <option value="2026-11">Nov 2026</option>
+        <option value="2026-12">Dec 2026</option>
+      </select>
+      <select id="srch-sort" onchange="renderTable()" style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;background:white;">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
       <select id="srch-analyst" onchange="renderTable()" style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:13px;font-family:inherit;background:white;">
         <option value="">All Analysts</option>
         <option value="Marcelo Torres">Marcelo Torres</option>
@@ -703,13 +779,19 @@ async function renderTable(){
     if(pk&&(c.package||'')!==pk) return false;
     var sdFrom = gv('srch-date-from');
     var sdTo = gv('srch-date-to');
-    if(sdFrom && (c.startDate||'') < sdFrom) return false;
-    if(sdTo && (c.startDate||'') > sdTo) return false;
+    if(sdFrom && (c.startDate||'').substring(0,7) < sdFrom) return false;
+    if(sdTo && (c.startDate||'').substring(0,7) > sdTo) return false;
     if(an){
       if(an==='Unassigned'&&(c.assigned_to||'')) return false;
       if(an!=='Unassigned'&&(c.assigned_to||'')!==an) return false;
     }
     return true;
+  });
+  // Sort by start date
+  var sortDir = gv('srch-sort') || 'newest';
+  arr.sort(function(a,b){
+    var da = a.startDate||''; var db = b.startDate||'';
+    return sortDir==='oldest' ? da.localeCompare(db) : db.localeCompare(da);
   });
   var tbody=document.getElementById('tbl-body');
   if(!arr.length){tbody.innerHTML='<tr><td colspan="10" class="empty-row">No clients found.</td></tr>';return;}
