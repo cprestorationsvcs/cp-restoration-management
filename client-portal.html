@@ -1066,7 +1066,7 @@ async function loadPortalMessages() {
       var name = isClient ? 'You' : (m.from_name || 'CP Restoration Team');
       wrap.innerHTML =
         '<div class="msg-meta">' + escPortal(name) + ' &bull; ' + time + '</div>' +
-        '<div class="msg-bbl">' + escPortal(m.message || '') + '</div>';
+        '<div class="msg-bbl" style="white-space:pre-wrap;word-break:break-word;">' + escPortal(m.message || '') + '</div>';
       thread.appendChild(wrap);
     });
 
@@ -1093,7 +1093,7 @@ async function loadPortalStatusUpdates() {
           '<span style="font-size:12px;font-weight:700;color:'+color+';">'+icon+' '+(u.update_type||'Update').toUpperCase()+'</span>' +
           '<span style="font-size:11px;color:#94A3B8;">'+time+'</span>' +
         '</div>' +
-        '<div style="font-size:13px;color:#1E293B;line-height:1.6;">'+escPortal(u.update_text||'')+'</div>' +
+        '<div style="font-size:13px;color:#1E293B;line-height:1.6;white-space:pre-wrap;">'+escPortal(u.update_type==='message'?'New message — check your message thread above':u.update_text||'')+'</div>' +
       '</div>';
     }).join('');
   } catch(e) { console.log('loadPortalStatusUpdates:', e.message); }
