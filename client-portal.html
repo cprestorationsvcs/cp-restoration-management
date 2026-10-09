@@ -607,7 +607,7 @@ function doLogout() {
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────
-function showPage(name, silent) {
+async function showPage(name, silent) {
   document.querySelectorAll('.page').forEach(function(p){ p.style.display='none'; p.classList.remove('active'); });
   document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
   var el = document.getElementById('page-'+name);
@@ -619,11 +619,29 @@ function showPage(name, silent) {
   if(!silent){
     if(name==='disputes') {
       // Use already-loaded disputes first (instant display)
-      if(!currentDisputes.length && currentClient) {
-        var cd = currentClient.disputes || [];
-        if(Array.isArray(cd) && cd.length) currentDisputes = cd;
-        if(!currentDisputes.length && currentClient.notes) {
-          try { currentDisputes = parseNotesToDisputes(currentClient.notes); } catch(e){}
+      if(currentClientId) {
+        try {
+          var _sk = _PORTAL_KEY;
+          var _durl = _PORTAL_SUPA + '/disputes?client_id=eq.' + encodeURIComponent(currentClientId) + '&status=eq.Filed&order=filed_at.desc&limit=100';
+          var _dr = await fetch(_durl, {headers:{'apikey':_sk,'Authorization':'Bearer '+_sk}});
+          var _dd = await _dr.json();
+          if(Array.isArray(_dd) && _dd.length) {
+            currentDisputes = _dd.map(function(d){
+              return {
+                name: d.notes || d.bureaus || 'Dispute Item',
+                bureau: d.bureaus || 'All Bureaus',
+                status: 'filed',
+                date: d.filed_at ? d.filed_at.split('T')[0] : '',
+                specialist: d.specialist || ''
+              };
+            });
+          } else if(currentClient && currentClient.notes) {
+            try { currentDisputes = parseNotesToDisputes(currentClient.notes); } catch(e){}
+          }
+        } catch(e) {
+          if(currentClient && currentClient.notes) {
+            try { currentDisputes = parseNotesToDisputes(currentClient.notes); } catch(e2){}
+          }
         }
       }
       // Then refresh from Supabase in background
@@ -1087,7 +1105,7 @@ async function loadPortalMessages() {
       var name = isClient ? 'You' : (m.from_name || 'CP Restoration Team');
       wrap.innerHTML =
         '<div class="msg-meta">' + escPortal(name) + ' &bull; ' + time + '</div>' +
-        '<div class="msg-bbl" style="white-space:pre-wrap;word-break:break-word;">' + escPortal(m.message || '') + '</div>';
+        '<div class="msg-bbl" style="white-space:pre-wrap;word-break:break-word;">' + escPortal(m.message || '').replace(/\n/g,'<br>') + '</div>';
       thread.appendChild(wrap);
     });
 
@@ -1098,7 +1116,7 @@ async function loadPortalMessages() {
 async function loadPortalStatusUpdates() {
   if (!currentClientId) return;
   try {
-    var r = await fetch(_MSG_SUPA+'/client_status_updates?client_id=eq.'+encodeURIComponent(currentClientId)+'&limit=10', {headers:_MSG_HDR});
+    var r = await fetch(_MSG_SUPA+'/client_status_updates?client_id=eq.'+encodeURIComponent(currentClientId)+'&update_type=neq.message&update_type=neq.cs_message&order=created_at.desc&limit=20', {headers:_MSG_HDR});
     var updates = await r.json();
     if (!Array.isArray(updates) || !updates.length) return;
     var container = document.getElementById('status-updates-list');
