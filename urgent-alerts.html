@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🚨 Urgent Alerts — CP Restoration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:#F1F5F9;min-height:100vh;}
+header{background:#8B1A1A;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+header h1{color:white;font-size:16px;font-weight:800;letter-spacing:.3px;}
+.pulse{display:inline-block;width:12px;height:12px;background:#FF4444;border-radius:50%;animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.4);opacity:.7;}}
+.container{max-width:900px;margin:0 auto;padding:20px;}
+.page-title{font-size:22px;font-weight:800;color:#8B1A1A;margin-bottom:6px;}
+.page-sub{font-size:13px;color:#64748B;margin-bottom:20px;}
+.alert-card{background:white;border-radius:12px;border-left:5px solid #8B1A1A;padding:18px 20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.alert-card.critical{border-left-color:#8B1A1A;}
+.alert-card.high{border-left-color:#C9A84C;}
+.alert-card.medium{border-left-color:#1B3A6B;}
+.alert-card.express{border-left-color:#7C3AED;}
+.alert-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.alert-name{font-size:16px;font-weight:800;color:#1E293B;}
+.alert-id{font-size:12px;color:#64748B;font-weight:600;margin-top:2px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.badge-critical{background:#FECACA;color:#8B1A1A;}
+.badge-high{background:#FEF3C7;color:#92400E;}
+.badge-medium{background:#DBEAFE;color:#1B3A6B;}
+.badge-express{background:#EDE9FE;color:#7C3AED;}
+.badge-resolved{background:#DCFCE7;color:#166534;}
+.deadline{font-size:12px;font-weight:700;color:#8B1A1A;background:#FECACA;padding:3px 10px;border-radius:20px;}
+.dept-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.dept-tag{display:flex;align-items:center;gap:5px;background:#F1F5F9;border:1.5px solid #E2E8F0;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;color:#1E293B;}
+.dept-tag .dot{width:8px;height:8px;border-radius:50%;}
+.dot-cs{background:#1B3A6B;}
+.dot-dispute{background:#166534;}
+.dot-bureau{background:#7C3AED;}
+.dot-mgmt{background:#8B1A1A;}
+.status-section{margin-bottom:12px;}
+.status-label{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.status-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#374151;margin-bottom:5px;line-height:1.5;}
+.status-item .icon{flex-shrink:0;margin-top:1px;}
+.action-section{background:#F8FAFC;border-radius:8px;padding:12px 14px;margin-bottom:12px;}
+.action-title{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.action-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#1E293B;margin-bottom:6px;font-weight:500;}
+.action-item input[type=checkbox]{margin-top:2px;accent-color:#1B3A6B;width:15px;height:15px;flex-shrink:0;cursor:pointer;}
+.action-item.done label{text-decoration:line-through;color:#94A3B8;}
+.resolve-btn{padding:8px 18px;background:#166534;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;}
+.resolve-btn:hover{background:#14532D;}
+.notes-area{width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;min-height:60px;margin-top:8px;}
+.resolved-banner{background:#DCFCE7;border:1.5px solid #86EFAC;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534;font-weight:600;display:none;margin-top:8px;}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.filter-btn{padding:6px 14px;border-radius:20px;border:1.5px solid #E2E8F0;background:white;font-size:12px;font-weight:600;cursor:pointer;color:#64748B;}
+.filter-btn.active{background:#1B3A6B;color:white;border-color:#1B3A6B;}
+.empty{text-align:center;padding:40px;color:#94A3B8;font-size:14px;}
+.last-updated{font-size:11px;color:#94A3B8;margin-top:4px;}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="pulse"></span>
+  <h1>🚨 CP Restoration — Urgent Client Alerts</h1>
+</header>
+
+<div class="container">
+  <div class="page-title">Active Urgent Alerts</div>
+  <div class="page-sub">Alerts stay active until resolved. Check off actions as completed. Resolve only when the client issue is fully handled.</div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterAlerts('all')">All Alerts</button>
+    <button class="filter-btn" onclick="filterAlerts('cs')">CS Dept</button>
+    <button class="filter-btn" onclick="filterAlerts('dispute')">Dispute Dept</button>
+    <button class="filter-btn" onclick="filterAlerts('bureau')">Bureau Caller</button>
+    <button class="filter-btn" onclick="filterAlerts('resolved')">Resolved</button>
+  </div>
+
+  <div id="alerts-container"></div>
+</div>
+
+<script>
+var ALERTS = [
+  {
+    id: 'mombasa-gwada',
+    name: 'Mombasa Gwada',
+    clientId: 'CPR-CP17493',
+    priority: 'critical',
+    badge: 'CRITICAL',
+    deadline: 'DEADLINE: Sun Oct 12',
+    depts: ['cs','dispute','mgmt'],
+    status: [
+      '⚠️ Client threatening $2,000 refund if work not completed by Oct 12.',
+      '📋 Alec (CS) made contact — client had bureau login issues, was told to call bureaus and get back to us.',
+      '📋 Annabel (Disputes) assigned — waiting on bureau logins from client.',
+      '❌ 0 disputes filed so far — portal shows 0 items, 0% complete after 22 days.'
+    ],
+    actions: [
+      {id:'mg-1', dept:'cs', text:'Follow up with Mombasa — did he call the bureaus? Get login credentials TODAY.', done:false},
+      {id:'mg-2', dept:'cs', text:'Post status update to client portal confirming we are working on his file.', done:false},
+      {id:'mg-3', dept:'dispute', text:'Once logins received — file disputes IMMEDIATELY. All 3 bureaus.', done:false},
+      {id:'mg-4', dept:'mgmt', text:'Jason review — if logins not received by Sunday, discuss refund or extension with client.', done:false}
+    ],
+    resolved: false,
+    notes: ''
+  },
+  {
+    id: 'darrell-green',
+    name: 'Darrell Green',
+    clientId: '',
+    priority: 'high',
+    badge: 'HIGH',
+    deadline: 'Follow up Mon Oct 13',
+    depts: ['cs','mgmt'],
+    status: [
+      '📞 Call went to voicemail — client says he is in the hospital.',
+      '💰 Refund request pending — needs follow up call.'
+    ],
+    actions: [
+      {id:'dg-1', dept:'cs', text:'Call Darrell Green Monday morning — check on his status and address refund request.', done:false},
+      {id:'dg-2', dept:'mgmt', text:'Jason decide on refund resolution once contact is made.', done:false}
+    ],
+    resolved: false,
+    notes: ''
+  },
+  {
+    id: 'quantrell-turner',
+    name: 'Quantrell Turner',
+    clientId: 'CPR-CP17481',
+    priority: 'high',
+    badge: 'HIGH',
+    deadline: 'Status update Mon Oct 13',
+    depts: ['cs','dispute'],
+    status: [
+      '✅ Elna retrieved bureau logins and set up Proton email.',
+      '✅ Disputes filed by Marcelo — went out successfully.',
+      '❌ Status update NOT reflecting in client portal — needs fix.'
+    ],
+    actions: [
+      {id:'qt-1', dept:'cs', text:'Push status update to client portal confirming disputes were filed.', done:false},
+      {id:'qt-2', dept:'cs', text:'Contact Quantrell to confirm he can see updates in his portal.', done:false}
+    ],
+    resolved: false,
+    notes: ''
+  },
+  {
+    id: 'joseph-rea',
+    name: 'Joseph Lee Rea',
+    clientId: 'CPR-CP16412',
+    priority: 'medium',
+    badge: 'PENDING',
+    deadline: 'Retry Mon Oct 13',
+    depts: ['cs','dispute','bureau'],
+    status: [
+      '✅ Elna updated TransUnion logins — Proton default change done.',
+      '❌ Kimwell had problems logging in when he tried — bureau access issue.',
+      '🔄 Retry Monday.'
+    ],
+    actions: [
+      {id:'jr-1', dept:'bureau', text:'Kimwell retry TransUnion login Monday — call bureau if still having issues.', done:false},
+      {id:'jr-2', dept:'dispute', text:'Once login confirmed, file disputes for Joseph Rea.', done:false},
+      {id:'jr-3', dept:'cs', text:'Post status update to client portal after disputes filed.', done:false}
+    ],
+    resolved: false,
+    notes: ''
+  },
+  {
+    id: 'janeele-anderson',
+    name: 'Janeele Anderson',
+    clientId: '',
+    priority: 'express',
+    badge: 'EXPRESS',
+    deadline: 'Action Mon Oct 13',
+    depts: ['cs','dispute'],
+    status: [
+      '⚡ EXPRESS client — priority handling required.',
+      '📋 Dispute department needs to post status update Monday.',
+      '📱 CS needs to push client to login to client portal.'
+    ],
+    actions: [
+      {id:'ja-1', dept:'dispute', text:'Post status update on Janeele's file Monday — include all work completed.', done:false},
+      {id:'ja-2', dept:'cs', text:'Contact Janeele Monday — push her to login to client portal and review her updates.', done:false}
+    ],
+    resolved: false,
+    notes: ''
+  }
+];
+
+// Load saved state from localStorage
+function loadState() {
+  try {
+    var saved = JSON.parse(localStorage.getItem('cp_alerts_state')||'{}');
+    ALERTS.forEach(function(a) {
+      if (saved[a.id]) {
+        a.resolved = saved[a.id].resolved || false;
+        a.notes = saved[a.id].notes || '';
+        if (saved[a.id].actions) {
+          a.actions.forEach(function(act) {
+            if (saved[a.id].actions[act.id] !== undefined) {
+              act.done = saved[a.id].actions[act.id];
+            }
+          });
+        }
+      }
+    });
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    var state = {};
+    ALERTS.forEach(function(a) {
+      var acts = {};
+      a.actions.forEach(function(act){ acts[act.id] = act.done; });
+      state[a.id] = {resolved: a.resolved, notes: a.notes, actions: acts};
+    });
+    localStorage.setItem('cp_alerts_state', JSON.stringify(state));
+  } catch(e) {}
+}
+
+var currentFilter = 'all';
+function filterAlerts(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  event.target.classList.add('active');
+  renderAlerts();
+}
+
+var deptLabels = {cs:'CS / Customer Service', dispute:'Dispute Dept', bureau:'Bureau Caller', mgmt:'Management'};
+var deptDots = {cs:'dot-cs', dispute:'dot-dispute', bureau:'dot-bureau', mgmt:'dot-mgmt'};
+var priorityColors = {critical:'critical', high:'high', medium:'medium', express:'express'};
+var badgeColors = {critical:'badge-critical', high:'badge-high', medium:'badge-medium', express:'badge-express'};
+
+function renderAlerts() {
+  var container = document.getElementById('alerts-container');
+  var filtered = ALERTS.filter(function(a) {
+    if (currentFilter === 'resolved') return a.resolved;
+    if (currentFilter === 'all') return !a.resolved;
+    return !a.resolved && a.depts.indexOf(currentFilter) !== -1;
+  });
+
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty">' + (currentFilter === 'resolved' ? '✅ No resolved alerts yet.' : '✅ No active alerts for this department.') + '</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(function(a) {
+    var doneCount = a.actions.filter(function(x){return x.done;}).length;
+    var totalCount = a.actions.length;
+    return '<div class="alert-card '+priorityColors[a.priority]+'" id="card-'+a.id+'">' +
+      '<div class="alert-header">' +
+        '<div>' +
+          '<div class="alert-name">'+a.name+(a.clientId?' <span style="font-size:13px;font-weight:600;color:#64748B;">'+a.clientId+'</span>':'')+'</div>' +
+          '<div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;">' +
+            '<span class="badge '+badgeColors[a.priority]+'">'+a.badge+'</span>' +
+            (a.deadline?'<span class="deadline">'+a.deadline+'</span>':'') +
+            '<span style="font-size:11px;color:#64748B;padding:3px 8px;background:#F1F5F9;border-radius:12px;">'+doneCount+'/'+totalCount+' actions done</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="dept-row">' +
+        a.depts.map(function(d){ return '<div class="dept-tag"><span class="dot '+deptDots[d]+'"></span>'+deptLabels[d]+'</div>'; }).join('') +
+      '</div>' +
+
+      '<div class="status-section">' +
+        '<div class="status-label">Current Status</div>' +
+        a.status.map(function(s){ return '<div class="status-item"><span>'+s+'</span></div>'; }).join('') +
+      '</div>' +
+
+      '<div class="action-section">' +
+        '<div class="action-title">Required Actions</div>' +
+        a.actions.map(function(act) {
+          return '<div class="action-item'+(act.done?' done':'')+'" id="action-'+act.id+'">' +
+            '<input type="checkbox" id="chk-'+act.id+'"'+(act.done?' checked':'')+' onchange="toggleAction(''+a.id+'',''+act.id+'',this.checked)">' +
+            '<label for="chk-'+act.id+'" style="cursor:pointer;">'+act.text+'</label>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+
+      '<div style="margin-top:8px;">' +
+        '<div class="status-label">Notes</div>' +
+        '<textarea class="notes-area" id="notes-'+a.id+'" placeholder="Add notes here..." onblur="saveNotes(''+a.id+'',this.value)">'+escHtml(a.notes)+'</textarea>' +
+      '</div>' +
+
+      (!a.resolved ? '<button class="resolve-btn" onclick="resolveAlert(''+a.id+'')">✅ Mark as Resolved</button>' : '') +
+
+    '</div>';
+  }).join('');
+}
+
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toggleAction(alertId, actionId, checked) {
+  var a = ALERTS.find(function(x){return x.id===alertId;});
+  if (!a) return;
+  var act = a.actions.find(function(x){return x.id===actionId;});
+  if (act) { act.done = checked; saveState(); renderAlerts(); }
+}
+
+function saveNotes(alertId, val) {
+  var a = ALERTS.find(function(x){return x.id===alertId;});
+  if (a) { a.notes = val; saveState(); }
+}
+
+function resolveAlert(alertId) {
+  if (!confirm('Mark this alert as resolved? This means the client issue has been fully handled.')) return;
+  var a = ALERTS.find(function(x){return x.id===alertId;});
+  if (a) { a.resolved = true; saveState(); renderAlerts(); }
+}
+
+loadState();
+renderAlerts();
+</script>
+</body>
+</html>
