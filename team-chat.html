@@ -132,6 +132,8 @@ var pollTimer = null;
 var sending = false;
 var pendingFile = null;
 var pendingFileData = null;
+var userScrolling = false;
+var scrollTimer = null;
 
 function showStatus(msg, type) {
   var bar = document.getElementById('status-bar');
