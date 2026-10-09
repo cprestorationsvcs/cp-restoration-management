@@ -113,19 +113,24 @@ function upd(){
 }
 
 async function sendBatch(list){
-  var p=list.map(function(e){return {to:[{email:e}]};});
-  var body=JSON.stringify({
-    personalizations:p,
-    from:{email:FROM,name:'CP Restoration Services - CP Restoration Services'},
-    reply_to:{email:'cprestorationsvcs@gmail.com'},
-    subject:SUBJECT,
-    content:[{type:'text/plain',value:TEXT},{type:'text/html',value:HTML}]
-  });
-  try{
-    var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:body});
-    if(r.status===202){sent+=list.length;batches++;log('Batch '+batches+' ✅ '+list.length+' sent','#4ADE80');return true;}
-    var t=await r.text(); log('Error '+r.status+': '+t.substring(0,200),'#F87171'); failed+=list.length; return false;
-  }catch(e){log('Error: '+e.message,'#F87171');failed+=list.length;return false;}
+  var batchSent=0;
+  for(var ei=0;ei<list.length;ei++){
+    var email=list[ei];
+    if(!email||email.indexOf('@')<0){failed++;continue;}
+    var body=JSON.stringify({to:email,subject:SUBJECT,html:HTML});
+    var ok=false;
+    try{
+      var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:body});
+      var rd={};
+      try{rd=await r.json();}catch(e2){}
+      ok=(r.status===200||r.status===202||rd.sent===true);
+    }catch(e3){ok=false;}
+    if(ok){batchSent++;sent++;}else{failed++;log('Failed: '+email,'#F87171');}
+    if(ei>0&&ei%100===0){upd();await new Promise(function(res){setTimeout(res,300);});}
+  }
+  batches++;
+  log('Batch '+batches+': '+batchSent+' sent','#4ADE80');
+  upd();
 }
 
 async function testSend(){
