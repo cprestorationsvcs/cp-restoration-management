@@ -357,16 +357,43 @@ async function markComplete(gi,type){
   var outcomeSel=document.getElementById('outcome-'+gi);
   var outcome=outcomeSel?outcomeSel.value:'';
   if(outcome==='-- Select Outcome --') outcome='';
-  var tag=type==='status'?'[STATUS COMPLETE ':'[REFUND COMPLETE ';
-  var note='\n'+tag+new Date().toLocaleString()+']: '+(outcome||'Completed')+( resolution?' | Notes: '+resolution:'');
-  req.client.notes=(req.client.notes||'')+note;
-  try{
-    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent((req.client&&req.client.id)||req.clientId||''),{
-      method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
-      body:JSON.stringify({notes:req.client.notes,updated_at:new Date().toISOString()})
-    });
-    req.done=true; updateStats(); renderList(); toast('Marked complete');
-  }catch(e){toast('Error: '+e.message,'err');}
+  var tag=normalizeType(type)==='refund'?'[REFUND COMPLETE ':'[STATUS COMPLETE ';
+  var note='\n'+tag+new Date().toLocaleString()+']: '+(outcome||'Completed')+(resolution?' | Notes: '+resolution:'');
+
+  // Safely get client id and notes regardless of item shape
+  var clientId = (req.client&&req.client.id) ? req.client.id : (req.clientId||'');
+  var clientNotes = (req.client&&req.client.notes) ? req.client.notes : '';
+  var updatedNotes = clientNotes + note;
+
+  try {
+    // 1. Update requests table to completed
+    if(req.reqId) {
+      await fetch(SUPA+'/requests?id=eq.'+encodeURIComponent(req.reqId), {
+        method:'PATCH',
+        headers:Object.assign({'Content-Type':'application/json','Prefer':'return=minimal'},HDR),
+        body:JSON.stringify({
+          status:'completed',
+          resolution:(outcome||'Completed')+(resolution?' — '+resolution:''),
+          resolved_at:new Date().toISOString(),
+          resolved_by:localStorage.getItem('cp_logged_in_name')||'Agent'
+        })
+      });
+    }
+    // 2. Update client notes if we have a client id
+    if(clientId) {
+      await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(clientId),{
+        method:'PATCH',
+        headers:Object.assign({'Content-Type':'application/json','Prefer':'return=minimal'},HDR),
+        body:JSON.stringify({notes:updatedNotes, updated_at:new Date().toISOString()})
+      });
+    }
+    // 3. Move to Done tab
+    req.done=true; req.status='completed';
+    updateStats(); renderList();
+    if(typeof toast==='function') toast('✅ Moved to Completed');
+  } catch(e) {
+    alert('Error: '+e.message);
+  }
 }
 
 async function sendDecisionEmail(req,approved,notes){
