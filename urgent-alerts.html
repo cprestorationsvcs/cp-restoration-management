@@ -68,11 +68,11 @@ header h1{color:white;font-size:16px;font-weight:800;letter-spacing:.3px;}
   <div class="page-sub">Alerts stay active until resolved. Check off actions as completed. Resolve only when the client issue is fully handled.</div>
 
   <div class="filter-bar">
-    <button class="filter-btn active" onclick="filterAlerts('all')">All Alerts</button>
-    <button class="filter-btn" onclick="filterAlerts('cs')">CS Dept</button>
-    <button class="filter-btn" onclick="filterAlerts('dispute')">Dispute Dept</button>
-    <button class="filter-btn" onclick="filterAlerts('bureau')">Bureau Caller</button>
-    <button class="filter-btn" onclick="filterAlerts('resolved')">Resolved</button>
+    <button class="filter-btn active" onclick="filterAlerts('all',this)">All Alerts</button>
+    <button class="filter-btn" onclick="filterAlerts('cs',this)">CS Dept</button>
+    <button class="filter-btn" onclick="filterAlerts('dispute',this)">Dispute Dept</button>
+    <button class="filter-btn" onclick="filterAlerts('bureau',this)">Bureau Caller</button>
+    <button class="filter-btn" onclick="filterAlerts('resolved',this)">Resolved</button>
   </div>
 
   <div id="alerts-container"></div>
@@ -218,10 +218,10 @@ function saveState() {
 }
 
 var currentFilter = 'all';
-function filterAlerts(f) {
+function filterAlerts(f, el) {
   currentFilter = f;
   document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   renderAlerts();
 }
 
