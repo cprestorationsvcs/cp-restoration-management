@@ -196,8 +196,8 @@ async function loadRequests(){
     if(!Array.isArray(d1)) d1=[]; if(!Array.isArray(d2)) d2=[];
 
     // Count pending
-    var statusCount = directRequests.filter(function(r){return r.type==='status_update'&&r.status==='pending';}).length + d1.length;
-    var refundCount = directRequests.filter(function(r){return r.type==='refund'&&r.status==='pending';}).length + d2.length;
+    var statusCount = directRequests.filter(function(r){return normalizeType(r.type)==='status'&&r.status==='pending';}).length + d1.length;
+    var refundCount = directRequests.filter(function(r){return normalizeType(r.type)==='refund'&&r.status==='pending';}).length + d2.length;
     var sc=document.getElementById('status-count'); if(sc) sc.textContent=statusCount;
     var rc=document.getElementById('refund-count'); if(rc) rc.textContent=refundCount;
 
@@ -291,9 +291,9 @@ function showTab(tab){
 
 function renderList(){
   var filtered=allRequests.filter(function(r){
-    if(currentTab==='status') return r.type==='status'&&!r.done;
-    if(currentTab==='refund') return r.type==='refund'&&!r.done;
-    if(currentTab==='done') return r.done;
+    if(currentTab==='status') return normalizeType(r.type)==='status' && !r.done;
+    if(currentTab==='refund') return normalizeType(r.type)==='refund' && !r.done;
+    if(currentTab==='done') return !!r.done;
     return true;
   });
   var container=document.getElementById('request-list');
