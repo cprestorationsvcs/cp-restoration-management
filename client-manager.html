@@ -1316,7 +1316,11 @@ async function saveDisputeChanges() {
 
 // ── INIT ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  renderTable();
+  renderTable().catch(function(e){
+    var tbody = document.getElementById('tbl-body');
+    if(tbody) tbody.innerHTML='<tr><td colspan="10" style="color:red;padding:20px;">Error loading clients: '+e.message+'</td></tr>';
+    console.error('renderTable error:', e);
+  });
 });
 
 async function assignAnalyst(clientId, analyst) {
