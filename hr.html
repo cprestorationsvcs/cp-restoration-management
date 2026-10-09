@@ -152,7 +152,7 @@ function render() {
   // Summary
   document.getElementById('summary').innerHTML =
     '<div class="stat"><div class="val">'+allData.length+'</div><div class="lbl">Total Submissions</div></div>'+
-    '<div class="stat"><div class="val" style="color:#166534;">'+allData.filter(function(d){return d.source||d.workEmail;}).length+'</div><div class="lbl">With Work Email</div></div>'+
+    '<div class="stat"><div class="val" style="color:#166534;">'+allData.filter(function(d){return d.workEmail;}).length+'</div><div class="lbl">With Work Email</div></div>'+
     '<div class="stat"><div class="val" style="color:#C9A84C;">'+allData.filter(function(d){return d.paymentMethod;}).length+'</div><div class="lbl">Payment On File</div></div>';
 
   // Table
@@ -161,13 +161,13 @@ function render() {
     return;
   }
   document.getElementById('tbl-body').innerHTML = allData.map(function(d,i) {
-    var name = (d.firstName||d.name||d.source||'Unknown');
+    var name = ((d.firstName||'') + ' ' + (d.lastName||'')).trim() || d.source || 'Unknown';
     var ts = '';
     try { ts = new Date(d.submittedAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); } catch(e){}
     return '<tr>'+
       '<td><strong>'+name.trim()+'</strong></td>'+
-      '<td>'+(d.workEmail||d.email||'—')+'</td>'+
-      '<td>'+(d.phone||d.ecPhone||'—')+'</td>'+
+      '<td>'+(d.workEmail||'—')+'</td>'+
+      '<td>'+(d.phone||'—')+'</td>'+
       '<td>'+(d.timezone||'—')+'</td>'+
       '<td><span class="badge badge-'+(d.paymentMethod?'green':'gold')+'">'+((d.paymentMethod||'Not provided'))+'</span></td>'+
       '<td>'+ts+'</td>'+
