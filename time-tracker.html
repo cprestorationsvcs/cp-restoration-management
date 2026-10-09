@@ -62,7 +62,17 @@ tr:hover td { background:#F1F5F9; }
     <h2>➕ Add Manual Entry</h2>
     <div class="form-row">
       <div><label>Team Member</label>
-        <select id="emp"><option value="Queen">Queen</option><option value="Jason">Jason</option><option value="Bukunmi">Bukunmi</option></select></div>
+        <select id="emp">
+          <option value="Jason Crown">Jason Crown (Admin)</option>
+          <option value="Queen Cruz">Queen Cruz</option>
+          <option value="Bukunmi Aina">Bukunmi Aina</option>
+          <option value="Elna Palabrica">Elna Palabrica</option>
+          <option value="Alec Sarrosa">Alec Sarrosa</option>
+          <option value="Marcelo Torres">Marcelo Torres</option>
+          <option value="Kimwell Ablaza">Kimwell Ablaza</option>
+          <option value="Annabel Curada">Annabel Curada</option>
+          <option value="Jay Rico">Jay Rico</option>
+        </select></div>
       <div><label>Date</label><input type="date" id="date"></div>
       <div><label>Clock In (EST)</label><input type="time" id="clock-in"></div>
       <div><label>Clock Out (EST)</label><input type="time" id="clock-out"></div>
@@ -349,6 +359,23 @@ function toast(msg,type) {
 
 // Init
 seedQueenEntries();
+
+// Auto-select logged-in user in the dropdown
+(function() {
+  var loggedInName = localStorage.getItem('cp_logged_in_name');
+  if (loggedInName) {
+    var empSel = document.getElementById('emp');
+    if (empSel) {
+      // Try exact match first
+      for (var i = 0; i < empSel.options.length; i++) {
+        if (empSel.options[i].value === loggedInName) {
+          empSel.selectedIndex = i;
+          break;
+        }
+      }
+    }
+  }
+})();
 document.getElementById('date').value = new Date().toISOString().split('T')[0];
 render();
 setInterval(render, 30000); // refresh every 30s to show active sessions
