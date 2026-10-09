@@ -844,3 +844,74 @@ if (document.readyState === 'loading') {
 } else {
   setTimeout(_patchShowPage, 500);
 }
+
+
+// ── TIME TRACKER ────────────────────────────────────────────────
+var _clockedIn = false;
+var _clockInTime = null;
+
+function clockIn() {
+  var emp = sessionStorage.getItem('cp_logged_in_name') || 'Unknown';
+  var role = sessionStorage.getItem('cp_logged_in_role') || 'Staff';
+  _clockedIn = true;
+  _clockInTime = new Date();
+  var btn = document.getElementById('tt-clockin-btn');
+  var outBtn = document.getElementById('tt-clockout-btn');
+  var status = document.getElementById('tt-status');
+  if (btn) btn.disabled = true;
+  if (outBtn) outBtn.disabled = false;
+  if (status) status.textContent = 'Clocked in at ' + _clockInTime.toLocaleTimeString();
+  // Save to Supabase
+  fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_entries', {
+    method: 'POST',
+    headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
+    body: JSON.stringify({
+      employee_name: emp, role: role,
+      clock_in: _clockInTime.toISOString(),
+      date: _clockInTime.toISOString().split('T')[0]
+    })
+  }).then(function(r) {
+    if (r.ok) console.log('Clock in saved');
+  }).catch(function(e) { console.error('Clock in error:', e); });
+  alert('✅ Clocked in at ' + _clockInTime.toLocaleTimeString());
+}
+
+function clockOut() {
+  if (!_clockedIn) { alert('You are not clocked in.'); return; }
+  var now = new Date();
+  var hours = ((now - _clockInTime) / 3600000).toFixed(2);
+  _clockedIn = false;
+  var btn = document.getElementById('tt-clockin-btn');
+  var outBtn = document.getElementById('tt-clockout-btn');
+  var status = document.getElementById('tt-status');
+  if (btn) btn.disabled = false;
+  if (outBtn) outBtn.disabled = true;
+  if (status) status.textContent = 'Clocked out. Hours worked: ' + hours;
+  alert('✅ Clocked out. Hours worked today: ' + hours);
+}
+
+// ── PAYMENTS ────────────────────────────────────────────────────
+function processPayment() {
+  var clientEl = document.getElementById('pay-client-select') || document.getElementById('pay-client');
+  var amtEl = document.getElementById('pay-amount');
+  var methodEl = document.getElementById('pay-method');
+  var noteEl = document.getElementById('pay-note');
+  var client = clientEl ? clientEl.value : '';
+  var amount = amtEl ? amtEl.value : '';
+  var method = methodEl ? methodEl.value : '';
+  var note = noteEl ? noteEl.value : '';
+  if (!client || !amount) { alert('Please select a client and enter an amount.'); return; }
+  var emp = sessionStorage.getItem('cp_logged_in_name') || 'Unknown';
+  fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/payments', {
+    method: 'POST',
+    headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
+    body: JSON.stringify({
+      client_id: client, amount: parseFloat(amount),
+      payment_method: method, notes: note,
+      recorded_by: emp, recorded_at: new Date().toISOString()
+    })
+  }).then(function(r) {
+    if (r.ok) { alert('✅ Payment of $' + amount + ' recorded successfully.'); if (amtEl) amtEl.value=''; if (noteEl) noteEl.value=''; }
+    else { alert('❌ Error saving payment. Please try again.'); }
+  }).catch(function(e) { alert('❌ Network error: ' + e.message); });
+}
