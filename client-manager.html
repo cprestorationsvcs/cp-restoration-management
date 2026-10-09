@@ -193,12 +193,28 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
         <option value="Single Bureau">Single Bureau</option>
         <option value="Inquiries Only">Inquiries Only</option>
       </select>
+      <label style="font-size:11px;color:#64748B;font-weight:600;align-self:center;white-space:nowrap;">Start Date:</label>
+      <input type="date" id="srch-date-from" onchange="renderTable()" 
+        style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;background:white;"
+        title="From date">
+      <span style="font-size:12px;color:#64748B;align-self:center;">—</span>
+      <input type="date" id="srch-date-to" onchange="renderTable()" 
+        style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;background:white;"
+        title="To date">
+      <select id="srch-analyst" onchange="renderTable()" style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:13px;font-family:inherit;background:white;">
+        <option value="">All Analysts</option>
+        <option value="Marcelo Torres">Marcelo Torres</option>
+        <option value="Kimwell Ablaza">Kimwell Ablaza</option>
+        <option value="Annabel Curada">Annabel Curada</option>
+        <option value="Queen Cruz">Queen Cruz</option>
+        <option value="Unassigned">Unassigned</option>
+      </select>
     </div>
     <div style="overflow-x:auto;">
       <table>
         <thead><tr>
           <th>Client ID</th><th>Name</th><th>Email</th><th>Phone</th>
-          <th>Package</th><th>Start Date</th><th>Status</th><th>Portal Pass</th><th>Actions</th>
+          <th>Package</th><th>Start Date</th><th>Analyst</th><th>Status</th><th>Portal Pass</th><th>Actions</th>
         </tr></thead>
         <tbody id="tbl-body"><tr><td colspan="10" class="empty-row">Loading...</td></tr></tbody>
       </table>
