@@ -229,40 +229,23 @@ async function loadRequests(){
       if(isStatus || isRefund) {
         items.push({
           label: isRefund ? 'REFUND REQUEST' : 'STATUS UPDATE',
+          type: isRefund ? 'refund' : 'status',
           clientId: c.id,
           clientName: c.name||'Unknown',
           detail: 'See client notes for details',
           date: '',
           status: 'pending',
+          done: false,
+          client: {id: c.id, name: c.name||'Unknown', notes: c.notes||''},
           reqId: ''
         });
       }
     });
 
-    if(!items.length){
-      if(listEl) listEl.innerHTML='<div class="empty"><div class="ico">&#9989;</div><div>No pending requests.</div></div>';
-      return;
-    }
-
-    var html = items.map(function(item){
-      var bc = item.label==='REFUND REQUEST' ? '#8B1A1A' : '#1B3A6B';
-      var rid = item.reqId || item.clientId;
-      var lbl = item.label.replace(/'/g,"'");
-      return '<div style="background:white;border:1.5px solid #E2E8F0;border-radius:10px;padding:14px;margin-bottom:12px;">' +
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
-          '<span style="background:'+bc+';color:white;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">'+item.label+'</span>' +
-          '<strong style="font-size:14px;">'+item.clientName+'</strong>' +
-          '<span style="color:#64748B;font-size:12px;">'+item.clientId+'</span>' +
-          (item.date ? '<span style="margin-left:auto;color:#94A3B8;font-size:11px;">'+item.date+'</span>' : '') +
-        '</div>' +
-        '<div style="font-size:13px;color:#475569;margin-bottom:10px;">'+item.detail+'</div>' +
-        '<div style="display:flex;gap:8px;">' +
-          '<a href="/cs-dashboard.html?client='+item.clientId+'" target="_blank" style="padding:6px 14px;background:#1B3A6B;color:white;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;">&#128269; View Client</a>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-
-    if(listEl) listEl.innerHTML = html;
+    // Store in allRequests so renderList() and tab filters work correctly
+    allRequests = items;
+    updateStats();
+    renderList();
   } catch(e){
     console.error('loadRequests:', e.message);
     if(listEl) listEl.innerHTML='<div class="empty"><div class="ico">&#10060;</div><div>Error: '+e.message+'</div></div>';
