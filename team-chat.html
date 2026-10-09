@@ -179,7 +179,7 @@ function isImage(name) {
 // ── LOAD MESSAGES ──
 async function loadMessages(initial) {
   try {
-    var url = SUPA+'/team_chat?channel=eq.general&order=id.asc&limit=100';
+    var url = SUPA+'/team_chat?channel=eq.general&order=id.asc&limit=500';
     if (!initial && lastId>0) url += '&id=gt.'+lastId;
     var r = await fetch(url,{headers:HDR});
     if (!r.ok) { showStatus('Error loading: HTTP '+r.status,'error'); return; }
@@ -196,8 +196,12 @@ async function loadMessages(initial) {
       var empty=document.querySelector('.empty-chat');
       if(empty)empty.remove();
     });
+    // Only auto-scroll if user is already near the bottom (within 150px)
     var c=document.getElementById('messages');
-    c.scrollTop=c.scrollHeight;
+    var isNearBottom = (c.scrollHeight - c.scrollTop - c.clientHeight) < 150;
+    if (isNearBottom || initial) {
+      c.scrollTop=c.scrollHeight;
+    }
   } catch(e){showStatus('Network error: '+e.message,'error');}
 }
 
