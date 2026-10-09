@@ -319,15 +319,19 @@ function loginAdmin() {
   localStorage.setItem('cp_logged_in_initials', emp.initials||emp.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2));
   if (errEl) errEl.style.display = 'none';
   var loginScreen = document.getElementById('login-screen');
-  var app = document.getElementById('app');
+  var appEl = document.getElementById('app');
   if (loginScreen) loginScreen.style.display = 'none';
-  if (app) app.style.display = 'block';
+  if (appEl) appEl.style.display = 'block';
   var nameEl = document.getElementById('current-user-name');
   var roleEl = document.getElementById('current-user-role');
   if (nameEl) nameEl.textContent = emp.name;
   if (roleEl) roleEl.textContent = emp.label;
+  var isAdmin = (emp.role === 'admin');
   document.querySelectorAll('.admin-only').forEach(function(el){
-    el.style.display = emp.role==='admin' ? '' : 'none';
+    el.style.display = isAdmin ? '' : 'none';
+  });
+  document.querySelectorAll('.staff-only').forEach(function(el){
+    el.style.display = isAdmin ? 'none' : '';
   });
   showPage('dashboard');
   trackTeamSession();
