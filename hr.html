@@ -126,11 +126,22 @@ var allData = [];
 
 async function load() {
   try {
-    var r = await fetch(SUPA+'/employee_onboarding?order=submittedAt.desc', {
+    var r = await fetch(SUPA+'/employee_onboarding?limit=500', {
       headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
     });
-    allData = await r.json();
-    if (!Array.isArray(allData)) { allData = []; }
+    var raw = await r.json();
+    if (Array.isArray(raw)) {
+      allData = raw;
+    } else {
+      console.error('HR load error:', raw);
+      allData = [];
+    }
+    // Sort by any date field found
+    allData.sort(function(a,b){
+      var da = a.submittedAt||a.submitted_at||a.created_at||'';
+      var db = b.submittedAt||b.submitted_at||b.created_at||'';
+      return db.localeCompare(da);
+    });
     render();
   } catch(e) {
     document.getElementById('tbl-body').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:#64748B;">Error loading data: '+e.message+'</td></tr>';
@@ -141,8 +152,8 @@ function render() {
   // Summary
   document.getElementById('summary').innerHTML =
     '<div class="stat"><div class="val">'+allData.length+'</div><div class="lbl">Total Submissions</div></div>'+
-    '<div class="stat"><div class="val" style="color:#166534;">'+allData.filter(function(d){return d.workEmail;}).length+'</div><div class="lbl">With Work Email</div></div>'+
-    '<div class="stat"><div class="val" style="color:#C9A84C;">'+allData.filter(function(d){return d.paymentMethod;}).length+'</div><div class="lbl">Payment On File</div></div>';
+    '<div class="stat"><div class="val" style="color:#166534;">'+allData.filter(function(d){return d.workEmail||d.work_email;}).length+'</div><div class="lbl">With Work Email</div></div>'+
+    '<div class="stat"><div class="val" style="color:#C9A84C;">'+allData.filter(function(d){return d.paymentMethod||d.payment_method;}).length+'</div><div class="lbl">Payment On File</div></div>';
 
   // Table
   if (!allData.length) {
