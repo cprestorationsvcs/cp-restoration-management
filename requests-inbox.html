@@ -324,8 +324,11 @@ async function markComplete(gi,type){
   var req=allRequests[gi]; if(!req) return;
   var ta=document.getElementById('res-'+gi);
   var resolution=ta?ta.value.trim():'';
+  var outcomeSel=document.getElementById('outcome-'+gi);
+  var outcome=outcomeSel?outcomeSel.value:'';
+  if(outcome==='-- Select Outcome --') outcome='';
   var tag=type==='status'?'[STATUS COMPLETE ':'[REFUND COMPLETE ';
-  var note='\n'+tag+req.date+']: '+(resolution||'Completed — '+new Date().toLocaleString());
+  var note='\n'+tag+new Date().toLocaleString()+']: '+(outcome||'Completed')+( resolution?' | Notes: '+resolution:'');
   req.client.notes=(req.client.notes||'')+note;
   try{
     await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(req.client.id),{
