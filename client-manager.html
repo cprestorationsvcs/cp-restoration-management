@@ -572,12 +572,12 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
 // ── STORAGE ───────────────────────────────────────────────────────
 var KEY = 'cp_clients_v2';
 var SUPA_API='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients';
-var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'.join('.');
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
 var _clientCache=null,_cacheTime=0;
 
 async function dbGetClients(searchTerm) {
   if (!searchTerm && _clientCache && (Date.now()-_cacheTime)<30000) return _clientCache;
-  var key = Array.isArray(SUPA_KEY) ? SUPA_KEY.join('') : SUPA_KEY;
+  var key = SUPA_KEY;
   var hdrs = {'Content-Type':'application/json','apikey':key,'Authorization':'Bearer '+key};
   try {
     var data = [];
@@ -1325,7 +1325,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function assignAnalyst(clientId, analyst) {
   if (!clientId || !analyst) return;
-  var key = Array.isArray(SUPA_KEY) ? SUPA_KEY.join('') : SUPA_KEY;
+  var key = SUPA_KEY;
   var hdrs = {'Content-Type':'application/json','apikey':key,'Authorization':'Bearer '+key,'Prefer':'return=minimal'};
   try {
     var r = await fetch(SUPA_API+'?id=eq.'+encodeURIComponent(clientId), {
