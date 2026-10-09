@@ -177,9 +177,9 @@ function setFilter(filter, btn) {
   renderActivityTable();
 }
 
-function loadAll() {
+async function loadAll() {
   loadClientActivity();
-  loadTeamActivity();
+  await loadTeamActivity();
   var el = document.getElementById('last-refresh');
   if(el) el.textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 }
@@ -270,14 +270,31 @@ function renderActivityTable() {
   }).join('');
 }
 
-function loadTeamActivity() {
+async function loadTeamActivity() {
   try {
-    var sessions = JSON.parse(localStorage.getItem('cp_team_sessions') || '{}');
+    var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+    var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
     var now = new Date();
-    var teamList = Object.values(sessions).sort(function(a,b){ return (b.lastSeen||'').localeCompare(a.lastSeen||''); });
 
-    // Team online
-    var onlineTeam = teamList.filter(function(s){ return (now - new Date(s.lastSeen)) < 5*60*1000; });
+    // Pull from Supabase team_sessions — all staff, last 24hrs
+    var r = await fetch(SUPA+'/team_sessions?order=last_seen.desc&limit=200', {
+      headers: {'apikey': KEY, 'Authorization': 'Bearer '+KEY}
+    });
+    var sessions = await r.json();
+    if (!Array.isArray(sessions)) sessions = [];
+
+    // Deduplicate — keep most recent per person
+    var seen = {};
+    var teamList = [];
+    sessions.forEach(function(s) {
+      var key = s.email || s.user_email || s.user_id || s.name;
+      if (!seen[key]) { seen[key] = true; teamList.push(s); }
+    });
+
+    // Online = active in last 5 mins
+    var onlineTeam = teamList.filter(function(s){
+      return (now - new Date(s.last_seen || s.lastSeen || s.updated_at)) < 5*60*1000;
+    });
     set('stat-team-online', onlineTeam.length);
 
     var teamOnlineEl = document.getElementById('team-online-list');
@@ -286,13 +303,15 @@ function loadTeamActivity() {
         teamOnlineEl.innerHTML = '<div class="empty">No team members currently online.</div>';
       } else {
         teamOnlineEl.innerHTML = onlineTeam.map(function(s){
-          var initials = (s.name||'?').split(' ').map(function(n){ return n[0]; }).join('').substring(0,2).toUpperCase();
-          var mins = Math.floor((now - new Date(s.lastSeen))/60000);
+          var name = s.name || s.user_name || s.email || '?';
+          var initials = name.split(' ').map(function(n){ return n[0]; }).join('').substring(0,2).toUpperCase();
+          var lastSeen = s.last_seen || s.lastSeen || s.updated_at;
+          var mins = Math.floor((now - new Date(lastSeen))/60000);
           return '<div class="person-row">' +
             '<div class="person-avatar">' + initials + '</div>' +
             '<div style="flex:1;">' +
-              '<div class="person-name">' + (s.name||s.email) + '</div>' +
-              '<div class="person-detail">' + (s.role||'Staff') + ' — ' + (s.page||'Portal') + '</div>' +
+              '<div class="person-name">' + name + '</div>' +
+              '<div class="person-detail">' + (s.role||'Staff') + ' — ' + (s.page||s.current_page||'Portal') + '</div>' +
             '</div>' +
             '<div style="font-size:11px;color:var(--gray);">' + (mins===0?'Just now':mins+'m ago') + '</div>' +
           '</div>';
@@ -300,22 +319,24 @@ function loadTeamActivity() {
       }
     }
 
-    // Team log table
+    // Team log table — all sessions
     var tbody = document.getElementById('team-tbody');
     if(tbody) {
       if(!teamList.length) {
         tbody.innerHTML = '<tr><td colspan="5" class="empty">No team activity yet.</td></tr>';
       } else {
         tbody.innerHTML = teamList.map(function(s){
-          var d = new Date(s.lastSeen);
+          var lastSeen = s.last_seen || s.lastSeen || s.updated_at;
+          var d = new Date(lastSeen);
           var mins = Math.floor((now - d)/60000);
           var ago = mins < 1 ? 'Online now' : mins < 60 ? mins+'m ago' : Math.floor(mins/60)+'h ago';
           var isOnline = mins < 5;
+          var name = s.name || s.user_name || s.email || '—';
           return '<tr>' +
             '<td style="font-size:12px;">' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + ' ' + d.toLocaleDateString() + '</td>' +
-            '<td style="font-weight:700;">' + (isOnline?'<span class="online-dot"></span>':'') + (s.name||s.email) + '</td>' +
+            '<td style="font-weight:700;">' + (isOnline?'<span class="online-dot"></span>':'') + name + '</td>' +
             '<td style="font-size:12px;">' + (s.role||'—') + '</td>' +
-            '<td style="font-size:12px;">' + (s.page||'—') + '</td>' +
+            '<td style="font-size:12px;">' + (s.page||s.current_page||'—') + '</td>' +
             '<td style="font-size:12px;color:'+(isOnline?'var(--green)':'var(--gray)')+';">' + ago + '</td>' +
           '</tr>';
         }).join('');
