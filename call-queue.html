@@ -291,13 +291,15 @@ async function markStatus(id, status) {
 }
 
 async function saveNote(id, note) {
+  // Save note to the requests table — try outcome_notes first, fallback to notes field
   try {
-    await fetch(SUPA+'/requests?id=eq.'+id, {
+    var r1 = await fetch(SUPA+'/requests?id=eq.'+id, {
       method:'PATCH',
       headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
-      body:JSON.stringify({outcome_notes:note})
+      body:JSON.stringify({notes:note, outcome_notes:note, updated_at:new Date().toISOString()})
     });
-  } catch(e){ console.error(e); }
+    if (!r1.ok) console.warn('saveNote HTTP '+r1.status);
+  } catch(e){ console.error('saveNote error:', e); }
 }
 
 function timeAgo(ts) {
