@@ -192,12 +192,14 @@ async function loadRequests(){
     // From requests table
     directRequests.forEach(function(req){
       items.push({
-        label: req.type==='refund' ? 'REFUND REQUEST' : 'STATUS UPDATE',
+        label: req.type==='refund'||req.type==='refund_request' ? 'REFUND REQUEST' : 'STATUS UPDATE',
+        type: (req.type==='refund'||req.type==='refund_request') ? 'refund' : 'status',
         clientId: req.client_id||'',
         clientName: req.client_name||'Unknown',
         detail: (req.reason||'') + (req.notes ? ' — '+req.notes : ''),
         date: req.created_at ? new Date(req.created_at).toLocaleDateString() : '',
         status: req.status||'pending',
+        done: req.status==='completed'||req.status==='done',
         reqId: req.id||''
       });
     });
