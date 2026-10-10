@@ -1124,7 +1124,7 @@ async function loadApplications() {
   if(wrap) wrap.style.display='none';
   try {
     var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
-    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding?select=id,firstName,lastName,email,workEmail,phone,paymentMethod,paymentInfo,submittedAt&id=gte.1&order=id.desc&limit=50',
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding?select=id,firstName,lastName,email,workEmail,phone,timezone,paymentMethod,paymentInfo,source,comments,submittedAt,dob,idType,ecName,ecPhone,internetSpeed&id=gte.1&order=id.desc&limit=50',
       {headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
     var data = await r.json();
     if(!Array.isArray(data)) throw new Error(JSON.stringify(data).substring(0,100));
