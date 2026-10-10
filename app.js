@@ -1111,3 +1111,75 @@ async function loadDialLog() {
     console.error('[CM] loadClientsTable error:', e);
   }
 }
+
+
+// ── EMPLOYEE APPLICATIONS ─────────────────────────────────────
+async function loadApplications() {
+  var loading = document.getElementById('apps-loading');
+  var wrap = document.getElementById('apps-table-wrap');
+  if(loading){loading.style.display='block';loading.textContent='Loading applications...';}
+  if(wrap) wrap.style.display='none';
+  try {
+    var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding?order=submittedAt.desc&limit=200',
+      {headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
+    var data = await r.json();
+    if(!Array.isArray(data)) throw new Error(JSON.stringify(data).substring(0,100));
+    allApplications = data;
+    var pending=data.filter(function(a){return !a.app_status||a.app_status==='pending';}).length;
+    var approved=data.filter(function(a){return a.app_status==='approved';}).length;
+    var declined=data.filter(function(a){return a.app_status==='declined';}).length;
+    var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+    s('apps-count-pending',pending);s('apps-count-approved',approved);
+    s('apps-count-declined',declined);s('apps-count-total',data.length);
+    if(typeof renderApplications==='function') renderApplications();
+    if(loading) loading.style.display='none';
+    if(wrap) wrap.style.display='block';
+  } catch(e) {
+    if(loading){loading.style.display='block';loading.textContent='Error: '+e.message;}
+    console.error('[Apps]',e);
+  }
+}
+
+function renderApplications() {
+  const loading = document.getElementById('apps-loading');
+  const wrap = document.getElementById('apps-table-wrap');
+  const tbody = document.getElementById('apps-table-body');
+  if(loading) loading.style.display = 'none';
+  if(wrap) wrap.style.display = 'block';
+
+  const pending = allApplications.filter(a => a.status === 'pending').length;
+  const approved = allApplications.filter(a => a.status === 'approved').length;
+  const declined = allApplications.filter(a => a.status === 'declined').length;
+  const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('apps-pending', pending);
+  set('apps-approved', approved);
+  set('apps-declined', declined);
+  set('apps-total', allApplications.length);
+
+  if(!tbody) return;
+  if(allApplications.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:32px;">No applications received yet. Share the application link with candidates.</td></tr>';
+    return;
+  }
+
+  const statusBadge = {
+    pending: '<span class="badge badge-gold">⏳ Pending</span>',
+    approved: '<span class="badge badge-green">✅ Approved</span>',
+    declined: '<span class="badge badge-red">❌ Declined</span>',
+  };
+
+  tbody.innerHTML = [...allApplications].sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt)).map(app => `
+    <tr>
+      <td><strong>${app.fullName || app.firstName + ' ' + app.lastName}</strong></td>
+      <td>${app.role || '—'}</td>
+      <td>${app.email || '—'}</td>
+      <td>${app.rate || '—'}/wk via ${app.payMethod || '—'}</td>
+      <td>${app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : '—'}</td>
+      <td>${statusBadge[app.status] || '<span class="badge badge-gray">Unknown</span>'}</td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="viewApplication('${app.id}')">View</button>
+        ${app.status === 'pending' ? '<button class="btn btn-green btn-sm" style="margin-left:4px;" onclick="quickApprove(\'' + app.id + '\')">✅</button><button class="btn btn-red btn-sm" style="margin-left:4px;" onclick="quickDecline(\'' + app.id + '\')">❌</button>' : ''}
+      </td>
+    </tr>`).join('');
+}
