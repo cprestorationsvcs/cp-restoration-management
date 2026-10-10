@@ -312,11 +312,11 @@ function loginAdmin() {
   }
   currentUser = email;
   currentRole = emp.role;
-  sessionStorage.setItem('cp_logged_in_user', email);
-  sessionStorage.setItem('cp_logged_in_role', emp.role);
-  sessionStorage.setItem('cp_logged_in_name', emp.name);
-  sessionStorage.setItem('cp_logged_in_label', emp.label);
-  sessionStorage.setItem('cp_logged_in_initials', emp.initials||emp.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2));
+  localStorage.setItem('cp_logged_in_user', email);
+  localStorage.setItem('cp_logged_in_role', emp.role);
+  localStorage.setItem('cp_logged_in_name', emp.name);
+  localStorage.setItem('cp_logged_in_label', emp.label);
+  localStorage.setItem('cp_logged_in_initials', emp.initials||emp.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2));
   if (errEl) errEl.style.display = 'none';
   var loginScreen = document.getElementById('login-screen');
   var appEl = document.getElementById('app');
@@ -340,11 +340,11 @@ function loginAdmin() {
 function logoutAdmin() {
   trackTeamSession('Logged Out');
   currentUser = null; currentRole = null;
-  sessionStorage.removeItem('cp_logged_in_user');
-  sessionStorage.removeItem('cp_logged_in_role');
-  sessionStorage.removeItem('cp_logged_in_name');
-  sessionStorage.removeItem('cp_logged_in_label');
-  sessionStorage.removeItem('cp_logged_in_initials');
+  localStorage.removeItem('cp_logged_in_user');
+  localStorage.removeItem('cp_logged_in_role');
+  localStorage.removeItem('cp_logged_in_name');
+  localStorage.removeItem('cp_logged_in_label');
+  localStorage.removeItem('cp_logged_in_initials');
   var loginScreen = document.getElementById('login-screen');
   var app = document.getElementById('app');
   if (loginScreen) loginScreen.style.display = 'flex';
