@@ -1199,3 +1199,83 @@ function renderApplications() {
       </td>
     </tr>`).join('');
 }
+
+function viewApplication(i) {
+  var a = allApplications[i];
+  if (!a) return;
+  var date = a.submittedAt ? new Date(a.submittedAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  var html =
+    '<div style="max-width:560px;margin:0 auto;">' +
+    '<h2 style="font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:16px;">'+((a.firstName||'')+' '+(a.lastName||'')).trim()+'</h2>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
+    row('Work Email', a.workEmail||'—') +
+    row('Personal Email', a.email||'—') +
+    row('Phone', a.phone||'—') +
+    row('Timezone', a.timezone||'—') +
+    row('Payment Method', a.paymentMethod||'—') +
+    row('Payment Info (Wise)', a.paymentInfo||'—') +
+    row('Internet Speed', a.internetSpeed||'—') +
+    row('Emergency Contact', (a.ecName||'—')+' — '+(a.ecPhone||'')) +
+    row('Source / Referral', a.source||'—') +
+    row('Comments', a.comments||'—') +
+    row('Date of Birth', a.dob||'—') +
+    row('ID Type', a.idType||'—') +
+    row('Submitted', date) +
+    '</table>' +
+    '<div style="display:flex;gap:10px;margin-top:20px;">' +
+      '<button onclick="approveApplication('+i+')" style="flex:1;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;">✅ Approve</button>' +
+      '<button onclick="declineApplication('+i+')" style="flex:1;padding:10px;background:#991B1B;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;">❌ Decline</button>' +
+      '<button onclick="closeAppModal()" style="padding:10px 16px;background:#F1F5F9;color:#374151;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;">Close</button>' +
+    '</div></div>';
+
+  function row(label, val) {
+    return '<tr style="border-bottom:1px solid #F1F5F9;">'+
+      '<td style="padding:8px 10px;color:#64748B;font-weight:600;width:40%;">'+label+'</td>'+
+      '<td style="padding:8px 10px;color:#1E293B;font-weight:500;">'+val+'</td></tr>';
+  }
+
+  // Show in modal
+  var existing = document.getElementById('app-detail-modal');
+  if (existing) existing.remove();
+  var overlay = document.createElement('div');
+  overlay.id = 'app-detail-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.innerHTML = '<div style="background:white;border-radius:14px;padding:24px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">'+html+'</div>';
+  overlay.onclick = function(e){ if(e.target===overlay) closeAppModal(); };
+  document.body.appendChild(overlay);
+}
+
+function closeAppModal() {
+  var m = document.getElementById('app-detail-modal');
+  if (m) m.remove();
+}
+
+function approveApplication(i) {
+  var a = allApplications[i];
+  if (!a || !confirm('Approve '+a.firstName+' '+a.lastName+'?')) return;
+  var K1='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0';
+  var K2='8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+  fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding?id=eq.'+a.id, {
+    method:'PATCH',
+    headers:{'apikey':K1+'.'+K2,'Authorization':'Bearer '+K1+'.'+K2,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({app_status:'approved'})
+  }).then(function(r){
+    if(r.ok){ alert('✅ '+a.firstName+' approved!'); closeAppModal(); loadApplications(); }
+    else { alert('Error approving. Try again.'); }
+  });
+}
+
+function declineApplication(i) {
+  var a = allApplications[i];
+  if (!a || !confirm('Decline '+a.firstName+' '+a.lastName+'?')) return;
+  var K1='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0';
+  var K2='8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+  fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding?id=eq.'+a.id, {
+    method:'PATCH',
+    headers:{'apikey':K1+'.'+K2,'Authorization':'Bearer '+K1+'.'+K2,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({app_status:'declined'})
+  }).then(function(r){
+    if(r.ok){ alert('❌ '+a.firstName+' declined.'); closeAppModal(); loadApplications(); }
+    else { alert('Error declining. Try again.'); }
+  });
+}
