@@ -574,6 +574,7 @@ var KEY = 'cp_clients_v2';
 var SUPA_API='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
 var _clientCache=null,_cacheTime=0;
+var currentUserEmail = sessionStorage.getItem('cp_logged_in_user') || localStorage.getItem('cp_logged_in_user') || '';
 
 async function dbGetClients(searchTerm) {
   if (!searchTerm && _clientCache && (Date.now()-_cacheTime)<30000) return _clientCache;
@@ -808,7 +809,7 @@ async function renderTable(){
   tbody.innerHTML=arr.map(function(c){
     return '<tr>'+
       '<td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--navy);">'+esc(c.id||'')+'</td>'+
-      '<td style="font-weight:700;">'+esc(c.name||'')+'</td>'+
+      '<td style="font-weight:700;">'+esc(c.name||'')+(c.chargeback_status==='Chargeback Filed'?'<br><span style="background:#7F1D1D;color:white;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:800;letter-spacing:.3px;">🚨 CHARGEBACK — DO NOT WORK</span>':'')+'</td>'+
       '<td style="font-size:12px;">'+esc(c.email||'')+'</td>'+
       '<td style="font-size:12px;">'+esc(c.phone||'')+'</td>'+
       '<td style="font-size:12px;">'+esc(c.package||'')+'</td>'+
@@ -820,11 +821,11 @@ async function renderTable(){
         '<option value="Annabel Curada"'+(c.assigned_to==='Annabel Curada'?' selected':'')+'>Annabel Curada</option>'+
         '<option value="Queen Cruz"'+(c.assigned_to==='Queen Cruz'?' selected':'')+'>Queen Cruz</option>'+
       '</select></td>'+
-      '<td><span class="badge '+(bmap[c.status||'Active']||'badge-gray')+'">'+(c.status||'Active')+'</span></td>'+
+      '<td><span class="badge '+(bmap[c.status||'Active']||'badge-gray')+'">'+(c.status||'Active')+'</span>'+(c.chargeback_status==='Chargeback Filed'?'<br><span class="badge" style="background:#FEE2E2;color:#7F1D1D;margin-top:3px;display:inline-block;">Chargeback</span>':'')+'</td>'+
       '<td style="font-family:monospace;font-size:11px;">'+esc(c.portalPwd||'restore2026')+'</td>'+
       '<td><div style="display:flex;gap:5px;">'+
         '<button class="btn btn-navy btn-sm" data-id="'+esc(c.id)+'" data-act="view">View</button>'+
-        '<button class="btn btn-gray btn-sm" data-id="'+esc(c.id)+'" data-act="del">&#10005;</button>'+
+        (currentUserEmail==='jason@mycprteam.com'?'<button class="btn btn-gray btn-sm" data-id="'+esc(c.id)+'" data-act="del" title="Delete client (Admin only)">&#10005;</button>':'')+ 
       '</div></td>'+
     '</tr>';
   }).join('');
