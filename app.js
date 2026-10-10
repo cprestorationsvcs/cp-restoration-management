@@ -1129,10 +1129,18 @@ async function loadApplications() {
     var data = await r.json();
     if(!Array.isArray(data)) throw new Error(JSON.stringify(data).substring(0,100));
     // Sort by submittedAt descending client-side (avoids DB timeout)
-    allApplications = data.sort(function(a,b){
+    var sorted = data.sort(function(a,b){
       var da = a.submittedAt||a.created_at||'';
       var db = b.submittedAt||b.created_at||'';
       return db.localeCompare(da);
+    });
+    // Deduplicate — keep only most recent submission per email
+    var seen = {};
+    allApplications = sorted.filter(function(a){
+      var key = (a.email||a.workEmail||a.firstName+a.lastName||'').toLowerCase().trim();
+      if (seen[key]) return false;
+      seen[key] = true;
+      return true;
     });
     var pending=data.filter(function(a){return !a.app_status||a.app_status==='pending';}).length;
     var approved=data.filter(function(a){return a.app_status==='approved';}).length;
