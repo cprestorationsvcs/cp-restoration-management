@@ -371,7 +371,8 @@ function showPage(name) {
   }
   window.scrollTo(0,0);
   trackTeamSession();
-  if (name==='clients')   { loadClientsTable(); }
+  if (name==='clients')      { loadClientsTable(); }
+  if (name==='applications') { if(typeof loadApplications==='function') loadApplications(); }
   if (name==='disputes')  { if (typeof loadDisputesTable  ==='function') loadDisputesTable(); }
   if (name==='broadcast') { if (typeof updateBCAudience   ==='function') updateBCAudience(); }
   if (name==='payroll')   { if (typeof renderPayrollTable ==='function') renderPayrollTable(); }
@@ -1112,6 +1113,8 @@ async function loadDialLog() {
   }
 }
 
+
+var allApplications = [];
 
 // ── EMPLOYEE APPLICATIONS ─────────────────────────────────────
 async function loadApplications() {
