@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ── LOAD DASHBOARD DATA ────────────────────────────────────────────────────
-async function loadDashboardData() {
+async async function loadDashboardData() {
   var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
   var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
   var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY};
