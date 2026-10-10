@@ -561,12 +561,11 @@ function closeEdit() {
 // ── SESSION RESTORE + DASHBOARD INIT ────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   // Restore session from localStorage
-  var savedEmail = localStorage.getItem('cp_logged_in_user');
-  var savedName  = localStorage.getItem('cp_logged_in_name') || '';
-  var savedLabel = localStorage.getItem('cp_logged_in_label') || '';
-  var savedRole  = localStorage.getItem('cp_logged_in_role') || '';
-  var savedInit  = localStorage.getItem('cp_logged_in_initials') || '';
-
+  var savedEmail = sessionStorage.getItem('cp_logged_in_user') || localStorage.getItem('cp_logged_in_user') || '';
+  var savedName  = sessionStorage.getItem('cp_logged_in_name') || localStorage.getItem('cp_logged_in_name') || '';
+  var savedLabel = sessionStorage.getItem('cp_logged_in_label') || localStorage.getItem('cp_logged_in_label') || '';
+  var savedRole  = sessionStorage.getItem('cp_logged_in_role') || localStorage.getItem('cp_logged_in_role') || '';
+  var savedInit  = sessionStorage.getItem('cp_logged_in_initials') || localStorage.getItem('cp_logged_in_initials') || '';
   if (savedEmail && EMPLOYEES[savedEmail]) {
     var emp = EMPLOYEES[savedEmail];
     currentUser = savedEmail;
@@ -604,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ── LOAD DASHBOARD DATA ────────────────────────────────────────────────────
-async async function loadDashboardData() {
+async function loadDashboardData() {
   var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
   var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
   var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY};
