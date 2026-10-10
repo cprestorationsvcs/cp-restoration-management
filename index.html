@@ -712,12 +712,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
           <table>
             <thead><tr><th>Caller</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Total</th><th>Quota %</th></tr></thead>
             <tbody>
-                            <tr>
-                <td><strong>Aliah Shanne Felias</strong></td>
-                <td>6</td><td>5</td><td>7</td><td>6</td><td>0</td>
-                <td><strong>24</strong></td>
-                <td><span class="badge badge-red">53%</span></td>
-              </tr>
+                            <tr><td colspan="8" style="text-align:center;color:#94A3B8;padding:20px;">No bureau actions logged yet. Data pulls from Dispute Center bureau call log.</td></tr>
                           </tbody>
           </table>
         </div>
@@ -4463,50 +4458,30 @@ let appsDb = null;
 let allApplications = [];
 let currentAppId = null;
 
-async async function loadApplications() {
+async async async function loadApplications() {
   var loading = document.getElementById('apps-loading');
   var wrap = document.getElementById('apps-table-wrap');
-  if(loading) { loading.style.display = 'block'; loading.textContent = 'Loading applications...'; }
-  if(wrap) wrap.style.display = 'none';
+  if(loading){loading.style.display='block';loading.textContent='Loading applications...';}
+  if(wrap) wrap.style.display='none';
   try {
-    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
-    var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
-    var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY};
-    var r = await fetch(SUPA+'/employee_onboarding?order=submittedAt.desc&limit=200', {headers:HDR});
+    var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding?order=submittedAt.desc&limit=200',
+      {headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
     var data = await r.json();
-    if(!Array.isArray(data)) throw new Error('Bad response: '+JSON.stringify(data).substring(0,100));
-    allApplications = data.map(function(row) {
-      return {
-        id: row.id,
-        firstName: row.firstName||'',
-        lastName: row.lastName||'',
-        email: row.email||'',
-        workEmail: row.workEmail||'',
-        phone: row.phone||'',
-        timezone: row.timezone||'',
-        paymentMethod: row.paymentMethod||'',
-        paymentInfo: row.paymentInfo||'',
-        source: row.source||'',
-        comments: row.comments||'',
-        submittedAt: row.submittedAt||row.created_at||'',
-        status: row.app_status||'pending'
-      };
-    });
-    // Update summary counts
-    var pending = allApplications.filter(function(a){return (a.status||'pending')==='pending';}).length;
-    var approved = allApplications.filter(function(a){return a.status==='approved';}).length;
-    var declined = allApplications.filter(function(a){return a.status==='declined';}).length;
-    var s = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
-    s('apps-count-pending', pending);
-    s('apps-count-approved', approved);
-    s('apps-count-declined', declined);
-    s('apps-count-total', allApplications.length);
-    renderApplications();
-    if(loading) loading.style.display = 'none';
-    if(wrap) wrap.style.display = 'block';
+    if(!Array.isArray(data)) throw new Error(JSON.stringify(data).substring(0,100));
+    allApplications = data;
+    var pending=data.filter(function(a){return !a.app_status||a.app_status==='pending';}).length;
+    var approved=data.filter(function(a){return a.app_status==='approved';}).length;
+    var declined=data.filter(function(a){return a.app_status==='declined';}).length;
+    var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+    s('apps-count-pending',pending);s('apps-count-approved',approved);
+    s('apps-count-declined',declined);s('apps-count-total',data.length);
+    if(typeof renderApplications==='function') renderApplications();
+    if(loading) loading.style.display='none';
+    if(wrap) wrap.style.display='block';
   } catch(e) {
-    if(loading) { loading.style.display='block'; loading.textContent = 'Error loading applications: ' + e.message; }
-    console.error('[Apps]', e);
+    if(loading){loading.style.display='block';loading.textContent='Error: '+e.message;}
+    console.error('[Apps]',e);
   }
 }
 
