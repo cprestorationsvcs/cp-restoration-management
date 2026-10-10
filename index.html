@@ -6752,7 +6752,6 @@ function copyPw(id) {
 function togglePwField(id) { var el=document.getElementById(id); if(el) el.type=el.type==='password'?'text':'password'; }
 function toggleLoginPw() { togglePwField('login-pw'); }
 function toggleSGKey() { togglePwField('sg-key'); }
-function toggleActive(id) { console.log('toggleActive',id); }
 
 function openAddClient() { showPage('clients'); var m=document.getElementById('add-client-modal'); if(m) m.style.display='flex'; }
 function openAddClientPhone() { openAddClient(); }
@@ -6786,59 +6785,19 @@ function submitWpDisputeAction() { alert('Dispute action logged.'); }
 function issueContract(id) { alert('Contract issued for '+id); }
 function submitEmailSetup() { alert('Email setup saved.'); }
 
-function addDisputeItem() { console.log('addDisputeItem'); }
-function removeDisputeItem(i) { console.log('removeDisputeItem',i); }
-function quickAddItem() { console.log('quickAddItem'); }
-function addManualEntry() { console.log('addManualEntry'); }
 
-function loginClient(id) { console.log('loginClient',id); }
 function copyClientLink(id) { navigator.clipboard.writeText(window.location.origin+'/client-portal.html?id='+id); }
-function emailCredentials(id) { console.log('emailCredentials',id); }
 function launchDisputeCenter() { window.open('/dispute-center.html','_blank'); }
 function launchDisputeCenterFor(id) { window.open('/dispute-center.html?id='+id,'_blank'); }
-function resetPassword(id) { console.log('resetPassword',id); }
-function flagEmployee(id) { console.log('flagEmployee',id); }
 
-function clockIn() { console.log('clockIn'); }
-function clockOut() { console.log('clockOut'); }
-function exportTimesheet() { console.log('exportTimesheet'); }
-function logSalesQuota() { console.log('logSalesQuota'); }
-function logFollowUpCheck() { console.log('logFollowUpCheck'); }
-function logViolation() { console.log('logViolation'); }
-function logCsResponse() { console.log('logCsResponse'); }
 
 async // loadApplications defined above
-function viewApplication(id) { console.log('viewApplication',id); }
-function reviewApplication(id) { console.log('reviewApplication',id); }
 
-function sendBroadcast() { console.log('sendBroadcast'); }
-function sendSMS() { console.log('sendSMS'); }
-function sendTemplateEmail() { console.log('sendTemplateEmail'); }
-function loadTemplate(t) { console.log('loadTemplate',t); }
-function insertVar(v) { console.log('insertVar',v); }
-function smsQuickMsg(m) { console.log('smsQuickMsg',m); }
-function pollSMSInbox() { console.log('pollSMSInbox'); }
-function markSMSUsed(id) { console.log('markSMSUsed',id); }
-function loadDemoSMS() { console.log('loadDemoSMS'); }
 function copySMSCode(c) { navigator.clipboard.writeText(c); }
 
-function syncRCCallLog() { console.log('syncRCCallLog'); }
-function loadRCRecordings() { console.log('loadRCRecordings'); }
-function testRCConnection() { console.log('testRCConnection'); }
-function copyRCCredentials() { console.log('copyRCCredentials'); }
 
-function verifySGConnection() { console.log('verifySGConnection'); }
-function saveSGSettings() { console.log('saveSGSettings'); }
 
-function selectPayment(type) { console.log('selectPayment',type); }
-function processPayment(id) { console.log('processPayment',id); }
-function quickApprove(id) { console.log('quickApprove',id); }
-function quickDecline(id) { console.log('quickDecline',id); }
-function setRevPeriod(p) { console.log('setRevPeriod',p); }
-function setSalesPeriod(p) { console.log('setSalesPeriod',p); }
 
-function goStep(n) { console.log('goStep',n); }
-function goEmpStep(n) { console.log('goEmpStep',n); }
 function validateStep1() { return true; }
 function validateStep2() { return true; }
 function validateStep2Items() { return true; }
@@ -6850,16 +6809,9 @@ function validateEmpStep4() { return true; }
 function startNewOnboard() { showPage('onboard'); }
 function startNewEmpOnboard() { showPage('emp-onboard'); }
 
-function refreshLiveActivity() { console.log('refreshLiveActivity'); }
-function refreshQuotaMonitor() { console.log('refreshQuotaMonitor'); }
-function takeScreenshot() { console.log('takeScreenshot'); }
-function setLoginStatus(id,s) { console.log('setLoginStatus',id,s); }
 
 function logout() { if(typeof doLogout==='function') doLogout(); else { localStorage.removeItem('cp_logged_in_user'); window.location.reload(); } }
 
-function bcAddLinkAttach() { console.log('bcAddLinkAttach'); }
-function bcAttachSource(s) { console.log('bcAttachSource',s); }
-function bcRemoveAttach(i) { console.log('bcRemoveAttach',i); }
 </script>
 </body>
 </html>
