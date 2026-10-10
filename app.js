@@ -1060,4 +1060,54 @@ async function loadDialLog() {
         '<span style="color:var(--gray);font-size:11px;">'+(c.agent||c.rep||'')+'  '+(c.created_at?new Date(c.created_at).toLocaleDateString():'')+'</span></div>';
     }).join('');
   } catch(e) { el.innerHTML='<div style="color:red;padding:20px;">Error: '+e.message+'</div>'; }
+}async function loadClientsTable(search, status, category) {
+  var tbody = document.getElementById('clients-table') || document.getElementById('clients-tbody');
+  if (!tbody) return;
+  var s = ((search || (document.getElementById('client-search')||{}).value || '')).toLowerCase().trim();
+  var st = status || (document.getElementById('status-filter')||{}).value || '';
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#64748B;padding:24px;">&#9203; Loading clients...</td></tr>';
+  try {
+    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+    var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+    var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY};
+    var url;
+    if (s && s.length >= 2) {
+      var enc = encodeURIComponent(s);
+      url = SUPA+'/clients?or=(name.ilike.*'+enc+'*,id.ilike.*'+enc+'*,email.ilike.*'+enc+'*,phone.ilike.*'+enc+'*)&order=name.asc&limit=200';
+    } else {
+      url = SUPA+'/clients?order=name.asc&limit=1000';
+    }
+    var r = await fetch(url, {headers:HDR});
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    var clients = await r.json();
+    if (!Array.isArray(clients)) throw new Error('Bad response');
+    if (st) clients = clients.filter(function(c){ return (c.status||'Active')===st; });
+    if (!clients.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94A3B8;padding:32px;">No clients found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = clients.map(function(c) {
+      var isCB = c.chargeback_status === 'Chargeback Filed';
+      var rowStyle = isCB ? 'background:#FEE2E2;border-left:4px solid #7F1D1D;' : '';
+      var stColor = c.status==='Active'?'#166534':c.status==='Paused'?'#92400E':c.status==='Cancelled'?'#991B1B':'#1B3A6B';
+      var stBg = c.status==='Active'?'#DCFCE7':c.status==='Paused'?'#FEF3C7':c.status==='Cancelled'?'#FEE2E2':'#DBEAFE';
+      var cid = (c.id||'').replace(/'/g,"");
+      return '<tr style="'+rowStyle+'">' +
+        '<td style="font-size:12px;font-family:monospace;font-weight:700;color:#1B3A6B;">'+(c.id||'')+'</td>' +
+        '<td><div style="font-weight:700;">'+(c.name||'')+'</div>'+
+          (isCB?'<div style="font-size:10px;color:#7F1D1D;font-weight:800;">&#128680; CHARGEBACK &#8212; DO NOT WORK</div>':'')+
+          '<div style="font-size:11px;color:#64748B;">'+(c.start_date||'')+'</div></td>' +
+        '<td style="font-size:12px;">'+(c.package||c.category||'Standard')+'</td>' +
+        '<td><span style="background:'+stBg+';color:'+stColor+';padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;">'+(c.status||'Active')+'</span></td>' +
+        '<td style="font-size:12px;">'+(c.deadline||c.target_date||'&#8212;')+'</td>' +
+        '<td style="font-size:12px;">'+(c.last_dispute_date||'&#8212;')+'</td>' +
+        '<td style="display:flex;gap:6px;"><button onclick="viewClient(\'' +cid+ '\')" style="padding:4px 10px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;">View</button>' +
+          (currentRole==='admin'?'<button onclick="deleteClient(\'' +cid+ '\')" style="padding:4px 8px;background:#FEE2E2;color:#991B1B;border:none;border-radius:6px;font-size:11px;cursor:pointer;">&#10005;</button>':'') +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="7" style="color:red;text-align:center;padding:24px;">&#10060; Error: '+e.message+'</td></tr>';
+    console.error('[CM] loadClientsTable error:', e);
+  }
 }
