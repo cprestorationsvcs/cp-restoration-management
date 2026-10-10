@@ -1124,11 +1124,16 @@ async function loadApplications() {
   if(wrap) wrap.style.display='none';
   try {
     var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
-    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding?order=submittedAt.desc&limit=200',
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding?limit=200',
       {headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
     var data = await r.json();
     if(!Array.isArray(data)) throw new Error(JSON.stringify(data).substring(0,100));
-    allApplications = data;
+    // Sort by submittedAt descending client-side (avoids DB timeout)
+    allApplications = data.sort(function(a,b){
+      var da = a.submittedAt||a.created_at||'';
+      var db = b.submittedAt||b.created_at||'';
+      return db.localeCompare(da);
+    });
     var pending=data.filter(function(a){return !a.app_status||a.app_status==='pending';}).length;
     var approved=data.filter(function(a){return a.app_status==='approved';}).length;
     var declined=data.filter(function(a){return a.app_status==='declined';}).length;
