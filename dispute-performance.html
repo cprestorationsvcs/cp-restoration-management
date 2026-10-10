@@ -173,14 +173,9 @@ var QUOTAS = {letters:100, files:50};
 // Set default date range to current week
 (function(){
   var today = new Date();
-  var day = today.getDay();
-  var monday = new Date(today);
-  monday.setDate(today.getDate() - (day===0?6:day-1));
-  var sunday = new Date(monday);
-  sunday.setDate(monday.getDate()+6);
-  document.getElementById('week-start').value = monday.toISOString().split('T')[0];
-  document.getElementById('week-end').value = sunday.toISOString().split('T')[0];
-  document.getElementById('e-date').value = today.toISOString().split('T')[0];
+  var firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  document.getElementById('week-start').value = firstOfMonth.toISOString().split('T')[0];
+  document.getElementById('week-end').value = today.toISOString().split('T')[0];
 })();
 
 
