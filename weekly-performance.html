@@ -144,11 +144,9 @@ tr:last-child td{border-bottom:none;}
 </div>
 
 <script>
-var K1 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0';
-var K2 = '8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
-var KEY = K1 + '.' + K2;
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
 var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
-var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY};
+var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
 
 var DISPUTE_TEAM = ['Marcelo Torres','Kimwell Ablaza','Annabel Curada','Queen Jearel Cruz'];
 var CS_TEAM = ['Elna Palabrica','Alec Sarrosa'];
@@ -215,7 +213,7 @@ async function loadDisputes() {
     document.getElementById('dispute-loading').style.display='none';
     document.getElementById('dispute-table').style.display='table';
   } catch(e) {
-    document.getElementById('dispute-loading').textContent = 'Error: '+e.message;
+    document.getElementById('dispute-loading').textContent = 'Error loading disputes: '+e.message+' — Check console for details'; console.error('Dispute error:', e);
   }
 }
 
