@@ -982,7 +982,7 @@ async function loadSalesData() {
     if (_salesPeriod==='day') from = new Date(now.getFullYear(),now.getMonth(),now.getDate());
     else if (_salesPeriod==='week') { var d=now.getDay(); from = new Date(now - d*86400000); }
     else from = new Date(now.getFullYear(),now.getMonth(),1);
-    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients?start_date=gte.'+from.toISOString().split('T')[0]+'&select=id,name,package,start_date,referred_by', {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients?select=id,name,package,start_date,referred_by&start_date=gte.'+from.toISOString().split('T')[0]+'&limit=500', {
       headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
     });
     var clients = await r.json();
