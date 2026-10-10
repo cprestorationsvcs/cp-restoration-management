@@ -190,6 +190,8 @@ fbq('init', '1584028236255374');
 fbq('init', '1362385498386512');
 fbq('track', 'PageView');
 </script>
+<script>
+
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1584028236255374&ev=PageView&noscript=1"
 /></noscript>
@@ -4458,7 +4460,7 @@ let appsDb = null;
 let allApplications = [];
 let currentAppId = null;
 
-async async async function loadApplications() {
+async function loadApplications() {
   var loading = document.getElementById('apps-loading');
   var wrap = document.getElementById('apps-table-wrap');
   if(loading){loading.style.display='block';loading.textContent='Loading applications...';}
@@ -6687,6 +6689,8 @@ function renderBCAttachments() {
   </div>
 
 
+
+</script>
 <script src="app.js"></script>
 
 <script>
@@ -6766,7 +6770,6 @@ function launchDisputeCenter() { window.open('/dispute-center.html','_blank'); }
 function launchDisputeCenterFor(id) { window.open('/dispute-center.html?id='+id,'_blank'); }
 
 
-async // loadApplications defined above
 
 function copySMSCode(c) { navigator.clipboard.writeText(c); }
 
