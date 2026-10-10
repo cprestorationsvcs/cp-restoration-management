@@ -577,7 +577,8 @@ var _clientCache=null,_cacheTime=0;
 var currentUserEmail = sessionStorage.getItem('cp_logged_in_user') || localStorage.getItem('cp_logged_in_user') || '';
 
 async function dbGetClients(searchTerm) {
-  if (!searchTerm && _clientCache && (Date.now()-_cacheTime)<30000) return _clientCache;
+  console.log('[CM] dbGetClients called, searchTerm:', searchTerm, 'cache:', !!_clientCache);
+  if (!searchTerm && _clientCache && (Date.now()-_cacheTime)<30000) { console.log('[CM] returning cache:', _clientCache.length); return _clientCache; }
   var key = SUPA_KEY;
   var hdrs = {'Content-Type':'application/json','apikey':key,'Authorization':'Bearer '+key};
   try {
@@ -1321,6 +1322,8 @@ async function saveDisputeChanges() {
 
 // ── INIT ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
+  // Clear cache so fresh data always loads on page open
+  _clientCache = null; _cacheTime = 0;
   renderTable().catch(function(e){
     var tbody = document.getElementById('tbl-body');
     if(tbody) tbody.innerHTML='<tr><td colspan="10" style="color:red;padding:20px;">Error loading clients: '+e.message+'</td></tr>';
