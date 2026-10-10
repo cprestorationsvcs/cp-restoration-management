@@ -387,6 +387,25 @@ async function openClient(c,el){
     if(Array.isArray(data)&&data.length) c=data[0];
   } catch(e){ console.log('Full client fetch error:',e.message); }
   currentClient=c;
+
+  // ── CHARGEBACK WARNING ─────────────────────────────
+  var cbBanner = document.getElementById('cb-warning-banner');
+  if (!cbBanner) {
+    cbBanner = document.createElement('div');
+    cbBanner.id = 'cb-warning-banner';
+    cbBanner.style.cssText = 'display:none;background:#7F1D1D;color:white;padding:14px 18px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:700;line-height:1.6;';
+    var replyBox = document.getElementById('reply-box');
+    if (replyBox && replyBox.parentNode) replyBox.parentNode.insertBefore(cbBanner, replyBox);
+  }
+  if (c.chargeback_status === 'Chargeback Filed') {
+    cbBanner.style.display = 'block';
+    cbBanner.innerHTML = '🚨 CHARGEBACK ALERT — DO NOT DISCUSS FILE STATUS WITH THIS CLIENT<br>' +
+      '<span style="font-weight:400;font-size:12px;">This client has filed a credit card chargeback. Their file is PAUSED. Do not confirm or deny any work was done. Do not make promises. Escalate to Jason immediately if client calls.</span>';
+  } else {
+    cbBanner.style.display = 'none';
+  }
+  // ───────────────────────────────────────────────────
+
   loadPaymentPlan(c);
   try{var d=typeof c.disputes==='string'?JSON.parse(c.disputes):c.disputes;disputes=Array.isArray(d)&&d.length?d:[];}catch(e){disputes=[];}
   if(!disputes.length&&c.notes) disputes=parseNotes(c.notes);
