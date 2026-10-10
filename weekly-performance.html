@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weekly Performance Dashboard — CP Restoration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:#F1F5F9;min-height:100vh;}
+header{background:#1B3A6B;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+header h1{color:white;font-size:16px;font-weight:800;}
+.sub{font-size:12px;color:rgba(255,255,255,.6);margin-top:1px;}
+.container{max-width:1100px;margin:0 auto;padding:20px;}
+.week-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.week-bar label{font-size:13px;font-weight:600;color:#374151;}
+.week-bar input[type=date]{padding:6px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;}
+.week-bar button{padding:7px 16px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.week-bar button:hover{background:#153060;}
+.week-nav{padding:7px 12px;background:white;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:#1B3A6B;}
+.dept-section{background:white;border-radius:12px;padding:18px 20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.dept-title{font-size:15px;font-weight:800;color:#1E293B;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.dept-sub{font-size:12px;color:#64748B;margin-bottom:14px;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;border-bottom:2px solid #F1F5F9;text-align:left;}
+td{font-size:13px;padding:10px 10px;border-bottom:1px solid #F8FAFC;color:#1E293B;}
+tr:last-child td{border-bottom:none;}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:8px;width:100%;margin-top:3px;}
+.progress-fill{height:8px;border-radius:20px;transition:width .3s;}
+.fill-green{background:#16A34A;}
+.fill-yellow{background:#CA8A04;}
+.fill-red{background:#DC2626;}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-yellow{background:#FEF9C3;color:#854D0E;}
+.badge-red{background:#FEE2E2;color:#991B1B;}
+.badge-blue{background:#DBEAFE;color:#1B3A6B;}
+.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.sum-card{background:white;border-radius:10px;padding:14px 16px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.sum-num{font-size:28px;font-weight:800;color:#1B3A6B;}
+.sum-label{font-size:12px;color:#64748B;margin-top:2px;}
+.loading{text-align:center;padding:32px;color:#94A3B8;font-size:13px;}
+.no-data{text-align:center;padding:20px;color:#94A3B8;font-size:13px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>📊 Weekly Performance Dashboard</h1>
+    <div class="sub">CP Restoration Services — All Departments</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="week-bar">
+    <button class="week-nav" onclick="shiftWeek(-1)">← Prev Week</button>
+    <label>From</label>
+    <input type="date" id="w-start">
+    <label>To</label>
+    <input type="date" id="w-end">
+    <button onclick="loadAll()">🔄 Load</button>
+    <button class="week-nav" onclick="shiftWeek(1)">Next Week →</button>
+    <span id="week-label" style="font-size:13px;color:#64748B;font-weight:600;"></span>
+  </div>
+
+  <div class="summary-cards">
+    <div class="sum-card"><div class="sum-num" id="s-disputes">—</div><div class="sum-label">Disputes Filed</div></div>
+    <div class="sum-card"><div class="sum-num" id="s-clients">—</div><div class="sum-label">Active Clients</div></div>
+    <div class="sum-card"><div class="sum-num" id="s-messages">—</div><div class="sum-label">CS Messages Sent</div></div>
+    <div class="sum-card"><div class="sum-num" id="s-hours">—</div><div class="sum-label">Hours Logged</div></div>
+    <div class="sum-card"><div class="sum-num" id="s-newclients">—</div><div class="sum-label">New Clients</div></div>
+  </div>
+
+  <!-- DISPUTE TEAM -->
+  <div class="dept-section">
+    <div class="dept-title">⚖️ Dispute Department</div>
+    <div class="dept-sub">Quota: 100 letters / 50 files per week per specialist</div>
+    <div id="dispute-loading" class="loading">Loading...</div>
+    <table id="dispute-table" style="display:none;">
+      <thead><tr>
+        <th>Specialist</th>
+        <th>Letters Filed</th>
+        <th>Client Files</th>
+        <th>Bureaus</th>
+        <th>Progress</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="dispute-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- CS TEAM -->
+  <div class="dept-section">
+    <div class="dept-title">📞 Customer Service Department</div>
+    <div class="dept-sub">Quota: 20 client messages / 10 status updates per week per agent</div>
+    <div id="cs-loading" class="loading">Loading...</div>
+    <table id="cs-table" style="display:none;">
+      <thead><tr>
+        <th>Agent</th>
+        <th>Messages Sent</th>
+        <th>Status Updates</th>
+        <th>Progress</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="cs-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- SALES TEAM -->
+  <div class="dept-section">
+    <div class="dept-title">💼 Sales Department</div>
+    <div class="dept-sub">Quota: 5 new clients / 50 dials per week per rep</div>
+    <div id="sales-loading" class="loading">Loading...</div>
+    <table id="sales-table" style="display:none;">
+      <thead><tr>
+        <th>Rep</th>
+        <th>New Clients</th>
+        <th>Dials</th>
+        <th>Progress</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="sales-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- TIME TRACKING -->
+  <div class="dept-section">
+    <div class="dept-title">⏱️ Time Tracking — All Staff</div>
+    <div class="dept-sub">Hours logged this week via portal clock in/out</div>
+    <div id="time-loading" class="loading">Loading...</div>
+    <table id="time-table" style="display:none;">
+      <thead><tr>
+        <th>Employee</th>
+        <th>Role</th>
+        <th>Days Logged</th>
+        <th>Total Hours</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="time-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+var K1 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0';
+var K2 = '8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var KEY = K1 + '.' + K2;
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY};
+
+var DISPUTE_TEAM = ['Marcelo Torres','Kimwell Ablaza','Annabel Curada','Queen Jearel Cruz'];
+var CS_TEAM = ['Elna Palabrica','Alec Sarrosa'];
+var SALES_TEAM = ['Jay Rico','Lester Leonardo'];
+
+function getWeekRange() {
+  return { start: document.getElementById('w-start').value, end: document.getElementById('w-end').value };
+}
+
+function shiftWeek(dir) {
+  var s = new Date(document.getElementById('w-start').value);
+  var e = new Date(document.getElementById('w-end').value);
+  s.setDate(s.getDate() + dir*7);
+  e.setDate(e.getDate() + dir*7);
+  document.getElementById('w-start').value = s.toISOString().split('T')[0];
+  document.getElementById('w-end').value = e.toISOString().split('T')[0];
+  loadAll();
+}
+
+function pct(val, quota) { return Math.min(100, Math.round(val/quota*100)); }
+function statusBadge(p) {
+  if (p >= 100) return '<span class="badge badge-green">✅ Met Quota</span>';
+  if (p >= 50)  return '<span class="badge badge-yellow">⚠️ On Track</span>';
+  return '<span class="badge badge-red">❌ Below Quota</span>';
+}
+function progressBar(p) {
+  var cls = p>=100?'fill-green':p>=50?'fill-yellow':'fill-red';
+  return '<div class="progress-bar"><div class="progress-fill '+cls+'" style="width:'+p+'%"></div></div><div style="font-size:10px;color:#64748B;margin-top:2px;">'+p+'%</div>';
+}
+
+async function loadDisputes() {
+  var {start,end} = getWeekRange();
+  document.getElementById('dispute-loading').style.display='block';
+  document.getElementById('dispute-table').style.display='none';
+  try {
+    var r = await fetch(SUPA+'/disputes?filed_at=gte.'+start+'T00:00:00&filed_at=lte.'+end+'T23:59:59&limit=1000', {headers:HDR});
+    var disputes = await r.json();
+    if (!Array.isArray(disputes)) disputes = [];
+    document.getElementById('s-disputes').textContent = disputes.length;
+    var byRep = {};
+    DISPUTE_TEAM.forEach(function(n){ byRep[n]={letters:0,files:new Set(),bureaus:new Set()}; });
+    disputes.forEach(function(d) {
+      var sp = d.specialist || d.assigned_to || '';
+      var matched = null;
+      DISPUTE_TEAM.forEach(function(n){ if(n.toLowerCase().includes((sp||'').split(' ')[0].toLowerCase()) || sp===n) matched=n; });
+      if (!matched) return;
+      var bl = (d.bureaus||'').split(',').map(function(b){return b.trim();}).filter(Boolean);
+      byRep[matched].letters += bl.length || 1;
+      if (d.client_id) byRep[matched].files.add(d.client_id);
+      bl.forEach(function(b){ byRep[matched].bureaus.add(b); });
+    });
+    var tbody = document.getElementById('dispute-tbody');
+    tbody.innerHTML = DISPUTE_TEAM.map(function(n) {
+      var d = byRep[n];
+      var lp = pct(d.letters,100), fp = pct(d.files.size,50);
+      var overall = Math.round((lp+fp)/2);
+      return '<tr><td style="font-weight:700;">'+n+'</td>'+
+        '<td>'+d.letters+' / 100'+progressBar(lp)+'</td>'+
+        '<td>'+d.files.size+' / 50'+progressBar(fp)+'</td>'+
+        '<td style="font-size:12px;">'+Array.from(d.bureaus).join(', ')+'</td>'+
+        '<td>'+progressBar(overall)+'</td>'+
+        '<td>'+statusBadge(overall)+'</td></tr>';
+    }).join('');
+    document.getElementById('dispute-loading').style.display='none';
+    document.getElementById('dispute-table').style.display='table';
+  } catch(e) {
+    document.getElementById('dispute-loading').textContent = 'Error: '+e.message;
+  }
+}
+
+async function loadCS() {
+  var {start,end} = getWeekRange();
+  document.getElementById('cs-loading').style.display='block';
+  document.getElementById('cs-table').style.display='none';
+  try {
+    var r = await fetch(SUPA+'/client_messages?created_at=gte.'+start+'T00:00:00&created_at=lte.'+end+'T23:59:59&from_role=eq.cs&limit=1000', {headers:HDR});
+    var msgs = await r.json();
+    if (!Array.isArray(msgs)) msgs = [];
+    var r2 = await fetch(SUPA+'/client_status_updates?created_at=gte.'+start+'T00:00:00&created_at=lte.'+end+'T23:59:59&limit=1000', {headers:HDR});
+    var updates = await r2.json();
+    if (!Array.isArray(updates)) updates = [];
+    document.getElementById('s-messages').textContent = msgs.length;
+    var byAgent = {};
+    CS_TEAM.forEach(function(n){ byAgent[n]={msgs:0,updates:0}; });
+    msgs.forEach(function(m) {
+      var name = m.from_name || '';
+      CS_TEAM.forEach(function(n){ if(name && n.toLowerCase().includes(name.split(' ')[0].toLowerCase())) byAgent[n].msgs++; });
+    });
+    updates.forEach(function(u) {
+      var name = u.posted_by || '';
+      CS_TEAM.forEach(function(n){ if(name && n.toLowerCase().includes(name.split(' ')[0].toLowerCase())) byAgent[n].updates++; });
+    });
+    var tbody = document.getElementById('cs-tbody');
+    tbody.innerHTML = CS_TEAM.map(function(n) {
+      var d = byAgent[n];
+      var mp = pct(d.msgs,20), up = pct(d.updates,10);
+      var overall = Math.round((mp+up)/2);
+      return '<tr><td style="font-weight:700;">'+n+'</td>'+
+        '<td>'+d.msgs+' / 20'+progressBar(mp)+'</td>'+
+        '<td>'+d.updates+' / 10'+progressBar(up)+'</td>'+
+        '<td>'+progressBar(overall)+'</td>'+
+        '<td>'+statusBadge(overall)+'</td></tr>';
+    }).join('');
+    document.getElementById('cs-loading').style.display='none';
+    document.getElementById('cs-table').style.display='table';
+  } catch(e) {
+    document.getElementById('cs-loading').textContent = 'Error: '+e.message;
+  }
+}
+
+async function loadSales() {
+  var {start,end} = getWeekRange();
+  document.getElementById('sales-loading').style.display='block';
+  document.getElementById('sales-table').style.display='none';
+  try {
+    var r = await fetch(SUPA+'/clients?start_date=gte.'+start+'&start_date=lte.'+end+'&select=id,name,referred_by,start_date&limit=500', {headers:HDR});
+    var clients = await r.json();
+    if (!Array.isArray(clients)) clients = [];
+    document.getElementById('s-newclients').textContent = clients.length;
+    var byRep = {};
+    SALES_TEAM.forEach(function(n){ byRep[n]={clients:0,dials:0}; });
+    clients.forEach(function(c) {
+      var rep = c.referred_by || '';
+      SALES_TEAM.forEach(function(n){ if(rep && (n===rep || n.split(' ')[0].toLowerCase()===rep.split(' ')[0].toLowerCase())) byRep[n].clients++; });
+    });
+    var tbody = document.getElementById('sales-tbody');
+    tbody.innerHTML = SALES_TEAM.map(function(n) {
+      var d = byRep[n];
+      var cp = pct(d.clients,5);
+      return '<tr><td style="font-weight:700;">'+n+'</td>'+
+        '<td>'+d.clients+' / 5'+progressBar(cp)+'</td>'+
+        '<td>'+d.dials+' / 50 <span style="font-size:11px;color:#94A3B8;">(manual log)</span></td>'+
+        '<td>'+progressBar(cp)+'</td>'+
+        '<td>'+statusBadge(cp)+'</td></tr>';
+    }).join('');
+    document.getElementById('sales-loading').style.display='none';
+    document.getElementById('sales-table').style.display='table';
+  } catch(e) {
+    document.getElementById('sales-loading').textContent = 'Error: '+e.message;
+  }
+}
+
+async function loadTimeTracking() {
+  var {start,end} = getWeekRange();
+  document.getElementById('time-loading').style.display='block';
+  document.getElementById('time-table').style.display='none';
+  try {
+    var r = await fetch(SUPA+'/time_entries?date=gte.'+start+'&date=lte.'+end+'&limit=500', {headers:HDR});
+    var entries = await r.json();
+    if (!Array.isArray(entries)) entries = [];
+    var byEmp = {};
+    entries.forEach(function(e) {
+      var name = e.employee_name || 'Unknown';
+      if (!byEmp[name]) byEmp[name] = {role:e.role||'Staff',days:new Set(),hours:0};
+      if (e.date) byEmp[name].days.add(e.date);
+      if (e.clock_in && e.clock_out) {
+        var hrs = (new Date(e.clock_out) - new Date(e.clock_in)) / 3600000;
+        byEmp[name].hours += Math.max(0, hrs);
+      }
+    });
+    var allStaff = ['Queen Jearel Cruz','Elna Palabrica','Alec Sarrosa','Marcelo Torres','Kimwell Ablaza','Annabel Curada','Bukunmi Aina'];
+    allStaff.forEach(function(n){ if(!byEmp[n]) byEmp[n]={role:'Staff',days:new Set(),hours:0}; });
+    var tbody = document.getElementById('time-tbody');
+    var totalHrs = 0;
+    tbody.innerHTML = Object.entries(byEmp).map(function(e) {
+      var name=e[0], d=e[1];
+      totalHrs += d.hours;
+      var hp = pct(d.hours, 40);
+      return '<tr><td style="font-weight:700;">'+name+'</td>'+
+        '<td style="font-size:12px;">'+d.role+'</td>'+
+        '<td>'+d.days.size+' days</td>'+
+        '<td>'+d.hours.toFixed(1)+' hrs / 40'+progressBar(hp)+'</td>'+
+        '<td>'+statusBadge(hp)+'</td></tr>';
+    }).join('');
+    document.getElementById('s-hours').textContent = totalHrs.toFixed(0);
+    document.getElementById('time-loading').style.display='none';
+    document.getElementById('time-table').style.display='table';
+  } catch(e) {
+    document.getElementById('time-loading').textContent = 'Error: '+e.message;
+  }
+}
+
+async function loadClients() {
+  try {
+    var r = await fetch(SUPA+'/clients?select=id,status&limit=1000', {headers:HDR});
+    var clients = await r.json();
+    if (Array.isArray(clients)) {
+      var active = clients.filter(function(c){ var s=(c.status||'').toLowerCase(); return s!=='inactive'&&s!=='cancelled'&&s!=='refunded'; });
+      document.getElementById('s-clients').textContent = active.length;
+    }
+  } catch(e) {}
+}
+
+async function loadAll() {
+  var {start,end} = getWeekRange();
+  var s = new Date(start), e = new Date(end);
+  document.getElementById('week-label').textContent = s.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' — ' + e.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  await Promise.all([loadDisputes(), loadCS(), loadSales(), loadTimeTracking(), loadClients()]);
+}
+
+// Init — set current week
+(function(){
+  var today = new Date();
+  var day = today.getDay();
+  var monday = new Date(today);
+  monday.setDate(today.getDate() - (day===0?6:day-1));
+  var sunday = new Date(monday);
+  sunday.setDate(monday.getDate()+6);
+  document.getElementById('w-start').value = monday.toISOString().split('T')[0];
+  document.getElementById('w-end').value = sunday.toISOString().split('T')[0];
+  loadAll();
+})();
+</script>
+</body>
+</html>
