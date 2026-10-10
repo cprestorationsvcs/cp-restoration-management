@@ -1324,10 +1324,15 @@ async function saveDisputeChanges() {
 document.addEventListener('DOMContentLoaded', function() {
   // Clear cache so fresh data always loads on page open
   _clientCache = null; _cacheTime = 0;
-  renderTable().catch(function(e){
-    var tbody = document.getElementById('tbl-body');
-    if(tbody) tbody.innerHTML='<tr><td colspan="10" style="color:red;padding:20px;">Error loading clients: '+e.message+'</td></tr>';
-    console.error('renderTable error:', e);
+  // Show loading indicator
+  var tbody = document.getElementById('tbl-body');
+  if(tbody) tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:#64748B;">⏳ Loading clients from database...</td></tr>';
+  renderTable().then(function(){
+    console.log('[CM] renderTable completed');
+  }).catch(function(e){
+    var tbody2 = document.getElementById('tbl-body');
+    if(tbody2) tbody2.innerHTML='<tr><td colspan="10" style="color:red;padding:20px;text-align:center;">❌ Error loading clients: '+e.message+'<br><small>Check console for details</small></td></tr>';
+    console.error('[CM] renderTable error:', e);
   });
 });
 
