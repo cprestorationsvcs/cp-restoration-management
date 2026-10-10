@@ -615,6 +615,8 @@ async function dbGetClients(searchTerm) {
         assignedEmail: row.assigned_email||'',
         salesAgent: row.sales_agent||'',
         assigned_to: row.assigned_to||'',
+        chargeback_status: row.chargeback_status||'',
+        chargeback_note: row.chargeback_note||'',
         notes: row.notes||'',
         disputes: row.disputes||'',
         bureauLogins: row.bureau_logins||{},
