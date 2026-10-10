@@ -746,7 +746,7 @@ async function loadPayments() {
 
 async function loadCompliance() {
   try {
-    var r = await fetch(_SUPA+'/clients?select=id,name,status,end_date,package&status=eq.Active&order=end_date.asc&limit=500',{headers:_H});
+    var r = await fetch(_SUPA+'/clients?select=id,name,status,start_date,package&order=name.asc&limit=500',{headers:_H});
     var d = await r.json();
     if (!Array.isArray(d)) d=[];
     var today=new Date();
