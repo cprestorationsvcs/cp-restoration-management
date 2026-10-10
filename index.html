@@ -4463,29 +4463,50 @@ let appsDb = null;
 let allApplications = [];
 let currentAppId = null;
 
-async function loadApplications() {
-  const loading = document.getElementById('apps-loading');
-  const wrap = document.getElementById('apps-table-wrap');
-  if(loading) loading.style.display = 'block';
+async async function loadApplications() {
+  var loading = document.getElementById('apps-loading');
+  var wrap = document.getElementById('apps-table-wrap');
+  if(loading) { loading.style.display = 'block'; loading.textContent = 'Loading applications...'; }
   if(wrap) wrap.style.display = 'none';
-
   try {
-    if(!appsDb) appsDb = await claude.use('db');
-    if(!appsDb) {
-      if(loading) loading.textContent = 'Database not available. Applications cannot be loaded.';
-      return;
-    }
-
-    const snap = await appsDb.collection('employee_applications').get();
-    allApplications = [];
-    snap.forEach(doc => {
-      allApplications.push({id: doc.id, ...doc.data()});
+    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+    var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+    var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY};
+    var r = await fetch(SUPA+'/employee_onboarding?order=submittedAt.desc&limit=200', {headers:HDR});
+    var data = await r.json();
+    if(!Array.isArray(data)) throw new Error('Bad response: '+JSON.stringify(data).substring(0,100));
+    allApplications = data.map(function(row) {
+      return {
+        id: row.id,
+        firstName: row.firstName||'',
+        lastName: row.lastName||'',
+        email: row.email||'',
+        workEmail: row.workEmail||'',
+        phone: row.phone||'',
+        timezone: row.timezone||'',
+        paymentMethod: row.paymentMethod||'',
+        paymentInfo: row.paymentInfo||'',
+        source: row.source||'',
+        comments: row.comments||'',
+        submittedAt: row.submittedAt||row.created_at||'',
+        status: row.app_status||'pending'
+      };
     });
-
+    // Update summary counts
+    var pending = allApplications.filter(function(a){return (a.status||'pending')==='pending';}).length;
+    var approved = allApplications.filter(function(a){return a.status==='approved';}).length;
+    var declined = allApplications.filter(function(a){return a.status==='declined';}).length;
+    var s = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+    s('apps-count-pending', pending);
+    s('apps-count-approved', approved);
+    s('apps-count-declined', declined);
+    s('apps-count-total', allApplications.length);
     renderApplications();
+    if(loading) loading.style.display = 'none';
+    if(wrap) wrap.style.display = 'block';
   } catch(e) {
-    if(loading) loading.textContent = 'Error loading applications: ' + e.message;
-    console.error(e);
+    if(loading) { loading.style.display='block'; loading.textContent = 'Error loading applications: ' + e.message; }
+    console.error('[Apps]', e);
   }
 }
 
