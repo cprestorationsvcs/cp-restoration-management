@@ -261,7 +261,7 @@ function renderBonuses() {
     if(a.department==='Bureau') byEmp[k].bureau+=(a.quantity||1);
   });
   // Set correct base pays
-  var basePay = {'marcelo@mycprteam.com':100,'kimwell@mycprteam.com':100,'annabel@mycprteam.com':100,'elna@mycprteam.com':100,'alec@mycprteam.com':100,'fcacaasi@gmail.com':100,'queen@mycprteam.com':200,'bukunmi@mycprteam.com':250};
+  var basePay = {'marcelo@mycprteam.com':100,'kimwell@mycprteam.com':100,'annabel@mycprteam.com':100,'elna@mycprteam.com':100,'alec@mycprteam.com':100,'fcacaasi@gmail.com':100,'queen@mycprteam.com':200,'bukunmi@mycprteam.com':250,'lester.leonardo1997@gmail.com':0};
   var totalBonus=0, totalBase=0;
   var rows = Object.entries(byEmp).map(function(kv) {
     var email=kv[0], e=kv[1];
@@ -277,6 +277,10 @@ function renderBonuses() {
     } else if(e.dept==='Bureau'){
       if(e.bureau>=50){bonus=25;bonusNote='50+ calls → $25';}
       else{bonusNote=e.bureau+'/50 calls (need '+(50-e.bureau)+' more)';}
+    } else if(e.dept==='Sales'){
+      var revenue=e.revenue||0;
+      bonus=Math.round(revenue*0.10*100)/100;
+      bonusNote='10% of $'+revenue.toFixed(2)+' revenue';
     }
     totalBonus+=bonus; totalBase+=base;
     var bonusBadge = bonus>0?'<span style="background:#DCFCE7;color:#166534;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:800;">+$'+bonus+'</span>':'<span style="background:#F1F5F9;color:#94A3B8;padding:3px 10px;border-radius:10px;font-size:12px;">$0</span>';
