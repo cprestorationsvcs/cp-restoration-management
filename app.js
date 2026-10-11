@@ -1,3 +1,16 @@
+var TEAM_ROSTER = {
+  'queen@mycprteam.com': {name:'Queen Jearel Cruz',role:'Compliance Specialist',start:'2026-09-21',weekly:400},
+  'elna@mycprteam.com': {name:'Elna Palabrica',role:'CS Agent',start:'2026-10-05',weekly:200},
+  'alec@mycprteam.com': {name:'Alec Sarrosa',role:'CS Agent',start:'2026-10-05',weekly:200},
+  'marcelo@mycprteam.com': {name:'Marcelo Torres',role:'Dispute Specialist',start:'2026-10-08',weekly:200},
+  'kimwell@mycprteam.com': {name:'Kimwell Ablaza',role:'Dispute Specialist',start:'2026-10-08',weekly:200},
+  'annabel@mycprteam.com': {name:'Annabel Curada',role:'Dispute Specialist',start:'2026-10-08',weekly:200},
+  'bukunmi@mycprteam.com': {name:'Bukunmi Aina',role:'Lead Generation',start:'2026-09-21',weekly:500},
+  'jay@mycprteam.com': {name:'Jay Rico',role:'Sales Rep',start:'2026-10-12',weekly:200},
+  'lester.leonardo1997@gmail.com': {name:'Lester Leonardo',role:'Sales Rep',start:'2026-10-12',weekly:200},
+  'fcacaasi@gmail.com': {name:'Fatima Charfina Caasi',role:'Bureau Caller',start:'2026-10-12',weekly:200},
+};
+
 // CP Restoration Management System — Core JavaScript v5
 // app.js — loaded by index.html
 // Fixes: session tracking, client search, onboarding next step, duplicate detection
@@ -1158,15 +1171,15 @@ async function loadApplications() {
 }
 
 function renderApplications() {
-  const loading = document.getElementById('apps-loading');
-  const wrap = document.getElementById('apps-table-wrap');
-  const tbody = document.getElementById('apps-table-body');
+  var loading = document.getElementById('apps-loading');
+  var wrap = document.getElementById('apps-table-wrap');
+  var tbody = document.getElementById('apps-table-body');
   if(loading) loading.style.display = 'none';
   if(wrap) wrap.style.display = 'block';
-
-  const pending = allApplications.filter(a => a.status === 'pending').length;
-  const approved = allApplications.filter(a => a.status === 'approved').length;
-  const declined = allApplications.filter(a => a.status === 'declined').length;
+  // Use app_status (actual DB field) not status
+  var pending = allApplications.filter(function(a){return !a.app_status||a.app_status==='pending';}).length;
+  var approved = allApplications.filter(function(a){return a.app_status==='approved';}).length;
+  var declined = allApplications.filter(function(a){return a.app_status==='declined';}).length;
   const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
   set('apps-pending', pending);
   set('apps-approved', approved);
@@ -1185,19 +1198,31 @@ function renderApplications() {
     declined: '<span class="badge badge-red">❌ Declined</span>',
   };
 
-  tbody.innerHTML = [...allApplications].sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt)).map(app => `
-    <tr>
-      <td><strong>${app.fullName || app.firstName + ' ' + app.lastName}</strong></td>
-      <td>${app.role || '—'}</td>
-      <td>${app.email || '—'}</td>
-      <td>${app.rate || '—'}/wk via ${app.payMethod || '—'}</td>
-      <td>${app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : '—'}</td>
-      <td>${statusBadge[app.status] || '<span class="badge badge-gray">Unknown</span>'}</td>
-      <td>
-        <button class="btn btn-outline btn-sm" onclick="viewApplication('${app.id}')">View</button>
-        ${app.status === 'pending' ? '<button class="btn btn-green btn-sm" style="margin-left:4px;" onclick="quickApprove(\'' + app.id + '\')">✅</button><button class="btn btn-red btn-sm" style="margin-left:4px;" onclick="quickDecline(\'' + app.id + '\')">❌</button>' : ''}
-      </td>
-    </tr>`).join('');
+  tbody.innerHTML = allApplications.map(function(a) {
+    var name = ((a.firstName||'') + ' ' + (a.lastName||'')).trim();
+    var emailKey = (a.workEmail||a.email||'').toLowerCase().trim();
+    var roster = TEAM_ROSTER[emailKey] || {};
+    var role = roster.role || a.source || '—';
+    var startDate = roster.start ? new Date(roster.start).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    var weekly = roster.weekly || 0;
+    var payDisplay = weekly ? '$'+weekly+'/wk via '+(a.paymentMethod||'Wise') : (a.paymentMethod||'—');
+    var st = a.app_status || 'pending';
+    var badge = st==='approved' ? '<span style="background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">✅ Approved</span>'
+              : st==='declined' ? '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">❌ Declined</span>'
+              : '<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">⏳ Pending</span>';
+    var submitted = a.submittedAt ? new Date(a.submittedAt).toLocaleDateString() : '—';
+    var actions = '<button class="btn btn-outline btn-sm" onclick="viewApplication('+a.id+')">View</button>';
+    if (st === 'pending' || !st) actions += ' <button onclick="quickApprove('+a.id+')" style="padding:3px 8px;background:#166534;color:white;border:none;border-radius:5px;font-size:11px;cursor:pointer;">✅</button> <button onclick="quickDecline('+a.id+')" style="padding:3px 8px;background:#991B1B;color:white;border:none;border-radius:5px;font-size:11px;cursor:pointer;">❌</button>';
+    return '<tr>'+
+      '<td><strong>'+name+'</strong><br><span style="font-size:11px;color:#64748B;">Start: '+startDate+'</span></td>'+
+      '<td style="font-size:12px;">'+role+'</td>'+
+      '<td style="font-size:12px;">'+emailKey+'</td>'+
+      '<td style="font-size:12px;">'+payDisplay+'</td>'+
+      '<td style="font-size:12px;">'+submitted+'</td>'+
+      '<td>'+badge+'</td>'+
+      '<td>'+actions+'</td>'+
+    '</tr>';
+  }).join('');
 }
 
 async function viewApplication(id) {
@@ -1310,3 +1335,42 @@ function declineApplication(i) {
 
 function quickApprove(id) { approveApplication(id); }
 function quickDecline(id) { declineApplication(id); }
+
+function enlargeID(src, name) {
+  var ex = document.getElementById('id-enlarge-overlay');
+  if (ex) ex.remove();
+  var overlay = document.createElement('div');
+  overlay.id = 'id-enlarge-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+  var safeName = (name||'ID').replace(/'/g,'');
+  var safeFile = safeName.replace(/\s+/g,'_')+'_ID';
+  overlay.innerHTML =
+    '<div style="position:relative;max-width:95vw;max-height:90vh;text-align:center;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+        '<span style="color:white;font-weight:700;font-size:15px;">'+safeName+' — ID Document</span>' +
+        '<div style="display:flex;gap:8px;">' +
+          '<a href="'+src+'" download="'+safeFile+'" onclick="event.stopPropagation()" '+
+            'style="padding:7px 16px;background:#166534;color:white;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;">⬇️ Download</a>' +
+          '<button onclick="document.getElementById(\'id-enlarge-overlay\').remove();" '+
+            'style="padding:7px 14px;background:#7F1D1D;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">✕ Close</button>' +
+        '</div>' +
+      '</div>' +
+      '<img src="'+src+'" style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:10px;box-shadow:0 0 60px rgba(0,0,0,.8);">' +
+    '</div>';
+  document.body.appendChild(overlay);
+}
+
+function calcProratedPay(weeklyPay, startDate) {
+  // Pay is for 5 days. If they start mid-week, prorate based on days worked.
+  var daily = weeklyPay / 5;
+  var start = new Date(startDate);
+  var dow = start.getDay(); // 0=Sun, 1=Mon ... 5=Fri, 6=Sat
+  // Days remaining in week (Mon-Fri)
+  var daysLeft;
+  if (dow === 0 || dow === 6) { daysLeft = 0; } // Weekend start = 0 days this week
+  else { daysLeft = 6 - dow; } // Mon=5, Tue=4, Wed=3, Thu=2, Fri=1
+  daysLeft = Math.min(daysLeft, 5);
+  var proratedPay = Math.round(daily * daysLeft * 100) / 100;
+  return { daily: daily.toFixed(2), daysLeft: daysLeft, proratedPay: proratedPay.toFixed(2) };
+}
