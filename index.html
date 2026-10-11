@@ -275,6 +275,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
     <button class="nav-btn" onclick="showPage('reports')">📈 Reports</button>
     <a href="https://portal-cprestorationsvcs.com/bonus-tracker.html" target="_blank" class="nav-btn admin-only" style="text-decoration:none;display:inline-flex;align-items:center;">🏆 Bonuses</a>
     <a href="https://portal-cprestorationsvcs.com/payroll.html" target="_blank" class="nav-btn admin-only" style="text-decoration:none;display:inline-flex;align-items:center;">💰 Payroll</a>
+    <a href="https://portal-cprestorationsvcs.com/compliance-review.html" target="_blank" class="nav-btn" style="text-decoration:none;display:inline-flex;align-items:center;background:#166534;color:white;">✅ Compliance</a>
     <a href="https://portal-cprestorationsvcs.com/urgent-alerts.html" target="_blank" class="nav-btn" style="text-decoration:none;display:inline-flex;align-items:center;background:#8B1A1A;color:white;">🚨 Urgent Alerts</a>
     <a href="https://portal-cprestorationsvcs.com/weekly-performance.html" target="_blank" class="nav-btn" style="text-decoration:none;display:inline-flex;align-items:center;background:#166534;color:white;">📊 Performance</a>
     <a href="https://portal-cprestorationsvcs.com/team-chat.html" target="_blank" class="nav-btn" style="text-decoration:none;display:inline-flex;align-items:center;">💬 Team Chat</a>
@@ -6694,6 +6695,43 @@ function renderBCAttachments() {
 <script src="app.js"></script>
 
 <script>
+// ── WORK FEED ─────────────────────────────────────────────────────
+async function loadWorkFeed() {
+  var el = document.getElementById('work-feed-content');
+  if (!el) return;
+  var today = new Date();
+  var day = today.getDay();
+  var mon = new Date(today); mon.setDate(today.getDate()-(day===0?6:day-1));
+  var weekStart = mon.toISOString().split('T')[0];
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/work_log?week_start=eq.'+weekStart+'&order=created_at.desc&limit=100', {
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var logs = await r.json();
+    if (!Array.isArray(logs)||!logs.length) { el.innerHTML='<div style="color:#94A3B8;text-align:center;padding:12px;">No activity logged this week yet.</div>'; return; }
+    var byEmp = {};
+    logs.forEach(function(l) {
+      var k=l.employee_email;
+      if(!byEmp[k]) byEmp[k]={name:l.employee_name,dept:l.department,count:0,approved:0,pending:0};
+      byEmp[k].count+=(l.quantity||1);
+      if(l.compliance_status==='approved') byEmp[k].approved++;
+      else if((l.compliance_status||'pending')==='pending') byEmp[k].pending++;
+    });
+    var deptColor={'Dispute':'#1B3A6B','CS':'#166534','Bureau':'#7C3AED','Compliance':'#C9A84C','Staff':'#64748B'};
+    el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">' +
+      Object.values(byEmp).map(function(e) {
+        var col = deptColor[e.dept]||'#64748B';
+        return '<div style="border:1.5px solid #E2E8F0;border-left:4px solid '+col+';border-radius:8px;padding:10px 12px;">'+
+          '<div style="font-weight:700;font-size:13px;">'+e.name+'</div>'+
+          '<div style="font-size:11px;color:'+col+';font-weight:600;margin:2px 0;">'+e.dept+'</div>'+
+          '<div style="font-size:13px;font-weight:800;color:#1B3A6B;">'+e.count+' actions</div>'+
+          '<div style="font-size:11px;color:#64748B;">'+e.approved+' approved · '+e.pending+' pending</div>'+
+        '</div>';
+      }).join('')+'</div>';
+  } catch(e) { el.innerHTML='<div style="color:red;font-size:12px;">Error loading: '+e.message+'</div>'; }
+}
+// Auto-load on dashboard open
+// ─────────────────────────────────────────────────────────────────
 // ── MISSING FUNCTION STUBS ─────────────────────────────────────────────────
 var _SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
 var _KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
