@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compliance Review — CP Restoration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:#F1F5F9;min-height:100vh;}
+header{background:#1B3A6B;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
+header h1{color:white;font-size:16px;font-weight:800;}
+header p{color:rgba(255,255,255,.7);font-size:12px;}
+.container{max-width:1100px;margin:0 auto;padding:20px;}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.filters select,.filters input{padding:7px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;background:white;}
+.filters button{padding:7px 16px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.summary-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px;}
+.sc{background:white;border-radius:10px;padding:12px 14px;box-shadow:0 2px 6px rgba(0,0,0,.05);text-align:center;}
+.sn{font-size:20px;font-weight:800;color:#1B3A6B;}
+.sl{font-size:11px;color:#64748B;margin-top:2px;}
+table{width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+th{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;padding:12px 14px;border-bottom:2px solid #F1F5F9;text-align:left;background:white;}
+td{font-size:12px;padding:10px 14px;border-bottom:1px solid #F8FAFC;color:#1E293B;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#F8FAFC;}
+.dept-badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:800;}
+.dept-Dispute{background:#DBEAFE;color:#1B3A6B;}
+.dept-CS{background:#DCFCE7;color:#166534;}
+.dept-Bureau{background:#EDE9FE;color:#7C3AED;}
+.dept-Staff{background:#F1F5F9;color:#64748B;}
+.status-pending{display:inline-block;background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.status-approved{display:inline-block;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.status-flagged{display:inline-block;background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.action-btn{padding:4px 10px;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;margin-right:4px;}
+.btn-approve{background:#DCFCE7;color:#166534;}
+.btn-flag{background:#FEE2E2;color:#991B1B;}
+.btn-approve:hover{background:#16A34A;color:white;}
+.btn-flag:hover{background:#DC2626;color:white;}
+.weekly-summary{background:white;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.ws-title{font-size:15px;font-weight:800;color:#1B3A6B;margin-bottom:14px;}
+.emp-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F1F5F9;}
+.emp-row:last-child{border-bottom:none;}
+.emp-name{font-weight:700;font-size:13px;}
+.emp-dept{font-size:11px;color:#64748B;}
+.emp-count{font-size:13px;font-weight:700;color:#1B3A6B;}
+.emp-bonus{font-size:12px;font-weight:700;color:#166534;}
+.progress-bar{background:#F1F5F9;border-radius:20px;height:8px;width:120px;}
+.progress-fill{height:8px;border-radius:20px;}
+.pf-green{background:#16A34A;} .pf-yellow{background:#CA8A04;} .pf-red{background:#DC2626;}
+.loading{text-align:center;padding:32px;color:#94A3B8;font-size:13px;}
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;}
+.tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:white;color:#64748B;}
+.tab.active{background:#1B3A6B;color:white;}
+.tab-pane{display:none;} .tab-pane.active{display:block;}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>✅ Compliance Review — CP Restoration Services</h1><p>Queen Jearel Cruz — Review all department activity and submit weekly report to Jason</p></div>
+  <button onclick="submitWeeklyReport()" style="padding:9px 18px;background:#C9A84C;color:white;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:13px;">📋 Submit Weekly Report to Jason</button>
+</header>
+
+<div class="container">
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('review')">📋 Activity Review</button>
+    <button class="tab" onclick="switchTab('summary')">📊 Weekly Summary</button>
+    <button class="tab" onclick="switchTab('bonuses')">🏆 Bonus Calculation</button>
+  </div>
+
+  <!-- REVIEW TAB -->
+  <div id="tab-review" class="tab-pane active">
+    <div class="filters">
+      <input type="date" id="f-start" placeholder="From">
+      <input type="date" id="f-end" placeholder="To">
+      <select id="f-dept">
+        <option value="">All Departments</option>
+        <option value="Dispute">Dispute</option>
+        <option value="CS">Customer Service</option>
+        <option value="Bureau">Bureau Caller</option>
+      </select>
+      <select id="f-status">
+        <option value="">All Status</option>
+        <option value="pending">Pending Review</option>
+        <option value="approved">Approved</option>
+        <option value="flagged">Flagged</option>
+      </select>
+      <button onclick="loadActivity()">🔍 Load</button>
+      <button onclick="approveAll()" style="background:#166534;">✅ Approve All Pending</button>
+    </div>
+    <div class="summary-strip">
+      <div class="sc"><div class="sn" id="s-total">0</div><div class="sl">Total Actions</div></div>
+      <div class="sc"><div class="sn" id="s-pending">0</div><div class="sl">Pending Review</div></div>
+      <div class="sc"><div class="sn" id="s-approved">0</div><div class="sl">Approved</div></div>
+      <div class="sc"><div class="sn" id="s-flagged">0</div><div class="sl">Flagged</div></div>
+      <div class="sc"><div class="sn" id="s-disputes">0</div><div class="sl">Disputes Filed</div></div>
+      <div class="sc"><div class="sn" id="s-calls">0</div><div class="sl">CS Actions</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Date/Time</th><th>Employee</th><th>Dept</th><th>Action</th><th>Client</th><th>Details</th><th>Status</th><th>Review</th></tr></thead>
+      <tbody id="activity-tbody"><tr><td colspan="8" class="loading">Select a date range and click Load</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- SUMMARY TAB -->
+  <div id="tab-summary" class="tab-pane">
+    <div class="weekly-summary">
+      <div class="ws-title">📊 Weekly Performance Summary by Employee</div>
+      <div id="summary-content" class="loading">Load activity first</div>
+    </div>
+  </div>
+
+  <!-- BONUSES TAB -->
+  <div id="tab-bonuses" class="tab-pane">
+    <div class="weekly-summary">
+      <div class="ws-title">🏆 Bonus Calculation — This Week</div>
+      <div id="bonus-content" class="loading">Load activity first</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var _KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var _SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var _HDR = {'apikey':_KEY,'Authorization':'Bearer '+_KEY,'Content-Type':'application/json'};
+
+var allActivity = [];
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+async function loadActivity() {
+  var start = document.getElementById('f-start').value;
+  var end   = document.getElementById('f-end').value;
+  var dept  = document.getElementById('f-dept').value;
+  var status= document.getElementById('f-status').value;
+  var tbody = document.getElementById('activity-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" class="loading">⏳ Loading...</td></tr>';
+
+  var url = _SUPA+'/work_log?order=created_at.desc&limit=500';
+  if (start) url += '&created_at=gte.'+start+'T00:00:00';
+  if (end)   url += '&created_at=lte.'+end+'T23:59:59';
+  if (dept)  url += '&department=eq.'+dept;
+  if (status)url += '&compliance_status=eq.'+status;
+
+  try {
+    var r = await fetch(url, {headers:_HDR});
+    allActivity = await r.json();
+    if (!Array.isArray(allActivity)) { allActivity=[]; tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:red;padding:20px;">Error loading data</td></tr>'; return; }
+    renderActivity();
+    renderSummary();
+    renderBonuses();
+  } catch(e) {
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:red;padding:20px;">Error: '+e.message+'</td></tr>';
+  }
+}
+
+function renderActivity() {
+  var tbody = document.getElementById('activity-tbody');
+  var pending=0,approved=0,flagged=0,disputes=0,cs=0;
+  if (!allActivity.length) { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#94A3B8;padding:24px;">No activity found for this period.</td></tr>'; return; }
+  tbody.innerHTML = allActivity.map(function(a,i) {
+    var st = a.compliance_status||'pending';
+    if(st==='pending') pending++;
+    else if(st==='approved') approved++;
+    else if(st==='flagged') flagged++;
+    if(a.department==='Dispute') disputes+=(a.quantity||1);
+    if(a.department==='CS') cs+=(a.quantity||1);
+    var dt = a.created_at ? new Date(a.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    var stBadge = st==='approved'?'<span class="status-approved">✅ Approved</span>':st==='flagged'?'<span class="status-flagged">⚠️ Flagged</span>':'<span class="status-pending">⏳ Pending</span>';
+    var actions = st==='pending' ?
+      '<button class="action-btn btn-approve" onclick="reviewItem('+a.id+',\'approved\','+i+')">✅ Approve</button>'+
+      '<button class="action-btn btn-flag" onclick="reviewItem('+a.id+',\'flagged\','+i+')">⚠️ Flag</button>' : '—';
+    return '<tr>'+
+      '<td style="font-size:11px;white-space:nowrap;">'+dt+'</td>'+
+      '<td><strong>'+a.employee_name+'</strong></td>'+
+      '<td><span class="dept-badge dept-'+a.department+'">'+a.department+'</span></td>'+
+      '<td>'+a.action_type+'</td>'+
+      '<td style="font-size:11px;">'+((a.client_id||'')+(a.client_name?' — '+a.client_name:''))+'</td>'+
+      '<td style="font-size:11px;color:#64748B;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(a.details||'—')+'</td>'+
+      '<td>'+stBadge+'</td>'+
+      '<td>'+actions+'</td>'+
+    '</tr>';
+  }).join('');
+  // Update stats
+  var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  s('s-total',allActivity.length); s('s-pending',pending); s('s-approved',approved);
+  s('s-flagged',flagged); s('s-disputes',disputes); s('s-calls',cs);
+}
+
+async function reviewItem(id, status, idx) {
+  try {
+    var r = await fetch(_SUPA+'/work_log?id=eq.'+id, {
+      method:'PATCH',
+      headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({compliance_status:status, reviewed_by:'queen@mycprteam.com', reviewed_at:new Date().toISOString()})
+    });
+    if (r.ok || r.status===204) {
+      allActivity[idx].compliance_status = status;
+      renderActivity();
+      renderSummary();
+      renderBonuses();
+    }
+  } catch(e) { alert('Error: '+e.message); }
+}
+
+async function approveAll() {
+  var pending = allActivity.filter(function(a){return (a.compliance_status||'pending')==='pending';});
+  if (!pending.length) { alert('No pending items to approve.'); return; }
+  if (!confirm('Approve all '+pending.length+' pending items?')) return;
+  var ids = pending.map(function(a){return a.id;});
+  // Batch approve
+  for (var i=0; i<ids.length; i++) {
+    await fetch(_SUPA+'/work_log?id=eq.'+ids[i], {
+      method:'PATCH',
+      headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({compliance_status:'approved', reviewed_by:'queen@mycprteam.com', reviewed_at:new Date().toISOString()})
+    });
+    allActivity.find(function(a){return a.id===ids[i];}).compliance_status='approved';
+  }
+  renderActivity(); renderSummary(); renderBonuses();
+  alert('✅ All '+ids.length+' items approved!');
+}
+
+function renderSummary() {
+  var byEmp = {};
+  allActivity.forEach(function(a) {
+    var k = a.employee_email;
+    if (!byEmp[k]) byEmp[k] = {name:a.employee_name,dept:a.department,actions:0,disputes:0,cs:0,bureau:0,approved:0};
+    byEmp[k].actions++;
+    if(a.department==='Dispute') byEmp[k].disputes+=(a.quantity||1);
+    if(a.department==='CS') byEmp[k].cs+=(a.quantity||1);
+    if(a.department==='Bureau') byEmp[k].bureau+=(a.quantity||1);
+    if(a.compliance_status==='approved') byEmp[k].approved++;
+  });
+  var html = Object.values(byEmp).map(function(e) {
+    return '<div class="emp-row">'+
+      '<div><div class="emp-name">'+e.name+'</div><div class="emp-dept">'+e.dept+'</div></div>'+
+      '<div style="text-align:center;"><div class="emp-count">'+e.actions+' actions</div><div style="font-size:11px;color:#64748B;">'+e.approved+' approved</div></div>'+
+      '<div>'+
+        (e.dept==='Dispute'?'<div style="font-size:12px;font-weight:700;">'+e.disputes+' disputes</div>':'')+ 
+        (e.dept==='CS'?'<div style="font-size:12px;font-weight:700;">'+e.cs+' clients</div>':'')+ 
+        (e.dept==='Bureau'?'<div style="font-size:12px;font-weight:700;">'+e.bureau+' calls</div>':'')+ 
+      '</div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('summary-content').innerHTML = html || '<div class="loading">No data yet</div>';
+}
+
+function renderBonuses() {
+  var byEmp = {};
+  allActivity.filter(function(a){return a.compliance_status==='approved';}).forEach(function(a) {
+    var k = a.employee_email;
+    if (!byEmp[k]) byEmp[k] = {name:a.employee_name,dept:a.department,disputes:0,cs:0,bureau:0,base:100};
+    if(a.department==='Dispute') byEmp[k].disputes+=(a.quantity||1);
+    if(a.department==='CS') byEmp[k].cs+=(a.quantity||1);
+    if(a.department==='Bureau') byEmp[k].bureau+=(a.quantity||1);
+  });
+  // Set correct base pays
+  var basePay = {'marcelo@mycprteam.com':100,'kimwell@mycprteam.com':100,'annabel@mycprteam.com':100,'elna@mycprteam.com':100,'alec@mycprteam.com':100,'fcacaasi@gmail.com':100,'queen@mycprteam.com':200,'bukunmi@mycprteam.com':250};
+  var totalBonus=0, totalBase=0;
+  var rows = Object.entries(byEmp).map(function(kv) {
+    var email=kv[0], e=kv[1];
+    var base = basePay[email]||100;
+    var bonus=0, bonusNote='';
+    if(e.dept==='Dispute'){
+      if(e.disputes>=100){bonus=50;bonusNote='100+ disputes → $50';}
+      else if(e.disputes>=50){bonus=25;bonusNote='50+ disputes → $25';}
+      else{bonusNote=e.disputes+'/50 disputes (need '+(50-e.disputes)+' more)';}
+    } else if(e.dept==='CS'){
+      if(e.cs>=50){bonus=25;bonusNote='50+ clients → $25';}
+      else{bonusNote=e.cs+'/50 clients (need '+(50-e.cs)+' more)';}
+    } else if(e.dept==='Bureau'){
+      if(e.bureau>=50){bonus=25;bonusNote='50+ calls → $25';}
+      else{bonusNote=e.bureau+'/50 calls (need '+(50-e.bureau)+' more)';}
+    }
+    totalBonus+=bonus; totalBase+=base;
+    var bonusBadge = bonus>0?'<span style="background:#DCFCE7;color:#166534;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:800;">+$'+bonus+'</span>':'<span style="background:#F1F5F9;color:#94A3B8;padding:3px 10px;border-radius:10px;font-size:12px;">$0</span>';
+    return '<div class="emp-row">'+
+      '<div><div class="emp-name">'+e.name+'</div><div class="emp-dept">'+e.dept+'</div></div>'+
+      '<div style="font-size:12px;color:#64748B;">'+bonusNote+'</div>'+
+      '<div style="text-align:right;">'+bonusBadge+'<div style="font-size:11px;color:#64748B;margin-top:2px;">Base: $'+base+' | Total: $'+(base+bonus)+'</div></div>'+
+    '</div>';
+  });
+  rows.push('<div style="padding:14px 0;border-top:2px solid #E2E8F0;display:flex;justify-content:space-between;font-weight:800;font-size:14px;"><span>TOTAL THIS PERIOD</span><span style="color:#1B3A6B;">Base: $'+totalBase+' + Bonus: $'+totalBonus+' = $'+(totalBase+totalBonus)+'</span></div>');
+  document.getElementById('bonus-content').innerHTML = rows.join('') || '<div class="loading">No approved activity yet</div>';
+}
+
+async function submitWeeklyReport() {
+  var approved = allActivity.filter(function(a){return a.compliance_status==='approved';}).length;
+  var pending  = allActivity.filter(function(a){return (a.compliance_status||'pending')==='pending';}).length;
+  var flagged  = allActivity.filter(function(a){return a.compliance_status==='flagged';}).length;
+  if (pending > 0 && !confirm(pending+' items still pending. Submit report anyway?')) return;
+  var byEmp={};
+  allActivity.filter(function(a){return a.compliance_status==='approved';}).forEach(function(a){
+    var k=a.employee_email;
+    if(!byEmp[k]) byEmp[k]={name:a.employee_name,dept:a.department,count:0};
+    byEmp[k].count+=(a.quantity||1);
+  });
+  var summary='WEEKLY COMPLIANCE REPORT\nSubmitted by: Queen Jearel Cruz\nDate: '+new Date().toLocaleDateString()+'\n\nACTIVITY SUMMARY:\n';
+  Object.values(byEmp).forEach(function(e){summary+=e.name+' ('+e.dept+'): '+e.count+' actions\n';});
+  summary+='\nTOTAL: '+approved+' approved | '+pending+' pending | '+flagged+' flagged';
+  // Post to work_log as a compliance report
+  var r = await fetch(_SUPA+'/work_log',{
+    method:'POST',
+    headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
+    body:JSON.stringify({employee_email:'queen@mycprteam.com',employee_name:'Queen Jearel Cruz',department:'Compliance',action_type:'Weekly Report Submitted',details:summary,compliance_status:'approved',week_start:document.getElementById('f-start').value||new Date().toISOString().split('T')[0]})
+  });
+  if(r.ok||r.status===201||r.status===204){alert('✅ Weekly report submitted to Jason!');}
+  else{alert('Error submitting report');}
+}
+
+// Init — default to current week
+(function(){
+  var today=new Date();
+  var day=today.getDay();
+  var mon=new Date(today); mon.setDate(today.getDate()-(day===0?6:day-1));
+  var fri=new Date(mon); fri.setDate(mon.getDate()+6);
+  document.getElementById('f-start').value=mon.toISOString().split('T')[0];
+  document.getElementById('f-end').value=fri.toISOString().split('T')[0];
+  loadActivity();
+})();
+</script>
+</body>
+</html>
