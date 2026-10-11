@@ -12,144 +12,113 @@ header h1{color:white;font-size:16px;font-weight:800;}
 header p{color:rgba(255,255,255,.7);font-size:12px;margin-top:2px;}
 .container{max-width:960px;margin:0 auto;padding:20px;}
 .week-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
-.week-bar input{padding:7px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;}
+.week-bar input{padding:7px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;}
 .week-bar button{padding:7px 16px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
-.week-nav{padding:7px 12px;background:white;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:#1B3A6B;}
+.week-nav{background:white!important;color:#1B3A6B!important;border:1.5px solid #E2E8F0!important;}
 .dept-card{background:white;border-radius:12px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden;}
 .dept-header{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
 .dept-header.dispute{background:#1B3A6B;}
 .dept-header.cs{background:#166534;}
 .dept-header.bureau{background:#7C3AED;}
+.dept-header.nobonus{background:#64748B;}
 .dept-title{color:white;font-size:15px;font-weight:800;}
 .dept-quota{color:rgba(255,255,255,.8);font-size:12px;margin-top:2px;}
+.log-btn{padding:7px 14px;background:rgba(255,255,255,.2);color:white;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;}
+.log-btn:hover{background:rgba(255,255,255,.35);}
 table{width:100%;border-collapse:collapse;}
 th{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;padding:10px 16px;border-bottom:2px solid #F1F5F9;text-align:left;}
 td{font-size:13px;padding:12px 16px;border-bottom:1px solid #F8FAFC;color:#1E293B;vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
-.progress-wrap{background:#F1F5F9;border-radius:20px;height:10px;width:120px;display:inline-block;vertical-align:middle;}
-.progress-fill{height:10px;border-radius:20px;}
-.fill-red{background:#DC2626;}
-.fill-yellow{background:#CA8A04;}
-.fill-green{background:#16A34A;}
-.fill-gold{background:#C9A84C;}
-.bonus-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;}
-.bonus-0{background:#F1F5F9;color:#94A3B8;}
-.bonus-25{background:#FEF3C7;color:#92400E;}
-.bonus-50{background:#DCFCE7;color:#166534;}
+.pw{background:#F1F5F9;border-radius:20px;height:10px;width:120px;display:inline-block;vertical-align:middle;}
+.pf{height:10px;border-radius:20px;}
+.red{background:#DC2626;}.yellow{background:#CA8A04;}.green{background:#16A34A;}.gold{background:#C9A84C;}
+.bb{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;}
+.b0{background:#F1F5F9;color:#94A3B8;}
+.b25{background:#FEF3C7;color:#92400E;}
+.b50{background:#DCFCE7;color:#166534;}
 .total-row{background:#F8FAFC;font-weight:800;}
-.log-btn{padding:5px 12px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;font-weight:700;}
-.log-btn:hover{background:#153060;}
 .summary-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
-.sum-card{background:white;border-radius:10px;padding:12px 14px;box-shadow:0 2px 6px rgba(0,0,0,.05);text-align:center;}
-.sum-num{font-size:22px;font-weight:800;color:#1B3A6B;}
-.sum-lbl{font-size:11px;color:#64748B;margin-top:2px;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;}
-.modal-overlay.open{display:flex;}
-.modal{background:white;border-radius:14px;padding:24px;max-width:420px;width:100%;}
+.sc{background:white;border-radius:10px;padding:12px 14px;box-shadow:0 2px 6px rgba(0,0,0,.05);text-align:center;}
+.sn{font-size:22px;font-weight:800;color:#1B3A6B;}
+.sl{font-size:11px;color:#64748B;margin-top:2px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:white;border-radius:14px;padding:24px;max-width:420px;width:100%;margin:16px;}
 .modal h3{font-size:16px;font-weight:800;margin-bottom:16px;color:#1B3A6B;}
-.modal input,.modal select{width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-bottom:10px;}
+.modal select,.modal input[type=number]{width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-bottom:12px;font-family:inherit;}
+.modal label{font-size:12px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;}
 .modal-btns{display:flex;gap:8px;margin-top:6px;}
-.btn-save{flex:1;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;}
-.btn-cancel{padding:10px 16px;background:#F1F5F9;color:#374151;border:none;border-radius:8px;font-weight:700;cursor:pointer;}
-.loading{text-align:center;padding:24px;color:#94A3B8;font-size:13px;}
+.btn-save{flex:1;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;}
+.btn-cancel{padding:10px 16px;background:#F1F5F9;color:#374151;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;}
 </style>
 </head>
 <body>
-
 <header>
   <h1>🏆 Bonus & Commission Tracker — CP Restoration Services</h1>
-  <p>Bonuses auto-calculate from logged activity. Click "Log Activity" to record weekly performance.</p>
+  <p>Weekly performance bonuses auto-calculate per department. Jason logs final numbers each Friday.</p>
 </header>
-
 <div class="container">
-
   <div class="week-bar">
-    <button class="week-nav" onclick="shiftWeek(-1)">← Prev Week</button>
-    <span style="font-size:13px;font-weight:600;color:#374151;">Week of</span>
+    <button class="week-nav" onclick="shiftWeek(-1)">← Prev</button>
+    <span style="font-size:13px;font-weight:600;color:#374151;">Week:</span>
     <input type="date" id="w-start">
     <span style="font-size:13px;color:#64748B;">to</span>
     <input type="date" id="w-end">
     <button onclick="loadAll()">🔄 Load</button>
-    <button class="week-nav" onclick="shiftWeek(1)">Next Week →</button>
-    <button onclick="window.print()" style="padding:7px 14px;background:white;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;cursor:pointer;">🖨️ Print</button>
+    <button class="week-nav" onclick="shiftWeek(1)">Next →</button>
+    <button onclick="window.print()" style="padding:7px 14px;background:white;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;">🖨️ Print</button>
   </div>
-
   <div class="summary-strip">
-    <div class="sum-card"><div class="sum-num" id="s-total-bonus">$0</div><div class="sum-lbl">Total Bonuses This Week</div></div>
-    <div class="sum-card"><div class="sum-num" id="s-disputes">0</div><div class="sum-lbl">Total Disputes Filed</div></div>
-    <div class="sum-card"><div class="sum-num" id="s-cs-calls">0</div><div class="sum-lbl">CS Client Calls</div></div>
-    <div class="sum-card"><div class="sum-num" id="s-bureau-calls">0</div><div class="sum-lbl">Bureau Calls</div></div>
+    <div class="sc"><div class="sn" id="s-bonus">/bin/sh</div><div class="sl">Total Bonuses This Week</div></div>
+    <div class="sc"><div class="sn" id="s-disp">0</div><div class="sl">Disputes Filed</div></div>
+    <div class="sc"><div class="sn" id="s-cs">0</div><div class="sl">CS Clients Served</div></div>
+    <div class="sc"><div class="sn" id="s-bur">0</div><div class="sl">Bureau Calls</div></div>
   </div>
-
-  <!-- DISPUTE TEAM -->
+  <!-- DISPUTE -->
   <div class="dept-card">
     <div class="dept-header dispute">
-      <div>
-        <div class="dept-title">⚖️ Dispute Department</div>
-        <div class="dept-quota">Quota: 50 disputes/week = $25 bonus | 100 disputes/week = $50 bonus</div>
-      </div>
-      <button class="log-btn" onclick="openLogModal('dispute')">+ Log Activity</button>
+      <div><div class="dept-title">⚖️ Dispute Department</div><div class="dept-quota">50 disputes/wk = +5 &nbsp;|&nbsp; 100 disputes/wk = +0</div></div>
+      <button class="log-btn" onclick="openModal('dispute')">+ Log Activity</button>
     </div>
-    <table>
-      <thead><tr><th>Specialist</th><th>Disputes Filed</th><th>Progress</th><th>Bonus Earned</th><th>Base Pay</th><th>Total Pay</th></tr></thead>
-      <tbody id="dispute-tbody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
-    </table>
+    <table><thead><tr><th>Specialist</th><th>Disputes</th><th>Progress</th><th>Bonus</th><th>Base Pay</th><th>Total Pay</th></tr></thead>
+    <tbody id="t-dispute"></tbody></table>
   </div>
-
-  <!-- CS TEAM -->
+  <!-- CS -->
   <div class="dept-card">
     <div class="dept-header cs">
-      <div>
-        <div class="dept-title">📞 Customer Service Department</div>
-        <div class="dept-quota">Quota: 50 clients called + portal access + logins/week = $25 bonus</div>
-      </div>
-      <button class="log-btn" onclick="openLogModal('cs')">+ Log Activity</button>
+      <div><div class="dept-title">📞 Customer Service</div><div class="dept-quota">50 clients called + portal access/wk = +5</div></div>
+      <button class="log-btn" onclick="openModal('cs')">+ Log Activity</button>
     </div>
-    <table>
-      <thead><tr><th>Agent</th><th>Clients Called</th><th>Portal Access Given</th><th>Progress</th><th>Bonus Earned</th><th>Base Pay</th><th>Total Pay</th></tr></thead>
-      <tbody id="cs-tbody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
-    </table>
+    <table><thead><tr><th>Agent</th><th>Clients Called</th><th>Portal Access</th><th>Progress</th><th>Bonus</th><th>Base</th><th>Total</th></tr></thead>
+    <tbody id="t-cs"></tbody></table>
   </div>
-
-  <!-- BUREAU CALLER -->
+  <!-- BUREAU -->
   <div class="dept-card">
     <div class="dept-header bureau">
-      <div>
-        <div class="dept-title">📋 Bureau Caller Department</div>
-        <div class="dept-quota">Quota: 50 calls/week = $25 bonus</div>
-      </div>
-      <button class="log-btn" onclick="openLogModal('bureau')">+ Log Activity</button>
+      <div><div class="dept-title">📋 Bureau Caller</div><div class="dept-quota">50 bureau calls/wk = +5</div></div>
+      <button class="log-btn" onclick="openModal('bureau')">+ Log Activity</button>
     </div>
-    <table>
-      <thead><tr><th>Caller</th><th>Calls Made</th><th>Progress</th><th>Bonus Earned</th><th>Base Pay</th><th>Total Pay</th></tr></thead>
-      <tbody id="bureau-tbody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody>
-    </table>
+    <table><thead><tr><th>Caller</th><th>Calls Made</th><th>Progress</th><th>Bonus</th><th>Base</th><th>Total</th></tr></thead>
+    <tbody id="t-bureau"></tbody></table>
   </div>
-
   <!-- NO BONUS -->
   <div class="dept-card">
-    <div class="dept-header" style="background:#64748B;">
-      <div>
-        <div class="dept-title">📊 Lead Generation & Compliance</div>
-        <div class="dept-quota">Bukunmi Aina ($250/wk) | Queen Jearel Cruz ($200/wk) — Bonus evaluation in Jan 2027</div>
-      </div>
+    <div class="dept-header nobonus">
+      <div><div class="dept-title">📊 Lead Gen & Compliance</div><div class="dept-quota">Bonus evaluation — January 2027</div></div>
     </div>
-    <table>
-      <thead><tr><th>Employee</th><th>Role</th><th>Base Pay</th><th>Bonus</th><th>Total</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Bukunmi Aina</strong></td><td>Lead Generation</td><td>$250.00</td><td><span class="bonus-badge bonus-0">No Bonus Yet</span></td><td><strong>$250.00</strong></td></tr>
-        <tr><td><strong>Queen Jearel Cruz</strong></td><td>Compliance Specialist</td><td>$200.00</td><td><span class="bonus-badge bonus-0">Review Jan 2027</span></td><td><strong>$200.00</strong></td></tr>
-      </tbody>
-    </table>
+    <table><thead><tr><th>Employee</th><th>Role</th><th>Base Pay</th><th>Bonus</th><th>Total</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Bukunmi Aina</strong></td><td>Lead Generation</td><td>50.00</td><td><span class="bb b0">No Bonus Yet</span></td><td><strong>50.00</strong></td></tr>
+      <tr><td><strong>Queen Jearel Cruz</strong></td><td>Compliance Specialist</td><td>00.00</td><td><span class="bb b0">Review Jan 2027</span></td><td><strong>00.00</strong></td></tr>
+    </tbody>
   </div>
-
 </div>
 
-<!-- LOG ACTIVITY MODAL -->
-<div class="modal-overlay" id="log-modal">
+<!-- MODAL -->
+<div class="overlay" id="modal">
   <div class="modal">
-    <h3 id="modal-title">Log Weekly Activity</h3>
-    <div id="modal-fields"></div>
+    <h3 id="modal-title">Log Activity</h3>
+    <div id="modal-body"></div>
     <div class="modal-btns">
       <button class="btn-save" onclick="saveActivity()">💾 Save</button>
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -158,217 +127,158 @@ tr:last-child td{border-bottom:none;}
 </div>
 
 <script>
-var KEY =  + KEY + ;
-var SUPA =  + SUPA + ;
-var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+var _KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var _SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var _HDR = {'apikey':_KEY,'Authorization':'Bearer '+_KEY,'Content-Type':'application/json'};
 
-var DISPUTE_TEAM = [
-  {name:'Marcelo Torres', email:'marcelo@mycprteam.com', weekly:100},
-  {name:'Kimwell Ablaza',  email:'kimwell@mycprteam.com', weekly:100},
-  {name:'Annabel Curada',  email:'annabel@mycprteam.com', weekly:100},
-];
-var CS_TEAM = [
-  {name:'Elna Palabrica', email:'elna@mycprteam.com', weekly:100},
-  {name:'Alec Sarrosa',   email:'alec@mycprteam.com', weekly:100},
-];
-var BUREAU_TEAM = [
-  {name:'Fatima Charfina Caasi', email:'fcacaasi@gmail.com', weekly:100},
-];
+var DEPT = 'dispute';
+var WEEK_DATA = {};
 
-var currentDept = '';
-var weekData = {};
+var DISPUTE = [{name:'Marcelo Torres',email:'marcelo@mycprteam.com',base:100},{name:'Kimwell Ablaza',email:'kimwell@mycprteam.com',base:100},{name:'Annabel Curada',email:'annabel@mycprteam.com',base:100}];
+var CS      = [{name:'Elna Palabrica',email:'elna@mycprteam.com',base:100},{name:'Alec Sarrosa',email:'alec@mycprteam.com',base:100}];
+var BUREAU  = [{name:'Fatima Charfina Caasi',email:'fcacaasi@gmail.com',base:100}];
 
-function getWeek(){return {start:document.getElementById('w-start').value, end:document.getElementById('w-end').value};}
+function getWeek(){return{start:document.getElementById('w-start').value,end:document.getElementById('w-end').value};}
+
 function shiftWeek(d){
-  var s=new Date(document.getElementById('w-start').value);
-  var e=new Date(document.getElementById('w-end').value);
+  var s=new Date(document.getElementById('w-start').value||new Date());
+  var e=new Date(document.getElementById('w-end').value||new Date());
   s.setDate(s.getDate()+d*7); e.setDate(e.getDate()+d*7);
   document.getElementById('w-start').value=s.toISOString().split('T')[0];
   document.getElementById('w-end').value=e.toISOString().split('T')[0];
   loadAll();
 }
 
-function progressBar(val, quota, cls){
-  var pct = Math.min(100, Math.round(val/quota*100));
-  return '<div style="display:flex;align-items:center;gap:8px;">'+
-    '<div class="progress-wrap"><div class="progress-fill '+cls+'" style="width:'+pct+'%"></div></div>'+
-    '<span style="font-size:12px;color:#64748B;">'+val+'/'+quota+'</span></div>';
-}
+function dBonus(n){if(n>=100)return{a:50,cls:'b50',lbl:'🏆 0 BONUS'};if(n>=50)return{a:25,cls:'b25',lbl:'⭐ 5 BONUS'};return{a:0,cls:'b0',lbl:'Not yet'};}
+function sBonus(n,q,a){if(n>=q)return{a:a,cls:'b25',lbl:'⭐ $'+a+' BONUS'};return{a:0,cls:'b0',lbl:'Not yet'};}
 
-function disputeBonus(count){
-  if(count >= 100) return {amount:50, label:'$50.00', cls:'bonus-50', badge:'🏆 $50 BONUS'};
-  if(count >= 50)  return {amount:25, label:'$25.00', cls:'bonus-25', badge:'⭐ $25 BONUS'};
-  return {amount:0, label:'$0.00', cls:'bonus-0', badge:'Not yet'};
-}
-function simpleBonus(count, quota, amount){
-  if(count >= quota) return {amount:amount, label:'$'+amount+'.00', cls:'bonus-50', badge:'⭐ $'+amount+' BONUS'};
-  return {amount:0, label:'$0.00', cls:'bonus-0', badge:'Not yet'};
-}
-
-async function loadAll(){
-  var w = getWeek();
-  // Load from bonus_log table
-  try {
-    var r = await fetch(SUPA+'/bonus_log?week_start=eq.'+w.start+'&select=*', {headers:HDR});
-    var logs = await r.json();
-    if(!Array.isArray(logs)) logs = [];
-    weekData = {};
-    logs.forEach(function(l){ weekData[l.employee_email] = l; });
-  } catch(e){ weekData = {}; }
-  renderDispute(); renderCS(); renderBureau(); updateSummary();
+function bar(n,q){
+  var p=Math.min(100,Math.round(n/q*100));
+  var c=p>=100?'gold':p>=50?'green':p>=25?'yellow':'red';
+  return '<div style="display:flex;align-items:center;gap:8px;"><div class="pw"><div class="pf '+c+'" style="width:'+p+'%"></div></div><span style="font-size:12px;color:#64748B;">'+n+'/'+q+'</span></div>';
 }
 
 function renderDispute(){
-  var tbody = document.getElementById('dispute-tbody');
-  var totalBonus = 0;
-  tbody.innerHTML = DISPUTE_TEAM.map(function(emp){
-    var log = weekData[emp.email] || {};
-    var count = log.disputes_filed || 0;
-    var b = disputeBonus(count);
-    totalBonus += b.amount;
-    var pctCls = count>=100?'fill-gold':count>=50?'fill-green':count>=25?'fill-yellow':'fill-red';
-    var total = emp.weekly + b.amount;
-    return '<tr>'+
-      '<td><strong>'+emp.name+'</strong></td>'+
-      '<td style="font-size:14px;font-weight:700;">'+count+'</td>'+
-      '<td>'+progressBar(count,100,pctCls)+'</td>'+
-      '<td><span class="bonus-badge '+b.cls+'">'+b.badge+'</span></td>'+
-      '<td>$'+emp.weekly+'.00</td>'+
-      '<td style="font-weight:800;color:#1B3A6B;">$'+total+'.00</td>'+
-    '</tr>';
-  }).join('');
-  // Total row
-  var totalBase = DISPUTE_TEAM.reduce(function(s,e){return s+e.weekly;},0);
-  tbody.innerHTML += '<tr class="total-row"><td>TOTAL</td><td></td><td></td><td>+$'+totalBonus+'</td><td>$'+totalBase+'</td><td>$'+(totalBase+totalBonus)+'</td></tr>';
+  var tb=document.getElementById('t-dispute'); var tb2=0; var bb=0;
+  var rows=DISPUTE.map(function(e){
+    var l=WEEK_DATA[e.email]||{}; var n=l.disputes_filed||0;
+    var b=dBonus(n); bb+=b.a; tb2+=e.base;
+    var t=e.base+b.a;
+    return '<tr><td><strong>'+e.name+'</strong></td><td style="font-size:15px;font-weight:800;">'+n+'</td><td>'+bar(n,100)+'</td><td><span class="bb '+b.cls+'">'+b.lbl+'</span></td><td>$'+e.base+'</td><td style="font-weight:800;color:#1B3A6B;">$'+t+'</td></tr>';
+  });
+  rows.push('<tr class="total-row"><td>TOTAL</td><td></td><td></td><td>+$'+bb+'</td><td>$'+tb2+'</td><td>$'+(tb2+bb)+'</td></tr>');
+  tb.innerHTML=rows.join('');
+  return{disp:WEEK_DATA['_dispute_total']||DISPUTE.reduce(function(s,e){return s+(WEEK_DATA[e.email]||{}).disputes_filed||0;},0),bonus:bb};
 }
 
 function renderCS(){
-  var tbody = document.getElementById('cs-tbody');
-  var totalBonus = 0;
-  tbody.innerHTML = CS_TEAM.map(function(emp){
-    var log = weekData[emp.email] || {};
-    var calls = log.clients_called || 0;
-    var access = log.portal_access || 0;
-    var met = Math.min(calls, access);
-    var b = simpleBonus(met, 50, 25);
-    totalBonus += b.amount;
-    var pctCls = met>=50?'fill-green':met>=25?'fill-yellow':'fill-red';
-    var total = emp.weekly + b.amount;
-    return '<tr>'+
-      '<td><strong>'+emp.name+'</strong></td>'+
-      '<td style="font-weight:700;">'+calls+'</td>'+
-      '<td style="font-weight:700;">'+access+'</td>'+
-      '<td>'+progressBar(met,50,pctCls)+'</td>'+
-      '<td><span class="bonus-badge '+b.cls+'">'+b.badge+'</span></td>'+
-      '<td>$'+emp.weekly+'.00</td>'+
-      '<td style="font-weight:800;color:#166534;">$'+total+'.00</td>'+
-    '</tr>';
-  }).join('');
-  var totalBase = CS_TEAM.reduce(function(s,e){return s+e.weekly;},0);
-  tbody.innerHTML += '<tr class="total-row"><td>TOTAL</td><td></td><td></td><td></td><td>+$'+totalBonus+'</td><td>$'+totalBase+'</td><td>$'+(totalBase+totalBonus)+'</td></tr>';
+  var tb=document.getElementById('t-cs'); var tb2=0; var bb=0; var tc=0;
+  var rows=CS.map(function(e){
+    var l=WEEK_DATA[e.email]||{}; var calls=l.clients_called||0; var access=l.portal_access||0;
+    var met=Math.min(calls,access); var b=sBonus(met,50,25); bb+=b.a; tb2+=e.base; tc+=met;
+    var t=e.base+b.a;
+    return '<tr><td><strong>'+e.name+'</strong></td><td style="font-weight:700;">'+calls+'</td><td style="font-weight:700;">'+access+'</td><td>'+bar(met,50)+'</td><td><span class="bb '+b.cls+'">'+b.lbl+'</span></td><td>$'+e.base+'</td><td style="font-weight:800;color:#166534;">$'+t+'</td></tr>';
+  });
+  rows.push('<tr class="total-row"><td>TOTAL</td><td></td><td></td><td></td><td>+$'+bb+'</td><td>$'+tb2+'</td><td>$'+(tb2+bb)+'</td></tr>');
+  tb.innerHTML=rows.join('');
+  return{cs:tc,bonus:bb};
 }
 
 function renderBureau(){
-  var tbody = document.getElementById('bureau-tbody');
-  var totalBonus = 0;
-  tbody.innerHTML = BUREAU_TEAM.map(function(emp){
-    var log = weekData[emp.email] || {};
-    var calls = log.bureau_calls || 0;
-    var b = simpleBonus(calls, 50, 25);
-    totalBonus += b.amount;
-    var pctCls = calls>=50?'fill-green':calls>=25?'fill-yellow':'fill-red';
-    var total = emp.weekly + b.amount;
-    return '<tr>'+
-      '<td><strong>'+emp.name+'</strong></td>'+
-      '<td style="font-weight:700;">'+calls+'</td>'+
-      '<td>'+progressBar(calls,50,pctCls)+'</td>'+
-      '<td><span class="bonus-badge '+b.cls+'">'+b.badge+'</span></td>'+
-      '<td>$'+emp.weekly+'.00</td>'+
-      '<td style="font-weight:800;color:#7C3AED;">$'+total+'.00</td>'+
-    '</tr>';
-  }).join('');
-  var totalBase = BUREAU_TEAM.reduce(function(s,e){return s+e.weekly;},0);
-  tbody.innerHTML += '<tr class="total-row"><td>TOTAL</td><td></td><td></td><td>+$'+totalBonus+'</td><td>$'+totalBase+'</td><td>$'+(totalBase+totalBonus)+'</td></tr>';
+  var tb=document.getElementById('t-bureau'); var tb2=0; var bb=0; var tc=0;
+  var rows=BUREAU.map(function(e){
+    var l=WEEK_DATA[e.email]||{}; var n=l.bureau_calls||0;
+    var b=sBonus(n,50,25); bb+=b.a; tb2+=e.base; tc+=n;
+    var t=e.base+b.a;
+    return '<tr><td><strong>'+e.name+'</strong></td><td style="font-weight:700;">'+n+'</td><td>'+bar(n,50)+'</td><td><span class="bb '+b.cls+'">'+b.lbl+'</span></td><td>$'+e.base+'</td><td style="font-weight:800;color:#7C3AED;">$'+t+'</td></tr>';
+  });
+  rows.push('<tr class="total-row"><td>TOTAL</td><td></td><td></td><td>+$'+bb+'</td><td>$'+tb2+'</td><td>$'+(tb2+bb)+'</td></tr>');
+  tb.innerHTML=rows.join('');
+  return{bur:tc,bonus:bb};
 }
 
-function updateSummary(){
-  var totalBonus = 0;
-  var totalDisputes = 0; var totalCS = 0; var totalBureau = 0;
-  DISPUTE_TEAM.forEach(function(e){ var l=weekData[e.email]||{}; var c=l.disputes_filed||0; totalDisputes+=c; totalBonus+=disputeBonus(c).amount; });
-  CS_TEAM.forEach(function(e){ var l=weekData[e.email]||{}; var c=Math.min(l.clients_called||0,l.portal_access||0); totalCS+=c; totalBonus+=simpleBonus(c,50,25).amount; });
-  BUREAU_TEAM.forEach(function(e){ var l=weekData[e.email]||{}; var c=l.bureau_calls||0; totalBureau+=c; totalBonus+=simpleBonus(c,50,25).amount; });
-  document.getElementById('s-total-bonus').textContent='$'+totalBonus;
-  document.getElementById('s-disputes').textContent=totalDisputes;
-  document.getElementById('s-cs-calls').textContent=totalCS;
-  document.getElementById('s-bureau-calls').textContent=totalBureau;
+async function loadAll(){
+  var w=getWeek();
+  if(!w.start||!w.end){return;}
+  WEEK_DATA={};
+  try{
+    var r=await fetch(_SUPA+'/bonus_log?week_start=eq.'+w.start+'&select=*',{headers:_HDR});
+    if(r.ok){
+      var logs=await r.json();
+      if(Array.isArray(logs)) logs.forEach(function(l){WEEK_DATA[l.employee_email]=l;});
+    }
+  }catch(e){console.warn('Load error:',e.message);}
+  var d=renderDispute(); var c=renderCS(); var b=renderBureau();
+  var totalDisp=DISPUTE.reduce(function(s,e){return s+((WEEK_DATA[e.email]||{}).disputes_filed||0);},0);
+  document.getElementById('s-bonus').textContent='$'+(d.bonus+c.bonus+b.bonus);
+  document.getElementById('s-disp').textContent=totalDisp;
+  document.getElementById('s-cs').textContent=c.cs;
+  document.getElementById('s-bur').textContent=b.bur;
 }
 
-var modalEmp = null;
-function openLogModal(dept){
-  currentDept = dept;
-  var title = document.getElementById('modal-title');
-  var fields = document.getElementById('modal-fields');
-  var team = dept==='dispute'?DISPUTE_TEAM:dept==='cs'?CS_TEAM:BUREAU_TEAM;
-  title.textContent = 'Log Weekly Activity — '+(dept==='dispute'?'Dispute Team':dept==='cs'?'CS Team':'Bureau Caller');
-  var w = getWeek();
-  fields.innerHTML =
-    '<select id="m-emp" style="width:100%;padding:9px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-bottom:10px;">'+
-      team.map(function(e){return '<option value="'+e.email+'">'+e.name+'</option>';}).join('')+
-    '</select>'+
-    (dept==='dispute'?
-      '<label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px;">Disputes Filed This Week</label><input type="number" id="m-disputes" placeholder="0" min="0" style="width:100%;padding:9px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-bottom:10px;">':
-    dept==='cs'?
-      '<label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px;">Clients Called</label><input type="number" id="m-calls" placeholder="0" min="0" style="width:100%;padding:9px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-bottom:10px;">'+
-      '<label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px;">Portal Access Given</label><input type="number" id="m-access" placeholder="0" min="0" style="width:100%;padding:9px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-bottom:10px;">':
-      '<label style="font-size:12px;font-weight:600;color:#64748B;display:block;margin-bottom:4px;">Bureau Calls Made</label><input type="number" id="m-bureau" placeholder="0" min="0" style="width:100%;padding:9px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-bottom:10px;">')+
-    '<p style="font-size:11px;color:#94A3B8;">Week: '+w.start+' to '+w.end+'</p>';
-  document.getElementById('log-modal').classList.add('open');
+function openModal(dept){
+  DEPT=dept;
+  var team=dept==='dispute'?DISPUTE:dept==='cs'?CS:BUREAU;
+  document.getElementById('modal-title').textContent='Log Weekly Activity — '+(dept==='dispute'?'Dispute Team':dept==='cs'?'CS Team':'Bureau Caller');
+  var w=getWeek();
+  var body='<label>Select Employee</label><select id="m-emp">'+team.map(function(e){return'<option value="'+e.email+'">'+e.name+'</option>';}).join('')+'</select>';
+  if(dept==='dispute'){
+    body+='<label>Disputes Filed This Week</label><input type="number" id="m-f1" placeholder="0" min="0">';
+  } else if(dept==='cs'){
+    body+='<label>Clients Called</label><input type="number" id="m-f1" placeholder="0" min="0">';
+    body+='<label>Portal Access Given</label><input type="number" id="m-f2" placeholder="0" min="0">';
+  } else {
+    body+='<label>Bureau Calls Made</label><input type="number" id="m-f1" placeholder="0" min="0">';
+  }
+  body+='<p style="font-size:11px;color:#94A3B8;margin-top:4px;">Week: '+(w.start||'—')+' to '+(w.end||'—')+'</p>';
+  document.getElementById('modal-body').innerHTML=body;
+  document.getElementById('modal').classList.add('open');
 }
 
-function closeModal(){ document.getElementById('log-modal').classList.remove('open'); }
+function closeModal(){document.getElementById('modal').classList.remove('open');}
 
 async function saveActivity(){
-  var w = getWeek();
-  var email = document.getElementById('m-emp').value;
-  var data = {employee_email: email, week_start: w.start, week_end: w.end};
-  if(currentDept==='dispute') data.disputes_filed = parseInt(document.getElementById('m-disputes').value)||0;
-  else if(currentDept==='cs'){ data.clients_called=parseInt(document.getElementById('m-calls').value)||0; data.portal_access=parseInt(document.getElementById('m-access').value)||0; }
-  else data.bureau_calls = parseInt(document.getElementById('m-bureau').value)||0;
-
-  // Calculate bonus
-  if(currentDept==='dispute') data.bonus_earned = disputeBonus(data.disputes_filed).amount;
-  else if(currentDept==='cs') data.bonus_earned = simpleBonus(Math.min(data.clients_called,data.portal_access),50,25).amount;
-  else data.bonus_earned = simpleBonus(data.bureau_calls,50,25).amount;
-
-  try {
-    // Upsert by email + week_start
-    var existing = Object.keys(weekData).find(function(k){return k===email;});
-    var method = existing ? 'PATCH' : 'POST';
-    var url = SUPA+'/bonus_log'+(existing?'?employee_email=eq.'+encodeURIComponent(email)+'&week_start=eq.'+w.start:'');
-    var r = await fetch(url, {
-      method: method,
-      headers: Object.assign({}, HDR, {'Prefer': method==='POST'?'return=minimal':'return=minimal'}),
-      body: JSON.stringify(data)
-    });
-    if(r.ok){
-      closeModal();
-      loadAll();
-      alert('✅ Activity saved! Bonus calculated.');
+  var w=getWeek();
+  var email=document.getElementById('m-emp').value;
+  var f1=parseInt((document.getElementById('m-f1')||{}).value)||0;
+  var f2=parseInt((document.getElementById('m-f2')||{}).value)||0;
+  var data={employee_email:email,week_start:w.start,week_end:w.end};
+  if(DEPT==='dispute'){data.disputes_filed=f1; data.bonus_earned=dBonus(f1).a;}
+  else if(DEPT==='cs'){data.clients_called=f1; data.portal_access=f2; data.bonus_earned=sBonus(Math.min(f1,f2),50,25).a;}
+  else{data.bureau_calls=f1; data.bonus_earned=sBonus(f1,50,25).a;}
+  try{
+    // Try PATCH first (update existing)
+    var existing=WEEK_DATA[email];
+    var method=existing?'PATCH':'POST';
+    var url=_SUPA+'/bonus_log'+(existing?'?employee_email=eq.'+encodeURIComponent(email)+'&week_start=eq.'+encodeURIComponent(w.start):'');
+    var hdr=Object.assign({},_HDR,{'Prefer':'return=minimal'});
+    if(method==='POST') hdr['Prefer']='return=minimal';
+    var r=await fetch(url,{method:method,headers:hdr,body:JSON.stringify(data)});
+    if(r.ok||r.status===204){
+      closeModal(); loadAll();
+      alert('Saved! Bonus: $'+data.bonus_earned);
     } else {
-      var err = await r.text();
-      alert('Error saving: '+err.substring(0,100));
+      var txt=await r.text();
+      // If PATCH fails because record doesn't exist, try POST
+      if(method==='PATCH'){
+        var r2=await fetch(_SUPA+'/bonus_log',{method:'POST',headers:hdr,body:JSON.stringify(data)});
+        if(r2.ok||r2.status===201||r2.status===204){closeModal();loadAll();alert('Saved! Bonus: $'+data.bonus_earned);}
+        else{alert('Error: '+(await r2.text()).substring(0,100));}
+      } else {
+        alert('Error: '+txt.substring(0,100));
+      }
     }
-  } catch(e){ alert('Network error: '+e.message); }
+  }catch(e){alert('Network error: '+e.message);}
 }
 
 // Init
 (function(){
-  var today = new Date();
-  var day = today.getDay();
-  var monday = new Date(today); monday.setDate(today.getDate()-(day===0?6:day-1));
-  var friday = new Date(monday); friday.setDate(monday.getDate()+4);
-  document.getElementById('w-start').value = monday.toISOString().split('T')[0];
-  document.getElementById('w-end').value = friday.toISOString().split('T')[0];
+  var today=new Date();
+  var day=today.getDay();
+  var mon=new Date(today); mon.setDate(today.getDate()-(day===0?6:day-1));
+  var fri=new Date(mon); fri.setDate(mon.getDate()+4);
+  document.getElementById('w-start').value=mon.toISOString().split('T')[0];
+  document.getElementById('w-end').value=fri.toISOString().split('T')[0];
   loadAll();
 })();
 </script>
