@@ -101,6 +101,16 @@ tr:last-child td{border-bottom:none;}
     <table><thead><tr><th>Caller</th><th>Calls Made</th><th>Progress</th><th>Bonus</th><th>Base</th><th>Total</th></tr></thead>
     <tbody id="t-bureau"></tbody></table>
   </div>
+  <!-- SALES -->
+  <div class="dept-card">
+    <div class="dept-header" style="background:#C9A84C;">
+      <div><div class="dept-title">💼 Sales Department</div><div class="dept-quota">10% commission on every new client onboarded — logged per sale</div></div>
+      <button class="log-btn" onclick="openModal('sales')">+ Log Sale</button>
+    </div>
+    <table><thead><tr><th>Rep</th><th>Clients Onboarded</th><th>Total Revenue</th><th>10% Commission</th><th>Base Pay</th><th>Total Pay</th></tr></thead>
+    <tbody id="t-sales"></tbody></table>
+  </div>
+
   <!-- NO BONUS -->
   <div class="dept-card">
     <div class="dept-header nobonus">
@@ -137,6 +147,9 @@ var WEEK_DATA = {};
 var DISPUTE = [{name:'Marcelo Torres',email:'marcelo@mycprteam.com',base:100},{name:'Kimwell Ablaza',email:'kimwell@mycprteam.com',base:100},{name:'Annabel Curada',email:'annabel@mycprteam.com',base:100}];
 var CS      = [{name:'Elna Palabrica',email:'elna@mycprteam.com',base:100},{name:'Alec Sarrosa',email:'alec@mycprteam.com',base:100}];
 var BUREAU  = [{name:'Fatima Charfina Caasi',email:'fcacaasi@gmail.com',base:100}];
+var SALES   = [
+  {name:'Lester Leonardo',email:'lester.leonardo1997@gmail.com',base:0},
+];
 
 function getWeek(){return{start:document.getElementById('w-start').value,end:document.getElementById('w-end').value};}
 
@@ -184,6 +197,31 @@ function renderCS(){
   return{cs:tc,bonus:bb};
 }
 
+function renderSales(){
+  var tb=document.getElementById('t-sales');
+  if(!tb) return;
+  var totalComm=0;
+  var rows=SALES.map(function(e){
+    var l=WEEK_DATA[e.email]||{};
+    var clients=l.clients_onboarded||0;
+    var revenue=l.sales_revenue||0;
+    var comm=Math.round(revenue*0.10*100)/100;
+    totalComm+=comm;
+    var total=comm; // sales base is commission only for now
+    return '<tr>'+
+      '<td><strong>'+e.name+'</strong></td>'+
+      '<td style="font-size:15px;font-weight:800;">'+clients+'</td>'+
+      '<td style="font-weight:700;">$'+revenue.toFixed(2)+'</td>'+
+      '<td style="font-weight:800;color:#C9A84C;">$'+comm.toFixed(2)+'</td>'+
+      '<td>$'+e.base+'</td>'+
+      '<td style="font-weight:800;color:#C9A84C;">$'+total.toFixed(2)+'</td>'+
+    '</tr>';
+  }).join('');
+  rows+='<tr class="total-row"><td>TOTAL</td><td></td><td></td><td style="color:#C9A84C;">$'+totalComm.toFixed(2)+'</td><td>$0</td><td>$'+totalComm.toFixed(2)+'</td></tr>';
+  tb.innerHTML=rows;
+  return{comm:totalComm};
+}
+
 function renderBureau(){
   var tb=document.getElementById('t-bureau'); var tb2=0; var bb=0; var tc=0;
   var rows=BUREAU.map(function(e){
@@ -208,7 +246,7 @@ async function loadAll(){
       if(Array.isArray(logs)) logs.forEach(function(l){WEEK_DATA[l.employee_email]=l;});
     }
   }catch(e){console.warn('Load error:',e.message);}
-  var d=renderDispute(); var c=renderCS(); var b=renderBureau();
+  var d=renderDispute(); var c=renderCS(); var b=renderBureau(); var sl=renderSales()||{comm:0};
   var totalDisp=DISPUTE.reduce(function(s,e){return s+((WEEK_DATA[e.email]||{}).disputes_filed||0);},0);
   document.getElementById('s-bonus').textContent='$'+(d.bonus+c.bonus+b.bonus);
   document.getElementById('s-disp').textContent=totalDisp;
@@ -218,7 +256,7 @@ async function loadAll(){
 
 function openModal(dept){
   DEPT=dept;
-  var team=dept==='dispute'?DISPUTE:dept==='cs'?CS:BUREAU;
+  var team=dept==='dispute'?DISPUTE:dept==='cs'?CS:dept==='sales'?SALES:BUREAU;
   document.getElementById('modal-title').textContent='Log Weekly Activity — '+(dept==='dispute'?'Dispute Team':dept==='cs'?'CS Team':'Bureau Caller');
   var w=getWeek();
   var body='<label>Select Employee</label><select id="m-emp">'+team.map(function(e){return'<option value="'+e.email+'">'+e.name+'</option>';}).join('')+'</select>';
@@ -245,6 +283,7 @@ async function saveActivity(){
   var data={employee_email:email,week_start:w.start,week_end:w.end};
   if(DEPT==='dispute'){data.disputes_filed=f1; data.bonus_earned=dBonus(f1).a;}
   else if(DEPT==='cs'){data.clients_called=f1; data.portal_access=f2; data.bonus_earned=sBonus(Math.min(f1,f2),50,25).a;}
+  else if(DEPT==='sales'){data.clients_onboarded=f1; data.sales_revenue=parseFloat((document.getElementById('m-f2')||{}).value)||0; data.bonus_earned=Math.round(data.sales_revenue*0.10*100)/100;}
   else{data.bureau_calls=f1; data.bonus_earned=sBonus(f1,50,25).a;}
   try{
     // Try PATCH first (update existing)
