@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Payroll Schedule — CP Restoration Services</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:#F1F5F9;min-height:100vh;}
+header{background:#1B3A6B;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+header h1{color:white;font-size:16px;font-weight:800;}
+header p{color:rgba(255,255,255,.7);font-size:12px;margin-top:2px;}
+.container{max-width:900px;margin:0 auto;padding:20px;}
+.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+.card{background:white;border-radius:10px;padding:14px 16px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.card-num{font-size:24px;font-weight:800;color:#1B3A6B;}
+.card-label{font-size:11px;color:#64748B;margin-top:2px;}
+.pay-period{background:white;border-radius:12px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden;}
+.pay-header{background:#1B3A6B;color:white;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
+.pay-date{font-size:16px;font-weight:800;}
+.pay-period-label{font-size:12px;opacity:.75;}
+.pay-total{font-size:18px;font-weight:800;color:#C9A84C;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;padding:10px 16px;border-bottom:2px solid #F1F5F9;text-align:left;}
+td{font-size:13px;padding:10px 16px;border-bottom:1px solid #F8FAFC;color:#1E293B;}
+tr:last-child td{border-bottom:none;}
+.held{background:#FFFBEB;}
+.amount{font-weight:700;color:#166534;}
+.note{font-size:11px;color:#C9A84C;font-weight:600;}
+.daily{font-size:11px;color:#64748B;}
+.total-row td{font-weight:800;background:#F8FAFC;font-size:14px;}
+.status-active{display:inline-block;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.status-held{display:inline-block;background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.print-btn{padding:8px 18px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:16px;}
+.print-btn:hover{background:#153060;}
+@media print{header{background:#1B3A6B!important;-webkit-print-color-adjust:exact;} .print-btn{display:none;}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>💰 CP Restoration Services — Payroll Schedule</h1>
+    <p>Bi-weekly | First week held | Daily rate = Weekly ÷ 5 days</p>
+  </div>
+</header>
+
+<div class="container">
+  <button class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+
+  <div class="summary-cards">
+    <div class="card"><div class="card-num">8</div><div class="card-label">Active Employees</div></div>
+    <div class="card"><div class="card-num">$450</div><div class="card-label">Oct 9 Payroll</div></div>
+    <div class="card"><div class="card-num">$1,280</div><div class="card-label">Oct 23 Payroll</div></div>
+    <div class="card"><div class="card-num">$2,100</div><div class="card-label">Nov 6+ Payroll</div></div>
+  </div>
+
+  <!-- OCT 9 -->
+  <div class="pay-period">
+    <div class="pay-header">
+      <div><div class="pay-date">📅 October 9, 2026</div><div class="pay-period-label">Work period: Sep 21 – Oct 2, 2026</div></div>
+      <div class="pay-total">$450.00</div>
+    </div>
+    <table>
+      <thead><tr><th>Employee</th><th>Role</th><th>Days</th><th>Daily Rate</th><th>Amount</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr class="held"><td><strong>Queen Jearel Cruz</strong></td><td>Compliance</td><td>0 payable</td><td>$40.00</td><td class="amount">$200.00</td><td><span class="note">⚠️ First week held — releasing held week from Sep 21-25</span></td></tr>
+        <tr class="held"><td><strong>Bukunmi Aina</strong></td><td>Lead Gen</td><td>0 payable</td><td>$50.00</td><td class="amount">$250.00</td><td><span class="note">⚠️ First week held — releasing held week from Sep 21-25</span></td></tr>
+        <tr class="total-row"><td colspan="4">TOTAL</td><td class="amount">$450.00</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- OCT 23 -->
+  <div class="pay-period">
+    <div class="pay-header">
+      <div><div class="pay-date">📅 October 23, 2026</div><div class="pay-period-label">Work period: Oct 5 – Oct 16, 2026</div></div>
+      <div class="pay-total">$1,280.00</div>
+    </div>
+    <table>
+      <thead><tr><th>Employee</th><th>Role</th><th>Days Payable</th><th>Daily Rate</th><th>Amount</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Queen Jearel Cruz</strong></td><td>Compliance</td><td>10 days</td><td>$40.00</td><td class="amount">$400.00</td><td><span class="status-active">Full period</span></td></tr>
+        <tr class="held"><td><strong>Elna Palabrica</strong></td><td>CS Agent</td><td>5 days</td><td>$20.00</td><td class="amount">$100.00</td><td><span class="note">⚠️ First week (Oct 5-9) held</span></td></tr>
+        <tr class="held"><td><strong>Alec Sarrosa</strong></td><td>CS Agent</td><td>5 days</td><td>$20.00</td><td class="amount">$100.00</td><td><span class="note">⚠️ First week (Oct 5-9) held</span></td></tr>
+        <tr class="held"><td><strong>Marcelo Torres</strong></td><td>Dispute</td><td>3 days</td><td>$20.00</td><td class="amount">$60.00</td><td><span class="note">⚠️ Started Oct 7, first week held — paid Oct 9-11</span></td></tr>
+        <tr class="held"><td><strong>Kimwell Ablaza</strong></td><td>Dispute</td><td>3 days</td><td>$20.00</td><td class="amount">$60.00</td><td><span class="note">⚠️ Started Oct 7, first week held — paid Oct 9-11</span></td></tr>
+        <tr class="held"><td><strong>Annabel Curada</strong></td><td>Dispute</td><td>3 days</td><td>$20.00</td><td class="amount">$60.00</td><td><span class="note">⚠️ Started Oct 7, first week held — paid Oct 9-11</span></td></tr>
+        <tr><td><strong>Bukunmi Aina</strong></td><td>Lead Gen</td><td>10 days</td><td>$50.00</td><td class="amount">$500.00</td><td><span class="status-active">Full period</span></td></tr>
+        <tr><td><strong>Fatima Charfina Caasi</strong></td><td>Bureau Caller</td><td>—</td><td>$20.00</td><td class="amount">$0.00</td><td><span class="note">Starts Oct 12 — first week held</span></td></tr>
+        <tr class="total-row"><td colspan="4">TOTAL</td><td class="amount">$1,280.00</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- NOV 6 -->
+  <div class="pay-period">
+    <div class="pay-header">
+      <div><div class="pay-date">📅 November 6, 2026</div><div class="pay-period-label">Work period: Oct 19 – Oct 30, 2026</div></div>
+      <div class="pay-total">$2,100.00</div>
+    </div>
+    <table>
+      <thead><tr><th>Employee</th><th>Role</th><th>Days</th><th>Daily Rate</th><th>Amount</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Queen Jearel Cruz</strong></td><td>Compliance</td><td>10</td><td>$40.00</td><td class="amount">$400.00</td><td></td></tr>
+        <tr><td><strong>Elna Palabrica</strong></td><td>CS Agent</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
+        <tr><td><strong>Alec Sarrosa</strong></td><td>CS Agent</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
+        <tr><td><strong>Marcelo Torres</strong></td><td>Dispute</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
+        <tr><td><strong>Kimwell Ablaza</strong></td><td>Dispute</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
+        <tr><td><strong>Annabel Curada</strong></td><td>Dispute</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
+        <tr><td><strong>Bukunmi Aina</strong></td><td>Lead Gen</td><td>10</td><td>$50.00</td><td class="amount">$500.00</td><td></td></tr>
+        <tr><td><strong>Fatima Charfina Caasi</strong></td><td>Bureau Caller</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
+        <tr class="total-row"><td colspan="4">TOTAL</td><td class="amount">$2,100.00</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RECURRING NOTE -->
+  <div style="background:white;border-radius:12px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;">📋 Nov 20, Dec 4, Dec 18... (every 2 weeks)</div>
+    <div style="font-size:13px;color:#374151;">All 8 employees — <strong>$2,100.00 per pay period</strong> — unless someone leaves or days off are taken.</div>
+    <div style="font-size:12px;color:#64748B;margin-top:6px;">Prorated formula: <strong>Days worked × (Weekly rate ÷ 5)</strong>. Day off = deduct 1 day's pay from that period.</div>
+  </div>
+
+  <div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:10px;padding:14px 16px;font-size:12px;color:#92400E;">
+    <strong>⚠️ Adjustment rule:</strong> If an employee misses a day, deduct 1 day's pay from their next paycheck. 
+    Example: Elna misses 1 day → $100 ÷ 5 = $20 deducted. Always pay for actual days worked only.
+  </div>
+</div>
+</body>
+</html>
