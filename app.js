@@ -1200,10 +1200,19 @@ function renderApplications() {
     </tr>`).join('');
 }
 
-function viewApplication(id) {
+async function viewApplication(id) {
   var a = allApplications.find(function(x){ return String(x.id) === String(id); });
-  if (!a) { console.error('Application not found:', id, allApplications.map(function(x){return x.id;})); return; }
+  if (!a) { console.error('Application not found:', id); return; }
   var i = allApplications.indexOf(a);
+  // Fetch full record including idCard on demand
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/employee_onboarding?select=idCard,idType,idFileName&id=eq.'+id,
+      {headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}});
+    var full = await r.json();
+    if (Array.isArray(full) && full[0]) {
+      a = Object.assign({}, a, full[0]);
+    }
+  } catch(e) { console.warn('Could not load ID card:', e.message); }
   var date = a.submittedAt ? new Date(a.submittedAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
   var html =
     '<div style="max-width:560px;margin:0 auto;">' +
@@ -1221,6 +1230,7 @@ function viewApplication(id) {
     row('Comments', a.comments||'—') +
     row('Date of Birth', a.dob||'—') +
     row('ID Type', a.idType||'—') +
+    (a.idCard ? '<tr style="border-bottom:1px solid #F1F5F9;"><td style="padding:8px 10px;color:#64748B;font-weight:600;width:40%;">ID Document</td><td style="padding:8px 10px;"><img src="'+a.idCard+'" style="max-width:100%;max-height:300px;border-radius:8px;border:1px solid #E2E8F0;" onerror="this.style.display=\'none\'"></td></tr>' : row('ID Document', '⚠️ Not uploaded')) +
     row('Submitted', date) +
     '</table>' +
     '<div style="display:flex;gap:10px;margin-top:20px;">' +
