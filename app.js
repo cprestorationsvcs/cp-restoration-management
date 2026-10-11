@@ -1233,6 +1233,16 @@ async function viewApplication(id) {
     (a.idCard ? '<tr style="border-bottom:1px solid #F1F5F9;"><td style="padding:8px 10px;color:#64748B;font-weight:600;width:40%;">ID Document</td><td style="padding:8px 10px;"><img src="'+a.idCard+'" style="max-width:100%;max-height:300px;border-radius:8px;border:1px solid #E2E8F0;" onerror="this.style.display=\'none\'"></td></tr>' : row('ID Document', '⚠️ Not uploaded')) +
     row('Submitted', date) +
     '</table>' +
+    (a.idCard ?
+      '<div style="margin-top:16px;padding:14px;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">' +
+        '<div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px;">ID DOCUMENT</div>' +
+        '<img id="app-id-img" src="' + a.idCard + '" style="max-width:100%;max-height:220px;object-fit:contain;border-radius:8px;border:1px solid #E2E8F0;cursor:zoom-in;display:block;" title="Click to enlarge">' +
+        '<div style="display:flex;gap:8px;margin-top:10px;">' +
+          '<button id="app-enlarge-btn" style="padding:7px 14px;background:#1B3A6B;color:white;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;">🔍 Enlarge</button>' +
+          '<a id="app-dl-btn" href="' + a.idCard + '" download="' + ((a.firstName||'')+'_'+(a.lastName||'')+'_ID').replace(/\s+/g,'_') + '" style="padding:7px 14px;background:#166534;color:white;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;display:inline-block;">⬇️ Download</a>' +
+        '</div>' +
+      '</div>'
+    : '') +
     '<div style="display:flex;gap:10px;margin-top:20px;">' +
       '<button onclick="approveApplication('+i+')" style="flex:1;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;">✅ Approve</button>' +
       '<button onclick="declineApplication('+i+')" style="flex:1;padding:10px;background:#991B1B;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;">❌ Decline</button>' +
@@ -1254,6 +1264,13 @@ async function viewApplication(id) {
   overlay.innerHTML = '<div style="background:white;border-radius:14px;padding:24px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">'+html+'</div>';
   overlay.onclick = function(e){ if(e.target===overlay) closeAppModal(); };
   document.body.appendChild(overlay);
+  // Wire up enlarge button and image click after DOM insertion
+  setTimeout(function() {
+    var img = document.getElementById('app-id-img');
+    var btn = document.getElementById('app-enlarge-btn');
+    if (img) img.onclick = function() { enlargeID(img.src, ((a.firstName||'')+' '+(a.lastName||'')).trim()); };
+    if (btn) btn.onclick = function() { enlargeID(img.src, ((a.firstName||'')+' '+(a.lastName||'')).trim()); };
+  }, 100);
 }
 
 function closeAppModal() {
