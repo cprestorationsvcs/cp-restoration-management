@@ -101,7 +101,7 @@ tr:last-child td{border-bottom:none;}
     <div class="dept-header cs">
       <div>
         <div class="dept-title">📞 Customer Service Department</div>
-        <div class="dept-quota">Quota: 50 clients called + portal access + logins/week = $50 bonus</div>
+        <div class="dept-quota">Quota: 50 clients called + portal access + logins/week = $25 bonus</div>
       </div>
       <button class="log-btn" onclick="openLogModal('cs')">+ Log Activity</button>
     </div>
@@ -116,7 +116,7 @@ tr:last-child td{border-bottom:none;}
     <div class="dept-header bureau">
       <div>
         <div class="dept-title">📋 Bureau Caller Department</div>
-        <div class="dept-quota">Quota: 50 calls/week = $50 bonus</div>
+        <div class="dept-quota">Quota: 50 calls/week = $25 bonus</div>
       </div>
       <button class="log-btn" onclick="openLogModal('bureau')">+ Log Activity</button>
     </div>
@@ -250,7 +250,7 @@ function renderCS(){
     var calls = log.clients_called || 0;
     var access = log.portal_access || 0;
     var met = Math.min(calls, access);
-    var b = simpleBonus(met, 50, 50);
+    var b = simpleBonus(met, 50, 25);
     totalBonus += b.amount;
     var pctCls = met>=50?'fill-green':met>=25?'fill-yellow':'fill-red';
     var total = emp.weekly + b.amount;
@@ -274,7 +274,7 @@ function renderBureau(){
   tbody.innerHTML = BUREAU_TEAM.map(function(emp){
     var log = weekData[emp.email] || {};
     var calls = log.bureau_calls || 0;
-    var b = simpleBonus(calls, 50, 50);
+    var b = simpleBonus(calls, 50, 25);
     totalBonus += b.amount;
     var pctCls = calls>=50?'fill-green':calls>=25?'fill-yellow':'fill-red';
     var total = emp.weekly + b.amount;
@@ -295,8 +295,8 @@ function updateSummary(){
   var totalBonus = 0;
   var totalDisputes = 0; var totalCS = 0; var totalBureau = 0;
   DISPUTE_TEAM.forEach(function(e){ var l=weekData[e.email]||{}; var c=l.disputes_filed||0; totalDisputes+=c; totalBonus+=disputeBonus(c).amount; });
-  CS_TEAM.forEach(function(e){ var l=weekData[e.email]||{}; var c=Math.min(l.clients_called||0,l.portal_access||0); totalCS+=c; totalBonus+=simpleBonus(c,50,50).amount; });
-  BUREAU_TEAM.forEach(function(e){ var l=weekData[e.email]||{}; var c=l.bureau_calls||0; totalBureau+=c; totalBonus+=simpleBonus(c,50,50).amount; });
+  CS_TEAM.forEach(function(e){ var l=weekData[e.email]||{}; var c=Math.min(l.clients_called||0,l.portal_access||0); totalCS+=c; totalBonus+=simpleBonus(c,50,25).amount; });
+  BUREAU_TEAM.forEach(function(e){ var l=weekData[e.email]||{}; var c=l.bureau_calls||0; totalBureau+=c; totalBonus+=simpleBonus(c,50,25).amount; });
   document.getElementById('s-total-bonus').textContent='$'+totalBonus;
   document.getElementById('s-disputes').textContent=totalDisputes;
   document.getElementById('s-cs-calls').textContent=totalCS;
@@ -337,8 +337,8 @@ async function saveActivity(){
 
   // Calculate bonus
   if(currentDept==='dispute') data.bonus_earned = disputeBonus(data.disputes_filed).amount;
-  else if(currentDept==='cs') data.bonus_earned = simpleBonus(Math.min(data.clients_called,data.portal_access),50,50).amount;
-  else data.bonus_earned = simpleBonus(data.bureau_calls,50,50).amount;
+  else if(currentDept==='cs') data.bonus_earned = simpleBonus(Math.min(data.clients_called,data.portal_access),50,25).amount;
+  else data.bonus_earned = simpleBonus(data.bureau_calls,50,25).amount;
 
   try {
     // Upsert by email + week_start
