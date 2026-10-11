@@ -1,14 +1,25 @@
 var TEAM_ROSTER = {
-  'queen@mycprteam.com': {name:'Queen Jearel Cruz',role:'Compliance Specialist',start:'2026-09-21',weekly:400},
-  'elna@mycprteam.com': {name:'Elna Palabrica',role:'CS Agent',start:'2026-10-05',weekly:200},
-  'alec@mycprteam.com': {name:'Alec Sarrosa',role:'CS Agent',start:'2026-10-05',weekly:200},
-  'marcelo@mycprteam.com': {name:'Marcelo Torres',role:'Dispute Specialist',start:'2026-10-08',weekly:200},
-  'kimwell@mycprteam.com': {name:'Kimwell Ablaza',role:'Dispute Specialist',start:'2026-10-08',weekly:200},
-  'annabel@mycprteam.com': {name:'Annabel Curada',role:'Dispute Specialist',start:'2026-10-08',weekly:200},
-  'bukunmi@mycprteam.com': {name:'Bukunmi Aina',role:'Lead Generation',start:'2026-09-21',weekly:500},
-  'jay@mycprteam.com': {name:'Jay Rico',role:'Sales Rep',start:'2026-10-12',weekly:200},
-  'lester.leonardo1997@gmail.com': {name:'Lester Leonardo',role:'Sales Rep',start:'2026-10-12',weekly:200},
-  'fcacaasi@gmail.com': {name:'Fatima Charfina Caasi',role:'Bureau Caller',start:'2026-10-12',weekly:200},
+  'jason@mycprteam.com':          {name:'Jason Crown',          role:'Admin',               start:'2014-01-01', weekly:0,   active:true},
+  'queen@mycprteam.com':          {name:'Queen Jearel Cruz',    role:'Compliance Specialist',start:'2026-09-21',weekly:200, active:true},
+  'queenjearelcruz@gmail.com':    {name:'Queen Jearel Cruz',    role:'Compliance Specialist',start:'2026-09-21',weekly:200, active:true},
+  'elna@mycprteam.com':           {name:'Elna Palabrica',       role:'CS Agent',            start:'2026-10-05', weekly:200, active:true},
+  'epalabrica2587@gmail.com':     {name:'Elna Palabrica',       role:'CS Agent',            start:'2026-10-05', weekly:200, active:true},
+  'alec@mycprteam.com':           {name:'Alec Sarrosa',         role:'CS Agent',            start:'2026-10-05', weekly:200, active:true},
+  'absarrosa.va@gmail.com':       {name:'Alec Sarrosa',         role:'CS Agent',            start:'2026-10-05', weekly:200, active:true},
+  'marcelo@mycprteam.com':        {name:'Marcelo Torres',       role:'Dispute Specialist',  start:'2026-10-07', weekly:200, active:true},
+  'mark.torres08@gmail.com':      {name:'Marcelo Torres',       role:'Dispute Specialist',  start:'2026-10-07', weekly:200, active:true},
+  'kimwell@mycprteam.com':        {name:'Kimwell Ablaza',       role:'Dispute Specialist',  start:'2026-10-07', weekly:200, active:true},
+  'ablaza200@gmail.com':          {name:'Kimwell Ablaza',       role:'Dispute Specialist',  start:'2026-10-07', weekly:200, active:true},
+  'annabel@mycprteam.com':        {name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
+  'annabelcreditrepair@gmail.com':{name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
+  'bukunmi@mycprteam.com':        {name:'Bukunmi Aina',         role:'Lead Generation',     start:'2026-09-21', weekly:500, active:true},
+  'jay@mycprteam.com':            {name:'Jay Rico',             role:'Sales Rep',           start:'2026-10-12', weekly:200, active:true},
+  'lester.leonardo1997@gmail.com':{name:'Lester Leonardo',      role:'Sales Rep',           start:'2026-10-12', weekly:200, active:true},
+  'fcacaasi@gmail.com':           {name:'Fatima Charfina Caasi','role':'Bureau Caller',     start:'2026-10-12', weekly:100, active:true},
+  'jonahmariedeguzman2@gmail.com':{name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
+  'jonah@mycprteam.com':          {name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
+  'anthongiuseppe@gmail.com':     {name:'Anthon Giuseppe Sumbiling','role':'Terminated',    start:'',           weekly:0,   active:false},
+  'anthon@mycprteam.com':         {name:'Anthon Giuseppe Sumbiling','role':'Terminated',    start:'',           weekly:0,   active:false},
 };
 
 // CP Restoration Management System — Core JavaScript v5
@@ -1198,7 +1209,13 @@ function renderApplications() {
     declined: '<span class="badge badge-red">❌ Declined</span>',
   };
 
-  tbody.innerHTML = allApplications.map(function(a) {
+  // Filter out terminated employees
+  var activeApps = allApplications.filter(function(a) {
+    var emailKey = (a.workEmail||a.email||'').toLowerCase().trim();
+    var roster = TEAM_ROSTER[emailKey];
+    return !roster || roster.active !== false;
+  });
+  tbody.innerHTML = activeApps.map(function(a) {
     var name = ((a.firstName||'') + ' ' + (a.lastName||'')).trim();
     var emailKey = (a.workEmail||a.email||'').toLowerCase().trim();
     var roster = TEAM_ROSTER[emailKey] || {};
