@@ -12,7 +12,7 @@ var TEAM_ROSTER = {
   'ablaza200@gmail.com':          {name:'Kimwell Ablaza',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
   'annabel@mycprteam.com':        {name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
   'annabelcreditrepair@gmail.com':{name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
-  'bukunmi@mycprteam.com':        {name:'Bukunmi Aina',         role:'Lead Generation',     start:'2026-09-21', weekly:500, active:true},
+  'bukunmi@mycprteam.com':        {name:'Bukunmi Aina',         role:'Lead Generation',     start:'2026-09-21', weekly:250, active:true},
   'jay@mycprteam.com':            {name:'Jay Rico',             role:'Sales Rep',           start:'2026-10-12', weekly:200, active:true},
   'lester.leonardo1997@gmail.com':{name:'Lester Leonardo',      role:'Sales Rep',           start:'2026-10-12', weekly:200, active:true},
   'fcacaasi@gmail.com':           {name:'Fatima Charfina Caasi','role':'Bureau Caller',     start:'2026-10-12', weekly:100, active:true},
