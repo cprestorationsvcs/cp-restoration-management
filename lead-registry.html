@@ -344,6 +344,10 @@ setInterval(loadLeads, 30000);
 
 function setSource(src, btn) {
   currentSource = src;
+  // Update page title dynamically
+  var srcTitles = {'all':'All Sources','ebook-funnel':'Credit Guide','funding-landing-page':'Funding'};
+  var h1 = document.querySelector('h1');
+  if (h1) h1.innerHTML = 'Lead Registry &mdash; ' + (srcTitles[src] || 'All Sources');
   document.querySelectorAll('.src-btn').forEach(function(b) {
     b.style.background = '';
     b.style.color = '';
