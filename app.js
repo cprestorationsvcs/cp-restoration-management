@@ -127,7 +127,14 @@ function loginAdmin() {
     el.style.display = emp.role==='admin' ? '' : 'none';
   });
 
-  // Load dashboard
+  // Load dashboard — redirect specific roles to their dedicated pages
+  if (emp.role === 'dispute') {
+    window.location.href = '/cs-dashboard.html';
+    return;
+  } else if (emp.role === 'bureau') {
+    window.location.href = '/bureau-caller-dashboard.html';
+    return;
+  }
   showPage('dashboard');
   if (typeof loadDashboard === 'function') setTimeout(loadDashboard, 300);
   if (typeof startClock    === 'function') startClock();
