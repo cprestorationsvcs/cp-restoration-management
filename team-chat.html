@@ -148,22 +148,26 @@ function showStatus(msg, type) {
 function initUser() {
   var name  = localStorage.getItem('cp_logged_in_name');
   var email = localStorage.getItem('cp_logged_in_user');
-  var role  = localStorage.getItem('cp_logged_in_role')||'Team Member';
-  if (!name) {
+  var role  = localStorage.getItem('cp_logged_in_role') || 'Team Member';
+  if (!name || !email) {
     document.getElementById('messages').innerHTML =
-      '<div class="empty-chat"><div class="ico">&#128274;</div><div>Please <a href="https://portal-cprestorationsvcs.com" style="color:#1B3A6B;font-weight:700;">log into the portal</a> first.</div></div>';
-    document.getElementById('input-bar').style.display='none';
+      '<div style="text-align:center;padding:40px;color:#94A3B8;">' +
+      '<div style="font-size:40px;margin-bottom:12px;">&#128274;</div>' +
+      '<div style="font-size:14px;font-weight:600;">Please <a href="https://portal-cprestorationsvcs.com" style="color:#1B3A6B;font-weight:800;">log into the portal first</a>, then come back to Team Chat.</div>' +
+      '</div>';
     return false;
   }
-  var colors={admin:'#1B3A6B',compliance:'#166534',sales:'#92400E',cs:'#7C3AED'};
-  var color=colors[role.toLowerCase()]||'#1B3A6B';
-  var initials=name.split(' ').map(function(w){return w[0]||'';}).join('').substring(0,2).toUpperCase();
-  currentUser={name:name,email:email,role:role,color:color,initials:initials};
-  var av=document.getElementById('my-avatar');
-  av.textContent=initials; av.style.background=color;
-  document.getElementById('my-name').textContent=name;
-  document.getElementById('my-role').textContent=role;
-  document.getElementById('who-bar').style.display='flex';
+  // Map role to department color
+  var colors = {admin:'#C9A84C', compliance:'#166534', dispute:'#1B3A6B', cs:'#0891B2', bureau:'#7C3AED', sales:'#C9A84C', staff:'#64748B'};
+  var initials = name.split(' ').map(function(w){return w[0]||'';}).join('').substring(0,2).toUpperCase();
+  currentUser = {name:name, email:email, role:role, initials:initials, color:colors[role]||'#1B3A6B'};
+  // Update header
+  var ni = document.getElementById('user-initials');
+  var nn = document.getElementById('user-name');
+  var nr = document.getElementById('user-role');
+  if(ni) ni.textContent = initials;
+  if(nn) nn.textContent = name;
+  if(nr) nr.textContent = role;
   return true;
 }
 
