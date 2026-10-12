@@ -347,6 +347,99 @@ function syncRCCallLog()     { alert('Syncing RingCentral call log...'); if(type
 function testRCConnection()  { alert('Testing RingCentral connection...'); }
 // ─────────────────────────────────────────────────────────────────────
 
+
+// ── CLIENT VIEW / EDIT ───────────────────────────────────────────────
+async function viewClient(clientId) {
+  if (!clientId) return;
+  // Remove existing modal
+  var old = document.getElementById('client-view-modal');
+  if (old) old.remove();
+
+  // Create modal
+  var overlay = document.createElement('div');
+  overlay.id = 'client-view-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+  overlay.innerHTML = '<div style="background:white;border-radius:14px;padding:24px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">' +
+    '<h2 id="cvm-title" style="font-size:17px;font-weight:800;color:#1B3A6B;">Loading...</h2>' +
+    '<button id="cvm-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:#64748B;line-height:1;">&#10005;</button></div>' +
+    '<div id="cvm-body"><div style="text-align:center;padding:32px;color:#94A3B8;">&#9203; Loading client...</div></div>' +
+    '<div id="cvm-actions" style="display:flex;gap:8px;margin-top:18px;"></div></div>';
+  document.body.appendChild(overlay);
+  overlay.querySelector('#cvm-close').onclick = function(){ overlay.remove(); };
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients?id=eq.' + encodeURIComponent(clientId) + '&limit=1', {
+      headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
+    });
+    var data = await r.json();
+    var c = Array.isArray(data) && data.length ? data[0] : null;
+    if (!c) { document.getElementById('cvm-body').innerHTML = '<p style="color:red;text-align:center;padding:24px;">Client not found.</p>'; return; }
+
+    document.getElementById('cvm-title').textContent = (c.name||'Unknown') + '  —  ' + c.id;
+
+    var isCB = c.chargeback_status === 'Chargeback Filed';
+    var html = '';
+    if (isCB) html += '<div style="background:#FEE2E2;border:2px solid #7F1D1D;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-weight:800;color:#7F1D1D;font-size:13px;">&#128680; CHARGEBACK FILED — DO NOT WORK THIS FILE</div>';
+
+    var fields = [
+      ['Client ID', c.id||'—'], ['Full Name', c.name||'—'], ['Email', c.email||'—'],
+      ['Phone', c.phone||'—'], ['Package', c.package||'Standard'], ['Status', c.status||'Active'],
+      ['Start Date', c.start_date||'—'], ['Assigned To', c.assigned_to||'—'],
+      ['Address', c.address||'—'], ['Notes', c.notes||'—']
+    ];
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+    fields.forEach(function(f) {
+      html += '<div style="background:#F8FAFC;border-radius:8px;padding:10px 12px;">' +
+        '<div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">' + f[0] + '</div>' +
+        '<div style="font-size:13px;font-weight:600;color:#1E293B;word-break:break-word;">' + (f[1]||'—') + '</div></div>';
+    });
+    html += '</div>';
+    document.getElementById('cvm-body').innerHTML = html;
+
+    var acts = document.getElementById('cvm-actions');
+    if (!isCB) {
+      var btn1 = document.createElement('button');
+      btn1.textContent = 'Open in CS Dashboard';
+      btn1.style.cssText = 'padding:9px 16px;background:#166534;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;';
+      btn1.onclick = function(){ window.open('cs-dashboard.html?client=' + encodeURIComponent(c.id), '_blank'); };
+      acts.appendChild(btn1);
+    }
+    var btn2 = document.createElement('button');
+    btn2.textContent = 'Close';
+    btn2.style.cssText = 'padding:9px 16px;background:#F1F5F9;color:#374151;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;';
+    btn2.onclick = function(){ overlay.remove(); };
+    acts.appendChild(btn2);
+
+  } catch(e) {
+    document.getElementById('cvm-body').innerHTML = '<p style="color:red;text-align:center;padding:24px;">Error: ' + e.message + '</p>';
+  }
+}
+
+function editClient(id) {
+  window.open('client-manager.html?search=' + encodeURIComponent(id), '_blank');
+}
+
+function deleteClient(id) {
+  if (currentRole !== 'admin') { alert('Only Jason can delete clients.'); return; }
+  if (!confirm('DELETE client ' + id + '? This cannot be undone.')) return;
+  fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients?id=eq.' + encodeURIComponent(id), {
+    method: 'DELETE',
+    headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Prefer':'return=minimal'}
+  }).then(function(r) {
+    if (r.ok || r.status === 204) { alert('Client ' + id + ' deleted.'); loadClientsTable(); }
+    else alert('Error deleting client.');
+  }).catch(function(e) { alert('Network error: ' + e.message); });
+}
+
+function togglePwdVisibility() {
+  var inp = document.getElementById('admin-pass');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+// ─────────────────────────────────────────────────────────────────────
+
 window.addEventListener('load', function() {
   // Only show login if no valid session
   var savedEmail = localStorage.getItem('cp_logged_in_user') || '';
