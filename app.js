@@ -48,7 +48,7 @@ var TEAM_ROSTER = {
   'absarrosa.va@gmail.com':       {name:'Alec Sarrosa',         role:'CS Agent',            start:'2026-10-05', weekly:100, active:true},
   'marcelo@mycprteam.com':        {name:'Marcelo Torres',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
   'mark.torres08@gmail.com':      {name:'Marcelo Torres',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
-  'kimwell@mycprteam.com':        {name:'Kimwell Ablaza',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
+  'kimwell@mycprteam.com':        {name:'Kimwell Ablaza',       role:'Terminated',          start:'',           weekly:0,   active:false},
   'ablaza200@gmail.com':          {name:'Kimwell Ablaza',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
   'annabel@mycprteam.com':        {name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
   'annabelcreditrepair@gmail.com':{name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
