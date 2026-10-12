@@ -499,6 +499,14 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
 
 <script>
 var SUPA='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+// Auth check — if no session, redirect to login
+(function(){
+  var role = localStorage.getItem('cp_logged_in_role') || sessionStorage.getItem('cp_logged_in_role') || '';
+  var user = localStorage.getItem('cp_logged_in_user') || sessionStorage.getItem('cp_logged_in_user') || '';
+  if(!user) { window.location.href = 'https://portal-cprestorationsvcs.com'; return; }
+  // Bureau-only role should not be here — redirect to bureau caller dashboard
+  if(role === 'bureau') { window.location.href = '/bureau-caller-dashboard.html'; return; }
+})();
 var KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
 var HDR={'apikey':KEY,'Authorization':'Bearer '+KEY};
 var allClients=[], currentClient=null, disputes=[], activeRTab='info', activeMTab='msg';
