@@ -39,21 +39,34 @@ function loginAdmin() {
   localStorage.setItem('cp_logged_in_label',    emp.label);
   localStorage.setItem('cp_logged_in_initials', emp.initials || emp.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2));
 
+  // Set global vars
+  currentUser = email;
+  currentRole = emp.role;
+
   // Show app
   var loginScreen = document.getElementById('login-screen');
   var appEl       = document.getElementById('app');
   if (loginScreen) loginScreen.style.display = 'none';
   if (appEl)       appEl.style.display       = 'block';
 
-  // Set user badge
-  var badge = document.getElementById('user-badge');
-  if (badge) badge.textContent = emp.name;
+  // Update header
+  var s = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  s('user-badge',         emp.name);
+  s('hdr-name',           emp.name);
+  s('hdr-role',           emp.label + ' — CP Restoration Services');
+  s('hdr-avatar',         emp.initials || '??');
+  s('current-user-name',  emp.name);
+  s('current-user-role',  emp.label);
 
-  // Set nav for role
-  setupNavForRole(emp.role);
+  // Show/hide admin elements
+  document.querySelectorAll('.admin-only').forEach(function(el){
+    el.style.display = emp.role==='admin' ? '' : 'none';
+  });
 
   // Load dashboard
   showPage('dashboard');
+  if (typeof loadDashboard === 'function') setTimeout(loadDashboard, 300);
+  if (typeof startClock    === 'function') startClock();
 
   // Clear error
   if (errEl) errEl.style.display = 'none';
@@ -163,8 +176,9 @@ var EMPLOYEES = {
   'marcelo@mycprteam.com': { password:'CPRMarcelo2026', name:'Marcelo Torres',     role:'dispute',    label:'Dispute Specialist', initials:'MT' },
   'kimwell@mycprteam.com': { password:'CPRKimwell2026', name:'Kimwell Ablaza',     role:'dispute',    label:'Dispute Specialist', initials:'KA' },
   'annabel@mycprteam.com': { password:'CPRAnnabel2026', name:'Annabel Curada',     role:'dispute',    label:'Dispute Specialist', initials:'AC' },
-  // jay@mycprteam.com DEACTIVATED3000);
-}
+  // jay@mycprteam.com DEACTIVATED
+  'fcacaasi@gmail.com':    { password:'CPRFatima2026',  name:'Fatima Charfina Caasi', role:'bureau',  label:'Bureau Caller',      initials:'FC' },
+};
 
 // ── ACTIVITY TRACKING ──────────────────────────────────────────────
 // FIX: Uses currentUser at time of call, not a stale reference
@@ -224,10 +238,15 @@ function loadActivityLog() {
 
 // ── INIT ───────────────────────────────────────────────────────────
 window.addEventListener('load', function() {
-  var ls  = document.getElementById('login-screen');
-  var app = document.getElementById('app');
-  if (ls) ls.style.display = 'flex';
-  if (app) app.style.display = 'none';
+  // Only show login if no valid session
+  var savedEmail = localStorage.getItem('cp_logged_in_user') || '';
+  var hasSession = savedEmail && EMPLOYEES[savedEmail];
+  if (!hasSession) {
+    var ls  = document.getElementById('login-screen');
+    var appEl = document.getElementById('app');
+    if (ls) ls.style.display = 'flex';
+    if (appEl) appEl.style.display = 'none';
+  }
   document.querySelectorAll('.page').forEach(function(p){ p.style.display='none'; });
 
   // Seed initial clients
