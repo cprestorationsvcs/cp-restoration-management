@@ -1190,7 +1190,7 @@ function loadQuotaToday() {
 
 
 // ── CLIENT MESSAGES ──────────────────────────────────────────
-async async function renderClientMessages() {
+async function renderClientMessages() {
   if (!currentClient) {
     document.getElementById('right-body').innerHTML = '<div class="empty-state"><div class="ico">&#128172;</div><div>Select a client to view messages</div></div>';
     return;
