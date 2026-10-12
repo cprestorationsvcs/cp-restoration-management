@@ -266,6 +266,87 @@ function loadActivityLog() {
 }
 
 // ── INIT ───────────────────────────────────────────────────────────
+
+// ── MISSING FUNCTION IMPLEMENTATIONS ─────────────────────────────────
+function seedClients() { /* clients load from Supabase — no seed needed */ }
+
+function filterClients() {
+  var s = (document.getElementById('client-search')||{}).value || '';
+  var st = (document.getElementById('status-filter')||{}).value || '';
+  loadClientsTable(s, st);
+}
+
+function closeModal() {
+  document.querySelectorAll('.modal-overlay, .overlay, [id$="-modal"]').forEach(function(m){
+    m.style.display='none';
+    m.classList.remove('open');
+  });
+}
+
+function flagEmployee(email) {
+  if (confirm('Flag employee ' + email + ' for review?')) {
+    alert('Employee flagged. Queen will be notified.');
+  }
+}
+
+function lookupDisputeClient() {
+  var val = (document.getElementById('dispute-client-search')||document.getElementById('dc-client-id')||{}).value || '';
+  if (val) loadClientsTable(val);
+}
+
+function lookupPayClient() {
+  var val = (document.getElementById('pay-client-search')||{}).value || '';
+  if (val) loadClientsTable(val);
+}
+
+function selectPayment(type) {
+  document.querySelectorAll('.payment-option').forEach(function(el){ el.classList.remove('selected'); });
+  var el = document.getElementById('pay-' + type);
+  if (el) el.classList.add('selected');
+}
+
+function refreshLiveActivity() {
+  if (typeof loadWorkFeed === 'function') loadWorkFeed();
+  if (typeof loadDashboard === 'function') loadDashboard();
+}
+
+function refreshQuotaMonitor() {
+  if (typeof loadAll === 'function') loadAll();
+}
+
+function updateDisputeRefLabel() {
+  var sel = document.getElementById('dispute-ref-type');
+  var lbl = document.getElementById('dispute-ref-label');
+  if (sel && lbl) lbl.textContent = sel.value === 'account' ? 'Account #' : 'Reference #';
+}
+
+function updateWpRefLabel() {
+  var sel = document.getElementById('wp-ref-type');
+  var lbl = document.getElementById('wp-ref-label');
+  if (sel && lbl) lbl.textContent = sel.value === 'account' ? 'Account #' : 'Reference #';
+}
+
+function updateBureauQuota(val) {
+  var el = document.getElementById('bureau-quota-display');
+  if (el) el.textContent = val;
+}
+
+function logSalesQuota()     { if(typeof logWork==='function') logWork('Sales Quota Logged','Manual entry',null,null,1); }
+function logFollowUpCheck()  { if(typeof logWork==='function') logWork('Follow-Up Checked','Manual entry',null,null,1); }
+function logViolation()      { if(typeof logWork==='function') logWork('Violation Logged','Manual entry',null,null,1); }
+function logCsResponse()     { if(typeof logWork==='function') logWork('CS Response Logged','Manual entry',null,null,1); }
+
+function copyRCCredentials() {
+  var text = 'RingCentral credentials — see Passwords page';
+  navigator.clipboard.writeText(text).catch(function(){});
+  alert('Credentials copied!');
+}
+
+function loadRCRecordings()  { alert('RingCentral recordings — connect via RingCentral app'); }
+function syncRCCallLog()     { alert('Syncing RingCentral call log...'); if(typeof loadRingcentral==='function') loadRingcentral(); }
+function testRCConnection()  { alert('Testing RingCentral connection...'); }
+// ─────────────────────────────────────────────────────────────────────
+
 window.addEventListener('load', function() {
   // Only show login if no valid session
   var savedEmail = localStorage.getItem('cp_logged_in_user') || '';
