@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Bureau Logins (Staff) | CP Restoration Services</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+  :root{--ink:#14213d;--muted:#5b6475;--line:#e3e6ec;--bg:#f5f7fa;--accent:#1f7a5a;--warn:#b42318}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:var(--ink);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+  header h1{margin:0;font-size:17px}
+  header button{background:transparent;color:#fff;border:1px solid #ffffff66;border-radius:6px;padding:6px 12px;cursor:pointer}
+  main{max-width:820px;margin:24px auto;padding:0 16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:16px}
+  h2{font-size:16px;margin:0 0 12px}
+  label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+  input,textarea,select{width:100%;padding:10px 12px;border:1px solid #cfd5df;border-radius:8px;font-size:15px;font-family:inherit}
+  textarea{min-height:110px}
+  .row{display:flex;gap:10px}.row>*{flex:1}
+  .btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:11px 18px;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px}
+  .btn.sec{background:#eef1f5;color:var(--ink)}
+  .msg{padding:12px;border-radius:8px;font-size:14px;margin-top:12px;display:none}
+  .msg.err{background:#fef3f2;color:var(--warn);border:1px solid #fecdca;display:block}
+  .msg.ok{background:#ecfdf3;color:#05603a;border:1px solid #abefc6;display:block}
+  .tabs{display:flex;gap:8px;margin-bottom:16px}
+  .tabs button{flex:1;padding:10px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font-weight:600}
+  .tabs button.on{background:var(--ink);color:#fff}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-all}
+  th{background:#f0f2f6}
+  .copy{border:0;background:#eef1f5;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;margin-left:6px}
+  .timer{font-size:13px;color:var(--warn);margin-top:10px}
+  .small{font-size:12px;color:var(--muted)}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header><h1>Bureau Logins — Staff</h1><button id="logout" class="hidden">Sign out</button></header>
+<main>
+  <!-- Sign in -->
+  <div id="signin" class="card">
+    <h2>Sign in with your bureau PIN</h2>
+    <p class="small">This is separate from your portal password. Ask Jason if you don't have a PIN. 5 wrong tries locks you out for 15 minutes.</p>
+    <label>Work email</label><input id="email" type="email" autocomplete="username">
+    <label>PIN</label><input id="pin" type="password" autocomplete="current-password">
+    <button class="btn" id="signinBtn">Sign in</button>
+    <div id="signinMsg" class="msg"></div>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="tabs">
+      <button id="tabView" class="on">View client logins</button>
+      <button id="tabLinks">Create secure links</button>
+    </div>
+
+    <!-- View -->
+    <div id="viewPane" class="card">
+      <h2>Look up a client</h2>
+      <p class="small">For Dispute and Bureau team members. Every lookup is recorded with your name and the time.</p>
+      <div class="row"><input id="cid" placeholder="Client ID, e.g. CPR-CP17476"><div style="flex:0"><button class="btn" id="lookupBtn" style="margin-top:0">Show logins</button></div></div>
+      <div id="viewMsg" class="msg"></div>
+      <div id="result"></div>
+    </div>
+
+    <!-- Links -->
+    <div id="linksPane" class="card hidden">
+      <h2>Create secure submission links</h2>
+      <p class="small">For CS and Admin. Paste one client ID per line. Each client gets their own private link to enter their logins. Send it in your email using the template.</p>
+      <label>Client IDs</label><textarea id="ids" placeholder="CPR-CP17476&#10;CPR-CP16810"></textarea>
+      <label>Link valid for</label>
+      <select id="days"><option value="3">3 days</option><option value="7" selected>7 days</option><option value="14">14 days</option><option value="30">30 days</option></select>
+      <button class="btn" id="makeBtn">Create links</button>
+      <div id="linksMsg" class="msg"></div>
+      <div id="links"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // ===== CONFIG: use the same values as app.js =====
+  const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY";
+  const CLIENT_PAGE_URL = "https://portal-cprestorationsvcs.com/bureau-logins.html";
+  // ==================================================
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let cred = null, hideTimer = null, idleTimer = null;
+  const el = id => document.getElementById(id);
+  const msg = (id, cls, t) => { el(id).className = "msg " + cls; el(id).textContent = t; };
+  const clearMsg = id => { el(id).className = "msg"; el(id).textContent = ""; };
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function resetIdle() { clearTimeout(idleTimer); idleTimer = setTimeout(signOut, 15 * 60 * 1000); }
+  ["click","keydown"].forEach(ev => document.addEventListener(ev, () => cred && resetIdle()));
+
+  el("signinBtn").onclick = async () => {
+    clearMsg("signinMsg");
+    const email = el("email").value.trim(), pin = el("pin").value;
+    const { data, error } = await sb.rpc("bureau_staff_login", { p_email: email, p_pin: pin });
+    if (error || !data || !data.ok) return msg("signinMsg", "err", (data && data.error) || "Sign-in failed.");
+    cred = { email, pin, role: data.role };
+    el("pin").value = "";
+    el("signin").classList.add("hidden"); el("app").classList.remove("hidden"); el("logout").classList.remove("hidden");
+    const canView = ["admin","dispute","bureau"].includes(cred.role), canLink = ["admin","cs"].includes(cred.role);
+    el("tabView").classList.toggle("hidden", !canView); el("tabLinks").classList.toggle("hidden", !canLink);
+    showTab(canView ? "view" : "links");
+    resetIdle();
+  };
+  el("pin").addEventListener("keydown", e => e.key === "Enter" && el("signinBtn").click());
+
+  function signOut() {
+    cred = null; clearTimeout(hideTimer); clearTimeout(idleTimer);
+    el("result").innerHTML = ""; el("links").innerHTML = ""; el("ids").value = ""; el("cid").value = "";
+    el("app").classList.add("hidden"); el("logout").classList.add("hidden"); el("signin").classList.remove("hidden");
+  }
+  el("logout").onclick = signOut;
+
+  function showTab(t) {
+    el("viewPane").classList.toggle("hidden", t !== "view"); el("linksPane").classList.toggle("hidden", t !== "links");
+    el("tabView").classList.toggle("on", t === "view"); el("tabLinks").classList.toggle("on", t === "links");
+  }
+  el("tabView").onclick = () => showTab("view"); el("tabLinks").onclick = () => showTab("links");
+
+  function copyBtn(text) { return `<button class="copy" data-c="${esc(text)}">Copy</button>`; }
+  document.addEventListener("click", e => {
+    if (e.target.classList.contains("copy")) { navigator.clipboard.writeText(e.target.dataset.c); e.target.textContent = "Copied"; setTimeout(() => e.target.textContent = "Copy", 1500); }
+  });
+
+  el("lookupBtn").onclick = async () => {
+    clearMsg("viewMsg"); el("result").innerHTML = ""; clearTimeout(hideTimer);
+    const cid = el("cid").value.trim(); if (!cid) return;
+    const { data, error } = await sb.rpc("get_bureau_logins", { p_email: cred.email, p_pin: cred.pin, p_client_id: cid });
+    if (error || !data || !data.ok) return msg("viewMsg", "err", (data && data.error) || "Lookup failed.");
+    if (!data.found) return msg("viewMsg", "err", "No logins on file for " + cid.toUpperCase() + ". Ask CS to send this client a secure link.");
+    const L = data.logins, rows = [["Experian", L.experian], ["Equifax", L.equifax], ["TransUnion", L.transunion]];
+    el("result").innerHTML = `<table><tr><th>Bureau</th><th>Username</th><th>Password</th></tr>` +
+      rows.map(([n, b]) => b && b.username ? `<tr><td>${n}</td><td>${esc(b.username)}${copyBtn(b.username)}</td><td>${esc(b.password)}${copyBtn(b.password)}</td></tr>` : `<tr><td>${n}</td><td colspan="2" class="small">Not provided</td></tr>`).join("") +
+      `</table>` + (L.notes ? `<p><b>Notes:</b> ${esc(L.notes)}</p>` : "") +
+      `<p class="small">Last updated ${new Date(data.updated_at).toLocaleString()}</p><div class="timer" id="timer"></div>`;
+    let s = 60; el("timer").textContent = `Hiding in ${s}s`;
+    hideTimer = setInterval(() => { s--; if (el("timer")) el("timer").textContent = `Hiding in ${s}s`; if (s <= 0) { clearInterval(hideTimer); el("result").innerHTML = ""; } }, 1000);
+  };
+  el("cid").addEventListener("keydown", e => e.key === "Enter" && el("lookupBtn").click());
+
+  el("makeBtn").onclick = async () => {
+    clearMsg("linksMsg"); el("links").innerHTML = "";
+    const ids = el("ids").value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if (!ids.length) return msg("linksMsg", "err", "Paste at least one client ID.");
+    const { data, error } = await sb.rpc("create_bureau_login_requests", { p_email: cred.email, p_pin: cred.pin, p_client_ids: ids, p_days: +el("days").value });
+    if (error || !data || !data.ok) return msg("linksMsg", "err", (data && data.error) || "Could not create links.");
+    const rows = data.links.map(l => ({ id: l.client_id, url: `${CLIENT_PAGE_URL}?t=${l.token}` }));
+    const csv = "client_id,secure_link\n" + rows.map(r => `${r.id},${r.url}`).join("\n");
+    el("links").innerHTML = `<p class="small">${rows.length} link(s) created. Valid ${el("days").value} days.</p>
+      <button class="btn sec" id="csvBtn">Download CSV for email merge</button>
+      <table><tr><th>Client</th><th>Secure link</th></tr>${rows.map(r => `<tr><td>${esc(r.id)}</td><td>${esc(r.url)}${copyBtn(r.url)}</td></tr>`).join("")}</table>`;
+    el("csvBtn").onclick = () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+      a.download = "bureau_login_links.csv"; a.click();
+    };
+  };
+</script>
+</body>
+</html>

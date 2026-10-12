@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Secure Bureau Logins | CP Restoration Services</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+  :root{--ink:#14213d;--muted:#5b6475;--line:#e3e6ec;--bg:#f5f7fa;--accent:#1f7a5a;--warn:#b42318}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:var(--ink);color:#fff;padding:18px 20px}
+  header h1{margin:0;font-size:18px;letter-spacing:.3px}
+  header p{margin:4px 0 0;font-size:13px;opacity:.8}
+  main{max-width:640px;margin:24px auto;padding:0 16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:16px}
+  .lock{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted)}
+  h2{font-size:16px;margin:0 0 12px}
+  label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+  input,textarea{width:100%;padding:10px 12px;border:1px solid #cfd5df;border-radius:8px;font-size:15px}
+  textarea{min-height:70px;resize:vertical}
+  .pw{position:relative}
+  .pw button{position:absolute;right:6px;top:6px;border:0;background:#eef1f5;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer}
+  .btn{width:100%;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:14px;font-size:16px;font-weight:600;cursor:pointer}
+  .btn:disabled{opacity:.6;cursor:default}
+  .msg{padding:14px;border-radius:8px;font-size:14px;display:none}
+  .msg.err{background:#fef3f2;color:var(--warn);border:1px solid #fecdca;display:block}
+  .msg.ok{background:#ecfdf3;color:#05603a;border:1px solid #abefc6;display:block}
+  .small{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>CP Restoration Services</h1>
+  <p>Secure bureau login submission</p>
+</header>
+<main>
+  <div id="status" class="msg"></div>
+
+  <form id="form" class="card" style="display:none" autocomplete="off">
+    <div class="lock">
+      <span>🔒</span>
+      <div>Enter the logins for the credit bureau accounts you've created. They're encrypted and only seen by the specialists working on your file (<span id="ref"></span>). Leave a bureau blank if you don't have an account yet.</div>
+    </div>
+
+    <h2 style="margin-top:20px">Experian</h2>
+    <label for="ex_u">Username or email</label><input id="ex_u" autocomplete="off">
+    <label for="ex_p">Password</label><div class="pw"><input id="ex_p" type="password" autocomplete="new-password"><button type="button" data-t="ex_p">Show</button></div>
+
+    <h2 style="margin-top:20px">Equifax</h2>
+    <label for="eq_u">Username or email</label><input id="eq_u" autocomplete="off">
+    <label for="eq_p">Password</label><div class="pw"><input id="eq_p" type="password" autocomplete="new-password"><button type="button" data-t="eq_p">Show</button></div>
+
+    <h2 style="margin-top:20px">TransUnion</h2>
+    <label for="tu_u">Username or email</label><input id="tu_u" autocomplete="off">
+    <label for="tu_p">Password</label><div class="pw"><input id="tu_p" type="password" autocomplete="new-password"><button type="button" data-t="tu_p">Show</button></div>
+
+    <label for="notes" style="margin-top:20px">Anything else we need? (security PINs, answers to security questions)</label>
+    <textarea id="notes"></textarea>
+
+    <p class="small">Need to change something later? Use this same link to resubmit before it expires; your new entries replace the old ones.</p>
+    <button class="btn" id="submit" type="submit">Submit Securely</button>
+  </form>
+</main>
+
+<script>
+  // ===== CONFIG: use the same values as app.js =====
+  const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY";
+  // ==================================================
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const token = new URLSearchParams(location.search).get("t");
+  const status = document.getElementById("status");
+  const form = document.getElementById("form");
+  const show = (cls, text) => { status.className = "msg " + cls; status.textContent = text; };
+  const $ = id => document.getElementById(id).value.trim();
+
+  document.querySelectorAll(".pw button").forEach(b => b.onclick = () => {
+    const i = document.getElementById(b.dataset.t);
+    i.type = i.type === "password" ? "text" : "password";
+    b.textContent = i.type === "password" ? "Show" : "Hide";
+  });
+
+  (async () => {
+    if (!token) return show("err", "This link is missing its security code. Please use the link from your email, or contact us for a new one.");
+    const { data, error } = await sb.rpc("check_bureau_request", { p_token: token });
+    if (error || !data || !data.valid) return show("err", "This secure link has expired or isn't valid. Please contact CP Restoration Services for a new one.");
+    document.getElementById("ref").textContent = "client " + data.client_ref;
+    form.style.display = "block";
+  })();
+
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const btn = document.getElementById("submit");
+    btn.disabled = true; btn.textContent = "Submitting...";
+    const payload = {
+      experian:   { username: $("ex_u"), password: $("ex_p") },
+      equifax:    { username: $("eq_u"), password: $("eq_p") },
+      transunion: { username: $("tu_u"), password: $("tu_p") },
+      notes: $("notes")
+    };
+    const { data, error } = await sb.rpc("submit_bureau_logins", { p_token: token, p_payload: payload });
+    if (error || !data || !data.ok) {
+      show("err", (data && data.error) || "Something went wrong. Please try again or contact us.");
+      btn.disabled = false; btn.textContent = "Submit Securely"; return;
+    }
+    form.reset(); form.style.display = "none";
+    show("ok", "Thank you! Your logins were received securely. Our team will use them to keep your disputes moving. You can close this page.");
+  };
+</script>
+</body>
+</html>
