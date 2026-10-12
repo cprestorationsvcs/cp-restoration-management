@@ -1,3 +1,28 @@
+// ── CORE GLOBALS ─────────────────────────────────────────────────────
+var currentUser = '';
+var currentRole = '';
+var currentPage = '';
+
+function showPage(name) {
+  currentPage = name;
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(function(p){ p.style.display = 'none'; });
+  // Show target page
+  var target = document.getElementById('page-' + name);
+  if (target) target.style.display = 'block';
+  // Update nav active state
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  var activeBtn = document.querySelector('.nav-btn[onclick*="' + name + '"]');
+  if (activeBtn) activeBtn.classList.add('active');
+  // Run page loader if registered
+  if (_pageLoaders && _pageLoaders[name]) {
+    try { _pageLoaders[name](); } catch(e) { console.warn('Page loader error:', e.message); }
+  }
+  // Track session
+  if (typeof trackTeamSession === 'function') trackTeamSession(name);
+}
+// ─────────────────────────────────────────────────────────────────────
+
 
 // ── LOGIN / AUTH ─────────────────────────────────────────────────────
 function setLoginType(type) {
