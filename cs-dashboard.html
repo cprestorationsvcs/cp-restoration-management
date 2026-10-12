@@ -219,6 +219,178 @@ async function logWork(actionType, details, clientId, clientName, quantity) {
 }
 // ────────────────────────────────────────────────────────────────────
 
+
+function renderStatusUpdate() {
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128203;</div><div>Select a client</div></div>';return;}
+  var c=currentClient;
+  document.getElementById('right-body').innerHTML=
+    '<div style="padding:4px 0 16px;">' +
+    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:14px;">&#128203; Status Update to Portal</div>' +
+    '<div style="margin-bottom:12px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">SELECT ACTION TAKEN</label>' +
+    '<select id="status-select" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;">' +
+    '<option value="">— Choose a status update —</option>' +
+    '<option value="Login credentials updated">Login credentials updated</option><option value="Payment plan explained">Payment plan explained</option><option value="Bureau login assistance provided">Bureau login assistance provided</option><option value="Dispute round completed">Dispute round completed</option><option value="Documents reviewed">Documents reviewed</option><option value="Follow-up call made">Follow-up call made</option><option value="Email sent to client">Email sent to client</option><option value="Verification pending">Verification pending</option><option value="Waiting for client response">Waiting for client response</option><option value="Account update completed">Account update completed</option><option value="Bureau call completed">Bureau call completed</option><option value="Credit report reviewed">Credit report reviewed</option><option value="Refund agreement sent">Refund agreement sent</option><option value="Onboarding completed">Onboarding completed</option><option value="File closed">File closed</option>' +
+    '</select></div>' +
+    '<div style="margin-bottom:12px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">ADDITIONAL NOTES (optional)</label>' +
+    '<textarea id="status-notes" placeholder="Any extra context..." style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;min-height:80px;resize:vertical;"></textarea>' +
+    '</div>' +
+    '<button onclick="postStatusUpdate()" style="padding:10px 20px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">&#128203; Post Update to Client Portal</button>' +
+    '<div id="status-history" style="margin-top:16px;"></div>' +
+    '</div>';
+  loadStatusHistory(c.id);
+}
+
+async function postStatusUpdate() {
+  if(!currentClient) return;
+  var action = (document.getElementById('status-select')||{}).value||'';
+  var notes  = (document.getElementById('status-notes') ||{}).value||'';
+  if(!action){alert('Please select a status update.');return;}
+  var payload = {
+    client_id: currentClient.id,
+    client_name: currentClient.name,
+    action: action,
+    notes: notes,
+    posted_by: currentUser,
+    posted_by_name: localStorage.getItem('cp_logged_in_name')||'CS Agent',
+    created_at: new Date().toISOString(),
+    visible_to_client: true
+  };
+  try {
+    var r = await fetch(SUPA+'/status_updates',{
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify(payload)
+    });
+    if(r.ok||r.status===201||r.status===204){
+      alert('✅ Status update posted to client portal!');
+      document.getElementById('status-select').value='';
+      document.getElementById('status-notes').value='';
+      loadStatusHistory(currentClient.id);
+    }
+  } catch(e){alert('Error posting update: '+e.message);}
+}
+
+async function loadStatusHistory(clientId) {
+  var el = document.getElementById('status-history');
+  if(!el) return;
+  try {
+    var r = await fetch(SUPA+'/status_updates?client_id=eq.'+encodeURIComponent(clientId)+'&order=created_at.desc&limit=20',{headers:HDR});
+    var data = await r.json();
+    if(!Array.isArray(data)||!data.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">No updates posted yet.</div>';return;}
+    el.innerHTML='<div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:8px;letter-spacing:.5px;">RECENT UPDATES</div>'+
+      data.map(function(u){
+        return '<div style="padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;background:#F8FAFC;">' +
+          '<div style="font-size:13px;font-weight:700;color:#1B3A6B;">&#10003; '+u.action+'</div>' +
+          (u.notes?'<div style="font-size:12px;color:#64748B;margin-top:3px;">'+u.notes+'</div>':'') +
+          '<div style="font-size:11px;color:#94A3B8;margin-top:4px;">'+(u.posted_by_name||'CS Agent')+' · '+new Date(u.created_at).toLocaleString()+'</div>' +
+          '</div>';
+      }).join('');
+  } catch(e){el.innerHTML='';}
+}
+
+function renderEmailClient() {
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128231;</div><div>Select a client</div></div>';return;}
+  var c=currentClient;
+  document.getElementById('right-body').innerHTML=
+    '<div style="padding:4px 0;">' +
+    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:14px;">&#128231; Email Message to Client</div>' +
+    '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">TO</label>' +
+    '<input value="'+(c.email||'')+'" readonly style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;background:#F8FAFC;">' +
+    '</div>' +
+    '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">SUBJECT</label>' +
+    '<input id="email-subject" placeholder="e.g. Update on Your Credit Repair File" style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;">' +
+    '</div>' +
+    '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">MESSAGE</label>' +
+    '<textarea id="email-body" placeholder="Write your message to the client here..." style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;min-height:140px;resize:vertical;"></textarea>' +
+    '</div>' +
+    '<div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;">' +
+    '<input type="checkbox" id="email-post-portal" checked style="accent-color:#1B3A6B;transform:scale(1.2);">' +
+    '<label for="email-post-portal" style="font-size:12px;color:#64748B;">Also post copy to Client Portal → Messages tab</label>' +
+    '</div>' +
+    '<button onclick="sendClientEmail()" style="padding:10px 20px;background:#C9A84C;color:#0A1628;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">&#128231; Send Email to Client</button>' +
+    '<div id="email-sent-history" style="margin-top:16px;"></div>' +
+    '</div>';
+  loadEmailHistory(c.id);
+}
+
+async function sendClientEmail() {
+  if(!currentClient) return;
+  var subject = (document.getElementById('email-subject')||{}).value||'';
+  var body    = (document.getElementById('email-body')   ||{}).value||'';
+  var postPortal = (document.getElementById('email-post-portal')||{}).checked;
+  if(!subject||!body){alert('Please enter a subject and message.');return;}
+  var btn = event.target;
+  btn.textContent='Sending...'; btn.disabled=true;
+  try {
+    var r = await fetch('/.netlify/functions/send-email',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        to: currentClient.email,
+        clientName: currentClient.name,
+        subject: subject,
+        body: body,
+        from: 'CP Restoration Services <info@35daycreditrepair.com>'
+      })
+    });
+    // Log in email_log table
+    await fetch(SUPA+'/email_logs',{
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({
+        client_id: currentClient.id,
+        client_name: currentClient.name,
+        client_email: currentClient.email,
+        subject: subject,
+        body: body,
+        sent_by: currentUser,
+        sent_by_name: localStorage.getItem('cp_logged_in_name')||'CS Agent',
+        sent_at: new Date().toISOString(),
+        posted_to_portal: postPortal,
+        status: 'sent'
+      })
+    });
+    if(postPortal) {
+      await fetch(SUPA+'/client_messages',{
+        method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+        body:JSON.stringify({
+          client_id: currentClient.id,
+          from_cs: true,
+          subject: subject,
+          message: body,
+          created_at: new Date().toISOString()
+        })
+      });
+    }
+    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
+    alert('✅ Email sent to '+currentClient.email+(postPortal?' and posted to client portal.':'.'));
+    loadEmailHistory(currentClient.id);
+  } catch(e){
+    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
+    alert('Error: '+e.message);
+  }
+}
+
+async function loadEmailHistory(clientId) {
+  var el = document.getElementById('email-sent-history');
+  if(!el) return;
+  try {
+    var r = await fetch(SUPA+'/email_logs?client_id=eq.'+encodeURIComponent(clientId)+'&order=sent_at.desc&limit=10',{headers:HDR});
+    var data = await r.json();
+    if(!Array.isArray(data)||!data.length) return;
+    el.innerHTML='<div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:8px;letter-spacing:.5px;">SENT EMAILS</div>'+
+      data.map(function(e){
+        return '<div style="padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;background:#F8FAFC;">' +
+          '<div style="font-size:12px;font-weight:700;color:#1B3A6B;">&#128231; '+e.subject+'</div>' +
+          '<div style="font-size:11px;color:#94A3B8;margin-top:3px;">'+(e.sent_by_name||'CS Agent')+' · '+new Date(e.sent_at).toLocaleString()+
+          (e.posted_to_portal?' · <span style="color:#166534;">Posted to Portal</span>':'')+'</div>' +
+          '</div>';
+      }).join('');
+  } catch(e){}
+}
+
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1584028236255374&ev=PageView&noscript=1"
@@ -308,7 +480,8 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
       <div class="rtab" id="rtab-logins" onclick="showRTab('logins')">&#128272; Bureau Logins</div>
       <div class="rtab" id="rtab-disputes" onclick="showRTab('disputes')">&#128202; Disputes</div>
       <div class="rtab" id="rtab-log" onclick="showRTab('log')">&#128222; Contact Log</div>
-      <div class="rtab" id="rtab-messages" onclick="showRTab('messages')">&#128172; Client Messages</div>
+      <div class="rtab" id="rtab-status" onclick="showRTab('status')">&#128203; Status Update</div>
+      <div class="rtab" id="rtab-email" onclick="showRTab('email')">&#128231; Email Client</div>
     </div>
     <div class="right-body" id="right-body">
       <div class="empty-state"><div class="ico">&#128101;</div><div>Select a client to view their file</div></div>
