@@ -35,7 +35,7 @@ var EMPLOYEES = {
   'kimwell@mycprteam.com': { password:'CPRKimwell2026', name:'Kimwell Ablaza',     role:'dispute',    label:'Dispute Specialist', initials:'KA' },
   'annabel@mycprteam.com': { password:'CPRAnnabel2026', name:'Annabel Curada',     role:'dispute',    label:'Dispute Specialist', initials:'AC' },
   // jay@mycprteam.com DEACTIVATED
-  // fcacaasi@gmail.com — TERMINATED Oct 12 2026 (no-show, no-call first day)
+  'fcacaasi@gmail.com':    { password:'CPRFatima2026',  name:'Fatima Charfina Caasi', role:'bureau',  label:'Bureau Caller',      initials:'FC' },
 };
 
 var TEAM_ROSTER = {
@@ -55,7 +55,7 @@ var TEAM_ROSTER = {
   'bukunmi@mycprteam.com':        {name:'Bukunmi Aina',         role:'Lead Generation',     start:'2026-09-21', weekly:250, active:true},
   'jay@mycprteam.com':            {name:'Jay Rico',             role:'Terminated',          start:'',           weekly:0,   active:false},
   'lester.leonardo1997@gmail.com':{name:'Lester Leonardo',      role:'Terminated',          start:'',           weekly:0,   active:false},
-  'fcacaasi@gmail.com':           {name:'Fatima Charfina Caasi','role':'Terminated',        start:'',           weekly:0,   active:false},
+  'fcacaasi@gmail.com':           {name:'Fatima Charfina Caasi','role':'Bureau Caller',     start:'2026-10-12', weekly:100, active:true},
   'jonahmariedeguzman2@gmail.com':{name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
   'jonah@mycprteam.com':          {name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
   'anthongiuseppe@gmail.com':     {name:'Anthon Giuseppe Sumbiling','role':'Terminated',    start:'',           weekly:0,   active:false},
