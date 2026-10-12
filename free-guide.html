@@ -114,7 +114,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
       <div id="lead-form">
         <input type="text" id="lead-name" placeholder="Your First Name" required>
         <input type="email" id="lead-email" placeholder="Your Email Address" required>
-        <input type="tel" id="lead-phone" placeholder="Phone Number" required>
+        <input type="tel" id="lead-phone" placeholder="Phone Number" required pattern="[0-9\s\-\+\(\)]{10,}">
         <button class="cta-btn" onclick="submitLead()">&#128218; Send Me the Free Guide</button>
         <p class="disclaimer">No spam. Unsubscribe anytime. Your information is 100% secure.</p>
       </div>
@@ -269,6 +269,8 @@ async function submitLead() {
   var phone = document.getElementById('lead-phone').value.trim();
   if (!name || !email) { alert('Please enter your name and email.'); return; }
   if (!phone) { alert('Please enter your phone number.'); return; }
+  var digitsOnly = phone.replace(/\D/g,'');
+  if (digitsOnly.length < 10) { alert('Please enter a valid phone number (at least 10 digits).'); return; }
   var btn = document.querySelector('#lead-form .cta-btn');
   btn.textContent = 'Sending...'; btn.disabled = true;
   await saveLead(name, email, phone, 'ebook-funnel-hero');
