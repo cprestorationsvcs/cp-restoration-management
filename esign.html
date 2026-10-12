@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration — Document Signing</title>
+<style>
+:root {
+  --navy: #0A1628;
+  --blue: #1B3A6B;
+  --gold: #C9A84C;
+  --gold-light: #F0E6C8;
+  --green: #166534;
+  --green-light: #DCFCE7;
+  --red: #991B1B;
+  --red-light: #FEE2E2;
+  --gray: #64748B;
+  --border: #E2E8F0;
+  --bg: #F8FAFC;
+  --white: #FFFFFF;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  box-sizing: border-box;
+}
+*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--navy); min-height: 100vh; }
+
+/* ── Header ── */
+.header {
+  background: var(--navy);
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-logo { color: var(--gold); font-size: 15px; font-weight: 800; letter-spacing: .5px; }
+.header-sub { color: #94A3B8; font-size: 11px; margin-top: 2px; }
+.header-badge {
+  background: var(--gold); color: var(--navy);
+  padding: 5px 12px; border-radius: 20px;
+  font-size: 11px; font-weight: 800; letter-spacing: .5px;
+}
+
+/* ── Layout ── */
+.page { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+
+/* ── Steps ── */
+.steps {
+  display: flex; gap: 0; margin-bottom: 32px;
+  background: white; border-radius: 12px; border: 1.5px solid var(--border);
+  overflow: hidden;
+}
+.step {
+  flex: 1; padding: 14px 12px; text-align: center;
+  font-size: 11px; font-weight: 700; color: var(--gray);
+  border-right: 1.5px solid var(--border); cursor: pointer;
+  transition: background .15s;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.step:last-child { border-right: none; }
+.step.active { background: var(--blue); color: white; }
+.step.done { background: var(--green-light); color: var(--green); }
+.step-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(255,255,255,.2); font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.step.done .step-num { background: var(--green); color: white; }
+.step:not(.active):not(.done) .step-num { background: var(--border); color: var(--gray); }
+
+/* ── Section selector ── */
+.doc-selector {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;
+  margin-bottom: 24px;
+}
+.doc-type {
+  padding: 16px; border-radius: 12px; border: 2px solid var(--border);
+  background: white; cursor: pointer; transition: all .15s;
+}
+.doc-type:hover { border-color: var(--blue); }
+.doc-type.selected { border-color: var(--gold); background: #FFFBEE; }
+.doc-type-icon { font-size: 24px; margin-bottom: 8px; }
+.doc-type-name { font-size: 13px; font-weight: 800; color: var(--navy); }
+.doc-type-desc { font-size: 11px; color: var(--gray); margin-top: 3px; line-height: 1.5; }
+
+/* ── Card ── */
+.card {
+  background: white; border-radius: 14px;
+  border: 1.5px solid var(--border); padding: 24px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 14px; font-weight: 800; color: var(--navy);
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ── Form fields ── */
+.field { margin-bottom: 16px; }
+.label { font-size: 11px; font-weight: 700; color: var(--gray); margin-bottom: 5px; letter-spacing: .3px; display: block; }
+.input, .select, textarea {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: 13px; font-family: inherit; color: var(--navy);
+  background: white; transition: border .15s;
+}
+.input:focus, .select:focus, textarea:focus {
+  outline: none; border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(27,58,107,.08);
+}
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.input-row.three { grid-template-columns: 1fr 1fr 1fr; }
+textarea { resize: vertical; min-height: 80px; }
+
+/* ── Items table ── */
+.items-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.items-table th {
+  background: var(--navy); color: white;
+  padding: 8px 10px; text-align: left; font-size: 11px;
+}
+.items-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.items-table tr:hover td { background: #F8FAFC; }
+.remove-btn {
+  background: none; border: none; color: var(--red);
+  cursor: pointer; font-size: 16px; padding: 2px 6px;
+}
+.add-item-btn {
+  margin-top: 10px; padding: 8px 16px;
+  background: none; border: 1.5px dashed var(--border);
+  border-radius: 8px; color: var(--gray);
+  cursor: pointer; font-size: 12px; font-weight: 700;
+  width: 100%; transition: all .15s;
+}
+.add-item-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+/* ── Document preview ── */
+.doc-preview {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 32px;
+  font-size: 12.5px; line-height: 1.8; color: #1E293B;
+  max-height: 500px; overflow-y: auto;
+  margin-bottom: 16px;
+}
+.doc-preview h2 { font-size: 15px; font-weight: 800; color: var(--navy); margin: 20px 0 8px; }
+.doc-preview h3 { font-size: 13px; font-weight: 700; color: var(--navy); margin: 14px 0 6px; }
+.doc-preview p { margin-bottom: 10px; }
+.doc-preview ul { margin: 8px 0 10px 20px; }
+.doc-preview li { margin-bottom: 4px; }
+.doc-center { text-align: center; font-weight: 800; font-size: 14px; margin: 0 0 20px; color: var(--navy); }
+.doc-hr { border: none; border-top: 1.5px solid var(--border); margin: 20px 0; }
+.highlight { background: var(--gold-light); padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+
+/* ── Signature box ── */
+.sig-section {
+  border: 2px solid var(--border); border-radius: 12px;
+  padding: 20px; margin-top: 20px; background: #F8FAFC;
+}
+.sig-section h3 { font-size: 13px; font-weight: 800; margin-bottom: 16px; color: var(--navy); }
+.sig-name-input {
+  width: 100%; padding: 12px 16px;
+  font-size: 22px; font-family: 'Georgia', serif;
+  border: none; border-bottom: 2px solid var(--navy);
+  background: transparent; color: var(--navy);
+  text-align: center; letter-spacing: 1px;
+}
+.sig-name-input:focus { outline: none; border-bottom-color: var(--gold); }
+.sig-consent {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-top: 16px; font-size: 12px; color: var(--gray); line-height: 1.5;
+}
+.sig-consent input[type=checkbox] { margin-top: 2px; accent-color: var(--blue); transform: scale(1.2); flex-shrink: 0; }
+.sig-timestamp { font-size: 11px; color: var(--gray); margin-top: 10px; text-align: center; }
+
+/* ── Buttons ── */
+.btn {
+  padding: 12px 24px; border-radius: 8px; font-size: 13px;
+  font-weight: 800; cursor: pointer; border: none;
+  transition: all .15s; font-family: inherit;
+}
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: #0F2A52; }
+.btn-gold { background: var(--gold); color: var(--navy); }
+.btn-gold:hover { background: #B8943D; }
+.btn-outline { background: white; color: var(--navy); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--navy); }
+.btn-danger { background: var(--red); color: white; }
+.btn-green { background: var(--green); color: white; }
+.btn-row { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 20px; }
+
+/* ── Status badge ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+}
+.badge-pending { background: #FEF3C7; color: #92400E; }
+.badge-signed { background: var(--green-light); color: var(--green); }
+.badge-sent { background: #EFF6FF; color: var(--blue); }
+
+/* ── Success screen ── */
+.success-screen {
+  text-align: center; padding: 60px 24px;
+  display: none;
+}
+.success-icon { font-size: 60px; margin-bottom: 20px; }
+.success-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+.success-sub { font-size: 14px; color: var(--gray); margin-bottom: 30px; }
+
+/* ── Refund tracker ── */
+.refund-tracker {
+  background: #FFF8E7; border: 2px solid var(--gold);
+  border-radius: 12px; padding: 20px; margin-bottom: 16px;
+}
+.refund-tracker h3 { font-size: 13px; font-weight: 800; color: #92400E; margin-bottom: 14px; }
+.payment-methods { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.pm-btn {
+  padding: 8px 18px; border-radius: 20px;
+  border: 2px solid var(--border); background: white;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: all .15s;
+}
+.pm-btn.selected { border-color: var(--gold); background: var(--gold-light); color: var(--navy); }
+.payment-status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ps-btn {
+  padding: 12px; border-radius: 10px; border: 2px solid var(--border);
+  background: white; cursor: pointer; font-size: 13px; font-weight: 700;
+  transition: all .15s; text-align: center;
+}
+.ps-btn.pending { border-color: #F59E0B; background: #FEF3C7; color: #92400E; }
+.ps-btn.paid { border-color: var(--green); background: var(--green-light); color: var(--green); }
+
+/* ── Doc list ── */
+.doc-list { display: flex; flex-direction: column; gap: 10px; }
+.doc-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; background: white;
+  border: 1.5px solid var(--border); border-radius: 10px;
+}
+.doc-row-info { display: flex; align-items: center; gap: 12px; }
+.doc-icon { font-size: 22px; }
+.doc-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+.doc-meta { font-size: 11px; color: var(--gray); }
+
+/* ── View modes ── */
+.view { display: none; }
+.view.active { display: block; }
+
+@media (max-width: 600px) {
+  .input-row { grid-template-columns: 1fr; }
+  .input-row.three { grid-template-columns: 1fr; }
+  .payment-status-grid { grid-template-columns: 1fr; }
+  .steps { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-logo">CP RESTORATION SERVICES</div>
+    <div class="header-sub">Document Signing Center</div>
+  </div>
+  <div class="header-badge">🔐 SECURE</div>
+</div>
+
+<div class="page">
+
+  <!-- ── MODE SELECT ── -->
+  <div id="view-mode-select" class="view active">
+    <div style="margin-bottom:24px;">
+      <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:6px;">Document Signing Center</div>
+      <div style="font-size:13px;color:var(--gray);">Generate, send, and track signed agreements for clients.</div>
+    </div>
+    <div class="doc-selector">
+      <div class="doc-type" onclick="startFlow('onboarding')">
+        <div class="doc-type-icon">📋</div>
+        <div class="doc-type-name">New Client Onboarding</div>
+        <div class="doc-type-desc">Service Agreement + Authorization + Refund Policy + Notice — for sales when signing up a new client</div>
+      </div>
+      <div class="doc-type" onclick="startFlow('refund')">
+        <div class="doc-type-icon">💰</div>
+        <div class="doc-type-name">Refund Agreement</div>
+        <div class="doc-type-desc">Prorated refund settlement, liability release, and file closure — from Compliance</div>
+      </div>
+      <div class="doc-type" onclick="showView('view-sent-docs')">
+        <div class="doc-type-icon">📁</div>
+        <div class="doc-type-name">Sent Documents</div>
+        <div class="doc-type-desc">View all sent agreements and their signing status</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ONBOARDING FLOW ── -->
+  <div id="view-onboarding" class="view">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+      <button class="btn btn-outline" onclick="showView('view-mode-select')" style="padding:8px 14px;font-size:12px;">← Back</button>
+      <div style="font-size:17px;font-weight:800;color:var(--navy);">New Client Service Agreement</div>
+    </div>
+
+    <div class="steps" id="ob-steps">
+      <div class="step active" id="ob-step-1"><div class="step-num">1</div>Client Info</div>
+      <div class="step" id="ob-step-2"><div class="step-num">2</div>Package</div>
+      <div class="step" id="ob-step-3"><div class="step-num">3</div>Items to Dispute</div>
+      <div class="step" id="ob-step-4"><div class="step-num">4</div>Review & Send</div>
+    </div>
+
+    <!-- Step 1: Client Info -->
+    <div id="ob-s1" class="card">
+      <div class="card-title">👤 Client Information</div>
+      <div class="input-row">
+        <div class="field"><label class="label">First Name *</label><input class="input" id="ob-fname" placeholder="First name"></div>
+        <div class="field"><label class="label">Last Name *</label><input class="input" id="ob-lname" placeholder="Last name"></div>
+      </div>
+      <div class="input-row">
+        <div class="field"><label class="label">Email Address *</label><input class="input" id="ob-email" type="email" placeholder="client@email.com"></div>
+        <div class="field"><label class="label">Phone Number *</label><input class="input" id="ob-phone" type="tel" placeholder="(555) 000-0000"></div>
+      </div>
+      <div class="input-row">
+        <div class="field"><label class="label">Client ID</label><input class="input" id="ob-cid" placeholder="CPR-XXXXX"></div>
+        <div class="field"><label class="label">Sales Agent</label><input class="input" id="ob-agent" placeholder="Agent name"></div>
+      </div>
+      <div class="field"><label class="label">Address</label><input class="input" id="ob-address" placeholder="Street address, City, State, ZIP"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="obNext(1)">Continue →</button></div>
+    </div>
+
+    <!-- Step 2: Package -->
+    <div id="ob-s2" class="card" style="display:none;">
+      <div class="card-title">💳 Package Selection</div>
+      <div class="doc-selector" style="margin-bottom:16px;">
+        <div class="doc-type" id="pkg-standard" onclick="selectPkg('standard')">
+          <div class="doc-type-name">Standard</div>
+          <div class="doc-type-desc">120 business days or less</div>
+          <div style="font-size:18px;font-weight:800;color:var(--blue);margin-top:8px;">$2,499</div>
+        </div>
+        <div class="doc-type" id="pkg-express" onclick="selectPkg('express')">
+          <div class="doc-type-name">Express</div>
+          <div class="doc-type-desc">60 business days or less</div>
+          <div style="font-size:18px;font-weight:800;color:var(--blue);margin-top:8px;">$3,999</div>
+        </div>
+        <div class="doc-type" id="pkg-financing" onclick="selectPkg('financing')">
+          <div class="doc-type-name">Financing</div>
+          <div class="doc-type-desc">$750 down + $292/mo × 6</div>
+          <div style="font-size:18px;font-weight:800;color:var(--blue);margin-top:8px;">$2,499</div>
+        </div>
+        <div class="doc-type" id="pkg-custom" onclick="selectPkg('custom')">
+          <div class="doc-type-name">Custom</div>
+          <div class="doc-type-desc">Custom pricing arrangement</div>
+          <div style="font-size:18px;font-weight:800;color:var(--blue);margin-top:8px;">Custom</div>
+        </div>
+      </div>
+      <div id="pkg-custom-fields" style="display:none;">
+        <div class="input-row three">
+          <div class="field"><label class="label">Total Amount</label><input class="input" id="pkg-total" placeholder="$0.00"></div>
+          <div class="field"><label class="label">Down Payment</label><input class="input" id="pkg-down" placeholder="$0.00"></div>
+          <div class="field"><label class="label">Monthly Payment × Months</label><input class="input" id="pkg-monthly" placeholder="$0 × 0 months"></div>
+        </div>
+      </div>
+      <div class="field"><label class="label">Discount Applied (if any)</label><input class="input" id="pkg-discount" placeholder="e.g. $200 referral discount → Final: $2,299"></div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="obBack(2)">← Back</button>
+        <button class="btn btn-primary" onclick="obNext(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Items to Dispute -->
+    <div id="ob-s3" class="card" style="display:none;">
+      <div class="card-title">📋 Items to Dispute</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:10px;text-align:center;">EXPERIAN</div>
+          <div id="exp-items"></div>
+          <button class="add-item-btn" onclick="addItem('exp')">+ Add Experian Item</button>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:800;color:#8B0000;margin-bottom:10px;text-align:center;">EQUIFAX</div>
+          <div id="eq-items"></div>
+          <button class="add-item-btn" onclick="addItem('eq')">+ Add Equifax Item</button>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:800;color:#1B4332;margin-bottom:10px;text-align:center;">TRANSUNION</div>
+          <div id="tu-items"></div>
+          <button class="add-item-btn" onclick="addItem('tu')">+ Add TransUnion Item</button>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="obBack(3)">← Back</button>
+        <button class="btn btn-primary" onclick="obNext(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Review & Send -->
+    <div id="ob-s4" style="display:none;">
+      <div class="card">
+        <div class="card-title">📄 Document Preview — Service Agreement</div>
+        <div class="doc-preview" id="ob-preview"></div>
+        <div class="sig-section">
+          <h3>✍️ Electronic Signature</h3>
+          <p style="font-size:12px;color:var(--gray);margin-bottom:14px;">Type your full legal name below to sign this agreement electronically.</p>
+          <input class="sig-name-input" id="ob-sig" placeholder="Type full name here" oninput="updateObSig()">
+          <div class="sig-consent">
+            <input type="checkbox" id="ob-consent">
+            <label for="ob-consent">I have read and agree to the CP Restoration Services Credit Restoration Service Agreement, Authorization for Credit Restoration Action, Consumer Credit File Rights, Cancellation Notice, and Refund Policy. I understand this is a legally binding electronic signature under the ESIGN Act.</label>
+          </div>
+          <div class="sig-timestamp" id="ob-timestamp"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="obBack(4)">← Back</button>
+          <button class="btn btn-outline" onclick="sendDocLink()">📧 Send Link to Client</button>
+          <button class="btn btn-gold" id="ob-sign-btn" onclick="signDoc('onboarding')" disabled>✍️ Sign & Complete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REFUND FLOW ── -->
+  <div id="view-refund" class="view">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+      <button class="btn btn-outline" onclick="showView('view-mode-select')" style="padding:8px 14px;font-size:12px;">← Back</button>
+      <div style="font-size:17px;font-weight:800;color:var(--navy);">Refund Acceptance Agreement</div>
+      <span class="badge badge-sent" style="margin-left:auto;">From: Compliance</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👤 Client & Refund Details</div>
+      <div class="input-row">
+        <div class="field"><label class="label">Client Name *</label><input class="input" id="rf-name" placeholder="Full legal name"></div>
+        <div class="field"><label class="label">Client ID *</label><input class="input" id="rf-cid" placeholder="CPR-XXXXX"></div>
+      </div>
+      <div class="input-row">
+        <div class="field"><label class="label">Client Email *</label><input class="input" id="rf-email" type="email" placeholder="client@email.com"></div>
+        <div class="field"><label class="label">Original Package Amount</label><input class="input" id="rf-pkg-amt" placeholder="$2,499.00"></div>
+      </div>
+      <div class="input-row three">
+        <div class="field"><label class="label">Total Items Disputed</label><input class="input" id="rf-total-items" type="number" placeholder="25" oninput="calcRefund()"></div>
+        <div class="field"><label class="label">Items Unresolved</label><input class="input" id="rf-unresolved" type="number" placeholder="5" oninput="calcRefund()"></div>
+        <div class="field"><label class="label">Completion %</label><input class="input" id="rf-pct" readonly placeholder="0%"></div>
+      </div>
+      <div class="input-row">
+        <div class="field"><label class="label">Admin Fee (non-refundable)</label><input class="input" id="rf-admin-fee" value="200" oninput="calcRefund()"></div>
+        <div class="field">
+          <label class="label">Calculated Refund Amount</label>
+          <input class="input" id="rf-refund-amt" readonly style="font-weight:800;font-size:16px;color:var(--green);" placeholder="$0.00">
+        </div>
+      </div>
+      <div class="field"><label class="label">Refund Reason / Notes</label><textarea class="input" id="rf-reason" placeholder="Brief reason for refund (e.g. 5 items remain unresolved on Experian and TransUnion after 8 months)"></textarea></div>
+    </div>
+
+    <!-- Refund Payment Tracker -->
+    <div class="refund-tracker">
+      <h3>💳 Refund Payment Tracking</h3>
+      <div class="label" style="margin-bottom:8px;">Payment Method</div>
+      <div class="payment-methods">
+        <button class="pm-btn" id="pm-zelle" onclick="selectPM('zelle')">💚 Zelle</button>
+        <button class="pm-btn" id="pm-cashapp" onclick="selectPM('cashapp')">💳 Cash App</button>
+        <button class="pm-btn" id="pm-paypal" onclick="selectPM('paypal')">🔵 PayPal</button>
+        <button class="pm-btn" id="pm-check" onclick="selectPM('check')">📝 Check</button>
+        <button class="pm-btn" id="pm-wire" onclick="selectPM('wire')">🏦 Wire</button>
+      </div>
+      <div class="field">
+        <label class="label" id="pm-handle-label">Client's Zelle Email / Phone</label>
+        <input class="input" id="rf-pm-handle" placeholder="Enter client's payment handle">
+      </div>
+      <div class="label" style="margin-bottom:8px;">Payment Status</div>
+      <div class="payment-status-grid">
+        <button class="ps-btn" id="ps-pending" onclick="selectPS('pending')">⏳ Pending Payment</button>
+        <button class="ps-btn" id="ps-paid" onclick="selectPS('paid')">✅ Paid</button>
+      </div>
+      <div class="field" id="rf-paid-date-field" style="display:none;margin-top:12px;">
+        <label class="label">Date Paid</label>
+        <input class="input" id="rf-paid-date" type="date">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📄 Agreement Preview</div>
+      <div class="doc-preview" id="rf-preview"></div>
+      <div class="sig-section">
+        <h3>✍️ Client Electronic Signature</h3>
+        <p style="font-size:12px;color:var(--gray);margin-bottom:14px;">Client types full legal name to accept the refund and close the file.</p>
+        <input class="sig-name-input" id="rf-sig" placeholder="Client types full name here" oninput="updateRfSig()">
+        <div class="sig-consent">
+          <input type="checkbox" id="rf-consent">
+          <label for="rf-consent">I, the undersigned, accept the refund amount stated above as full and final settlement of all claims against CP Restoration Services and agree to the terms of this Refund Acceptance Agreement including the release of liability, file closure, and non-disparagement clause. I understand this is a legally binding electronic signature.</label>
+        </div>
+        <div class="sig-timestamp" id="rf-timestamp"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="generateRfPreview()">🔄 Refresh Preview</button>
+        <button class="btn btn-outline" onclick="sendRfLink()">📧 Send to Client Portal</button>
+        <button class="btn btn-gold" id="rf-sign-btn" onclick="signDoc('refund')" disabled>✍️ Sign & Close File</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SENT DOCS ── -->
+  <div id="view-sent-docs" class="view">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+      <button class="btn btn-outline" onclick="showView('view-mode-select')" style="padding:8px 14px;font-size:12px;">← Back</button>
+      <div style="font-size:17px;font-weight:800;color:var(--navy);">Sent Documents</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📁 All Signed & Pending Agreements</div>
+      <div class="doc-list" id="sent-docs-list">
+        <div style="text-align:center;padding:40px;color:var(--gray);">Loading documents...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS ── -->
+  <div id="view-success" class="view">
+    <div class="success-screen" style="display:block;">
+      <div class="success-icon">✅</div>
+      <div class="success-title" id="success-title">Agreement Signed!</div>
+      <div class="success-sub" id="success-sub">The document has been signed and saved.</div>
+      <div id="success-details" style="background:#F8FAFC;border:1.5px solid var(--border);border-radius:12px;padding:20px;max-width:440px;margin:0 auto 24px;text-align:left;font-size:13px;"></div>
+      <button class="btn btn-primary" onclick="showView('view-mode-select')">← Back to Documents</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+const K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+const HDR = {'apikey':K,'Authorization':'Bearer '+K,'Content-Type':'application/json'};
+
+let currentPkg = '';
+let currentPM = '';
+let currentPS = '';
+let items = {exp:[], eq:[], tu:[]};
+let itemCount = 0;
+
+// ── Navigation ──
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'view-sent-docs') loadSentDocs();
+}
+
+function startFlow(type) {
+  if (type === 'onboarding') showView('view-onboarding');
+  else if (type === 'refund') { showView('view-refund'); setTimeout(generateRfPreview, 500); }
+}
+
+// ── Onboarding steps ──
+function obNext(step) {
+  if (step === 1) {
+    if (!document.getElementById('ob-fname').value || !document.getElementById('ob-email').value) {
+      alert('Please fill in client name and email.'); return;
+    }
+    showObStep(2);
+  } else if (step === 2) {
+    if (!currentPkg) { alert('Please select a package.'); return; }
+    showObStep(3);
+  } else if (step === 3) {
+    generateObPreview();
+    showObStep(4);
+    document.getElementById('ob-timestamp').textContent = 'Timestamp will be recorded at time of signing: ' + new Date().toLocaleString();
+  }
+}
+function obBack(step) {
+  showObStep(step - 1);
+}
+function showObStep(n) {
+  for (let i=1; i<=4; i++) {
+    const s = document.getElementById('ob-s'+i);
+    if (s) s.style.display = i===n ? 'block' : 'none';
+    const st = document.getElementById('ob-step-'+i);
+    if (st) {
+      st.className = 'step' + (i===n?' active':(i<n?' done':''));
+    }
+  }
+}
+
+// ── Package selection ──
+function selectPkg(pkg) {
+  currentPkg = pkg;
+  ['standard','express','financing','custom'].forEach(p => {
+    document.getElementById('pkg-'+p).classList.toggle('selected', p===pkg);
+  });
+  document.getElementById('pkg-custom-fields').style.display = pkg==='custom' ? 'block' : 'none';
+}
+
+// ── Items to dispute ──
+function addItem(bureau) {
+  itemCount++;
+  const id = bureau + '-item-' + itemCount;
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'background:#F8FAFC;border:1.5px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;';
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-size:11px;font-weight:700;color:var(--gray);">ITEM ${itemCount}</span>
+      <button class="remove-btn" onclick="removeItem('${id}','${bureau}')">×</button>
+    </div>
+    <input class="input" placeholder="Creditor / Account Name" style="margin-bottom:6px;" id="${id}-name">
+    <input class="input" placeholder="Account # (last 4)" style="margin-bottom:6px;" id="${id}-acct">
+    <input class="input" placeholder="Balance / Amount" id="${id}-bal">
+  `;
+  document.getElementById(bureau+'-items').appendChild(div);
+  items[bureau].push(id);
+}
+function removeItem(id, bureau) {
+  document.getElementById(id).remove();
+  items[bureau] = items[bureau].filter(i => i !== id);
+}
+
+// ── Generate onboarding preview ──
+function generateObPreview() {
+  const fname = document.getElementById('ob-fname').value;
+  const lname = document.getElementById('ob-lname').value;
+  const fullname = fname + ' ' + lname;
+  const email = document.getElementById('ob-email').value;
+  const phone = document.getElementById('ob-phone').value;
+  const cid = document.getElementById('ob-cid').value || '—';
+  const agent = document.getElementById('ob-agent').value || '—';
+  const address = document.getElementById('ob-address').value || '—';
+  const pkgNames = {standard:'Full Service Standard — $2,499.00',express:'Full Service Express — $3,999.00',financing:'Full Service Financing — $750 down + $292/mo × 6',custom:'Custom Package'};
+  const pkgLabel = pkgNames[currentPkg] || '—';
+  const discount = document.getElementById('pkg-discount').value;
+
+  const getItems = (bureau) => {
+    return items[bureau].map(id => {
+      const name = (document.getElementById(id+'-name')||{}).value||'';
+      const acct = (document.getElementById(id+'-acct')||{}).value||'';
+      const bal  = (document.getElementById(id+'-bal') ||{}).value||'';
+      if (!name) return '';
+      return `<li><strong>${name}</strong>${acct?' — Acct #'+acct:''}${bal?' — '+bal:''}</li>`;
+    }).join('');
+  };
+
+  const expItems = getItems('exp');
+  const eqItems  = getItems('eq');
+  const tuItems  = getItems('tu');
+
+  document.getElementById('ob-preview').innerHTML = `
+    <div class="doc-center">CP RESTORATION SERVICES<br>CREDIT RESTORATION SERVICE AGREEMENT</div>
+    <div class="doc-center" style="font-size:12px;margin-top:-10px;color:#64748B;">Document Date: ${new Date().toLocaleDateString()}</div>
+    <hr class="doc-hr">
+    <p>I, <span class="highlight">${fullname}</span>, hereby enter into the following agreement with CP Restoration Services.</p>
+    <p>CP Restoration Services agrees to evaluate the Customer's current credit reports and identify inaccurate, erroneous, false, or obsolete information; prepare all necessary dispute correspondence; and review credit profile status with Experian, Equifax, and TransUnion.</p>
+    <h2>Selected Package</h2>
+    <p><strong>${pkgLabel}</strong>${discount ? '<br>Discount: '+discount : ''}</p>
+    <h2>Scope of Services — Items to Dispute</h2>
+    ${expItems ? `<h3>EXPERIAN</h3><ul>${expItems}</ul>` : ''}
+    ${eqItems  ? `<h3>EQUIFAX</h3><ul>${eqItems}</ul>` : ''}
+    ${tuItems  ? `<h3>TRANSUNION</h3><ul>${tuItems}</ul>` : ''}
+    <h2>Authorization for Credit Restoration Action</h2>
+    <p>I, <span class="highlight">${fullname}</span>, authorize CP Restoration Services to make, receive, sign, endorse, execute, acknowledge, deliver, and possess such applications, correspondence, contracts, or agreements as necessary to improve my credit with TransUnion, Experian, Equifax, and any other reporting agencies or creditors listed.</p>
+    <h2>Cancellation Policy</h2>
+    <p>You may cancel this contract without penalty within <strong>24 hours</strong> of payment. Cancellation between 24 hours and 7 days incurs a <strong>$200 non-refundable administrative fee</strong>. After 7 days, cancellation is not permitted as services have commenced.</p>
+    <h2>Refund Policy</h2>
+    <p>Refunds are prorated based on disputed items not successfully removed, less a <strong>$200 non-refundable administrative fee</strong>. Refund eligibility applies only to paid-in-full clients within the applicable service timeline.</p>
+    <h2>Client Information</h2>
+    <p><strong>Name:</strong> ${fullname}<br><strong>Email:</strong> ${email}<br><strong>Phone:</strong> ${phone}<br><strong>Address:</strong> ${address}<br><strong>Client ID:</strong> ${cid}<br><strong>Sales Agent:</strong> ${agent}</p>
+    <hr class="doc-hr">
+    <p style="font-size:11px;color:#64748B;">By signing below, the client acknowledges they have read and agree to all terms of this agreement including the Consumer Credit File Rights Under State and Federal Law (CROA Disclosure) and Right of Cancellation Notice.</p>
+  `;
+}
+
+// ── Refund calculator ──
+function calcRefund() {
+  const total = parseInt(document.getElementById('rf-total-items').value)||0;
+  const unresolved = parseInt(document.getElementById('rf-unresolved').value)||0;
+  const pkgAmt = parseFloat((document.getElementById('rf-pkg-amt').value||'').replace(/[$,]/g,''))||2499;
+  const adminFee = parseFloat(document.getElementById('rf-admin-fee').value)||200;
+  if (!total) return;
+  const completed = total - unresolved;
+  const pct = Math.round((completed/total)*100);
+  const incompletePct = 100 - pct;
+  const refund = Math.round(((pkgAmt - adminFee) * (incompletePct/100)) * 100)/100;
+  document.getElementById('rf-pct').value = pct + '% completed';
+  document.getElementById('rf-refund-amt').value = '$' + refund.toFixed(2);
+  generateRfPreview();
+}
+
+// ── Generate refund preview ──
+function generateRfPreview() {
+  const name = document.getElementById('rf-name').value || '[Client Name]';
+  const cid = document.getElementById('rf-cid').value || '[Client ID]';
+  const pkgAmt = document.getElementById('rf-pkg-amt').value || '$2,499.00';
+  const totalItems = document.getElementById('rf-total-items').value || '0';
+  const unresolved = document.getElementById('rf-unresolved').value || '0';
+  const pct = document.getElementById('rf-pct').value || '0%';
+  const refundAmt = document.getElementById('rf-refund-amt').value || '$0.00';
+  const reason = document.getElementById('rf-reason').value || '';
+  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+  document.getElementById('rf-preview').innerHTML = `
+    <div class="doc-center">CP RESTORATION SERVICES<br>REFUND ACCEPTANCE AGREEMENT</div>
+    <div class="doc-center" style="font-size:11px;color:#64748B;margin-top:-8px;">Prepared by: Compliance Department · ${today}</div>
+    <hr class="doc-hr">
+    <h2>Parties</h2>
+    <p><strong>Service Provider:</strong> CP Restoration Services, owned and operated by Jason Crown, Coconut Creek, Florida ("Company")<br>
+    <strong>Client:</strong> <span class="highlight">${name}</span> — Client ID: ${cid} ("Client")</p>
+    <h2>Recitals</h2>
+    <p><strong>WHEREAS</strong>, the Client entered into a service agreement with the Company under the package totaling <strong>${pkgAmt}</strong>;</p>
+    <p><strong>WHEREAS</strong>, the Company has completed approximately <strong>${pct}</strong> of the agreed services, resolving <strong>${parseInt(totalItems)-parseInt(unresolved)} out of ${totalItems}</strong> items, with <strong>${unresolved} items remaining unresolved</strong>${reason ? ': ' + reason : ''};</p>
+    <p><strong>WHEREAS</strong>, the Client has requested a refund for the portion of services not completed, and both parties wish to resolve this matter amicably;</p>
+    <h2>Refund Terms</h2>
+    <p>The Company agrees to issue a refund of <strong class="highlight">${refundAmt}</strong> representing the prorated value of uncompleted services less the $200 non-refundable administrative fee. This constitutes full and final settlement of all claims arising from the original service agreement.</p>
+    <h2>Release of Liability</h2>
+    <p>In consideration of the refund, the Client fully and unconditionally releases CP Restoration Services, its owner Jason Crown, and all agents from any and all claims, liabilities, and demands of any nature arising from the credit repair services provided. This agreement shall not be construed as an admission of liability by either party.</p>
+    <h2>Non-Disparagement</h2>
+    <p>The Client agrees not to make negative, disparaging, or defamatory statements online or in any medium regarding CP Restoration Services in connection with matters resolved by this agreement.</p>
+    <h2>File Closure & Future Services</h2>
+    <p>Upon execution of this agreement and issuance of the refund, the Client's account shall be permanently closed. Should the Client wish to re-engage CP Restoration Services in the future, all services will be subject to then-current pricing with no credit or discount from this agreement.</p>
+    <hr class="doc-hr">
+    <p style="font-size:11px;color:#64748B;">This agreement was prepared by the CP Restoration Services Compliance Department. Both parties are encouraged to seek independent legal counsel before signing.</p>
+  `;
+}
+
+// ── Payment method & status ──
+function selectPM(pm) {
+  currentPM = pm;
+  document.querySelectorAll('.pm-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('pm-'+pm).classList.add('selected');
+  const labels = {zelle:"Client's Zelle Email / Phone",cashapp:"Client's Cash App $Cashtag",paypal:"Client's PayPal Email",check:"Mailing Address for Check",wire:"Bank / Wire Transfer Details"};
+  document.getElementById('pm-handle-label').textContent = labels[pm]||"Payment Handle";
+}
+function selectPS(ps) {
+  currentPS = ps;
+  document.getElementById('ps-pending').classList.toggle('pending', ps==='pending');
+  document.getElementById('ps-paid').classList.toggle('paid', ps==='paid');
+  document.getElementById('ps-pending').classList.toggle('paid', false);
+  document.getElementById('ps-paid').classList.toggle('pending', false);
+  document.getElementById('rf-paid-date-field').style.display = ps==='paid' ? 'block' : 'none';
+}
+
+// ── Signature updates ──
+function updateObSig() {
+  const sig = document.getElementById('ob-sig').value;
+  const consent = document.getElementById('ob-consent').checked;
+  document.getElementById('ob-sign-btn').disabled = !(sig.trim().length > 2 && consent);
+  document.getElementById('ob-timestamp').textContent = sig ? 'Signing as: ' + sig + ' · ' + new Date().toLocaleString() : '';
+}
+function updateRfSig() {
+  const sig = document.getElementById('rf-sig').value;
+  const consent = document.getElementById('rf-consent').checked;
+  document.getElementById('rf-sign-btn').disabled = !(sig.trim().length > 2 && consent);
+  document.getElementById('rf-timestamp').textContent = sig ? 'Signing as: ' + sig + ' · ' + new Date().toLocaleString() : '';
+}
+document.getElementById('ob-consent').addEventListener('change', updateObSig);
+document.getElementById('rf-consent').addEventListener('change', updateRfSig);
+
+// ── Sign document ──
+async function signDoc(type) {
+  const ts = new Date().toISOString();
+  const tsDisplay = new Date().toLocaleString();
+  let clientId, clientName, clientEmail, docType, refundAmt, pmMethod, pmHandle, psStatus, paidDate;
+
+  if (type === 'onboarding') {
+    clientName = document.getElementById('ob-fname').value + ' ' + document.getElementById('ob-lname').value;
+    clientEmail = document.getElementById('ob-email').value;
+    clientId = document.getElementById('ob-cid').value;
+    docType = 'Service Agreement';
+    const sigName = document.getElementById('ob-sig').value;
+    if (sigName.toLowerCase().trim() !== clientName.toLowerCase().trim()) {
+      if (!confirm(`Signature "${sigName}" doesn't exactly match client name "${clientName}". Continue anyway?`)) return;
+    }
+  } else {
+    clientName = document.getElementById('rf-name').value;
+    clientEmail = document.getElementById('rf-email').value;
+    clientId = document.getElementById('rf-cid').value;
+    docType = 'Refund Agreement';
+    refundAmt = document.getElementById('rf-refund-amt').value;
+    pmMethod = currentPM;
+    pmHandle = document.getElementById('rf-pm-handle').value;
+    psStatus = currentPS || 'pending';
+    paidDate = document.getElementById('rf-paid-date').value;
+  }
+
+  // Save to signatures table
+  try {
+    const sigPayload = {
+      client_id: clientId,
+      client_name: clientName,
+      client_email: clientEmail,
+      doc_type: docType,
+      signed_at: ts,
+      signed_by: clientName,
+      doc_content: type === 'onboarding' ? document.getElementById('ob-preview').innerHTML : document.getElementById('rf-preview').innerHTML,
+      refund_amount: refundAmt || null,
+      payment_method: pmMethod || null,
+      payment_handle: pmHandle || null,
+      payment_status: psStatus || null,
+      paid_date: paidDate || null,
+      status: 'signed'
+    };
+
+    const r = await fetch(SUPA+'/esignatures', {
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body: JSON.stringify(sigPayload)
+    });
+
+    // If refund, update client record
+    if (type === 'refund' && clientId) {
+      await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(clientId), {
+        method:'PATCH', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+        body: JSON.stringify({
+          refund_amount: parseFloat((refundAmt||'0').replace(/[$,]/g,'')),
+          refund_status: psStatus||'pending',
+          refund_payment_method: pmMethod||'',
+          refund_payment_handle: pmHandle||'',
+          refund_paid_date: paidDate||'',
+          refund_agreement_signed: true,
+          refund_agreement_signed_date: ts,
+          refund_agreement_sent_by: 'queen@mycprteam.com',
+          status: 'Closed'
+        })
+      });
+    }
+  } catch(e) { console.log('Save error:', e); }
+
+  // Show success
+  document.getElementById('success-title').textContent = type === 'onboarding' ? '✅ Service Agreement Signed!' : '✅ Refund Agreement Signed!';
+  document.getElementById('success-sub').textContent = type === 'onboarding'
+    ? `${clientName} has signed the CP Restoration Services agreement. The file is now active.`
+    : `${clientName} has accepted the refund agreement. The file is now closed.`;
+
+  let details = `<div style="line-height:2;"><strong>Client:</strong> ${clientName}<br><strong>Client ID:</strong> ${clientId||'—'}<br><strong>Document:</strong> ${docType}<br><strong>Signed At:</strong> ${tsDisplay}`;
+  if (type === 'refund') {
+    details += `<br><strong>Refund Amount:</strong> ${refundAmt}<br><strong>Payment:</strong> ${pmMethod||'—'} — ${pmHandle||'—'}<br><strong>Status:</strong> ${psStatus==='paid'?'✅ Paid':'⏳ Pending'}`;
+  }
+  details += '</div>';
+  document.getElementById('success-details').innerHTML = details;
+  showView('view-success');
+}
+
+// ── Send link to client ──
+async function sendDocLink() {
+  alert('Link sent to client portal — client will see a "Sign Document" button when they log in.');
+}
+async function sendRfLink() {
+  alert('Refund agreement sent to client portal — client will see a "Review & Sign" button when they log in.');
+}
+
+// ── Load sent docs ──
+async function loadSentDocs() {
+  const list = document.getElementById('sent-docs-list');
+  try {
+    const r = await fetch(SUPA+'/esignatures?order=signed_at.desc&limit=50', {headers:HDR});
+    const docs = await r.json();
+    if (!Array.isArray(docs) || !docs.length) {
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">No documents signed yet.</div>';
+      return;
+    }
+    list.innerHTML = docs.map(d => `
+      <div class="doc-row">
+        <div class="doc-row-info">
+          <div class="doc-icon">${d.doc_type==='Refund Agreement'?'💰':'📋'}</div>
+          <div>
+            <div class="doc-name">${d.client_name||'Unknown'} — ${d.doc_type}</div>
+            <div class="doc-meta">ID: ${d.client_id||'—'} · Signed: ${d.signed_at ? new Date(d.signed_at).toLocaleString() : '—'}${d.refund_amount?' · Refund: $'+parseFloat(d.refund_amount).toFixed(2):''}</div>
+          </div>
+        </div>
+        <span class="badge ${d.status==='signed'?'badge-signed':'badge-pending'}">${d.status==='signed'?'✅ Signed':'⏳ Pending'}</span>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">Error loading documents.</div>';
+  }
+}
+
+// Auto-refresh refund preview on input
+['rf-name','rf-cid','rf-reason'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => setTimeout(generateRfPreview, 300));
+});
+</script>
+</body>
+</html>
