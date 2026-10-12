@@ -2,522 +2,487 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Time Tracker — CP Restoration Services</title>
 <style>
-:root { --navy:#1B3A6B; --gold:#C9A84C; --green:#166534; --red:#8B1A1A; --bg:#F8FAFC; --border:#E2E8F0; --gray:#64748B; }
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:#1E293B; }
-header { background:var(--navy); color:white; padding:16px 24px; }
-header h1 { font-size:18px; font-weight:700; }
-header p { font-size:12px; opacity:0.7; margin-top:2px; }
-.container { max-width:1100px; margin:0 auto; padding:24px; }
-.card { background:white; border-radius:12px; border:1.5px solid var(--border); padding:20px; margin-bottom:20px; }
-.card h2 { font-size:15px; font-weight:700; color:var(--navy); margin-bottom:16px; }
-.summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:20px; }
-.stat-card { background:white; border-radius:12px; border:1.5px solid var(--border); padding:16px; text-align:center; }
-.stat-card .val { font-size:26px; font-weight:800; color:var(--navy); }
-.stat-card .lbl { font-size:11px; color:var(--gray); margin-top:4px; text-transform:uppercase; }
-.stat-card .pay { font-size:13px; color:var(--green); margin-top:6px; font-weight:700; }
-.form-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:12px; }
-label { font-size:12px; font-weight:600; color:var(--gray); display:block; margin-bottom:4px; }
-input,select { width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:7px; font-size:13px; font-family:inherit; }
-.btn { padding:9px 18px; border-radius:7px; border:none; font-size:13px; font-weight:600; cursor:pointer; }
-.btn-navy { background:var(--navy); color:white; }
-.btn-green { background:var(--green); color:white; }
-.btn-red { background:var(--red); color:white; font-size:11px; padding:4px 10px; }
-.btn-outline { background:white; color:var(--navy); border:1.5px solid var(--navy); }
-table { width:100%; border-collapse:collapse; font-size:13px; }
-th { background:var(--navy); color:white; padding:10px 12px; text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; }
-td { padding:10px 12px; border-bottom:1px solid var(--border); }
-tr:hover td { background:#F1F5F9; }
-.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; }
-.badge-green { background:#DCFCE7; color:var(--green); }
-.badge-gold { background:#FEF9C3; color:#854D0E; }
-.badge-blue { background:#DBEAFE; color:#1E40AF; }
-.payroll-box { background:#F0FDF4; border:1.5px solid #BBF7D0; border-radius:10px; padding:16px; margin-top:16px; }
-.payroll-box h3 { font-size:14px; font-weight:700; color:var(--green); margin-bottom:10px; }
-.payroll-line { display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid #BBF7D0; }
-.payroll-line:last-child { border-bottom:none; font-weight:700; font-size:15px; color:var(--navy); padding-top:8px; }
-.info-box { background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:8px; padding:12px 16px; margin-bottom:16px; font-size:12px; color:#1E40AF; }
-.toast { position:fixed; bottom:24px; right:24px; background:var(--green); color:white; padding:12px 20px; border-radius:8px; font-size:13px; font-weight:600; z-index:999; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:#F1F5F9;min-height:100vh;}
+header{background:#1B3A6B;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
+header h1{color:white;font-size:16px;font-weight:800;}
+.status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
+.dot-active{background:#22C55E;animation:pulse 1.5s infinite;}
+.dot-idle{background:#F59E0B;}
+.dot-off{background:#94A3B8;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.container{max-width:900px;margin:0 auto;padding:20px;}
+.session-card{background:white;border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.session-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.session-title{font-size:16px;font-weight:800;color:#1B3A6B;}
+.timer-display{font-size:48px;font-weight:800;color:#1B3A6B;font-family:monospace;text-align:center;padding:20px 0;}
+.timer-sub{text-align:center;font-size:13px;color:#64748B;margin-bottom:20px;}
+.btn-row{display:flex;gap:10px;justify-content:center;}
+.btn-clockin{padding:14px 32px;background:#166534;color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;}
+.btn-clockout{padding:14px 32px;background:#DC2626;color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;}
+.btn-ss{padding:14px 24px;background:#1B3A6B;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;}
+.btn-disabled{opacity:.4;cursor:not-allowed;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:20px;}
+.stat-box{background:#F8FAFC;border-radius:10px;padding:14px;text-align:center;border:1.5px solid #E2E8F0;}
+.stat-num{font-size:22px;font-weight:800;color:#1B3A6B;}
+.stat-lbl{font-size:11px;color:#64748B;margin-top:3px;}
+.idle-banner{background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#92400E;display:none;}
+.screenshots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:16px;}
+.ss-thumb{border-radius:8px;overflow:hidden;border:1.5px solid #E2E8F0;position:relative;}
+.ss-thumb img{width:100%;display:block;}
+.ss-thumb .ss-time{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:white;font-size:10px;padding:4px 8px;}
+.history-table table{width:100%;border-collapse:collapse;}
+.history-table th{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;padding:10px 14px;border-bottom:2px solid #F1F5F9;text-align:left;}
+.history-table td{font-size:13px;padding:10px 14px;border-bottom:1px solid #F8FAFC;color:#1E293B;}
+.pay-badge{display:inline-block;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;}
+.screen-request{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:16px;text-align:center;margin-bottom:16px;}
+.screen-request button{padding:10px 20px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;}
 </style>
-<!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1584028236255374');
-fbq('init', '1362385498386512');
-fbq('track', 'PageView');
-
-async function logWork(actionType, details, clientId, clientName, quantity, extra) {
-  try {
-    var email = sessionStorage.getItem('cp_logged_in_user') || localStorage.getItem('cp_logged_in_user') || '';
-    var name  = sessionStorage.getItem('cp_logged_in_name') || localStorage.getItem('cp_logged_in_name') || '';
-    var role  = sessionStorage.getItem('cp_logged_in_role') || localStorage.getItem('cp_logged_in_role') || 'staff';
-    if (!email || !name) return;
-    var deptMap = {admin:'Compliance',dispute:'Dispute',cs:'CS',bureau:'Bureau',sales:'Sales',compliance:'Compliance',staff:'Staff'};
-    var dept = deptMap[role] || 'Staff';
-    var today = new Date();
-    var day = today.getDay();
-    var mon = new Date(today); mon.setDate(today.getDate()-(day===0?6:day-1));
-    var weekStart = mon.toISOString().split('T')[0];
-    var payload = Object.assign({
-      employee_email:email, employee_name:name, department:dept,
-      action_type:actionType, client_id:clientId||null, client_name:clientName||null,
-      details:details||null, quantity:quantity||1,
-      week_start:weekStart, compliance_status:'pending'
-    }, extra||{});
-    fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/work_log', {
-      method:'POST',
-      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify(payload)
-    }).catch(function(){});
-  } catch(e) {}
-}
-
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1584028236255374&ev=PageView&noscript=1"
-/></noscript>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
 </head>
 <body>
 <header>
-  <h1>⏱ Time Tracker — <img src="/images/logo.png" alt="CP Restoration Services" style="height:36px;width:auto;vertical-align:middle;margin-right:10px;">CP Restoration Services</h1>
-  <p>Auto-tracking via dashboard login &nbsp;|&nbsp; Pay period ends 10/10/2026 &nbsp;|&nbsp; $100/week flat rate</p>
+  <h1>⏱️ Time Tracker — CP Restoration Services</h1>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span class="status-dot dot-off" id="status-dot"></span>
+    <span style="color:white;font-size:13px;font-weight:600;" id="status-text">Not clocked in</span>
+  </div>
 </header>
+
 <div class="container">
 
-  <div class="info-box">
-    ℹ️ <strong>How it works:</strong> Time tracking starts automatically when a team member logs into the dashboard and pauses after 15 minutes of no activity. It resumes when they interact with the site again. Clock-out happens on logout. You can also add manual entries below for any hours not captured automatically (like Queen's hours from 9/28–10/2).
+  <!-- SCREEN PERMISSION REQUEST -->
+  <div class="screen-request" id="screen-request" style="display:none;">
+    <div style="font-size:14px;font-weight:700;color:#1B3A6B;margin-bottom:6px;">📸 Screen Monitoring Required</div>
+    <div style="font-size:13px;color:#374151;">CP Restoration monitors work sessions via automatic screenshots every 30 minutes. Please grant screen sharing permission to clock in.</div>
+    <button onclick="requestScreenAccess()">🖥️ Grant Screen Access</button>
   </div>
 
-  <!-- Summary Cards -->
-  <div class="summary-grid" id="summary-grid"></div>
+  <!-- IDLE ALERT -->
+  <div class="idle-banner" id="idle-banner">
+    ⏸️ <strong>You appear to be idle.</strong> Move your mouse to resume tracking. Time paused after 10 minutes of inactivity.
+  </div>
 
-  <!-- Manual Entry -->
-  <div class="card">
-    <h2>➕ Add Manual Entry</h2>
-    <div class="form-row">
-      <div><label>Team Member</label>
-        <select id="emp">
-          <option value="Jason Crown">Jason Crown (Admin)</option>
-          <option value="Queen Cruz">Queen Cruz</option>
-          <option value="Bukunmi Aina">Bukunmi Aina</option>
-          <option value="Elna Palabrica">Elna Palabrica</option>
-          <option value="Alec Sarrosa">Alec Sarrosa</option>
-          <option value="Marcelo Torres">Marcelo Torres</option>
-          <option value="Kimwell Ablaza">Kimwell Ablaza</option>
-          <option value="Annabel Curada">Annabel Curada</option>
-          <option value="Jay Rico">Jay Rico</option>
-        </select></div>
-      <div><label>Date</label><input type="date" id="date"></div>
-      <div><label>Clock In (EST)</label><input type="time" id="clock-in"></div>
-      <div><label>Clock Out (EST)</label><input type="time" id="clock-out"></div>
-      <div><label>Break (minutes)</label><input type="number" id="break-min" value="0" min="0"></div>
+  <!-- SESSION CARD -->
+  <div class="session-card">
+    <div class="session-header">
+      <div class="session-title">Today's Session — <span id="today-date"></span></div>
+      <div style="font-size:13px;color:#64748B;" id="employee-name">Loading...</div>
     </div>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <button class="btn btn-navy" onclick="addManual()">Save Entry</button>
-      <span id="entry-msg" style="font-size:12px;color:var(--green);"></span>
+
+    <div class="timer-display" id="timer">00:00:00</div>
+    <div class="timer-sub" id="timer-sub">Clock in to start tracking</div>
+
+    <div class="btn-row">
+      <button class="btn-clockin" id="btn-clockin" onclick="clockIn()">⏺ Clock In</button>
+      <button class="btn-clockout btn-disabled" id="btn-clockout" onclick="clockOut()" disabled>⏹ Clock Out</button>
+      <button class="btn-ss" onclick="takeScreenshot()">📸 Screenshot</button>
     </div>
-  </div>
 
-  <!-- Filter -->
-  <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap;">
-    <div><label>Filter by Employee</label>
-      <select id="filter-emp" onchange="render()" style="padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;">
-        <option value="all">All Employees</option>
-        <option value="Queen">Queen</option>
-        <option value="Jason">Jason</option>
-        <option value="Bukunmi">Bukunmi</option>
-      </select></div>
-    <div><label>Date Range</label>
-      <select id="filter-range" onchange="render()" style="padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;">
-        <option value="week">This Week</option>
-        <option value="all">All Time</option>
-        <option value="today">Today</option>
-      </select></div>
-    <button class="btn btn-outline" onclick="exportCSV()">⬇ Export CSV</button>
-    <button class="btn btn-outline" onclick="clearAll()" style="color:var(--red);border-color:var(--red);">🗑 Clear All</button>
-  </div>
-
-  <!-- Log -->
-  <div class="card">
-    <h2>📋 Time Log</h2>
-    <table>
-      <thead><tr><th>Employee</th><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Break</th><th>Hours</th><th>Type</th><th></th></tr></thead>
-      <tbody id="log-body"></tbody>
-    </table>
-  </div>
-
-  <!-- Payroll -->
-  <div id="payroll-section"></div>
-
-  <!-- Screenshot Viewer -->
-  <div class="card">
-    <h2>📸 Screenshot Monitor</h2>
-    <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">Captured every 8–12 minutes automatically while team members are logged into the dashboard. Stored in Supabase — visible from any device.</div>
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end;">
-      <div>
-        <label style="font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:4px;">Filter</label>
-        <select id="ss-filter" onchange="renderScreenshots()" style="padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;">
-          <option value="all">All Employees</option>
-          <option value="Queen">Queen</option>
-          <option value="Jason">Jason</option>
-          <option value="Bukunmi">Bukunmi</option>
-        </select>
-      </div>
-      <button class="btn btn-outline" onclick="renderScreenshots()" style="margin-bottom:0;">🔄 Refresh</button>
-      <button onclick="clearScreenshots()" style="padding:9px 14px;background:var(--red);color:white;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;">🗑 Clear</button>
-    </div>
-    <div id="ss-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
-    <div id="ss-empty" style="text-align:center;padding:40px;color:var(--gray);">
-      <div style="font-size:40px;margin-bottom:12px;">📷</div>
-      <div style="font-weight:600;">No screenshots yet</div>
-      <div style="font-size:12px;margin-top:6px;">They appear here once team members log into the dashboard and grant screen share permission.</div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-num" id="s-hours">0.0</div><div class="stat-lbl">Hours Today</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-daily-pay">$0</div><div class="stat-lbl">Earned Today</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-week-hours">0.0</div><div class="stat-lbl">Hours This Week</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-week-pay">$0</div><div class="stat-lbl">Earned This Week</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-screenshots">0</div><div class="stat-lbl">Screenshots</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-idle">0</div><div class="stat-lbl">Idle Minutes</div></div>
     </div>
   </div>
+
+  <!-- SCREENSHOTS -->
+  <div class="session-card" id="ss-card" style="display:none;">
+    <div class="session-title" style="margin-bottom:12px;">📸 Today's Screenshots</div>
+    <div class="screenshots-grid" id="screenshots-grid"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="session-card">
+    <div class="session-title" style="margin-bottom:12px;">📋 Recent Sessions</div>
+    <div class="history-table">
+      <table>
+        <thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Active</th><th>Idle</th><th>Pay Earned</th></tr></thead>
+        <tbody id="history-tbody"><tr><td colspan="7" style="text-align:center;padding:20px;color:#94A3B8;">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <script>
-var _ttSessions = []; // cached from Supabase
+var _KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var _SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var _HDR  = {'apikey':_KEY,'Authorization':'Bearer '+_KEY,'Content-Type':'application/json'};
 
-async function loadSessionsFromSupabase() {
-  try {
-    var url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?order=clock_in.desc&limit=200';
-    var r = await fetch(url, {
-      headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'}
-    });
-    var data = await r.json();
-    if (Array.isArray(data)) {
-      _ttSessions = data.map(function(s){
-        return {
-          id: s.id, name: s.employee_name, date: s.date,
-          clockIn: s.clock_in, clockOut: s.clock_out,
-          breakMin: s.break_min||0, auto: true, status: s.status
-        };
-      });
-    }
-  } catch(e) { console.log('Load sessions error:', e); }
-}
+// Employee info
+var _email  = sessionStorage.getItem('cp_logged_in_user')  || localStorage.getItem('cp_logged_in_user')  || '';
+var _name   = sessionStorage.getItem('cp_logged_in_name')  || localStorage.getItem('cp_logged_in_name')  || '';
+var _role   = sessionStorage.getItem('cp_logged_in_role')  || localStorage.getItem('cp_logged_in_role')  || '';
 
-function getAllEntries() {
-  var manual = [];
-  try { manual = JSON.parse(localStorage.getItem('cp_time_entries')||'[]'); } catch(e){}
-  manual = manual.map(function(e){
-    if (e.clockIn && e.clockIn.length <= 5) {
-      return { id:e.id, name:e.emp||e.name, date:e.date, clockIn:e.date+'T'+e.clockIn+':00', clockOut:e.date+'T'+e.clockOut+':00', breakMin:e.breakMin||0, auto:false };
-    }
-    return { id:e.id, name:e.emp||e.name, date:e.date, clockIn:e.clockIn, clockOut:e.clockOut, breakMin:e.breakMin||0, auto:false };
-  });
-  // Merge Supabase sessions with manual entries
-  var ids = new Set(_ttSessions.map(function(s){return s.id;}));
-  var combined = _ttSessions.concat(manual.filter(function(e){return !ids.has(e.id);}));
-  return combined;
-}
+// Pay rates per week / 5 days
+var PAY_RATES = {
+  'queen@mycprteam.com':200,'elna@mycprteam.com':100,'alec@mycprteam.com':100,
+  'marcelo@mycprteam.com':100,'kimwell@mycprteam.com':100,'annabel@mycprteam.com':100,
+  'bukunmi@mycprteam.com':250,'fcacaasi@gmail.com':100
+};
+var _dailyRate = (PAY_RATES[_email] || 100) / 5; // daily rate
 
-function saveAutoLog(log) { try { localStorage.setItem('cp_time_log', JSON.stringify(log)); } catch(e){} }
-function saveManualLog(log) { try { localStorage.setItem('cp_time_entries', JSON.stringify(log)); } catch(e){} }
-
-function calcHours(entry) {
-  var cin = new Date(entry.clockIn);
-  var cout = entry.clockOut ? new Date(entry.clockOut) : new Date();
-  var hrs = (cout - cin) / 3600000 - (entry.breakMin||0)/60;
-  return Math.max(0, hrs);
-}
-
-function fmtHours(h) {
-  var hrs = Math.floor(h), mins = Math.round((h-hrs)*60);
-  return hrs+'h'+(mins>0?' '+mins+'m':'');
-}
-
-function fmtTime(iso) {
-  if (!iso) return 'Active';
-  try { return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+' EST'; } catch(e){ return iso; }
-}
-
-function fmtDate(dateStr) {
-  try {
-    var d = new Date(dateStr+'T12:00:00');
-    return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  } catch(e){ return dateStr; }
-}
-
-function inRange(entry, range) {
-  var d = new Date(entry.clockIn||entry.date+'T12:00:00');
-  var now = new Date();
-  if (range === 'today') {
-    return d.toDateString() === now.toDateString();
-  }
-  if (range === 'week') {
-    var day = now.getDay();
-    var monday = new Date(now);
-    monday.setDate(now.getDate() - (day===0?6:day-1));
-    monday.setHours(0,0,0,0);
-    // Also include Queen's seeded entries from 9/28
-    var seedStart = new Date('2026-09-28T00:00:00');
-    return d >= seedStart;
-  }
-  return true;
-}
-
-function seedQueenEntries() {
-  var manual = [];
-  try { manual = JSON.parse(localStorage.getItem('cp_time_entries')||'[]'); } catch(e){}
-  var queenDates = ['2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02'];
-  var existing = manual.filter(function(e){ return e.name==='Queen' && queenDates.indexOf(e.date)>=0; });
-  if (existing.length > 0) return;
-  var seed = [
-    {id:1001,name:'Queen',date:'2026-09-28',clockIn:'2026-09-28T09:00:00',clockOut:'2026-09-28T14:10:00',breakMin:45,auto:false},
-    {id:1002,name:'Queen',date:'2026-09-29',clockIn:'2026-09-29T09:00:00',clockOut:'2026-09-29T12:30:00',breakMin:0,auto:false},
-    {id:1003,name:'Queen',date:'2026-09-30',clockIn:'2026-09-30T09:00:00',clockOut:'2026-09-30T13:00:00',breakMin:45,auto:false},
-    {id:1004,name:'Queen',date:'2026-10-01',clockIn:'2026-10-01T09:00:00',clockOut:'2026-10-01T16:00:00',breakMin:60,auto:false},
-    {id:1005,name:'Queen',date:'2026-10-02',clockIn:'2026-10-02T09:30:00',clockOut:'2026-10-02T17:00:00',breakMin:120,auto:false},
-  ];
-  seed.forEach(function(s){ manual.push(s); });
-  saveManualLog(manual);
-}
-
-function addManual() {
-  var emp = document.getElementById('emp').value;
-  var date = document.getElementById('date').value;
-  var ci = document.getElementById('clock-in').value;
-  var co = document.getElementById('clock-out').value;
-  var brk = parseInt(document.getElementById('break-min').value)||0;
-  if (!date||!ci||!co) { toast('Fill in date, clock in, and clock out','err'); return; }
-  var manual = [];
-  try { manual = JSON.parse(localStorage.getItem('cp_time_entries')||'[]'); } catch(e){}
-  manual.push({ id:Date.now(), name:emp, date:date, clockIn:date+'T'+ci+':00', clockOut:date+'T'+co+':00', breakMin:brk, auto:false });
-  saveManualLog(manual);
-  document.getElementById('entry-msg').textContent='✅ Saved!';
-  setTimeout(function(){document.getElementById('entry-msg').textContent='';},2000);
-  render();
-}
-
-function deleteEntry(id, isAuto) {
-  if (isAuto) {
-    var log = []; try { log = JSON.parse(localStorage.getItem('cp_time_log')||'[]'); } catch(e){}
-    log = log.filter(function(e){ return e.id != id; });
-    saveAutoLog(log);
-  } else {
-    var manual = []; try { manual = JSON.parse(localStorage.getItem('cp_time_entries')||'[]'); } catch(e){}
-    manual = manual.filter(function(e){ return e.id != id; });
-    saveManualLog(manual);
-  }
-  render();
-}
-
-function clearAll() {
-  if (!confirm('Clear ALL time entries? This cannot be undone.')) return;
-  localStorage.removeItem('cp_time_log');
-  localStorage.removeItem('cp_time_entries');
-  render();
-}
-
-function render() {
-  var filterEmp = document.getElementById('filter-emp').value;
-  var filterRange = document.getElementById('filter-range').value;
-  var entries = getAllEntries().filter(function(e){
-    if (filterEmp !== 'all' && e.name !== filterEmp) return false;
-    return inRange(e, filterRange);
-  });
-  entries.sort(function(a,b){ return new Date(b.clockIn) - new Date(a.clockIn); });
-
-  // Table
-  var tbody = document.getElementById('log-body');
-  if (!entries.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px;">No entries found.</td></tr>';
-  } else {
-    tbody.innerHTML = entries.map(function(e){
-      var hrs = calcHours(e);
-      var active = !e.clockOut;
-      return '<tr>'+
-        '<td><strong>'+e.name+'</strong></td>'+
-        '<td>'+fmtDate(e.date)+'</td>'+
-        '<td>'+fmtTime(e.clockIn)+'</td>'+
-        '<td>'+(active?'<span class="badge badge-green">Active</span>':fmtTime(e.clockOut))+'</td>'+
-        '<td>'+(e.breakMin>0?e.breakMin+' min':'—')+'</td>'+
-        '<td><span class="badge badge-'+(active?'gold':'green')+'">'+fmtHours(hrs)+'</span></td>'+
-        '<td><span class="badge badge-blue">'+(e.auto?'Auto':'Manual')+'</span></td>'+
-        '<td><button class="btn btn-red" onclick="deleteEntry('+e.id+','+e.auto+')">✕</button></td>'+
-      '</tr>';
-    }).join('');
-  }
-
-  // Summary
-  var allForPeriod = getAllEntries().filter(function(e){ return inRange(e,'week'); });
-  var byEmp = {};
-  allForPeriod.forEach(function(e){
-    if (!byEmp[e.name]) byEmp[e.name] = 0;
-    byEmp[e.name] += calcHours(e);
-  });
-  var grid = document.getElementById('summary-grid');
-  var empColors = { Queen:'#7C3AED', Jason:'#1B3A6B', Bukunmi:'#166534' };
-  grid.innerHTML = Object.keys(byEmp).map(function(name){
-    var h = byEmp[name];
-    var color = empColors[name]||'#1B3A6B';
-    return '<div class="stat-card">'+
-      '<div class="val" style="color:'+color+'">'+fmtHours(h)+'</div>'+
-      '<div class="lbl">'+name+' — This Pay Period</div>'+
-      '<div class="pay">Flat Rate: $100.00</div>'+
-    '</div>';
-  }).join('');
-
-  // Payroll
-  var empNames = Object.keys(byEmp);
-  if (!empNames.length) { document.getElementById('payroll-section').innerHTML=''; return; }
-  var total = empNames.length * 100;
-  var html = '<div class="payroll-box"><h3>💰 Payroll Summary — Pay Date: 10/10/2026</h3>';
-  empNames.forEach(function(name){
-    html += '<div class="payroll-line"><span>'+name+' ('+fmtHours(byEmp[name])+')</span><span>$100.00</span></div>';
-  });
-  html += '<div class="payroll-line"><span>TOTAL</span><span>$'+total.toFixed(2)+'</span></div></div>';
-  document.getElementById('payroll-section').innerHTML = html;
-}
-
-function exportCSV() {
-  var entries = getAllEntries();
-  var rows = [['Employee','Date','Clock In','Clock Out','Break (min)','Hours','Type']];
-  entries.forEach(function(e){
-    rows.push([e.name,e.date,fmtTime(e.clockIn),e.clockOut?fmtTime(e.clockOut):'Active',e.breakMin||0,calcHours(e).toFixed(2),e.auto?'Auto':'Manual']);
-  });
-  var csv = rows.map(function(r){return r.join(',');}).join('\n');
-  var a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download = 'cp_timesheet_'+new Date().toISOString().split('T')[0]+'.csv';
-  a.click();
-}
-
-function toast(msg,type) {
-  var t=document.createElement('div'); t.className='toast';
-  t.style.background=type==='err'?'var(--red)':'var(--green)';
-  t.textContent=msg; document.body.appendChild(t);
-  setTimeout(function(){t.remove();},3000);
-}
+// Session state
+var _clockedIn   = false;
+var _clockInTime = null;
+var _sessionId   = null;
+var _timerInterval = null;
+var _heartbeatInterval = null;
+var _ssInterval  = null;
+var _idleTimer   = null;
+var _idleSeconds = 0;
+var _activeSeconds = 0;
+var _lastActivity = Date.now();
+var _ssCount     = 0;
+var _screenshots = [];
+var _stream      = null;
 
 // Init
-seedQueenEntries();
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+document.getElementById('employee-name').textContent = _name || 'Employee';
 
-// Auto-select logged-in user in the dropdown
-(function() {
-  var loggedInName = localStorage.getItem('cp_logged_in_name');
-  if (loggedInName) {
-    var empSel = document.getElementById('emp');
-    if (empSel) {
-      // Try exact match first
-      for (var i = 0; i < empSel.options.length; i++) {
-        if (empSel.options[i].value === loggedInName) {
-          empSel.selectedIndex = i;
-          break;
-        }
-      }
+// Mouse activity tracking
+document.addEventListener('mousemove', resetIdle);
+document.addEventListener('keydown', resetIdle);
+document.addEventListener('click', resetIdle);
+document.addEventListener('scroll', resetIdle);
+
+function resetIdle() {
+  _lastActivity = Date.now();
+  if (_clockedIn) {
+    document.getElementById('idle-banner').style.display='none';
+    document.getElementById('status-dot').className='status-dot dot-active';
+    document.getElementById('status-text').textContent='Active';
+  }
+}
+
+async function requestScreenAccess() {
+  try {
+    _stream = await navigator.mediaDevices.getDisplayMedia({video:true, audio:false});
+    document.getElementById('screen-request').style.display='none';
+    alert('✅ Screen access granted. You can now clock in.');
+  } catch(e) {
+    alert('Screen access denied. Screenshots will not be captured, but time tracking will still work.');
+    document.getElementById('screen-request').style.display='none';
+  }
+}
+
+async function clockIn() {
+  if (!_email) { alert('Please log in first.'); return; }
+
+  // Request screen access if not already granted
+  if (!_stream) {
+    try {
+      _stream = await navigator.mediaDevices.getDisplayMedia({video:true, audio:false});
+    } catch(e) {
+      // Continue without screen capture
+      console.warn('Screen capture not available:', e.message);
     }
   }
-})();
-document.getElementById('date').value = new Date().toISOString().split('T')[0];
-render();
-setInterval(render, 30000); // refresh every 30s to show active sessions
 
-var _ssCache = [];
+  _clockedIn   = true;
+  _clockInTime = new Date();
+  _idleSeconds = 0;
+  _activeSeconds = 0;
+  _ssCount     = 0;
+  _screenshots = [];
 
-async function renderScreenshots() {
-  var filter = document.getElementById('ss-filter') ? document.getElementById('ss-filter').value : 'all';
-  var grid = document.getElementById('ss-grid');
-  var empty = document.getElementById('ss-empty');
-  if (!grid) return;
-  grid.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray);">⏳ Loading screenshots...</div>';
+  // Save session start to Supabase
   try {
-    var url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/screenshots?order=captured_at.desc&limit=50';
-    if (filter !== 'all') url += '&employee_name=eq.' + encodeURIComponent(filter);
-    var r = await fetch(url, {
-      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50' }
+    var r = await fetch(_SUPA+'/time_sessions', {
+      method:'POST',
+      headers:Object.assign({},_HDR,{'Prefer':'return=representation'}),
+      body:JSON.stringify({
+        employee_email:_email, employee_name:_name, role:_role,
+        clock_in:_clockInTime.toISOString(),
+        date:_clockInTime.toISOString().split('T')[0],
+        status:'active'
+      })
     });
     var data = await r.json();
-    _ssCache = Array.isArray(data) ? data : [];
-  } catch(e) { _ssCache = []; }
+    _sessionId = Array.isArray(data) ? data[0]?.id : data?.id;
+  } catch(e) { console.error('Clock in save error:', e); }
 
-  if (!_ssCache.length) {
-    grid.innerHTML = '';
-    if(empty) empty.style.display = 'block';
-    return;
+  // Update UI
+  document.getElementById('btn-clockin').disabled=true;
+  document.getElementById('btn-clockin').classList.add('btn-disabled');
+  document.getElementById('btn-clockout').disabled=false;
+  document.getElementById('btn-clockout').classList.remove('btn-disabled');
+  document.getElementById('status-dot').className='status-dot dot-active';
+  document.getElementById('status-text').textContent='Active';
+  document.getElementById('timer-sub').textContent='Clocked in at '+_clockInTime.toLocaleTimeString();
+
+  // Start timer
+  _timerInterval = setInterval(updateTimer, 1000);
+
+  // Heartbeat every 60 seconds
+  _heartbeatInterval = setInterval(saveHeartbeat, 60000);
+
+  // Screenshot every 30 minutes
+  _ssInterval = setInterval(takeScreenshot, 30*60*1000);
+
+  // Idle check every 30 seconds
+  _idleTimer = setInterval(checkIdle, 30000);
+
+  // Also log to work_log
+  logWorkEntry('Clock In', 'Session started at '+_clockInTime.toLocaleTimeString(), 1);
+}
+
+async function clockOut() {
+  if (!_clockedIn) return;
+  _clockedIn = false;
+  var clockOutTime = new Date();
+  var totalMs = clockOutTime - _clockInTime;
+  var totalHours = (totalMs / 3600000).toFixed(2);
+  var activeHours = (_activeSeconds / 3600).toFixed(2);
+  var idleMins = Math.round(_idleSeconds / 60);
+  var payEarned = (_dailyRate * parseFloat(activeHours) / 8).toFixed(2); // 8hr work day
+
+  // Clear all intervals
+  clearInterval(_timerInterval);
+  clearInterval(_heartbeatInterval);
+  clearInterval(_ssInterval);
+  clearInterval(_idleTimer);
+
+  // Save to Supabase
+  if (_sessionId) {
+    try {
+      await fetch(_SUPA+'/time_sessions?id=eq.'+_sessionId, {
+        method:'PATCH',
+        headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
+        body:JSON.stringify({
+          clock_out:clockOutTime.toISOString(),
+          total_hours:parseFloat(totalHours),
+          active_hours:parseFloat(activeHours),
+          idle_minutes:idleMins,
+          screenshots_count:_ssCount,
+          pay_earned:parseFloat(payEarned),
+          status:'completed'
+        })
+      });
+    } catch(e) { console.error('Clock out save:', e); }
   }
-  if(empty) empty.style.display = 'none';
-  grid.innerHTML = _ssCache.map(function(s, i) {
-    var name = s.employee_name || 'Unknown';
-    var ts = '';
-    try { ts = new Date(s.captured_at).toLocaleString('en-US', {weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); } catch(e) { ts = s.captured_at; }
-    return '<div style="border:1.5px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">' +
-      '<img src="' + s.image_data + '" style="width:100%;display:block;cursor:zoom-in;" onclick="zoomSS(' + i + ')" loading="lazy" title="Click to enlarge">' +
-      '<div style="padding:8px 12px;background:#F8FAFC;display:flex;justify-content:space-between;align-items:center;">' +
-        '<div>' +
-          '<div style="font-size:12px;font-weight:700;color:var(--navy);">' + name + '</div>' +
-          '<div style="font-size:11px;color:var(--gray);">' + ts + '</div>' +
-        '</div>' +
-        '<button onclick="deleteScreenshot(' + s.id + ')" style="padding:3px 9px;background:var(--red);color:white;border:none;border-radius:4px;font-size:11px;cursor:pointer;">Delete</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+
+  // Log to work_log for payroll integration
+  logWorkEntry('Clock Out', 'Session: '+totalHours+'h total, '+activeHours+'h active, '+idleMins+'m idle. Pay: $'+payEarned, 1);
+
+  // Update UI
+  document.getElementById('btn-clockin').disabled=false;
+  document.getElementById('btn-clockin').classList.remove('btn-disabled');
+  document.getElementById('btn-clockout').disabled=true;
+  document.getElementById('btn-clockout').classList.add('btn-disabled');
+  document.getElementById('status-dot').className='status-dot dot-off';
+  document.getElementById('status-text').textContent='Clocked out';
+  document.getElementById('timer-sub').textContent='Session ended — '+activeHours+'h active | $'+payEarned+' earned';
+  document.getElementById('idle-banner').style.display='none';
+
+  // Stop screen stream
+  if (_stream) { _stream.getTracks().forEach(function(t){t.stop();}); _stream=null; }
+
+  loadHistory();
+  alert('✅ Clocked out!\n\nTotal: '+totalHours+'h\nActive: '+activeHours+'h\nIdle: '+idleMins+' min\nPay Earned: $'+payEarned);
 }
 
-function zoomSS(idx) {
-  var s = _ssCache[idx];
-  if (!s) return;
-  var name = s.employee_name || 'Unknown';
-  var ts = '';
-  try { ts = new Date(s.captured_at).toLocaleString(); } catch(e) { ts = s.captured_at; }
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:20px;';
-  overlay.onclick = function() { overlay.remove(); };
-  overlay.innerHTML = '<img src="' + s.image_data + '" style="max-width:95vw;max-height:85vh;border-radius:8px;object-fit:contain;">' +
-    '<div style="color:white;margin-top:12px;font-size:13px;text-align:center;">' + name + ' — ' + ts + '<br><span style="opacity:0.6;font-size:11px;">Click anywhere to close</span></div>';
-  document.body.appendChild(overlay);
+function updateTimer() {
+  var now = new Date();
+  var elapsed = now - _clockInTime;
+  var h = Math.floor(elapsed/3600000);
+  var m = Math.floor((elapsed%3600000)/60000);
+  var s = Math.floor((elapsed%60000)/1000);
+  document.getElementById('timer').textContent =
+    String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+
+  // Check if idle
+  var idleSecs = (Date.now()-_lastActivity)/1000;
+  if (idleSecs < 600) { // Not idle
+    _activeSeconds++;
+  } else {
+    _idleSeconds++;
+  }
+
+  // Update stats
+  var activeH = (_activeSeconds/3600);
+  var idleM = Math.round(_idleSeconds/60);
+  var payToday = (_dailyRate * activeH / 8).toFixed(2);
+  document.getElementById('s-hours').textContent=(elapsed/3600000).toFixed(1);
+  document.getElementById('s-daily-pay').textContent='$'+payToday;
+  document.getElementById('s-idle').textContent=idleM;
+  document.getElementById('s-screenshots').textContent=_ssCount;
 }
 
-async function deleteScreenshot(id) {
-  if (!confirm('Delete this screenshot?')) return;
+function checkIdle() {
+  if (!_clockedIn) return;
+  var idleSecs = (Date.now()-_lastActivity)/1000;
+  if (idleSecs > 600) { // 10 minutes idle
+    document.getElementById('idle-banner').style.display='block';
+    document.getElementById('status-dot').className='status-dot dot-idle';
+    document.getElementById('status-text').textContent='Idle ('+Math.round(idleSecs/60)+' min)';
+  }
+}
+
+async function saveHeartbeat() {
+  if (!_clockedIn || !_sessionId) return;
+  var activeH = (_activeSeconds/3600);
+  var payEarned = (_dailyRate * activeH / 8).toFixed(2);
   try {
-    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/screenshots?id=eq.' + id, {
-      method: 'DELETE',
-      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50' }
+    await fetch(_SUPA+'/time_sessions?id=eq.'+_sessionId, {
+      method:'PATCH',
+      headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({
+        last_heartbeat:new Date().toISOString(),
+        active_hours:parseFloat(activeH.toFixed(2)),
+        idle_minutes:Math.round(_idleSeconds/60),
+        screenshots_count:_ssCount,
+        pay_earned:parseFloat(payEarned),
+        status:'active'
+      })
     });
   } catch(e) {}
-  renderScreenshots();
 }
 
-async function clearScreenshots() {
-  var filter = document.getElementById('ss-filter') ? document.getElementById('ss-filter').value : 'all';
-  var who = filter === 'all' ? 'ALL employees' : filter;
-  if (!confirm('Delete all screenshots for ' + who + '? Cannot be undone.')) return;
+async function takeScreenshot() {
+  if (!_stream) {
+    // Try to get stream
+    try {
+      _stream = await navigator.mediaDevices.getDisplayMedia({video:true});
+    } catch(e) {
+      console.warn('Cannot take screenshot:', e.message);
+      return;
+    }
+  }
   try {
-    var url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/screenshots?id=gt.0';
-    if (filter !== 'all') url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/screenshots?employee_name=eq.' + encodeURIComponent(filter);
-    await fetch(url, {
-      method: 'DELETE',
-      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50' }
-    });
-  } catch(e) {}
-  renderScreenshots();
+    var track = _stream.getVideoTracks()[0];
+    var imageCapture = new ImageCapture(track);
+    var bitmap = await imageCapture.grabFrame();
+    var canvas = document.createElement('canvas');
+    canvas.width = Math.min(bitmap.width, 1280);
+    canvas.height = Math.round(bitmap.height * (canvas.width/bitmap.width));
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+    _ssCount++;
+    var timestamp = new Date().toLocaleTimeString();
+    _screenshots.push({url:dataUrl, time:timestamp});
+
+    // Show screenshots
+    document.getElementById('ss-card').style.display='block';
+    var grid = document.getElementById('screenshots-grid');
+    var div = document.createElement('div');
+    div.className='ss-thumb';
+    div.innerHTML='<img src="'+dataUrl+'" onclick="this.parentElement.requestFullscreen()"><div class="ss-time">'+timestamp+'</div>';
+    grid.insertBefore(div, grid.firstChild);
+
+    // Save to Supabase (base64 in screenshots table)
+    if (_sessionId) {
+      fetch(_SUPA+'/screenshots', {
+        method:'POST',
+        headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
+        body:JSON.stringify({
+          session_id:_sessionId, employee_email:_email,
+          employee_name:_name, taken_at:new Date().toISOString(),
+          image_data:dataUrl, date:new Date().toISOString().split('T')[0]
+        })
+      }).catch(function(){});
+    }
+    document.getElementById('s-screenshots').textContent=_ssCount;
+  } catch(e) {
+    console.warn('Screenshot failed:', e.message);
+  }
 }
 
-// Render on load
-renderScreenshots();
+async function loadHistory() {
+  var tbody = document.getElementById('history-tbody');
+  try {
+    var r = await fetch(_SUPA+'/time_sessions?employee_email=eq.'+encodeURIComponent(_email)+'&order=date.desc&limit=14&select=*', {headers:_HDR});
+    var sessions = await r.json();
+    if (!Array.isArray(sessions)||!sessions.length) {
+      tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:#94A3B8;">No sessions yet.</td></tr>';
+      return;
+    }
+    // Sum week hours
+    var today = new Date();
+    var day = today.getDay();
+    var mon = new Date(today); mon.setDate(today.getDate()-(day===0?6:day-1));
+    var monStr = mon.toISOString().split('T')[0];
+    var weekH=0, weekPay=0;
+    sessions.forEach(function(s){
+      if(s.date>=monStr){weekH+=(s.active_hours||s.total_hours||0);weekPay+=(s.pay_earned||0);}
+    });
+    document.getElementById('s-week-hours').textContent=weekH.toFixed(1);
+    document.getElementById('s-week-pay').textContent='$'+weekPay.toFixed(2);
 
-// ── INIT ──────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-  loadSessionsFromSupabase();
-  // Refresh every 30 seconds
-  setInterval(loadSessionsFromSupabase, 30000);
-});
+    tbody.innerHTML=sessions.map(function(s){
+      var ci=s.clock_in?new Date(s.clock_in).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'—';
+      var co=s.clock_out?new Date(s.clock_out).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'Active';
+      var pay=s.pay_earned?'<span class="pay-badge">$'+parseFloat(s.pay_earned).toFixed(2)+'</span>':'—';
+      return '<tr>'+
+        '<td style="font-weight:600;">'+s.date+'</td>'+
+        '<td>'+ci+'</td><td>'+co+'</td>'+
+        '<td style="font-weight:700;">'+(s.total_hours||0).toFixed(1)+'h</td>'+
+        '<td style="color:#166534;font-weight:700;">'+(s.active_hours||0).toFixed(1)+'h</td>'+
+        '<td style="color:#F59E0B;">'+(s.idle_minutes||0)+' min</td>'+
+        '<td>'+pay+'</td></tr>';
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML='<tr><td colspan="7" style="color:red;padding:20px;text-align:center;">Error loading history</td></tr>';
+  }
+}
+
+async function logWorkEntry(action, details, qty) {
+  if (!_email) return;
+  var today = new Date();
+  var day = today.getDay();
+  var mon = new Date(today); mon.setDate(today.getDate()-(day===0?6:day-1));
+  var deptMap={admin:'Compliance',dispute:'Dispute',cs:'CS',bureau:'Bureau',sales:'Sales',compliance:'Compliance',staff:'Staff'};
+  fetch(_SUPA+'/work_log', {
+    method:'POST',
+    headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
+    body:JSON.stringify({
+      employee_email:_email, employee_name:_name,
+      department:deptMap[_role]||'Staff',
+      action_type:action, details:details, quantity:qty||1,
+      week_start:mon.toISOString().split('T')[0], compliance_status:'pending'
+    })
+  }).catch(function(){});
+}
+
+// Auto-load history and check if already clocked in today
+(function(){
+  loadHistory();
+  // Check if there's an active session
+  fetch(_SUPA+'/time_sessions?employee_email=eq.'+encodeURIComponent(_email)+'&status=eq.active&order=clock_in.desc&limit=1', {headers:_HDR})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(Array.isArray(data)&&data.length){
+        var s=data[0];
+        var today=new Date().toISOString().split('T')[0];
+        if(s.date===today){
+          // Resume active session
+          _clockedIn=true;
+          _sessionId=s.id;
+          _clockInTime=new Date(s.clock_in);
+          document.getElementById('btn-clockin').disabled=true;
+          document.getElementById('btn-clockin').classList.add('btn-disabled');
+          document.getElementById('btn-clockout').disabled=false;
+          document.getElementById('btn-clockout').classList.remove('btn-disabled');
+          document.getElementById('status-dot').className='status-dot dot-active';
+          document.getElementById('status-text').textContent='Active (resumed)';
+          document.getElementById('timer-sub').textContent='Session resumed from '+_clockInTime.toLocaleTimeString();
+          _timerInterval=setInterval(updateTimer,1000);
+          _heartbeatInterval=setInterval(saveHeartbeat,60000);
+          _ssInterval=setInterval(takeScreenshot,30*60*1000);
+          _idleTimer=setInterval(checkIdle,30000);
+        }
+      }
+    }).catch(function(){});
+})();
 </script>
 </body>
 </html>
