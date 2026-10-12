@@ -758,11 +758,43 @@ function renderLogins(){
   if(c.equifax_pin)       c.experian_pin  = c.equifax_pin;
   if(c.smartcredit_username) c.smartcredit_user = c.smartcredit_username;
   if(c.smartcredit_password) c.smartcredit_pass = c.smartcredit_password;
+  var protonSection = '';
+  if(!c.proton_email) {
+    protonSection = '<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:10px;padding:14px;margin-top:12px;">' +
+      '<div style="font-size:12px;font-weight:800;color:#92400E;margin-bottom:8px;">&#9888; No Proton Email Assigned</div>' +
+      '<div style="font-size:12px;color:#78350F;margin-bottom:10px;">This client needs a Proton email for bureau correspondence.</div>' +
+      '<input id="proton-input" placeholder="cprclient.FirstLast@proton.me" style="width:100%;padding:8px;border:1.5px solid #F59E0B;border-radius:6px;font-size:12px;box-sizing:border-box;margin-bottom:8px;">' +
+      '<button onclick="saveProtonEmail()" style="padding:8px 16px;background:#92400E;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Save Proton Email</button>' +
+      '</div>';
+  } else {
+    protonSection = '<div style="background:#DCFCE7;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:12px;">' +
+      '<span style="font-weight:700;color:#166534;">&#128231; Proton Email:</span> <span style="color:#1E293B;font-weight:600;">' + c.proton_email + '</span>' +
+      '</div>';
+  }
   document.getElementById('right-body').innerHTML=
     '<p style="font-size:11px;color:#64748B;margin-bottom:12px;">&#9888; Verify logins are working before submitting any requests. For Experian, confirm the 4-digit PIN and security question answer.</p>'+
     bureauCard('Equifax','bc-eq','EQ','equifax_user','equifax_pass',null,null,null,c)+
     bureauCard('Experian','bc-ex','EX','experian_user','experian_pass','experian_pin','experian_sq','experian_sa',c)+
-    bureauCard('TransUnion','bc-tu','TU','transunion_user','transunion_pass',null,null,null,c);
+    bureauCard('TransUnion','bc-tu','TU','transunion_user','transunion_pass',null,null,null,c)+
+    protonSection;
+}
+
+async function saveProtonEmail() {
+  if(!currentClient) return;
+  var email = (document.getElementById('proton-input')||{}).value||'';
+  if(!email || !email.includes('proton')) { alert('Please enter a valid Proton email address.'); return; }
+  try {
+    var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
+      method:'PATCH',
+      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({proton_email:email})
+    });
+    if(r.ok||r.status===204) {
+      currentClient.proton_email = email;
+      alert('Proton email saved: '+email);
+      renderLogins();
+    }
+  } catch(e) { alert('Error saving: '+e.message); }
 }
 
 function bureauCard(name,cls,abbr,uField,pField,pinField,sqField,saField,c){
@@ -1158,7 +1190,7 @@ function loadQuotaToday() {
 
 
 // ── CLIENT MESSAGES ──────────────────────────────────────────
-async function renderClientMessages() {
+async async function renderClientMessages() {
   if (!currentClient) {
     document.getElementById('right-body').innerHTML = '<div class="empty-state"><div class="ico">&#128172;</div><div>Select a client to view messages</div></div>';
     return;
