@@ -251,7 +251,7 @@ function openDataUrl(dataUrl, fileName) {
 }
 
 // ── LOAD MESSAGES ──
-async async function loadMessages(initial) {
+async function loadMessages(initial) {
   try {
     var url = SUPA+'/team_chat?channel=eq.general&order=id.asc&limit=500';
     if (!initial && lastId>0) url += '&id=gt.'+lastId;
@@ -349,7 +349,7 @@ function appendMsg(m) {
 }
 
 // ── SEND MESSAGE ──
-async async function sendMsg() {
+async function sendMsg() {
   if (!currentUser||sending) return;
   var input=document.getElementById('msg-input');
   var text=input.value.trim();
