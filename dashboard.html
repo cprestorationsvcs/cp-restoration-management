@@ -120,6 +120,61 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fbq('init', '1584028236255374');
 fbq('init', '1362385498386512');
 fbq('track', 'PageView');
+
+async function loadBureauCallQueue() {
+  try {
+    var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+    var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+    var HDR  = {'apikey':KEY,'Authorization':'Bearer '+KEY};
+    var now  = new Date();
+
+    // Get disputes with pending status
+    var r = await fetch(SUPA+'/disputes?status=in.(Pending,Pending Response,In Progress)&order=date_filed.asc&limit=200',{headers:HDR});
+    var disputes = await r.json();
+    if(!Array.isArray(disputes)) return;
+
+    var overdue=[], today=[], week=[], ok=[];
+    disputes.forEach(function(d){
+      var filed = new Date(d.date_filed||d.dateFiled||d.created_at);
+      var days = Math.floor((now-filed)/(1000*60*60*24));
+      if(d.bureau_call_needed) { overdue.push(d); return; }
+      if(days>=10) overdue.push(d);
+      else if(days>=7) today.push(d);
+      else if(days>=5) week.push(d);
+      else ok.push(d);
+    });
+
+    var s=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+    s('bc-overdue', overdue.length);
+    s('bc-today',   today.length);
+    s('bc-week',    week.length);
+    s('bc-ok',      ok.length);
+
+    var urgent = overdue.concat(today).slice(0,8);
+    var el = document.getElementById('bc-queue-list');
+    if(!el) return;
+    if(!urgent.length){
+      el.innerHTML='<div style="color:#166534;font-size:12px;text-align:center;padding:16px;">🟢 No urgent bureau calls needed right now.</div>';
+      return;
+    }
+    el.innerHTML = urgent.map(function(d){
+      var filed = new Date(d.date_filed||d.dateFiled||d.created_at);
+      var days = Math.floor((now-filed)/(1000*60*60*24));
+      var isOverdue = d.bureau_call_needed||days>=10;
+      var badge = isOverdue
+        ? '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">🔴 OVERDUE</span>'
+        : '<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">🟠 CALL TODAY</span>';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #F1F5F9;">' +
+        '<div>' +
+          '<div style="font-size:13px;font-weight:700;color:#0A1628;">'+(d.clientName||d.client_name||'Unknown Client')+'</div>' +
+          '<div style="font-size:11px;color:#64748B;">'+(d.clientId||d.client_id||'—')+' · Filed '+days+' days ago</div>' +
+        '</div>' +
+        badge +
+      '</div>';
+    }).join('');
+  } catch(e) { console.error('Bureau call queue error:', e); }
+}
+
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1584028236255374&ev=PageView&noscript=1"
@@ -318,6 +373,36 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
           <div class="tool-desc">Generate service agreements for new clients and send refund agreements from Compliance.</div>
           <div class="tool-badge">Admin · Compliance</div>
         </a>
+    </div>
+
+    <!-- BUREAU CALL QUEUE WIDGET -->
+    <div class="section-title">📞 Bureau Call Queue</div>
+    <div class="card" style="margin-bottom:24px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:16px;" id="bc-queue-stats">
+        <div style="text-align:center;padding:12px;background:#FEE2E2;border-radius:10px;">
+          <div style="font-size:22px;font-weight:800;color:#991B1B;" id="bc-overdue">—</div>
+          <div style="font-size:11px;color:#991B1B;font-weight:700;">🔴 Overdue</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:#FEF3C7;border-radius:10px;">
+          <div style="font-size:22px;font-weight:800;color:#92400E;" id="bc-today">—</div>
+          <div style="font-size:11px;color:#92400E;font-weight:700;">🟠 Call Today</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:#FEF9C3;border-radius:10px;">
+          <div style="font-size:22px;font-weight:800;color:#78350F;" id="bc-week">—</div>
+          <div style="font-size:11px;color:#78350F;font-weight:700;">🟡 This Week</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:#DCFCE7;border-radius:10px;">
+          <div style="font-size:22px;font-weight:800;color:#166534;" id="bc-ok">—</div>
+          <div style="font-size:11px;color:#166534;font-weight:700;">🟢 No Call Needed</div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:8px;letter-spacing:.3px;">CLIENTS NEEDING CALLS NOW</div>
+      <div id="bc-queue-list" style="max-height:220px;overflow-y:auto;">
+        <div style="color:#94A3B8;font-size:12px;text-align:center;padding:16px;">Loading...</div>
+      </div>
+      <div style="margin-top:12px;text-align:right;">
+        <a href="/dispute-center.html" style="font-size:12px;font-weight:700;color:var(--blue);text-decoration:none;">View All in Dispute Center →</a>
+      </div>
     </div>
 
     <!-- QUICK ACTIONS -->
