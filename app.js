@@ -1,3 +1,128 @@
+
+// ── LOGIN / AUTH ─────────────────────────────────────────────────────
+function setLoginType(type) {
+  var adminForm  = document.getElementById('login-form-admin');
+  var clientForm = document.getElementById('login-form-client');
+  var tabs = document.querySelectorAll('.login-tab');
+  if (adminForm)  adminForm.style.display  = type==='admin'  ? 'block' : 'none';
+  if (clientForm) clientForm.style.display = type==='client' ? 'block' : 'none';
+  tabs.forEach(function(t,i){ t.classList.toggle('active', (type==='admin'&&i===0)||(type==='client'&&i===1)); });
+}
+
+function toggleLoginPw() {
+  var inp = document.getElementById('admin-pass');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function loginAdmin() {
+  var email = (document.getElementById('admin-email')||{}).value || '';
+  var pass  = (document.getElementById('admin-pass')||{}).value  || '';
+  var errEl = document.getElementById('login-error');
+  email = email.trim().toLowerCase();
+
+  if (!email || !pass) {
+    if (errEl) { errEl.textContent='Please enter your email and password.'; errEl.style.display='block'; }
+    return;
+  }
+
+  var emp = EMPLOYEES[email];
+  if (!emp || emp.password !== pass) {
+    if (errEl) { errEl.textContent='Invalid email or password. Contact Jason if you need help.'; errEl.style.display='block'; }
+    return;
+  }
+
+  // Success — save session
+  localStorage.setItem('cp_logged_in_user',     email);
+  localStorage.setItem('cp_logged_in_role',     emp.role);
+  localStorage.setItem('cp_logged_in_name',     emp.name);
+  localStorage.setItem('cp_logged_in_label',    emp.label);
+  localStorage.setItem('cp_logged_in_initials', emp.initials || emp.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2));
+
+  // Show app
+  var loginScreen = document.getElementById('login-screen');
+  var appEl       = document.getElementById('app');
+  if (loginScreen) loginScreen.style.display = 'none';
+  if (appEl)       appEl.style.display       = 'block';
+
+  // Set user badge
+  var badge = document.getElementById('user-badge');
+  if (badge) badge.textContent = emp.name;
+
+  // Set nav for role
+  setupNavForRole(emp.role);
+
+  // Load dashboard
+  showPage('dashboard');
+
+  // Clear error
+  if (errEl) errEl.style.display = 'none';
+}
+
+function loginClient() {
+  var idVal = (document.getElementById('client-id')||{}).value || '';
+  var ssn   = (document.getElementById('client-ssn')||{}).value || '';
+  if (!idVal || !ssn || ssn.length !== 4) {
+    alert('Please enter your Client ID and last 4 digits of your SSN.');
+    return;
+  }
+  // Redirect to client portal
+  window.location.href = 'client-portal.html?id=' + encodeURIComponent(idVal.trim()) + '&ssn=' + encodeURIComponent(ssn.trim());
+}
+
+function setupNavForRole(role) {
+  // Admin sees everything; staff see only their relevant pages
+  var adminOnly = document.querySelectorAll('.admin-only');
+  adminOnly.forEach(function(el) {
+    el.style.display = (role === 'admin') ? '' : 'none';
+  });
+}
+
+function logout() {
+  localStorage.removeItem('cp_logged_in_user');
+  localStorage.removeItem('cp_logged_in_role');
+  localStorage.removeItem('cp_logged_in_name');
+  localStorage.removeItem('cp_logged_in_label');
+  localStorage.removeItem('cp_logged_in_initials');
+  var loginScreen = document.getElementById('login-screen');
+  var appEl       = document.getElementById('app');
+  if (loginScreen) loginScreen.style.display = 'flex';
+  if (appEl)       appEl.style.display       = 'none';
+  var emailEl = document.getElementById('admin-email');
+  var passEl  = document.getElementById('admin-pass');
+  if (emailEl) emailEl.value = '';
+  if (passEl)  passEl.value  = '';
+}
+
+// Auto-restore session on page load
+(function restoreSession() {
+  var savedEmail = localStorage.getItem('cp_logged_in_user') || '';
+  var savedName  = localStorage.getItem('cp_logged_in_name') || '';
+  var savedRole  = localStorage.getItem('cp_logged_in_role') || '';
+
+  // Validate saved user still exists
+  if (savedEmail && (!EMPLOYEES[savedEmail] || EMPLOYEES[savedEmail].role === 'terminated')) {
+    localStorage.removeItem('cp_logged_in_user');
+    localStorage.removeItem('cp_logged_in_role');
+    localStorage.removeItem('cp_logged_in_name');
+    localStorage.removeItem('cp_logged_in_label');
+    localStorage.removeItem('cp_logged_in_initials');
+    savedEmail = '';
+  }
+
+  if (savedEmail && savedName) {
+    var loginScreen = document.getElementById('login-screen');
+    var appEl       = document.getElementById('app');
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (appEl)       appEl.style.display       = 'block';
+    var badge = document.getElementById('user-badge');
+    if (badge) badge.textContent = savedName;
+    setupNavForRole(savedRole);
+    showPage('dashboard');
+  }
+})();
+// ────────────────────────────────────────────────────────────────────
+
 var TEAM_ROSTER = {
   'jason@mycprteam.com':          {name:'Jason Crown',          role:'Admin',               start:'2014-01-01', weekly:0,   active:true},
   'queen@mycprteam.com':          {name:'Queen Jearel Cruz',    role:'Compliance Specialist',start:'2026-09-21',weekly:200, active:true},
