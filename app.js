@@ -23,6 +23,45 @@ function showPage(name) {
 }
 // ─────────────────────────────────────────────────────────────────────
 
+var EMPLOYEES = {
+  'jason@mycprteam.com':   { password:'CPRAdmin2026',  name:'Jason Crown',       role:'admin',      label:'Admin',             initials:'JC' },
+  'queen@mycprteam.com':   { password:'CPRQueen2026',  name:'Queen Jearel Cruz', role:'compliance', label:'Compliance Officer', initials:'QC' },
+  'bukunmi@mycprteam.com': { password:'CPRBuku2026',   name:'Bukunmi Aina',      role:'sales',      label:'Sales Rep',          initials:'BA' },
+  'elna@mycprteam.com':    { password:'CPRElna2026',   name:'Elna Palabrica',    role:'cs',         label:'CS Agent',           initials:'EP' },
+
+  'alec@mycprteam.com':    { password:'CPRAlec2026',   name:'Alec Sarrosa',      role:'cs',         label:'CS Agent',           initials:'AS' },
+
+  'marcelo@mycprteam.com': { password:'CPRMarcelo2026', name:'Marcelo Torres',     role:'dispute',    label:'Dispute Specialist', initials:'MT' },
+  'kimwell@mycprteam.com': { password:'CPRKimwell2026', name:'Kimwell Ablaza',     role:'dispute',    label:'Dispute Specialist', initials:'KA' },
+  'annabel@mycprteam.com': { password:'CPRAnnabel2026', name:'Annabel Curada',     role:'dispute',    label:'Dispute Specialist', initials:'AC' },
+  // jay@mycprteam.com DEACTIVATED
+  'fcacaasi@gmail.com':    { password:'CPRFatima2026',  name:'Fatima Charfina Caasi', role:'bureau',  label:'Bureau Caller',      initials:'FC' },
+};
+
+var TEAM_ROSTER = {
+  'jason@mycprteam.com':          {name:'Jason Crown',          role:'Admin',               start:'2014-01-01', weekly:0,   active:true},
+  'queen@mycprteam.com':          {name:'Queen Jearel Cruz',    role:'Compliance Specialist',start:'2026-09-21',weekly:200, active:true},
+  'queenjearelcruz@gmail.com':    {name:'Queen Jearel Cruz',    role:'Compliance Specialist',start:'2026-09-21',weekly:200, active:true},
+  'elna@mycprteam.com':           {name:'Elna Palabrica',       role:'CS Agent',            start:'2026-10-05', weekly:100, active:true},
+  'epalabrica2587@gmail.com':     {name:'Elna Palabrica',       role:'CS Agent',            start:'2026-10-05', weekly:100, active:true},
+  'alec@mycprteam.com':           {name:'Alec Sarrosa',         role:'CS Agent',            start:'2026-10-05', weekly:100, active:true},
+  'absarrosa.va@gmail.com':       {name:'Alec Sarrosa',         role:'CS Agent',            start:'2026-10-05', weekly:100, active:true},
+  'marcelo@mycprteam.com':        {name:'Marcelo Torres',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
+  'mark.torres08@gmail.com':      {name:'Marcelo Torres',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
+  'kimwell@mycprteam.com':        {name:'Kimwell Ablaza',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
+  'ablaza200@gmail.com':          {name:'Kimwell Ablaza',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
+  'annabel@mycprteam.com':        {name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
+  'annabelcreditrepair@gmail.com':{name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
+  'bukunmi@mycprteam.com':        {name:'Bukunmi Aina',         role:'Lead Generation',     start:'2026-09-21', weekly:250, active:true},
+  'jay@mycprteam.com':            {name:'Jay Rico',             role:'Terminated',          start:'',           weekly:0,   active:false},
+  'lester.leonardo1997@gmail.com':{name:'Lester Leonardo',      role:'Terminated',          start:'',           weekly:0,   active:false},
+  'fcacaasi@gmail.com':           {name:'Fatima Charfina Caasi','role':'Bureau Caller',     start:'2026-10-12', weekly:100, active:true},
+  'jonahmariedeguzman2@gmail.com':{name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
+  'jonah@mycprteam.com':          {name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
+  'anthongiuseppe@gmail.com':     {name:'Anthon Giuseppe Sumbiling','role':'Terminated',    start:'',           weekly:0,   active:false},
+  'anthon@mycprteam.com':         {name:'Anthon Giuseppe Sumbiling','role':'Terminated',    start:'',           weekly:0,   active:false},
+};
+
 
 // ── LOGIN / AUTH ─────────────────────────────────────────────────────
 function setLoginType(type) {
@@ -161,49 +200,14 @@ function logout() {
 })();
 // ────────────────────────────────────────────────────────────────────
 
-var TEAM_ROSTER = {
-  'jason@mycprteam.com':          {name:'Jason Crown',          role:'Admin',               start:'2014-01-01', weekly:0,   active:true},
-  'queen@mycprteam.com':          {name:'Queen Jearel Cruz',    role:'Compliance Specialist',start:'2026-09-21',weekly:200, active:true},
-  'queenjearelcruz@gmail.com':    {name:'Queen Jearel Cruz',    role:'Compliance Specialist',start:'2026-09-21',weekly:200, active:true},
-  'elna@mycprteam.com':           {name:'Elna Palabrica',       role:'CS Agent',            start:'2026-10-05', weekly:100, active:true},
-  'epalabrica2587@gmail.com':     {name:'Elna Palabrica',       role:'CS Agent',            start:'2026-10-05', weekly:100, active:true},
-  'alec@mycprteam.com':           {name:'Alec Sarrosa',         role:'CS Agent',            start:'2026-10-05', weekly:100, active:true},
-  'absarrosa.va@gmail.com':       {name:'Alec Sarrosa',         role:'CS Agent',            start:'2026-10-05', weekly:100, active:true},
-  'marcelo@mycprteam.com':        {name:'Marcelo Torres',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
-  'mark.torres08@gmail.com':      {name:'Marcelo Torres',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
-  'kimwell@mycprteam.com':        {name:'Kimwell Ablaza',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
-  'ablaza200@gmail.com':          {name:'Kimwell Ablaza',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
-  'annabel@mycprteam.com':        {name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
-  'annabelcreditrepair@gmail.com':{name:'Annabel Curada',       role:'Dispute Specialist',  start:'2026-10-07', weekly:100, active:true},
-  'bukunmi@mycprteam.com':        {name:'Bukunmi Aina',         role:'Lead Generation',     start:'2026-09-21', weekly:250, active:true},
-  'jay@mycprteam.com':            {name:'Jay Rico',             role:'Terminated',          start:'',           weekly:0,   active:false},
-  'lester.leonardo1997@gmail.com':{name:'Lester Leonardo',      role:'Terminated',          start:'',           weekly:0,   active:false},
-  'fcacaasi@gmail.com':           {name:'Fatima Charfina Caasi','role':'Bureau Caller',     start:'2026-10-12', weekly:100, active:true},
-  'jonahmariedeguzman2@gmail.com':{name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
-  'jonah@mycprteam.com':          {name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
-  'anthongiuseppe@gmail.com':     {name:'Anthon Giuseppe Sumbiling','role':'Terminated',    start:'',           weekly:0,   active:false},
-  'anthon@mycprteam.com':         {name:'Anthon Giuseppe Sumbiling','role':'Terminated',    start:'',           weekly:0,   active:false},
-};
+
 
 // CP Restoration Management System — Core JavaScript v5
 // app.js — loaded by index.html
 // Fixes: session tracking, client search, onboarding next step, duplicate detection
 
 // ── EMPLOYEES ──────────────────────────────────────────────────────
-var EMPLOYEES = {
-  'jason@mycprteam.com':   { password:'CPRAdmin2026',  name:'Jason Crown',       role:'admin',      label:'Admin',             initials:'JC' },
-  'queen@mycprteam.com':   { password:'CPRQueen2026',  name:'Queen Jearel Cruz', role:'compliance', label:'Compliance Officer', initials:'QC' },
-  'bukunmi@mycprteam.com': { password:'CPRBuku2026',   name:'Bukunmi Aina',      role:'sales',      label:'Sales Rep',          initials:'BA' },
-  'elna@mycprteam.com':    { password:'CPRElna2026',   name:'Elna Palabrica',    role:'cs',         label:'CS Agent',           initials:'EP' },
 
-  'alec@mycprteam.com':    { password:'CPRAlec2026',   name:'Alec Sarrosa',      role:'cs',         label:'CS Agent',           initials:'AS' },
-
-  'marcelo@mycprteam.com': { password:'CPRMarcelo2026', name:'Marcelo Torres',     role:'dispute',    label:'Dispute Specialist', initials:'MT' },
-  'kimwell@mycprteam.com': { password:'CPRKimwell2026', name:'Kimwell Ablaza',     role:'dispute',    label:'Dispute Specialist', initials:'KA' },
-  'annabel@mycprteam.com': { password:'CPRAnnabel2026', name:'Annabel Curada',     role:'dispute',    label:'Dispute Specialist', initials:'AC' },
-  // jay@mycprteam.com DEACTIVATED
-  'fcacaasi@gmail.com':    { password:'CPRFatima2026',  name:'Fatima Charfina Caasi', role:'bureau',  label:'Bureau Caller',      initials:'FC' },
-};
 
 // ── ACTIVITY TRACKING ──────────────────────────────────────────────
 // FIX: Uses currentUser at time of call, not a stale reference
