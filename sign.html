@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CP Restoration Services — Sign Document</title>
+<style>
+:root {
+  --navy: #0A1628;
+  --blue: #1B3A6B;
+  --gold: #C9A84C;
+  --green: #166534;
+  --green-light: #DCFCE7;
+  --red: #991B1B;
+  --gray: #64748B;
+  --border: #E2E8F0;
+  --bg: #F8FAFC;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  box-sizing: border-box;
+}
+*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--navy); min-height: 100vh; }
+
+.header {
+  background: var(--navy); padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { color: var(--gold); font-size: 15px; font-weight: 800; }
+.logo-sub { color: #94A3B8; font-size: 11px; margin-top: 2px; }
+.secure-badge {
+  background: rgba(201,168,76,.15); border: 1px solid var(--gold);
+  color: var(--gold); padding: 5px 12px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+}
+
+.page { max-width: 700px; margin: 0 auto; padding: 24px 16px 60px; }
+
+.loading {
+  text-align: center; padding: 60px 24px;
+}
+.loading-spinner {
+  width: 40px; height: 40px; border: 3px solid var(--border);
+  border-top-color: var(--blue); border-radius: 50%;
+  animation: spin .8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.card {
+  background: white; border-radius: 14px;
+  border: 1.5px solid var(--border); padding: 24px;
+  margin-bottom: 16px;
+}
+
+.doc-header {
+  text-align: center; margin-bottom: 24px;
+}
+.doc-header-title {
+  font-size: 18px; font-weight: 800; color: var(--navy); margin-bottom: 4px;
+}
+.doc-header-sub { font-size: 13px; color: var(--gray); }
+
+.client-info {
+  background: #EFF6FF; border: 1.5px solid #BFDBFE;
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.client-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--blue); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; flex-shrink: 0;
+}
+.client-name { font-size: 14px; font-weight: 800; color: var(--navy); }
+.client-id { font-size: 11px; color: var(--gray); }
+
+.doc-preview {
+  background: #FAFAFA; border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 24px;
+  font-size: 12.5px; line-height: 1.8; color: #1E293B;
+  max-height: 400px; overflow-y: auto; margin-bottom: 20px;
+}
+.doc-preview h2 { font-size: 14px; font-weight: 800; color: var(--navy); margin: 16px 0 6px; }
+.doc-preview p { margin-bottom: 10px; }
+.doc-preview ul { margin: 6px 0 10px 18px; }
+.doc-preview li { margin-bottom: 3px; }
+.highlight { background: #FEF9C3; padding: 1px 5px; border-radius: 3px; font-weight: 700; }
+.doc-hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+.amount-badge {
+  display: inline-block; background: var(--green-light);
+  border: 2px solid var(--green); color: var(--green);
+  padding: 8px 20px; border-radius: 8px;
+  font-size: 20px; font-weight: 800; margin: 10px 0;
+}
+
+.sig-box {
+  background: #F8FAFC; border: 2px solid var(--border);
+  border-radius: 12px; padding: 20px;
+}
+.sig-box h3 { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+.sig-box p { font-size: 12px; color: var(--gray); margin-bottom: 16px; line-height: 1.5; }
+
+.sig-input {
+  width: 100%; padding: 14px 16px;
+  font-size: 24px; font-family: 'Georgia', serif;
+  border: none; border-bottom: 2.5px solid var(--navy);
+  background: white; color: var(--navy);
+  text-align: center; letter-spacing: 1px;
+  border-radius: 8px 8px 0 0;
+}
+.sig-input:focus { outline: none; border-bottom-color: var(--gold); }
+
+.consent-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin: 16px 0; font-size: 12px; color: var(--gray); line-height: 1.5;
+}
+.consent-row input { margin-top: 2px; accent-color: var(--blue); transform: scale(1.2); flex-shrink: 0; }
+
+.timestamp {
+  font-size: 11px; color: var(--gray); text-align: center; margin-top: 10px;
+}
+
+.sign-btn {
+  width: 100%; padding: 14px;
+  background: var(--gold); color: var(--navy);
+  border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 800;
+  cursor: pointer; margin-top: 16px;
+  transition: background .15s;
+}
+.sign-btn:hover { background: #B8943D; }
+.sign-btn:disabled { background: var(--border); color: var(--gray); cursor: not-allowed; }
+
+.already-signed {
+  text-align: center; padding: 40px 24px;
+}
+.already-signed .icon { font-size: 50px; margin-bottom: 16px; }
+.already-signed h2 { font-size: 18px; font-weight: 800; color: var(--green); margin-bottom: 8px; }
+.already-signed p { font-size: 13px; color: var(--gray); }
+
+.success-screen {
+  text-align: center; padding: 50px 24px; display: none;
+}
+.success-screen .icon { font-size: 60px; margin-bottom: 20px; }
+.success-screen h2 { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+.success-screen p { font-size: 13px; color: var(--gray); margin-bottom: 6px; line-height: 1.6; }
+.success-details {
+  background: var(--green-light); border: 1.5px solid var(--green);
+  border-radius: 10px; padding: 16px; margin: 20px auto;
+  max-width: 400px; text-align: left; font-size: 13px; line-height: 2;
+}
+
+.not-found {
+  text-align: center; padding: 60px 24px;
+}
+.not-found .icon { font-size: 50px; margin-bottom: 16px; }
+.not-found h2 { font-size: 18px; font-weight: 800; color: var(--red); margin-bottom: 8px; }
+.not-found p { font-size: 13px; color: var(--gray); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">CP RESTORATION SERVICES</div>
+    <div class="logo-sub">Secure Document Signing</div>
+  </div>
+  <div class="secure-badge">🔐 Secure & Encrypted</div>
+</div>
+
+<div class="page">
+
+  <!-- Loading -->
+  <div id="view-loading" class="card" style="text-align:center;padding:60px 24px;">
+    <div class="loading-spinner"></div>
+    <div style="font-size:14px;color:var(--gray);">Loading your document...</div>
+  </div>
+
+  <!-- Not Found -->
+  <div id="view-not-found" class="card not-found" style="display:none;">
+    <div class="icon">❌</div>
+    <h2>Document Not Found</h2>
+    <p>We couldn't find a document for this link.<br>Please contact CP Restoration Services for assistance.</p>
+    <p style="margin-top:16px;"><strong>📞 (855) 327-5847</strong><br>info@35daycreditrepair.com</p>
+  </div>
+
+  <!-- Already Signed -->
+  <div id="view-already-signed" class="card already-signed" style="display:none;">
+    <div class="icon">✅</div>
+    <h2>Already Signed</h2>
+    <p>This document has already been signed.<br>You will receive your refund within <strong>3 to 5 business days</strong>.</p>
+    <p style="margin-top:16px;">Questions? Call us at <strong>(855) 327-5847</strong></p>
+  </div>
+
+  <!-- Document to Sign -->
+  <div id="view-document" style="display:none;">
+    <div class="doc-header">
+      <div class="doc-header-title" id="doc-title">Refund Acceptance Agreement</div>
+      <div class="doc-header-sub" id="doc-date"></div>
+    </div>
+
+    <div class="client-info">
+      <div class="client-avatar" id="client-avatar">?</div>
+      <div>
+        <div class="client-name" id="client-name-display">Loading...</div>
+        <div class="client-id" id="client-id-display"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:12px;">📄 Document to Review & Sign</div>
+      <div class="doc-preview" id="doc-content"></div>
+
+      <div class="sig-box">
+        <h3>✍️ Your Electronic Signature</h3>
+        <p>Type your full legal name below exactly as it appears on your account to sign this document electronically. This is legally binding under the federal ESIGN Act (15 U.S.C. § 7001).</p>
+        <input class="sig-input" id="sig-input" placeholder="Type your full legal name" oninput="onSigInput()">
+        <div class="consent-row">
+          <input type="checkbox" id="consent-check" onchange="onSigInput()">
+          <label for="consent-check">I have read and understand this agreement. I agree to all terms including the refund amount, release of liability, file closure, non-disparagement clause, and that my file will be permanently closed. I acknowledge this is a legally binding electronic signature.</label>
+        </div>
+        <div class="timestamp" id="sig-timestamp"></div>
+        <button class="sign-btn" id="sign-btn" disabled onclick="submitSignature()">✍️ Sign Agreement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div id="view-success" class="card success-screen">
+    <div class="icon">🎉</div>
+    <h2>Agreement Signed Successfully!</h2>
+    <p>Thank you, <strong id="success-name"></strong>.</p>
+    <p>Your signed refund agreement has been received and recorded.</p>
+    <div class="success-details" id="success-details"></div>
+    <p style="margin-top:16px;font-size:13px;color:var(--gray);">You will receive your refund within <strong>3 to 5 business days</strong>.<br>A copy of this agreement has been saved to your account.</p>
+    <p style="margin-top:12px;font-size:12px;color:var(--gray);">Questions? Call us at <strong>(855) 327-5847</strong> or email <strong>info@35daycreditrepair.com</strong></p>
+  </div>
+
+</div>
+
+<script>
+const SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+const K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+const HDR = {'apikey':K,'Authorization':'Bearer '+K,'Content-Type':'application/json'};
+
+let clientData = null;
+let docData = null;
+
+function showView(id) {
+  ['view-loading','view-not-found','view-already-signed','view-document','view-success'].forEach(v => {
+    var el = document.getElementById(v);
+    if(el) el.style.display = v===id ? 'block' : 'none';
+  });
+}
+
+async function loadDocument() {
+  // Get client ID from URL params
+  var params = new URLSearchParams(window.location.search);
+  var clientId = params.get('id') || params.get('client') || '';
+
+  if(!clientId) { showView('view-not-found'); return; }
+
+  try {
+    // Load client record
+    var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(clientId)+'&select=*&limit=1', {headers:HDR});
+    var clients = await r.json();
+
+    if(!Array.isArray(clients)||!clients.length) { showView('view-not-found'); return; }
+    clientData = clients[0];
+
+    // Check if already signed
+    if(clientData.refund_agreement_signed) { showView('view-already-signed'); return; }
+
+    // Check if refund amount is set
+    if(!clientData.refund_amount) { showView('view-not-found'); return; }
+
+    // Populate document
+    var name = clientData.name || '';
+    var initials = name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+    document.getElementById('client-avatar').textContent = initials;
+    document.getElementById('client-name-display').textContent = name;
+    document.getElementById('client-id-display').textContent = 'Client ID: ' + clientData.id + ' · ' + (clientData.email||'');
+    document.getElementById('doc-date').textContent = 'Prepared: ' + new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) + ' · Compliance Department';
+
+    var refundAmt = '$' + parseFloat(clientData.refund_amount||0).toFixed(2);
+
+    document.getElementById('doc-content').innerHTML = `
+      <div style="text-align:center;font-weight:800;font-size:14px;color:var(--navy);margin-bottom:16px;">
+        CP RESTORATION SERVICES<br>REFUND ACCEPTANCE AGREEMENT
+      </div>
+      <div class="doc-hr"></div>
+      <h2>Parties</h2>
+      <p><strong>Service Provider:</strong> CP Restoration Services, owned by Jason Crown, Coconut Creek, Florida ("Company")<br>
+      <strong>Client:</strong> <span class="highlight">${name}</span> — Client ID: ${clientData.id} ("Client")</p>
+
+      <h2>Refund Amount</h2>
+      <p>The Company agrees to issue a refund of:</p>
+      <div style="text-align:center;"><div class="amount-badge">${refundAmt}</div></div>
+      <p>This amount represents the prorated value of services not completed, less the $200 non-refundable administrative fee. Payment will be issued within <strong>3 to 5 business days</strong> of the execution of this Agreement.</p>
+
+      <h2>Full and Final Settlement</h2>
+      <p>This refund constitutes full and final settlement of any and all claims, demands, or causes of action arising from the service agreement between the Client and CP Restoration Services.</p>
+
+      <h2>Release of Liability</h2>
+      <p>In consideration of the refund, the Client fully and unconditionally releases CP Restoration Services, its owner Jason Crown, and all employees and agents from any and all claims, liabilities, and demands of any nature arising from the credit repair services provided. This agreement is not an admission of liability by either party.</p>
+
+      <h2>Non-Disparagement</h2>
+      <p>The Client agrees not to make negative, disparaging, or defamatory statements — verbal, written, or online — regarding CP Restoration Services in connection with the matters resolved by this Agreement.</p>
+
+      <h2>File Closure & Future Services</h2>
+      <p>Upon signing, the Client's file will be <strong>permanently closed</strong>. Should the Client wish to re-engage CP Restoration Services in the future, all services will be at then-current pricing with no credit or carryover from this agreement.</p>
+
+      <h2>Confidentiality</h2>
+      <p>The terms of this Agreement are confidential and shall not be disclosed to any third party without prior written consent, except as required by law.</p>
+      <div class="doc-hr"></div>
+      <p style="font-size:11px;color:#64748B;">This agreement was prepared by the CP Restoration Services Compliance Department. By signing below you confirm you have read, understood, and agree to all terms above.</p>
+    `;
+
+    showView('view-document');
+
+  } catch(e) {
+    console.error(e);
+    showView('view-not-found');
+  }
+}
+
+function onSigInput() {
+  var sig = (document.getElementById('sig-input').value||'').trim();
+  var consent = document.getElementById('consent-check').checked;
+  var btn = document.getElementById('sign-btn');
+  btn.disabled = !(sig.length >= 3 && consent);
+  if(sig) {
+    document.getElementById('sig-timestamp').textContent =
+      'Signing as: ' + sig + ' · ' + new Date().toLocaleString() + ' · IP logged';
+  } else {
+    document.getElementById('sig-timestamp').textContent = '';
+  }
+}
+
+async function submitSignature() {
+  if(!clientData) return;
+  var sig = (document.getElementById('sig-input').value||'').trim();
+  var ts = new Date().toISOString();
+  var tsDisplay = new Date().toLocaleString();
+  var btn = document.getElementById('sign-btn');
+
+  // Loose name match — first or last name must match
+  var clientNameLower = (clientData.name||'').toLowerCase();
+  var sigLower = sig.toLowerCase();
+  var nameParts = clientNameLower.split(' ');
+  var sigParts = sigLower.split(' ');
+  var hasMatch = nameParts.some(part => sigParts.includes(part) && part.length > 1);
+
+  if(!hasMatch) {
+    if(!confirm('The name you entered ("'+sig+'") doesn\'t match our records for this account. Are you sure you want to continue?')) return;
+  }
+
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  try {
+    // Save signature to esignatures table
+    await fetch(SUPA+'/esignatures', {
+      method:'POST',
+      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({
+        client_id: clientData.id,
+        client_name: clientData.name,
+        client_email: clientData.email,
+        doc_type: 'Refund Agreement',
+        signed_at: ts,
+        signed_by: sig,
+        refund_amount: clientData.refund_amount,
+        payment_method: clientData.refund_payment_method||'',
+        payment_handle: clientData.refund_payment_handle||'',
+        payment_status: 'pending',
+        status: 'signed'
+      })
+    });
+
+    // Update client record — mark signed, close file
+    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(clientData.id), {
+      method:'PATCH',
+      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({
+        refund_agreement_signed: true,
+        refund_agreement_signed_date: ts,
+        refund_status: 'pending',
+        status: 'Closed'
+      })
+    });
+
+    // Show success
+    document.getElementById('success-name').textContent = clientData.name;
+    document.getElementById('success-details').innerHTML =
+      '<strong>Client:</strong> '+clientData.name+'<br>' +
+      '<strong>Client ID:</strong> '+clientData.id+'<br>' +
+      '<strong>Refund Amount:</strong> $'+parseFloat(clientData.refund_amount).toFixed(2)+'<br>' +
+      '<strong>Signed At:</strong> '+tsDisplay+'<br>' +
+      '<strong>Signed By:</strong> '+sig+'<br>' +
+      '<strong>Payment:</strong> Within 3–5 business days';
+
+    showView('view-success');
+
+  } catch(e) {
+    btn.textContent = '✍️ Sign Agreement';
+    btn.disabled = false;
+    alert('Error saving signature: '+e.message+'. Please try again or call (855) 327-5847.');
+  }
+}
+
+// Load on page ready
+loadDocument();
+</script>
+</body>
+</html>
