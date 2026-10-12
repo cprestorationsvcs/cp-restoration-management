@@ -1692,6 +1692,7 @@ async function fileDispute() {
   fileBtn.innerHTML = '✅ Filed!';
 
   alert('Dispute filed! Client: ' + clientName + ' | Bureaus: ' + bureaus.join(', ') + ' | Items: ' + items.length + ' | Client notified.');
+  logWork('Dispute Filed', 'Bureaus: '+bureaus.join(',')+' | Items: '+items.length, clientId, clientName, items.length);
 
   // Show post-filing action panel
   const panel = document.getElementById('post-filing-card');
