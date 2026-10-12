@@ -151,7 +151,7 @@ function initUser() {
   var role  = localStorage.getItem('cp_logged_in_role')||'Team Member';
   if (!name) {
     document.getElementById('messages').innerHTML =
-      '<div class="empty-chat"><div class="ico">&#128274;</div><div>Please <a href="/dashboard.html" style="color:#1B3A6B;font-weight:700;">log into the portal</a> first.</div></div>';
+      '<div class="empty-chat"><div class="ico">&#128274;</div><div>Please <a href="https://portal-cprestorationsvcs.com" style="color:#1B3A6B;font-weight:700;">log into the portal</a> first.</div></div>';
     document.getElementById('input-bar').style.display='none';
     return false;
   }
