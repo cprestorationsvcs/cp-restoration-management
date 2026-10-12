@@ -79,6 +79,30 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fbq('init', '1584028236255374');
 fbq('init', '1362385498386512');
 fbq('track', 'PageView');
+
+function downloadCSV() {
+  var dateFrom = (document.getElementById('date-from')||{}).value||'';
+  var dateTo   = (document.getElementById('date-to')||{}).value||'';
+  var rows = [['Name','Email','Phone','Source','Status','Date']];
+  allLeads.forEach(function(l) {
+    if (dateFrom && l.created_at && l.created_at < dateFrom) return;
+    if (dateTo   && l.created_at && l.created_at.substring(0,10) > dateTo) return;
+    rows.push([
+      (l.name||'').replace(/,/g,' '),
+      l.email||'',
+      l.phone||'',
+      l.source||'',
+      l.status||'',
+      (l.created_at||'').substring(0,10)
+    ]);
+  });
+  var csv = rows.map(function(r){return r.join(',');}).join('\n');
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'leads-' + new Date().toISOString().substring(0,10) + '.csv';
+  a.click();
+}
+
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1584028236255374&ev=PageView&noscript=1"
@@ -115,7 +139,10 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
     <button class="filter-btn src-btn" onclick="setSource('ebook-funnel',this)">&#128218; Credit Guide</button>
     <button class="filter-btn src-btn" onclick="setSource('funding-landing-page',this)">&#128176; Funding</button>
     <input type="text" class="search-box" id="search-box" placeholder="Search name, email, phone..." oninput="renderLeads()">
+    <input type="date" id="date-from" onchange="renderLeads()" title="From date" style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;font-family:inherit;">
+    <input type="date" id="date-to" onchange="renderLeads()" title="To date" style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;font-family:inherit;">
     <button class="filter-btn" onclick="loadLeads()" style="margin-left:auto;">&#8635; Refresh</button>
+    <button class="filter-btn" onclick="downloadCSV()" style="background:#166534;color:white;border-color:#166534;">&#11015; Download CSV</button>
   </div>
 
   <div class="lead-grid" id="lead-grid">
@@ -187,7 +214,7 @@ var currentLeadId = null;
 
 async function loadLeads() {
   try {
-    var r = await fetch(SUPA+'/leads?limit=200',{headers:HDR});
+    var r = await fetch(SUPA+'/leads?limit=500&order=id.desc',{headers:HDR});
     allLeads = await r.json();
     if (!Array.isArray(allLeads)) allLeads=[];
     updateCounts();
@@ -217,6 +244,8 @@ function setFilter(f, btn) {
 function renderLeads() {
   // Sort newest first in JS since we can't use ORDER BY (causes timeout)
   allLeads.sort(function(a,b){ return (b.id||0)-(a.id||0); });
+  var dateFrom = (document.getElementById('date-from')||{}).value||'';
+  var dateTo   = (document.getElementById('date-to')||{}).value||'';
   var filtered = allLeads.filter(function(l) {
     if (currentFilter !== 'all' && l.status !== currentFilter) return false;
     if (typeof currentSource !== 'undefined' && currentSource !== 'all') {
@@ -224,6 +253,8 @@ function renderLeads() {
       if (currentSource === 'ebook-funnel' && src.indexOf('ebook') === -1) return false;
       if (currentSource === 'funding-landing-page' && src.indexOf('funding') === -1) return false;
     }
+    if (dateFrom && l.created_at && l.created_at < dateFrom) return false;
+    if (dateTo   && l.created_at && l.created_at.substring(0,10) > dateTo) return false;
     return true;
   });
   var list = document.getElementById('lead-grid');
