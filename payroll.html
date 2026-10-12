@@ -3,128 +3,258 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Payroll Schedule — CP Restoration Services</title>
+<title>Payroll Dashboard — CP Restoration</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',system-ui,sans-serif;background:#F1F5F9;min-height:100vh;}
-header{background:#1B3A6B;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+header{background:#1B3A6B;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
 header h1{color:white;font-size:16px;font-weight:800;}
 header p{color:rgba(255,255,255,.7);font-size:12px;margin-top:2px;}
-.container{max-width:900px;margin:0 auto;padding:20px;}
-.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
-.card{background:white;border-radius:10px;padding:14px 16px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
-.card-num{font-size:24px;font-weight:800;color:#1B3A6B;}
-.card-label{font-size:11px;color:#64748B;margin-top:2px;}
-.pay-period{background:white;border-radius:12px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden;}
-.pay-header{background:#1B3A6B;color:white;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
-.pay-date{font-size:16px;font-weight:800;}
-.pay-period-label{font-size:12px;opacity:.75;}
-.pay-total{font-size:18px;font-weight:800;color:#C9A84C;}
+.auto-badge{background:#DCFCE7;color:#166534;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.container{max-width:1000px;margin:0 auto;padding:20px;}
+.period-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.period-btn{padding:7px 16px;background:white;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:#64748B;}
+.period-btn.active{background:#1B3A6B;color:white;border-color:#1B3A6B;}
+.summary-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
+.sc{background:white;border-radius:10px;padding:12px 14px;box-shadow:0 2px 6px rgba(0,0,0,.05);text-align:center;}
+.sn{font-size:22px;font-weight:800;color:#1B3A6B;}
+.sl{font-size:11px;color:#64748B;margin-top:2px;}
+.payroll-card{background:white;border-radius:12px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden;}
+.pc-header{background:#1B3A6B;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
+.pc-date{color:white;font-size:15px;font-weight:800;}
+.pc-period{color:rgba(255,255,255,.75);font-size:12px;}
+.pc-total{color:#C9A84C;font-size:20px;font-weight:800;}
 table{width:100%;border-collapse:collapse;}
-th{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;padding:10px 16px;border-bottom:2px solid #F1F5F9;text-align:left;}
-td{font-size:13px;padding:10px 16px;border-bottom:1px solid #F8FAFC;color:#1E293B;}
+th{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;padding:10px 16px;border-bottom:2px solid #F1F5F9;text-align:left;}
+td{font-size:13px;padding:11px 16px;border-bottom:1px solid #F8FAFC;color:#1E293B;vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
+.base{color:#1B3A6B;font-weight:700;}
+.bonus{color:#166534;font-weight:700;}
+.total-pay{font-weight:800;font-size:14px;color:#1B3A6B;}
 .held{background:#FFFBEB;}
-.amount{font-weight:700;color:#166534;}
-.note{font-size:11px;color:#C9A84C;font-weight:600;}
-.daily{font-size:11px;color:#64748B;}
-.total-row td{font-weight:800;background:#F8FAFC;font-size:14px;}
-.status-active{display:inline-block;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
-.status-held{display:inline-block;background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.held-badge{background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;display:inline-block;}
+.paid-badge{background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;display:inline-block;}
+.tr-total{background:#F8FAFC;font-weight:800;}
+.deduct-note{font-size:11px;color:#DC2626;}
+.daily-rate{font-size:11px;color:#64748B;}
 .print-btn{padding:8px 18px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:16px;}
-.print-btn:hover{background:#153060;}
-@media print{header{background:#1B3A6B!important;-webkit-print-color-adjust:exact;} .print-btn{display:none;}}
+@media print{.print-btn,.period-bar{display:none;}}
 </style>
 </head>
 <body>
 <header>
   <div>
-    <h1>💰 CP Restoration Services — Payroll Schedule</h1>
-    <p>Bi-weekly | First week held | Daily rate = Weekly ÷ 5 days</p>
+    <h1>💰 Payroll Dashboard — CP Restoration Services</h1>
+    <p>Auto-calculates base pay + bonuses from work_log • Updates in real time</p>
   </div>
+  <span class="auto-badge">🔄 AUTO-CALCULATED</span>
 </header>
-
 <div class="container">
   <button class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
 
-  <div class="summary-cards">
-    <div class="card"><div class="card-num">8</div><div class="card-label">Active Employees</div></div>
-    <div class="card"><div class="card-num">$450</div><div class="card-label">Oct 9 Payroll</div></div>
-    <div class="card"><div class="card-num">$1,280</div><div class="card-label">Oct 23 Payroll</div></div>
-    <div class="card"><div class="card-num">$2,100</div><div class="card-label">Nov 6+ Payroll</div></div>
+  <div class="period-bar">
+    <button class="period-btn active" onclick="showPeriod('upcoming',this)">📅 Upcoming Pay Dates</button>
+    <button class="period-btn" onclick="showPeriod('history',this)">📋 Pay History</button>
+    <button class="period-btn" onclick="showPeriod('deductions',this)">⚠️ Deductions</button>
   </div>
 
-  <!-- OCT 9 -->
-  <div class="pay-period">
-    <div class="pay-header">
-      <div><div class="pay-date">📅 October 9, 2026</div><div class="pay-period-label">Work period: Sep 21 – Oct 2, 2026</div></div>
-      <div class="pay-total">$450.00</div>
-    </div>
-    <table>
-      <thead><tr><th>Employee</th><th>Role</th><th>Days</th><th>Daily Rate</th><th>Amount</th><th>Notes</th></tr></thead>
-      <tbody>
-        <tr class="held"><td><strong>Queen Jearel Cruz</strong></td><td>Compliance</td><td>0 payable</td><td>$40.00</td><td class="amount">$200.00</td><td><span class="note">⚠️ First week held — releasing held week from Sep 21-25</span></td></tr>
-        <tr class="held"><td><strong>Bukunmi Aina</strong></td><td>Lead Gen</td><td>0 payable</td><td>$50.00</td><td class="amount">$250.00</td><td><span class="note">⚠️ First week held — releasing held week from Sep 21-25</span></td></tr>
-        <tr class="total-row"><td colspan="4">TOTAL</td><td class="amount">$450.00</td><td></td></tr>
-      </tbody>
-    </table>
+  <div class="summary-strip">
+    <div class="sc"><div class="sn" id="s-next">$0</div><div class="sl">Next Payroll Amount</div></div>
+    <div class="sc"><div class="sn" id="s-next-date">—</div><div class="sl">Next Pay Date</div></div>
+    <div class="sc"><div class="sn" id="s-total-bonus">$0</div><div class="sl">Bonuses This Period</div></div>
+    <div class="sc"><div class="sn" id="s-headcount">8</div><div class="sl">Active Employees</div></div>
   </div>
 
-  <!-- OCT 23 -->
-  <div class="pay-period">
-    <div class="pay-header">
-      <div><div class="pay-date">📅 October 23, 2026</div><div class="pay-period-label">Work period: Oct 5 – Oct 16, 2026</div></div>
-      <div class="pay-total">$1,280.00</div>
-    </div>
-    <table>
-      <thead><tr><th>Employee</th><th>Role</th><th>Days Payable</th><th>Daily Rate</th><th>Amount</th><th>Notes</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Queen Jearel Cruz</strong></td><td>Compliance</td><td>10 days</td><td>$40.00</td><td class="amount">$400.00</td><td><span class="status-active">Full period</span></td></tr>
-        <tr class="held"><td><strong>Elna Palabrica</strong></td><td>CS Agent</td><td>5 days</td><td>$20.00</td><td class="amount">$100.00</td><td><span class="note">⚠️ First week (Oct 5-9) held</span></td></tr>
-        <tr class="held"><td><strong>Alec Sarrosa</strong></td><td>CS Agent</td><td>5 days</td><td>$20.00</td><td class="amount">$100.00</td><td><span class="note">⚠️ First week (Oct 5-9) held</span></td></tr>
-        <tr class="held"><td><strong>Marcelo Torres</strong></td><td>Dispute</td><td>3 days</td><td>$20.00</td><td class="amount">$60.00</td><td><span class="note">⚠️ Started Oct 7, first week held — paid Oct 9-11</span></td></tr>
-        <tr class="held"><td><strong>Kimwell Ablaza</strong></td><td>Dispute</td><td>3 days</td><td>$20.00</td><td class="amount">$60.00</td><td><span class="note">⚠️ Started Oct 7, first week held — paid Oct 9-11</span></td></tr>
-        <tr class="held"><td><strong>Annabel Curada</strong></td><td>Dispute</td><td>3 days</td><td>$20.00</td><td class="amount">$60.00</td><td><span class="note">⚠️ Started Oct 7, first week held — paid Oct 9-11</span></td></tr>
-        <tr><td><strong>Bukunmi Aina</strong></td><td>Lead Gen</td><td>10 days</td><td>$50.00</td><td class="amount">$500.00</td><td><span class="status-active">Full period</span></td></tr>
-        <tr><td><strong>Fatima Charfina Caasi</strong></td><td>Bureau Caller</td><td>—</td><td>$20.00</td><td class="amount">$0.00</td><td><span class="note">Starts Oct 12 — first week held</span></td></tr>
-        <tr class="total-row"><td colspan="4">TOTAL</td><td class="amount">$1,280.00</td><td></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- NOV 6 -->
-  <div class="pay-period">
-    <div class="pay-header">
-      <div><div class="pay-date">📅 November 6, 2026</div><div class="pay-period-label">Work period: Oct 19 – Oct 30, 2026</div></div>
-      <div class="pay-total">$2,100.00</div>
-    </div>
-    <table>
-      <thead><tr><th>Employee</th><th>Role</th><th>Days</th><th>Daily Rate</th><th>Amount</th><th>Notes</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Queen Jearel Cruz</strong></td><td>Compliance</td><td>10</td><td>$40.00</td><td class="amount">$400.00</td><td></td></tr>
-        <tr><td><strong>Elna Palabrica</strong></td><td>CS Agent</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
-        <tr><td><strong>Alec Sarrosa</strong></td><td>CS Agent</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
-        <tr><td><strong>Marcelo Torres</strong></td><td>Dispute</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
-        <tr><td><strong>Kimwell Ablaza</strong></td><td>Dispute</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
-        <tr><td><strong>Annabel Curada</strong></td><td>Dispute</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
-        <tr><td><strong>Bukunmi Aina</strong></td><td>Lead Gen</td><td>10</td><td>$50.00</td><td class="amount">$500.00</td><td></td></tr>
-        <tr><td><strong>Fatima Charfina Caasi</strong></td><td>Bureau Caller</td><td>10</td><td>$20.00</td><td class="amount">$200.00</td><td></td></tr>
-        <tr class="total-row"><td colspan="4">TOTAL</td><td class="amount">$2,100.00</td><td></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- RECURRING NOTE -->
-  <div style="background:white;border-radius:12px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:16px;">
-    <div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;">📋 Nov 20, Dec 4, Dec 18... (every 2 weeks)</div>
-    <div style="font-size:13px;color:#374151;">All 8 employees — <strong>$2,100.00 per pay period</strong> — unless someone leaves or days off are taken.</div>
-    <div style="font-size:12px;color:#64748B;margin-top:6px;">Prorated formula: <strong>Days worked × (Weekly rate ÷ 5)</strong>. Day off = deduct 1 day's pay from that period.</div>
-  </div>
-
-  <div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:10px;padding:14px 16px;font-size:12px;color:#92400E;">
-    <strong>⚠️ Adjustment rule:</strong> If an employee misses a day, deduct 1 day's pay from their next paycheck. 
-    Example: Elna misses 1 day → $100 ÷ 5 = $20 deducted. Always pay for actual days worked only.
-  </div>
+  <div id="payroll-content"></div>
 </div>
+
+<script>
+var _KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var _SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var _HDR  = {'apikey':_KEY,'Authorization':'Bearer '+_KEY};
+
+// Employee roster with start dates and weekly pay
+var ROSTER = [
+  {name:'Queen Jearel Cruz',    email:'queen@mycprteam.com',    role:'Compliance',  start:'2026-09-21', weekly:200, dept:'Compliance'},
+  {name:'Elna Palabrica',       email:'elna@mycprteam.com',     role:'CS Agent',    start:'2026-10-05', weekly:100, dept:'CS'},
+  {name:'Alec Sarrosa',         email:'alec@mycprteam.com',     role:'CS Agent',    start:'2026-10-05', weekly:100, dept:'CS'},
+  {name:'Marcelo Torres',       email:'marcelo@mycprteam.com',  role:'Dispute',     start:'2026-10-07', weekly:100, dept:'Dispute'},
+  {name:'Kimwell Ablaza',       email:'kimwell@mycprteam.com',  role:'Dispute',     start:'2026-10-07', weekly:100, dept:'Dispute'},
+  {name:'Annabel Curada',       email:'annabel@mycprteam.com',  role:'Dispute',     start:'2026-10-07', weekly:100, dept:'Dispute'},
+  {name:'Bukunmi Aina',         email:'bukunmi@mycprteam.com',  role:'Lead Gen',    start:'2026-09-21', weekly:250, dept:'Lead Gen'},
+  {name:'Fatima Charfina Caasi',email:'fcacaasi@gmail.com',     role:'Bureau',      start:'2026-10-12', weekly:100, dept:'Bureau'},
+];
+
+// Pay periods — bi-weekly, first week held
+var PAY_PERIODS = [
+  {payDate:'2026-10-09', workStart:'2026-09-21', workEnd:'2026-10-02', label:'Oct 9, 2026'},
+  {payDate:'2026-10-23', workStart:'2026-10-05', workEnd:'2026-10-16', label:'Oct 23, 2026'},
+  {payDate:'2026-11-06', workStart:'2026-10-19', workEnd:'2026-10-30', label:'Nov 6, 2026'},
+  {payDate:'2026-11-20', workStart:'2026-11-02', workEnd:'2026-11-13', label:'Nov 20, 2026'},
+  {payDate:'2026-12-04', workStart:'2026-11-16', workEnd:'2026-11-27', label:'Dec 4, 2026'},
+  {payDate:'2026-12-18', workStart:'2026-11-30', workEnd:'2026-12-11', label:'Dec 18, 2026'},
+];
+
+function workDays(startStr, fromStr, toStr) {
+  var start = new Date(startStr);
+  var from  = new Date(fromStr);
+  var to    = new Date(toStr);
+  var begin = start > from ? start : from;
+  if (begin > to) return 0;
+  var days = 0;
+  var d = new Date(begin);
+  while (d <= to) {
+    if (d.getDay() > 0 && d.getDay() < 6) days++;
+    d.setDate(d.getDate()+1);
+  }
+  return days;
+}
+
+function isFirstPeriod(emp, period) {
+  // First period where employee has any days
+  var start = new Date(emp.start);
+  var pStart = new Date(period.workStart);
+  return start <= new Date(period.workEnd);
+}
+
+function calcPay(emp, period, bonuses) {
+  var daily = emp.weekly / 5;
+  var daysInPeriod = workDays(emp.start, period.workStart, period.workEnd);
+  if (daysInPeriod === 0) return {base:0, bonus:0, total:0, held:false, days:0, note:'Not yet started'};
+
+  // Is this the FIRST period the employee appears in?
+  var prevPeriod = PAY_PERIODS.indexOf(period) > 0 ? PAY_PERIODS[PAY_PERIODS.indexOf(period)-1] : null;
+  var hadPrevDays = prevPeriod ? workDays(emp.start, prevPeriod.workStart, prevPeriod.workEnd) > 0 : false;
+
+  var held = !hadPrevDays; // First period = holding first 5 days
+  var payableDays = held ? Math.max(0, daysInPeriod - 5) : daysInPeriod;
+  var base = Math.round(daily * payableDays * 100) / 100;
+
+  // Get bonus for this period from work_log
+  var bonus = bonuses[emp.email] || 0;
+
+  return {
+    base: base,
+    bonus: bonus,
+    total: base + bonus,
+    held: held,
+    days: payableDays,
+    note: held ? 'First week held ('+daysInPeriod+' days worked, 5 held)' : payableDays+' days × $'+daily.toFixed(2)
+  };
+}
+
+var _bonuses = {};
+
+async function loadBonuses(workStart, workEnd) {
+  _bonuses = {};
+  try {
+    // Get bonuses from work_log for this period
+    var r = await fetch(_SUPA+'/work_log?week_start=gte.'+workStart+'&week_start=lte.'+workEnd+'&compliance_status=eq.approved&select=employee_email,department,quantity,details',{headers:_HDR});
+    var logs = await r.json();
+    if (!Array.isArray(logs)) return;
+    var counts = {};
+    logs.forEach(function(l){
+      var k=l.employee_email;
+      if(!counts[k]) counts[k]={disputes:0,cs:0,bureau:0,revenue:0};
+      if(l.department==='Dispute') counts[k].disputes+=(l.quantity||1);
+      if(l.department==='CS') counts[k].cs+=(l.quantity||1);
+      if(l.department==='Bureau') counts[k].bureau+=(l.quantity||1);
+      if(l.department==='Sales'){
+        var m=((l.details||'').match(/Amount:\s*\$?([\d.]+)/)||[,'0']);
+        counts[k].revenue+=parseFloat(m[1])||0;
+      }
+    });
+    Object.keys(counts).forEach(function(email){
+      var c=counts[email];
+      var b=0;
+      if(c.disputes>=100) b+=50;
+      else if(c.disputes>=50) b+=25;
+      if(c.cs>=50) b+=25;
+      if(c.bureau>=50) b+=25;
+      b+=Math.round(c.revenue*0.10*100)/100;
+      _bonuses[email]=b;
+    });
+  } catch(e) {}
+}
+
+async function showPeriod(view, btn) {
+  document.querySelectorAll('.period-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+
+  var content = document.getElementById('payroll-content');
+  var today = new Date();
+
+  if (view === 'upcoming') {
+    var upcoming = PAY_PERIODS.filter(function(p){return new Date(p.payDate)>=today;}).slice(0,3);
+    var html = '';
+    var nextTotal = 0;
+
+    for (var pi=0; pi<upcoming.length; pi++) {
+      var p = upcoming[pi];
+      await loadBonuses(p.workStart, p.workEnd);
+      var periodTotal = 0; var periodBonus = 0;
+      var rows = ROSTER.map(function(emp) {
+        var pay = calcPay(emp, p, _bonuses);
+        periodTotal += pay.total;
+        periodBonus += pay.bonus;
+        if (pay.total === 0 && !pay.held) return '';
+        return '<tr class="'+(pay.held&&pay.base===0?'held':'')+'">'+
+          '<td><strong>'+emp.name+'</strong><div class="daily-rate">$'+emp.weekly+'/wk — $'+(emp.weekly/5).toFixed(2)+'/day</div></td>'+
+          '<td>'+emp.role+'</td>'+
+          '<td class="base">$'+pay.base.toFixed(2)+'</td>'+
+          '<td class="bonus">'+(pay.bonus>0?'+$'+pay.bonus.toFixed(2):'—')+'</td>'+
+          '<td class="total-pay">$'+pay.total.toFixed(2)+'</td>'+
+          '<td>'+(pay.held&&pay.base===0?'<span class="held-badge">⏳ First week held</span>':pay.note)+'</td>'+
+        '</tr>';
+      }).filter(Boolean);
+      rows.push('<tr class="tr-total"><td colspan="2">TOTAL</td><td>—</td><td class="bonus">+$'+periodBonus.toFixed(2)+'</td><td>$'+periodTotal.toFixed(2)+'</td><td></td></tr>');
+      if (pi===0) { nextTotal=periodTotal; }
+      html += '<div class="payroll-card">'+
+        '<div class="pc-header"><div><div class="pc-date">📅 '+p.label+'</div><div class="pc-period">Work period: '+p.workStart+' to '+p.workEnd+'</div></div><div class="pc-total">$'+periodTotal.toFixed(2)+'</div></div>'+
+        '<table><thead><tr><th>Employee</th><th>Role</th><th>Base Pay</th><th>Bonus</th><th>Total</th><th>Notes</th></tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+    }
+    content.innerHTML = html;
+    document.getElementById('s-next').textContent='$'+nextTotal.toFixed(2);
+    document.getElementById('s-next-date').textContent=upcoming.length?upcoming[0].label:'—';
+    var tb=Object.values(_bonuses).reduce(function(s,v){return s+v;},0);
+    document.getElementById('s-total-bonus').textContent='$'+tb.toFixed(2);
+
+  } else if (view === 'history') {
+    var past = PAY_PERIODS.filter(function(p){return new Date(p.payDate)<today;});
+    if (!past.length) { content.innerHTML='<div style="text-align:center;padding:32px;color:#94A3B8;">No past pay dates yet.</div>'; return; }
+    var html='';
+    for(var pi=0; pi<past.length; pi++){
+      var p=past[pi];
+      await loadBonuses(p.workStart, p.workEnd);
+      var periodTotal=0;
+      var rows=ROSTER.map(function(emp){
+        var pay=calcPay(emp,p,_bonuses);
+        periodTotal+=pay.total;
+        if(pay.total===0) return '';
+        return '<tr><td><strong>'+emp.name+'</strong></td><td>'+emp.role+'</td>'+
+          '<td class="base">$'+pay.base.toFixed(2)+'</td>'+
+          '<td class="bonus">'+(pay.bonus>0?'+$'+pay.bonus.toFixed(2):'—')+'</td>'+
+          '<td class="total-pay">$'+pay.total.toFixed(2)+'</td>'+
+          '<td><span class="paid-badge">✅ Paid</span></td></tr>';
+      }).filter(Boolean);
+      rows.push('<tr class="tr-total"><td colspan="4">TOTAL PAID</td><td>$'+periodTotal.toFixed(2)+'</td><td></td></tr>');
+      html+='<div class="payroll-card">'+
+        '<div class="pc-header"><div><div class="pc-date">📅 '+p.label+'</div><div class="pc-period">Work period: '+p.workStart+' to '+p.workEnd+'</div></div><div class="pc-total">$'+periodTotal.toFixed(2)+'</div></div>'+
+        '<table><thead><tr><th>Employee</th><th>Role</th><th>Base</th><th>Bonus</th><th>Total Paid</th><th>Status</th></tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+    }
+    content.innerHTML=html;
+  } else {
+    content.innerHTML='<div style="background:white;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.05);">'+
+      '<h3 style="font-size:15px;font-weight:800;margin-bottom:12px;color:#DC2626;">⚠️ Deduction Rules</h3>'+
+      '<p style="font-size:13px;color:#374151;margin-bottom:10px;">Daily rate = Weekly pay ÷ 5. Each missed day deducts that amount from the next paycheck.</p>'+
+      '<table><thead><tr><th>Employee</th><th>Weekly Pay</th><th>Daily Rate</th><th>1 Day Off Cost</th></tr></thead><tbody>'+
+      ROSTER.map(function(e){return '<tr><td>'+e.name+'</td><td>$'+e.weekly+'</td><td>$'+(e.weekly/5).toFixed(2)+'</td><td class="deduct-note">-$'+(e.weekly/5).toFixed(2)+'</td></tr>';}).join('')+
+      '</tbody></table></div>';
+  }
+}
+
+// Init
+showPeriod('upcoming', null);
+</script>
 </body>
 </html>
