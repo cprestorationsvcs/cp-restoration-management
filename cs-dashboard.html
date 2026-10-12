@@ -1075,7 +1075,7 @@ async function notifyCompliance(type){
 // ── RIGHT TABS ──
 function showRTab(tab){
   activeRTab=tab;
-  ['info','logins','disputes','log','messages','payment'].forEach(function(t){
+  ['info','logins','disputes','log','messages','payment','status','email'].forEach(function(t){
     var el=document.getElementById('rtab-'+t);
     if(el) el.classList.toggle('active',t===tab);
   });
@@ -1085,6 +1085,8 @@ function showRTab(tab){
   else if(tab==='log') renderContactLog();
   else if(tab==='messages') renderClientMessages();
   else if(tab==='payment') loadPaymentPlan(currentClient);
+  else if(tab==='status') renderStatusUpdate();
+  else if(tab==='email') renderEmailClient();
 }
 
 function renderInfo(){
