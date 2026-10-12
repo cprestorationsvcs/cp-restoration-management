@@ -27,7 +27,7 @@ var EMPLOYEES = {
   'jason@mycprteam.com':   { password:'CPRAdmin2026',  name:'Jason Crown',       role:'admin',      label:'Admin',             initials:'JC' },
   'queen@mycprteam.com':   { password:'CPRQueen2026',  name:'Queen Jearel Cruz', role:'compliance', label:'Compliance Officer', initials:'QC' },
   'bukunmi@mycprteam.com': { password:'CPRBuku2026',   name:'Bukunmi Aina',      role:'sales',      label:'Sales Rep',          initials:'BA' },
-  // elna@mycprteam.com — ACCESS SUSPENDED pending investigation (Oct 12 2026)
+  'elna@mycprteam.com':    { password:'CPRElna2026',   name:'Elna Palabrica',    role:'cs',         label:'CS Agent',           initials:'EP' },
 
   'alec@mycprteam.com':    { password:'CPRAlec2026',   name:'Alec Sarrosa',      role:'cs',         label:'CS Agent',           initials:'AS' },
 
