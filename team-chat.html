@@ -244,7 +244,7 @@ function openDataUrl(dataUrl, fileName) {
 }
 
 // ── LOAD MESSAGES ──
-async function loadMessages(initial) {
+async async function loadMessages(initial) {
   try {
     var url = SUPA+'/team_chat?channel=eq.general&order=id.asc&limit=500';
     if (!initial && lastId>0) url += '&id=gt.'+lastId;
