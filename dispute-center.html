@@ -1871,24 +1871,49 @@ function renderLog() {
   });
 
   if(filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:32px;">No disputes found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--gray);padding:32px;">No disputes found.</td></tr>';
     return;
   }
 
   const statusBadge = {Filed:'badge-blue',Pending:'badge-gold',Resolved:'badge-green',Escalated:'badge-red'};
-  tbody.innerHTML = filtered.sort((a,b)=>new Date(b.filedAt)-new Date(a.filedAt)).map(d=>`<tr>
+  tbody.innerHTML = filtered.sort((a,b)=>new Date(b.filedAt)-new Date(a.filedAt)).map(d=>{
+  const now = new Date();
+  const filedDate = new Date(d.filedAt||d.filedDate||d.created_at||'');
+  const daysSince = isNaN(filedDate) ? 0 : Math.floor((now - filedDate)/(1000*60*60*24));
+  const isPending = (d.status||'').toLowerCase().includes('pending') || d.status==='Filed';
+  let bureauCallBadge = '';
+  if(d.bureau_call_needed) {
+    bureauCallBadge = '<span style="background:#FEE2E2;color:#991B1B;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;">🔴 Call Needed</span>';
+  } else if(daysSince >= 10 && isPending) {
+    bureauCallBadge = '<span style="background:#FEE2E2;color:#991B1B;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;">🔴 Overdue</span>';
+  } else if(daysSince >= 7 && isPending) {
+    bureauCallBadge = '<span style="background:#FEF3C7;color:#92400E;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;">🟠 Call Today</span>';
+  } else if(daysSince >= 5 && isPending) {
+    bureauCallBadge = '<span style="background:#FEF9C3;color:#78350F;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;">🟡 Call Soon</span>';
+  } else {
+    bureauCallBadge = '<span style="background:#DCFCE7;color:#166534;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;">🟢 OK</span>';
+  }
+  const refNums = [
+    d.eq_conf_num ? '<div style="font-size:10px;"><span style="color:#8B0000;font-weight:700;">EQ:</span> '+d.eq_conf_num+'</div>' : '',
+    d.ex_conf_num ? '<div style="font-size:10px;"><span style="color:#C62828;font-weight:700;">EX:</span> '+d.ex_conf_num+'</div>' : '',
+    d.tu_conf_num ? '<div style="font-size:10px;"><span style="color:#1B5E20;font-weight:700;">TU:</span> '+d.tu_conf_num+'</div>' : ''
+  ].filter(Boolean).join('') || '<span style="color:#94A3B8;font-size:11px;">Not logged</span>';
+  return `<tr>
     <td>${d.filedDate}</td>
     <td><strong>${d.clientName}</strong><br><span class="badge badge-blue">${d.clientId}</span></td>
     <td>${(d.bureaus||[]).map(b=>`<span class="badge badge-gray" style="margin-right:2px;">${b.substring(0,2)}</span>`).join('')}</td>
     <td>${(d.items||[]).length} item${(d.items||[]).length!==1?'s':''}</td>
+    <td style="line-height:1.6;">${refNums}</td>
     <td>${d.specialist||'—'}</td>
     <td><span class="badge ${statusBadge[d.status]||'badge-gray'}">${d.status}</span></td>
+    <td>${bureauCallBadge}</td>
     <td style="font-size:12px;color:var(--gray);">${d.nextAction||'—'}</td>
     <td style="display:flex;gap:4px;">
       <button class="btn btn-outline btn-sm" onclick="openDisputeDetail(${disputes.indexOf(d)})">📂 Open</button>
       <button class="btn btn-blue btn-sm" onclick="viewTimeline('${d.clientId}')">Timeline</button>
     </td>
-  </tr>`).join('');
+  </tr>`;
+}).join('');
 }
 
 function updateStatus(idx) {
