@@ -857,6 +857,14 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
             <option value="">All Status</option>
             <option>Filed</option><option>Pending</option><option>Resolved</option><option>Escalated</option>
           </select>
+          <select id="log-filter-bureau-call" onchange="renderLog()" style="padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;">
+            <option value="">📞 All Bureau Call Status</option>
+            <option value="overdue">🔴 Overdue (10+ days)</option>
+            <option value="call-today">🟠 Call Today (7-10 days)</option>
+            <option value="call-soon">🟡 Call Soon (5-7 days)</option>
+            <option value="call-needed">🔴 Manually Flagged</option>
+            <option value="ok">🟢 No Call Needed</option>
+          </select>
         </div>
       </div>
       <div class="table-wrap">
@@ -1863,11 +1871,25 @@ function renderLog() {
   const bureauFilter = document.getElementById('log-filter-bureau')?.value || '';
   const statusFilter = document.getElementById('log-filter-status')?.value || '';
 
+  const bureauCallFilter = document.getElementById('log-filter-bureau-call')?.value || '';
+  const now = new Date();
   let filtered = disputes.filter(d => {
     const matchSearch = !search || (d.clientName||'').toLowerCase().includes(search) || (d.clientId||'').toLowerCase().includes(search);
     const matchBureau = !bureauFilter || (d.bureaus||[]).includes(bureauFilter);
     const matchStatus = !statusFilter || d.status === statusFilter;
-    return matchSearch && matchBureau && matchStatus;
+    // Bureau call filter
+    let matchBureauCall = true;
+    if(bureauCallFilter) {
+      const filed = new Date(d.filedAt||d.filedDate||d.created_at||'');
+      const days = isNaN(filed) ? 0 : Math.floor((now - filed)/(1000*60*60*24));
+      const isPending = (d.status||'').toLowerCase().includes('pending') || d.status==='Filed';
+      if(bureauCallFilter === 'call-needed') matchBureauCall = !!d.bureau_call_needed;
+      else if(bureauCallFilter === 'overdue')    matchBureauCall = !d.bureau_call_needed && days >= 10 && isPending;
+      else if(bureauCallFilter === 'call-today') matchBureauCall = !d.bureau_call_needed && days >= 7 && days < 10 && isPending;
+      else if(bureauCallFilter === 'call-soon')  matchBureauCall = !d.bureau_call_needed && days >= 5 && days < 7 && isPending;
+      else if(bureauCallFilter === 'ok')         matchBureauCall = !d.bureau_call_needed && (days < 5 || !isPending);
+    }
+    return matchSearch && matchBureau && matchStatus && matchBureauCall;
   });
 
   if(filtered.length === 0) {
