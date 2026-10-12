@@ -389,6 +389,20 @@ async function viewClient(clientId) {
       ['Start Date', c.start_date||'—'], ['Assigned To', c.assigned_to||'—'],
       ['Address', c.address||'—'], ['Notes', c.notes||'—']
     ];
+    // Bureau logins section
+    var hasLogins = c.experian_username || c.equifax_pin || c.smartcredit_username;
+    if (hasLogins) {
+      html += '<div style="margin-top:16px;padding:14px;background:#1B3A6B;border-radius:10px;color:white;">';
+      html += '<div style="font-size:12px;font-weight:800;letter-spacing:1px;margin-bottom:10px;opacity:.7;">🔐 BUREAU LOGINS</div>';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:12px;">';
+      if(c.experian_username) html += '<div><div style="opacity:.6;font-size:10px;margin-bottom:2px;">EXPERIAN USER</div><div style="font-weight:700;">'+(c.experian_username||'—')+'</div></div>';
+      if(c.experian_password) html += '<div><div style="opacity:.6;font-size:10px;margin-bottom:2px;">EXPERIAN PASS</div><div style="font-weight:700;">'+(c.experian_password||'—')+'</div></div>';
+      if(c.equifax_pin) html += '<div><div style="opacity:.6;font-size:10px;margin-bottom:2px;">EQUIFAX PIN</div><div style="font-weight:700;">'+(c.equifax_pin||'—')+'</div></div>';
+      if(c.smartcredit_username) html += '<div><div style="opacity:.6;font-size:10px;margin-bottom:2px;">SMART CREDIT USER</div><div style="font-weight:700;">'+(c.smartcredit_username||'—')+'</div></div>';
+      if(c.smartcredit_password) html += '<div><div style="opacity:.6;font-size:10px;margin-bottom:2px;">SMART CREDIT PASS</div><div style="font-weight:700;">'+(c.smartcredit_password||'—')+'</div></div>';
+      if(c.bureau_email) html += '<div><div style="opacity:.6;font-size:10px;margin-bottom:2px;">BUREAU EMAIL</div><div style="font-weight:700;">'+(c.bureau_email||'—')+'</div></div>';
+      html += '</div></div>';
+    }
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
     fields.forEach(function(f) {
       html += '<div style="background:#F8FAFC;border-radius:8px;padding:10px 12px;">' +
