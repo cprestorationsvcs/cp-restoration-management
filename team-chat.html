@@ -155,19 +155,22 @@ function initUser() {
       '<div style="font-size:40px;margin-bottom:12px;">&#128274;</div>' +
       '<div style="font-size:14px;font-weight:600;">Please <a href="https://portal-cprestorationsvcs.com" style="color:#1B3A6B;font-weight:800;">log into the portal first</a>, then come back to Team Chat.</div>' +
       '</div>';
+    var ib = document.getElementById('input-bar');
+    if(ib) ib.style.display='none';
     return false;
   }
-  // Map role to department color
-  var colors = {admin:'#C9A84C', compliance:'#166534', dispute:'#1B3A6B', cs:'#0891B2', bureau:'#7C3AED', sales:'#C9A84C', staff:'#64748B'};
-  var initials = name.split(' ').map(function(w){return w[0]||'';}).join('').substring(0,2).toUpperCase();
-  currentUser = {name:name, email:email, role:role, initials:initials, color:colors[role]||'#1B3A6B'};
-  // Update header
-  var ni = document.getElementById('user-initials');
-  var nn = document.getElementById('user-name');
-  var nr = document.getElementById('user-role');
-  if(ni) ni.textContent = initials;
-  if(nn) nn.textContent = name;
-  if(nr) nr.textContent = role;
+  var colors={admin:'#1B3A6B',compliance:'#166534',sales:'#92400E',cs:'#7C3AED',dispute:'#1B3A6B',bureau:'#7C3AED'};
+  var color=colors[role.toLowerCase()]||'#1B3A6B';
+  var initials=name.split(' ').map(function(w){return w[0]||'';}).join('').substring(0,2).toUpperCase();
+  currentUser={name:name,email:email,role:role,color:color,initials:initials};
+  var av=document.getElementById('my-avatar');
+  if(av){av.textContent=initials; av.style.background=color;}
+  var mn=document.getElementById('my-name');
+  if(mn) mn.textContent=name;
+  var mr=document.getElementById('my-role');
+  if(mr) mr.textContent=role;
+  var wb=document.getElementById('who-bar');
+  if(wb) wb.style.display='flex';
   return true;
 }
 
