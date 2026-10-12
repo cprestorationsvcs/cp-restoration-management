@@ -175,6 +175,35 @@ async function logWork(actionType, details, clientId, clientName, quantity) {
 }
 // ────────────────────────────────────────────────────────────────────
 
+
+function renderBureauCallBadge(d) {
+  if(!d.date_filed && !d.dateFiled) return '—';
+  var filed = new Date(d.date_filed||d.dateFiled);
+  var now = new Date();
+  var daysSince = Math.floor((now - filed) / (1000*60*60*24));
+  var bdn = d.bureau_call_needed;
+  if(bdn === true || bdn === 'true') {
+    return '<span style="background:#FEE2E2;color:#991B1B;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">🔴 Call Needed</span>';
+  }
+  if(daysSince >= 10 && (d.status||'').toLowerCase().includes('pending')) {
+    return '<span style="background:#FEF3C7;color:#92400E;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">🟠 Overdue</span>';
+  }
+  if(daysSince >= 7 && (d.status||'').toLowerCase().includes('pending')) {
+    return '<span style="background:#FEF9C3;color:#78350F;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">🟡 Call Soon</span>';
+  }
+  return '<span style="background:#DCFCE7;color:#166534;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">🟢 OK</span>';
+}
+
+async function markBureauCallNeeded(disputeId, needed) {
+  try {
+    await fetch(SUPA+'/disputes?id=eq.'+disputeId, {
+      method:'PATCH', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({bureau_call_needed: needed})
+    });
+    await loadDisputes();
+  } catch(e) { console.error(e); }
+}
+
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1584028236255374&ev=PageView&noscript=1"
@@ -832,7 +861,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date Filed</th><th>Client</th><th>Bureaus</th><th>Items Disputed</th><th>Specialist</th><th>Status</th><th>Next Action</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Date Filed</th><th>Client</th><th>Bureaus</th><th>Items Disputed</th><th>Bureau Ref #</th><th>Specialist</th><th>Status</th><th>Bureau Call</th><th>Next Action</th><th>Actions</th></tr></thead>
           <tbody id="log-table"><tr><td colspan="8" style="text-align:center;color:var(--gray);padding:32px;">No disputes filed yet. Use the New Dispute tab to file your first dispute.</td></tr></tbody>
         </table>
       </div>
