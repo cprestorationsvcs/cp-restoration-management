@@ -145,6 +145,47 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fbq('init', '1584028236255374');
 fbq('init', '1362385498386512');
 fbq('track', 'PageView');
+
+function submitBureauQuiz() {
+  var answers = {bq1:'b', bq2:'b', bq3:'c', bq4:'c', bq5:'b'};
+  var score = 0; var total = 5;
+  var allAnswered = true;
+  Object.keys(answers).forEach(function(q) {
+    var sel = document.querySelector('input[name="'+q+'"]:checked');
+    if (!sel) { allAnswered = false; return; }
+    var row = sel.closest('label');
+    if (sel.value === answers[q]) {
+      score++;
+      if(row) row.style.background='#DCFCE7';
+    } else {
+      if(row) row.style.background='#FEE2E2';
+      // Highlight correct
+      var correct = document.querySelector('input[name="'+q+'"][value="'+answers[q]+'"]');
+      if(correct && correct.closest('label')) correct.closest('label').style.background='#DCFCE7';
+    }
+  });
+  if (!allAnswered) { alert('Please answer all questions before submitting.'); return; }
+  var pct = Math.round(score/total*100);
+  var result = document.getElementById('bureau-quiz-result');
+  result.style.display = 'block';
+  if (pct >= 80) {
+    result.style.background = '#DCFCE7';
+    result.style.color = '#166534';
+    result.innerHTML = '🎉 You passed! Score: '+score+'/'+total+' ('+pct+'%) — Click Mark Complete below.';
+    document.getElementById('bureau-complete-btn').style.display = 'block';
+    document.querySelector('button[onclick="submitBureauQuiz()"]').style.display = 'none';
+  } else {
+    result.style.background = '#FEE2E2';
+    result.style.color = '#991B1B';
+    result.innerHTML = '❌ Score: '+score+'/'+total+' ('+pct+'%) — You need 80% to pass. Review the material and try again.';
+    setTimeout(function(){
+      document.querySelectorAll('.quiz-q label').forEach(function(l){l.style.background='';});
+      document.querySelectorAll('.quiz-q input').forEach(function(i){i.checked=false;});
+      result.style.display='none';
+    }, 4000);
+  }
+}
+
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1584028236255374&ev=PageView&noscript=1"
@@ -368,7 +409,67 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
       </ul>
     </div>
 
-    <div style="text-align:center;">
+
+    <hr style="margin:32px 0;border:none;border-top:2px solid #E2E8F0;">
+    <h3 style="font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:6px;">📝 Bureau Calling Quiz</h3>
+    <p style="font-size:13px;color:#64748B;margin-bottom:20px;">Answer all 5 questions correctly to complete this module. You must score 80% or higher to pass.</p>
+
+    <div id="bureau-quiz">
+      <!-- Q1 -->
+      <div class="quiz-q" id="bq1" style="background:white;border:1.5px solid #E2E8F0;border-radius:10px;padding:16px;margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">1. What phone number do you call to check a dispute status with Experian?</div>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq1" value="a"> 1-800-916-8800</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq1" value="b"> 1-888-397-3742</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq1" value="c"> 1-866-349-5191</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq1" value="d"> 1-800-685-1111</label>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quiz-q" id="bq2" style="background:white;border:1.5px solid #E2E8F0;border-radius:10px;padding:16px;margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">2. What information do you need BEFORE calling a bureau on behalf of a client?</div>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq2" value="a"> Only the client's name and phone number</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq2" value="b"> Client's full name, DOB, last 4 SSN, address, and file number</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq2" value="c"> Client's email and credit score</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq2" value="d"> Client's full SSN and bank account number</label>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quiz-q" id="bq3" style="background:white;border:1.5px solid #E2E8F0;border-radius:10px;padding:16px;margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">3. After every bureau call, what must you do?</div>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq3" value="a"> Email the client with the results</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq3" value="b"> Wait for Queen to ask for an update</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq3" value="c"> Log it in the Bureau Caller Dashboard on the portal immediately</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq3" value="d"> Call the client to let them know</label>
+      </div>
+
+      <!-- Q4 -->
+      <div class="quiz-q" id="bq4" style="background:white;border:1.5px solid #E2E8F0;border-radius:10px;padding:16px;margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">4. A client's file is marked CHARGEBACK in the portal. What do you do?</div>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq4" value="a"> Call the bureaus as normal</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq4" value="b"> Ask Queen what to do first</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq4" value="c"> Do NOT call the bureaus for this client</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq4" value="d"> Call only Experian, not the others</label>
+      </div>
+
+      <!-- Q5 -->
+      <div class="quiz-q" id="bq5" style="background:white;border:1.5px solid #E2E8F0;border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:12px;">5. What is your weekly quota as a Bureau Caller and what bonus do you earn for hitting it?</div>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq5" value="a"> 25 calls/week = $10 bonus</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq5" value="b"> 50 calls/week = $25 bonus</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq5" value="c"> 100 calls/week = $50 bonus</label>
+        <label style="display:block;padding:8px;cursor:pointer;border-radius:6px;"><input type="radio" name="bq5" value="d"> 50 calls/week = $50 bonus</label>
+      </div>
+
+      <div id="bureau-quiz-result" style="display:none;border-radius:10px;padding:16px;margin-bottom:16px;text-align:center;font-size:15px;font-weight:700;"></div>
+
+      <div style="text-align:center;">
+        <button onclick="submitBureauQuiz()" style="padding:12px 32px;background:#1B3A6B;color:white;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:12px;">
+          📋 Submit Quiz
+        </button>
+      </div>
+    </div>
+
+    <div id="bureau-complete-btn" style="text-align:center;display:none;">
       <button onclick="markCompleted('bureau')" style="padding:14px 40px;background:#166534;color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">
         ✅ Mark Module Complete
       </button>
