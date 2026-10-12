@@ -251,7 +251,7 @@ async function sendWelcomeEmail(name, email) {
           '<h2 style="color:#1B3A6B;">Hi '+name+', your free guide is attached!</h2>' +
           '<p style="color:#475569;line-height:1.7;">Thank you for downloading <strong>7 Steps to Fix Your Credit in 90 Days</strong>. Inside you will find everything you need to start disputing negative items and improving your credit score.</p>' +
           '<div style="text-align:center;margin:20px 0;">' +
-          '<a href="https://portal-cprestorationsvcs.com/thank-you-guide.html" target="_blank" style="background:#C9A84C;color:#0A1628;padding:16px 32px;border-radius:8px;text-decoration:none;font-weight:800;font-size:16px;display:inline-block;">&#11015; Download Your Free eBook Now</a>' +
+          '<a href="https://portal-cprestorationsvcs.com/ebook.html" target="_blank" style="background:#C9A84C;color:#0A1628;padding:16px 32px;border-radius:8px;text-decoration:none;font-weight:800;font-size:16px;display:inline-block;">&#11015; Download Your Free eBook Now</a>' +
           '</div>' +
           '<p style="color:#475569;line-height:1.7;">If you have questions or would like a <strong>free 15-minute consultation</strong> with one of our credit specialists, reply to this email or call us:</p>' +
           '<div style="text-align:center;margin:24px 0;">' +
@@ -276,7 +276,7 @@ async function submitLead() {
   await saveLead(name, email, phone, 'ebook-funnel-hero');
   await sendWelcomeEmail(name, email);
   // Redirect to thank you page
-  window.location.href = '/thank-you-guide.html';
+  window.location.href = '/ebook.html';
 }
 
 async function submitLead2() {
