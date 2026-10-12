@@ -631,7 +631,7 @@ var _pageLoaders = {
   sendgrid:    loadSendgrid,
   ringcentral: loadRingcentral,
   dashboard:   function(){ if(typeof loadDashboard==='function') loadDashboard(); },
-  clients:     function(){ if(typeof loadClients==='function') loadClients(); },
+  clients:     function(){ loadClientsTable(); },
   disputes:    function(){ if(typeof loadDisputes==='function') loadDisputes(); },
   bureau:      function(){ if(typeof loadBureau==='function') loadBureau(); },
   sales:       function(){ if(typeof loadSales==='function') loadSales(); },
@@ -880,7 +880,8 @@ async function loadDialLog() {
         '<span style="color:var(--gray);font-size:11px;">'+(c.agent||c.rep||'')+'  '+(c.created_at?new Date(c.created_at).toLocaleDateString():'')+'</span></div>';
     }).join('');
   } catch(e) { el.innerHTML='<div style="color:red;padding:20px;">Error: '+e.message+'</div>'; }
-}async function loadClientsTable(search, status, category) {
+}async function loadClients(s,st,cat){ loadClientsTable(s,st,cat); }
+async function loadClientsTable(search, status, category) {
   var tbody = document.getElementById('clients-table') || document.getElementById('clients-tbody');
   if (!tbody) return;
   var s = ((search || (document.getElementById('client-search')||{}).value || '')).toLowerCase().trim();
