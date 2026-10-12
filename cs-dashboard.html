@@ -294,7 +294,7 @@ function renderEmailClient() {
   var c=currentClient;
   document.getElementById('right-body').innerHTML=
     '<div style="padding:4px 0;">' +
-    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:14px;">&#128231; Email Message to Client</div>' +
+    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:12px;">&#128231; Email Message to Client</div>' +
     '<div style="margin-bottom:10px;">' +
     '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">TO</label>' +
     '<input value="'+(c.email||'')+'" readonly style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;background:#F8FAFC;">' +
@@ -305,24 +305,67 @@ function renderEmailClient() {
     '</div>' +
     '<div style="margin-bottom:10px;">' +
     '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">MESSAGE</label>' +
-    '<textarea id="email-body" placeholder="Write your message to the client here..." style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;min-height:140px;resize:vertical;"></textarea>' +
+    '<div style="border:1.5px solid #E2E8F0;border-radius:8px;overflow:hidden;">' +
+    // Toolbar
+    '<div style="background:#F8FAFC;border-bottom:1.5px solid #E2E8F0;padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;">' +
+    '<button type="button" onclick="execCmd('bold')" title="Bold" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-weight:700;font-size:12px;">B</button>' +
+    '<button type="button" onclick="execCmd('italic')" title="Italic" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-style:italic;font-size:12px;">I</button>' +
+    '<button type="button" onclick="execCmd('underline')" title="Underline" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>' +
+    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
+    '<button type="button" onclick="execCmd('insertUnorderedList')" title="Bullet list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">• List</button>' +
+    '<button type="button" onclick="execCmd('insertOrderedList')" title="Numbered list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">1. List</button>' +
+    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
+    '<button type="button" onclick="insertEmailLink()" title="Insert link" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">🔗 Link</button>' +
+    '<button type="button" onclick="execCmd('removeFormat')" title="Clear formatting" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">✕ Clear</button>' +
     '</div>' +
-    '<div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;">' +
+    // Editable content area
+    '<div id="email-body-editor" contenteditable="true" style="min-height:140px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;line-height:1.6;" placeholder="Write your message here..."></div>' +
+    '</div>' +
+    '</div>' +
+    '<div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;">' +
     '<input type="checkbox" id="email-post-portal" checked style="accent-color:#1B3A6B;transform:scale(1.2);">' +
-    '<label for="email-post-portal" style="font-size:12px;color:#64748B;">Also post copy to Client Portal → Messages tab</label>' +
+    '<label for="email-post-portal" style="font-size:12px;color:#64748B;">Also post copy to Client Portal → Email Messages tab</label>' +
     '</div>' +
-    '<button onclick="sendClientEmail()" style="padding:10px 20px;background:#C9A84C;color:#0A1628;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">&#128231; Send Email to Client</button>' +
+    '<div style="margin-bottom:14px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">SEND OPTIONS</label>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<button onclick="sendClientEmail('email-only')" style="flex:1;padding:10px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send Email Only</button>' +
+    '<button onclick="sendClientEmail('email-portal')" style="flex:1;padding:10px;background:#C9A84C;color:#0A1628;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send + Post to Portal</button>' +
+    '</div></div>' +
     '<div id="email-sent-history" style="margin-top:16px;"></div>' +
     '</div>';
   loadEmailHistory(c.id);
+  // Set placeholder behavior on contenteditable
+  setTimeout(function(){
+    var ed = document.getElementById('email-body-editor');
+    if(!ed) return;
+    ed.addEventListener('focus', function(){if(this.innerHTML==='<br>'||!this.textContent.trim())this.innerHTML='';});
+    ed.addEventListener('blur',  function(){if(!this.textContent.trim())this.innerHTML='';});
+  },100);
 }
 
-async function sendClientEmail() {
+function execCmd(cmd, val) {
+  document.getElementById('email-body-editor').focus();
+  document.execCommand(cmd, false, val||null);
+}
+
+function insertEmailLink() {
+  var url = prompt('Enter URL:','https://');
+  if(!url) return;
+  var text = prompt('Link text:','Click here');
+  if(!text) text = url;
+  document.getElementById('email-body-editor').focus();
+  document.execCommand('insertHTML', false, '<a href="'+url+'" target="_blank">'+text+'</a>');
+}
+
+async function sendClientEmail(mode) {
   if(!currentClient) return;
   var subject = (document.getElementById('email-subject')||{}).value||'';
-  var body    = (document.getElementById('email-body')   ||{}).value||'';
-  var postPortal = (document.getElementById('email-post-portal')||{}).checked;
-  if(!subject||!body){alert('Please enter a subject and message.');return;}
+  var editor  = document.getElementById('email-body-editor');
+  var bodyHtml = editor ? editor.innerHTML : '';
+  var bodyText = editor ? editor.innerText : '';
+  var postPortal = mode === 'email-portal' || (document.getElementById('email-post-portal')||{}).checked;
+  if(!subject||!bodyText.trim()){alert('Please enter a subject and message.');return;}
   var btn = event.target;
   btn.textContent='Sending...'; btn.disabled=true;
   try {
@@ -332,7 +375,7 @@ async function sendClientEmail() {
         to: currentClient.email,
         clientName: currentClient.name,
         subject: subject,
-        body: body,
+        body: bodyHtml,
         from: 'CP Restoration Services <info@35daycreditrepair.com>'
       })
     });
@@ -344,7 +387,7 @@ async function sendClientEmail() {
         client_name: currentClient.name,
         client_email: currentClient.email,
         subject: subject,
-        body: body,
+        body: bodyHtml,
         sent_by: currentUser,
         sent_by_name: localStorage.getItem('cp_logged_in_name')||'CS Agent',
         sent_at: new Date().toISOString(),
@@ -382,9 +425,17 @@ async function loadEmailHistory(clientId) {
     if(!Array.isArray(data)||!data.length) return;
     el.innerHTML='<div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:8px;letter-spacing:.5px;">SENT EMAILS</div>'+
       data.map(function(e){
+        var statusBadge = e.status==='viewed'
+          ? '<span style="background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">👁 Viewed</span>'
+          : e.status==='delivered'
+          ? '<span style="background:#EFF6FF;color:#1B3A6B;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">✓ Delivered</span>'
+          : '<span style="background:#F1F5F9;color:#64748B;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">✉ Sent</span>';
         return '<div style="padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;background:#F8FAFC;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
           '<div style="font-size:12px;font-weight:700;color:#1B3A6B;">&#128231; '+e.subject+'</div>' +
-          '<div style="font-size:11px;color:#94A3B8;margin-top:3px;">'+(e.sent_by_name||'CS Agent')+' · '+new Date(e.sent_at).toLocaleString()+
+          statusBadge +
+          '</div>' +
+          '<div style="font-size:11px;color:#94A3B8;">'+(e.sent_by_name||'CS Agent')+' · '+new Date(e.sent_at).toLocaleString()+
           (e.posted_to_portal?' · <span style="color:#166534;">Posted to Portal</span>':'')+'</div>' +
           '</div>';
       }).join('');
