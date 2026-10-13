@@ -336,83 +336,82 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
         <p>Select the service that fits your goals and budget. You can ask questions before committing.</p>
       </div>
       <div class="card-body">
-        <div class="alert alert-gold">💡 Not sure which to choose? Most clients with multiple negative items across all three bureaus start with Standard or Express. If you only have inquiries or one bureau, scroll down for those options.</div>
-        <div class="pkg-grid" id="pkg-grid">
+        <div class="alert alert-gold">💡 Not sure which to choose? Most clients with multiple negative items across all three bureaus start with Choose the right package below. Each package earns your Sales Rep a commission — the bigger the package, the bigger their reward.</div>
+        <div class="pkg-grid" id="pkg-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
 
-          <div class="pkg-card" onclick="selectPkg(this,'express','3999')">
-            <span class="pkg-badge best">⚡ Best Results</span>
-            <div class="pkg-name">Express Package</div>
-            <div class="pkg-price">$3,999</div>
-            <div class="pkg-desc">All 3 bureaus — Equifax, Experian & TransUnion. 60 business days or less. Full dispute service, FTC reports, bureau calls, and follow-ups. One-time payment.</div>
-          </div>
-
-          <div class="pkg-card" onclick="selectPkg(this,'standard','2499')">
-            <span class="pkg-badge popular">📋 Most Popular</span>
-            <div class="pkg-name">Standard Package</div>
+          <!-- Standard -->
+          <div class="pkg-card" onclick="selectPkg('standard','2499',this)" id="pkg-standard">
+            <div class="pkg-name">Full Service — Standard</div>
             <div class="pkg-price">$2,499</div>
-            <div class="pkg-desc">All 3 bureaus. 120 business days or less. Full dispute service with bureau calls and follow-ups. One-time payment.</div>
+            <div class="pkg-desc">All 3 bureaus · Up to 120 business days · Unlimited items disputed · Best for most clients</div>
           </div>
 
-          <div class="pkg-card" onclick="selectPkg(this,'financing','750+292x6')">
-            <span class="pkg-badge popular">💳 Easy Payments</span>
+          <!-- Express -->
+          <div class="pkg-card" onclick="selectPkg('express','3999',this)" id="pkg-express">
+            <span class="pkg-badge best">⚡ Best Results</span>
+            <div class="pkg-name">Full Service — Express</div>
+            <div class="pkg-price">$3,999</div>
+            <div class="pkg-desc">All 3 bureaus · Up to 60 business days · Priority processing · Fastest results</div>
+          </div>
+
+          <!-- Financing -->
+          <div class="pkg-card" onclick="selectPkg('financing','750',this)" id="pkg-financing">
+            <span class="pkg-badge" style="background:#1A5C38;">💳 Finance It</span>
             <div class="pkg-name">In-House Financing</div>
-            <div class="pkg-price">$750 <span style="font-size:14px;font-weight:500;color:var(--gray);">+ $292/mo × 6</span></div>
-            <div class="pkg-desc">All 3 bureaus. Same Standard service split into payments. $750 down today, then $292/month for 6 months. File pauses if a payment is missed.</div>
+            <div class="pkg-price">$750 down</div>
+            <div class="pkg-desc">$750 down + $292/mo × 6 months = $2,499 total · Same service as Standard · Pay over time</div>
           </div>
 
-          <div class="pkg-card" onclick="selectPkg(this,'bureau1','1000')">
-            <div class="pkg-name">Single Bureau</div>
-            <div class="pkg-price">$1,000</div>
-            <div class="pkg-desc">One bureau only — you choose which. 120 business days. Best when your issue is isolated to one bureau. Rush available (+$500).</div>
-          </div>
-
-          <div class="pkg-card" onclick="selectPkg(this,'bureau1rush','1500')">
-            <div class="pkg-name">Single Bureau + Rush</div>
-            <div class="pkg-price">$1,500</div>
-            <div class="pkg-desc">One bureau, expedited processing. Same great service, moved to the front of the queue.</div>
-          </div>
-
-          <div class="pkg-card" onclick="selectPkg(this,'inquiries','45each')">
+          <!-- Inquiries Only -->
+          <div class="pkg-card" onclick="selectPkg('inquiries','45',this)" id="pkg-inquiries">
+            <span class="pkg-badge" style="background:#7C3AED;">🔍 Inquiries</span>
             <div class="pkg-name">Inquiries Only</div>
-            <div class="pkg-price">$45 <span style="font-size:14px;font-weight:500;color:var(--gray);">per inquiry per bureau</span></div>
-            <div class="pkg-desc">Hard inquiries only — no other negative items. 120 business days. You will list your inquiries in the next step and we will calculate the total.</div>
+            <div class="pkg-price">$45 / inquiry / bureau</div>
+            <div class="pkg-desc">For clients with only hard inquiries to remove · Per inquiry per bureau · Quick turnaround</div>
           </div>
 
-          <div class="pkg-card" onclick="selectPkg(this,'inquiriesrush','45each+500')">
-            <div class="pkg-name">Inquiries Only + Rush</div>
-            <div class="pkg-price">$45/inquiry <span style="font-size:14px;font-weight:500;color:var(--gray);">+ $500 rush</span></div>
-            <div class="pkg-desc">Same as Inquiries Only but expedited. Rush fee is flat $500 added to your inquiry total.</div>
+          <!-- Funding Client -->
+          <div class="pkg-card" onclick="selectPkg('funding','0',this)" id="pkg-funding">
+            <span class="pkg-badge" style="background:#C9A84C;color:#0A1628;">💰 Funding</span>
+            <div class="pkg-name">Funding Client</div>
+            <div class="pkg-price">$0 upfront</div>
+            <div class="pkg-desc">Credit repair first at no upfront cost · Once credit is done, client enrolls in funding program · CP Restoration takes 10% of funded amount at the back end</div>
+          </div>
+
+          <!-- Free Guide Upgrade -->
+          <div class="pkg-card" onclick="selectPkg('free_upgrade','2499',this)" id="pkg-free">
+            <span class="pkg-badge" style="background:#64748B;">📘 Free → Paid</span>
+            <div class="pkg-name">Free Guide Upgrade</div>
+            <div class="pkg-price">Standard or Express</div>
+            <div class="pkg-desc">Client came in through the free credit repair guide/video · Couldn't do it themselves · Upgrading to full service. Select Standard or Express after selecting this.</div>
           </div>
 
         </div>
-        <div id="pkg-error" style="color:var(--red);font-size:13px;font-weight:700;display:none;margin-top:12px;">Please select a package to continue.</div>
 
-        <!-- Inquiry count (shows for inquiry packages) -->
-        <div id="inq-fields" style="display:none;margin-top:16px;padding:16px;background:var(--lblue);border-radius:10px;">
-          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;">🔍 How many hard inquiries do you have on each bureau?</div>
-          <div class="grid-2">
-            <div class="field" style="margin:0;">
-              <label>Equifax Inquiries</label>
-              <input type="number" id="inq-eq" min="0" value="0" oninput="calcInquiryTotal()">
-            </div>
-            <div class="field" style="margin:0;">
-              <label>Experian Inquiries</label>
-              <input type="number" id="inq-ex" min="0" value="0" oninput="calcInquiryTotal()">
-            </div>
-            <div class="field" style="margin:0;">
-              <label>TransUnion Inquiries</label>
-              <input type="number" id="inq-tu" min="0" value="0" oninput="calcInquiryTotal()">
-            </div>
+        <!-- Inquiry counter for inquiries package -->
+        <div id="inquiry-counter" style="display:none;margin-top:14px;background:#F3E8FF;border:1.5px solid #7C3AED;border-radius:10px;padding:14px;">
+          <div style="font-size:13px;font-weight:800;color:#7C3AED;margin-bottom:10px;">🔍 Inquiry Details</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:13px;">
+            <div><label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">EXPERIAN INQUIRIES</label>
+            <input type="number" id="inq-ex" min="0" value="0" oninput="calcInquiryTotal()" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:13px;"></div>
+            <div><label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">EQUIFAX INQUIRIES</label>
+            <input type="number" id="inq-eq" min="0" value="0" oninput="calcInquiryTotal()" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:13px;"></div>
+            <div><label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">TRANSUNION INQUIRIES</label>
+            <input type="number" id="inq-tu" min="0" value="0" oninput="calcInquiryTotal()" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:13px;"></div>
           </div>
-          <div id="inq-total" style="margin-top:10px;font-size:14px;font-weight:700;color:var(--navy);"></div>
+          <div style="margin-top:10px;font-size:14px;font-weight:800;color:#7C3AED;" id="inq-total">Total: $0</div>
         </div>
-      </div>
-    </div>
-    <div class="btn-nav">
-      <button class="btn-back" onclick="goToStep(1)">← Back</button>
-      <button class="btn-next" onclick="goToStep(3)">Next: Credit Items →</button>
-    </div>
-  </div>
+
+        <!-- Funding details -->
+        <div id="funding-details" style="display:none;margin-top:14px;background:#FEF9C3;border:1.5px solid #C9A84C;border-radius:10px;padding:14px;">
+          <div style="font-size:13px;font-weight:800;color:#92400E;margin-bottom:6px;">💰 Funding Client Terms</div>
+          <div style="font-size:12px;color:#78350F;line-height:1.7;">
+            • Credit repair is provided at NO upfront cost to the client<br>
+            • Once credit is repaired and ready, client is enrolled in the funding program<br>
+            • CP Restoration Services receives <strong>10% of the total funding amount</strong> at the back end<br>
+            • Client must sign both the Service Agreement and Funding Authorization
+          </div>
+        </div></div>
 
   <!-- STEP 3: DISPUTE ITEMS -->
   <div class="step-card" id="step-3">
@@ -1071,6 +1070,31 @@ async function submitEnrollment() {
     alert('Error saving enrollment: '+e.message+'. Please try again or contact support.');
   }
 }
+
+function calcInquiryTotal() {
+  var ex = parseInt(document.getElementById('inq-ex').value)||0;
+  var eq = parseInt(document.getElementById('inq-eq').value)||0;
+  var tu = parseInt(document.getElementById('inq-tu').value)||0;
+  var total = (ex + eq + tu) * 45;
+  document.getElementById('inq-total').textContent = 'Total: $' + total + ' (' + (ex+eq+tu) + ' inquiries × $45)';
+  window._selectedPrice = total;
+}
+
+// Extend selectPkg to show/hide inquiry counter and funding details
+var _origSelectPkg = window.selectPkg;
+document.addEventListener('DOMContentLoaded', function() {
+  var origFn = window.selectPkg;
+  if(origFn) {
+    window.selectPkg = function(type, price, el) {
+      origFn(type, price, el);
+      document.getElementById('inquiry-counter').style.display = type==='inquiries' ? 'block' : 'none';
+      document.getElementById('funding-details').style.display = type==='funding' ? 'block' : 'none';
+      window._selectedPkg = type;
+      window._selectedPrice = parseFloat(price)||0;
+    };
+  }
+});
+
 </script>
 </body>
 </html>
