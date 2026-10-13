@@ -290,6 +290,7 @@ async function loadStatusHistory(clientId) {
 }
 
 
+</script>
 <!-- AI CALLS PANEL -->
 <div id="r-calls" style="display:none;padding:16px;">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -298,6 +299,8 @@ async function loadStatusHistory(clientId) {
   </div>
   <div id="cs-calls-list" style="font-size:12px;"></div>
 </div>
+
+<script>
 
 function renderEmailClient() {
   if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128231;</div><div>Select a client</div></div>';return;}
@@ -318,15 +321,15 @@ function renderEmailClient() {
     '<div style="border:1.5px solid #E2E8F0;border-radius:8px;overflow:hidden;">' +
     // Toolbar
     '<div style="background:#F8FAFC;border-bottom:1.5px solid #E2E8F0;padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;">' +
-    '<button type="button" onclick="execCmd('bold')" title="Bold" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-weight:700;font-size:12px;">B</button>' +
-    '<button type="button" onclick="execCmd('italic')" title="Italic" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-style:italic;font-size:12px;">I</button>' +
-    '<button type="button" onclick="execCmd('underline')" title="Underline" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>' +
+    '<button type="button" onclick="execCmd(\'bold\')" title="Bold" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-weight:700;font-size:12px;">B</button>' +
+    '<button type="button" onclick="execCmd(\'italic\')" title="Italic" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-style:italic;font-size:12px;">I</button>' +
+    '<button type="button" onclick="execCmd(\'underline\')" title="Underline" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>' +
     '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
-    '<button type="button" onclick="execCmd('insertUnorderedList')" title="Bullet list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">• List</button>' +
-    '<button type="button" onclick="execCmd('insertOrderedList')" title="Numbered list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">1. List</button>' +
+    '<button type="button" onclick="execCmd(\'insertUnorderedList\')" title="Bullet list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">• List</button>' +
+    '<button type="button" onclick="execCmd(\'insertOrderedList\')" title="Numbered list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">1. List</button>' +
     '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
     '<button type="button" onclick="insertEmailLink()" title="Insert link" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">🔗 Link</button>' +
-    '<button type="button" onclick="execCmd('removeFormat')" title="Clear formatting" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">✕ Clear</button>' +
+    '<button type="button" onclick="execCmd(\'removeFormat\')" title="Clear formatting" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">✕ Clear</button>' +
     '</div>' +
     // Editable content area
     '<div id="email-body-editor" contenteditable="true" style="min-height:140px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;line-height:1.6;" placeholder="Write your message here..."></div>' +
@@ -1184,15 +1187,15 @@ function renderEmailClient() {
     '<div style="border:1.5px solid #E2E8F0;border-radius:8px;overflow:hidden;">' +
     // Toolbar
     '<div style="background:#F8FAFC;border-bottom:1.5px solid #E2E8F0;padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;">' +
-    '<button type="button" onclick="execCmd('bold')" title="Bold" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-weight:700;font-size:12px;">B</button>' +
-    '<button type="button" onclick="execCmd('italic')" title="Italic" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-style:italic;font-size:12px;">I</button>' +
-    '<button type="button" onclick="execCmd('underline')" title="Underline" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>' +
+    '<button type="button" onclick="execCmd(\'bold\')" title="Bold" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-weight:700;font-size:12px;">B</button>' +
+    '<button type="button" onclick="execCmd(\'italic\')" title="Italic" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-style:italic;font-size:12px;">I</button>' +
+    '<button type="button" onclick="execCmd(\'underline\')" title="Underline" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>' +
     '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
-    '<button type="button" onclick="execCmd('insertUnorderedList')" title="Bullet list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">• List</button>' +
-    '<button type="button" onclick="execCmd('insertOrderedList')" title="Numbered list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">1. List</button>' +
+    '<button type="button" onclick="execCmd(\'insertUnorderedList\')" title="Bullet list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">• List</button>' +
+    '<button type="button" onclick="execCmd(\'insertOrderedList\')" title="Numbered list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">1. List</button>' +
     '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
     '<button type="button" onclick="insertEmailLink()" title="Insert link" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">🔗 Link</button>' +
-    '<button type="button" onclick="execCmd('removeFormat')" title="Clear formatting" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">✕ Clear</button>' +
+    '<button type="button" onclick="execCmd(\'removeFormat\')" title="Clear formatting" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">✕ Clear</button>' +
     '</div>' +
     // Editable content area
     '<div id="email-body-editor" contenteditable="true" style="min-height:140px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;line-height:1.6;" placeholder="Write your message here..."></div>' +
