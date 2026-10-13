@@ -36,6 +36,13 @@ var EMPLOYEES = {
   'annabel@mycprteam.com': { password:'CPRAnnabel2026', name:'Annabel Curada',     role:'dispute',    label:'Dispute Specialist', initials:'AC' },
   // jay@mycprteam.com DEACTIVATED
   'fcacaasi@gmail.com':    { password:'CPRFatima2026',  name:'Fatima Charfina Caasi', role:'dispute', label:'Bureau Caller',      initials:'FC' },
+  'raymon.guevarra@gmail.com': { password:'CPRRaymon2026', name:'Raymon Guevarra', role:'sales', label:'Sales Rep', initials:'RG' },
+  'bseo.sidd@gmail.com': { password:'CPRSid2026', name:'Jose Isidro Perez', role:'sales', label:'Sales Rep', initials:'JP' },
+  'etjjr1989@gmail.com': { password:'CPRElmer2026', name:'Elmer Jungco', role:'sales', label:'Sales Rep', initials:'EJ' },
+  'cherrydavis@monfortintl.com': { password:'CPRCherry2026', name:'Cherry Manlapaz', role:'sales', label:'Sales Rep', initials:'CM' },
+  'rrpasco11@gmail.com': { password:'CPRRaven2026', name:'Raven Pasco', role:'sales', label:'Sales Rep', initials:'RP' },
+  'rosemarie.padilla.deguzman@gmail.com': { password:'CPRRosemarie2026', name:'Rosemarie De Guzman', role:'bureau', label:'Bureau Caller', initials:'RD' },
+  'abellar1407@gmail.com': { password:'CPRRedan2026', name:'Redan Abella', role:'bureau', label:'Bureau Caller', initials:'RA' },
 };
 
 var TEAM_ROSTER = {
