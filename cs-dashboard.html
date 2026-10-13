@@ -463,7 +463,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
   <div style="flex:1;">
     <strong style="color:#92400E;">VPN REQUIRED BEFORE ACCESSING BUREAU ACCOUNTS</strong>
     <span style="color:#78350F;margin-left:8px;">Philippine IP addresses are blocked by Experian and TransUnion.</span>
-    <a href="https://protonvpn.com/download" target="_blank" style="margin-left:10px;background:#1B3A6B;color:white;padding:4px 12px;border-radius:4px;text-decoration:none;font-weight:700;font-size:12px;">&#11015; Download Proton VPN (Free)</a>
+    <a href="https://tutavpn.com/download" target="_blank" style="margin-left:10px;background:#1B3A6B;color:white;padding:4px 12px;border-radius:4px;text-decoration:none;font-weight:700;font-size:12px;">&#11015; Download Tuta VPN (Free)</a>
   </div>
   <div id="vpn-status" style="font-size:12px;color:#64748B;white-space:nowrap;">Checking IP...</div>
 </div>
@@ -990,17 +990,17 @@ function renderLogins(){
   if(c.equifax_pin)       c.experian_pin  = c.equifax_pin;
   if(c.smartcredit_username) c.smartcredit_user = c.smartcredit_username;
   if(c.smartcredit_password) c.smartcredit_pass = c.smartcredit_password;
-  var protonSection = '';
-  if(!c.proton_email) {
-    protonSection = '<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:10px;padding:14px;margin-top:12px;">' +
-      '<div style="font-size:12px;font-weight:800;color:#92400E;margin-bottom:8px;">&#9888; No Proton Email Assigned</div>' +
-      '<div style="font-size:12px;color:#78350F;margin-bottom:10px;">This client needs a Proton email for bureau correspondence.</div>' +
-      '<input id="proton-input" placeholder="cprclient.FirstLast@proton.me" style="width:100%;padding:8px;border:1.5px solid #F59E0B;border-radius:6px;font-size:12px;box-sizing:border-box;margin-bottom:8px;">' +
-      '<button onclick="saveProtonEmail()" style="padding:8px 16px;background:#92400E;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Save Proton Email</button>' +
+  var tutaSection = '';
+  if(!c.tuta_email) {
+    tutaSection = '<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:10px;padding:14px;margin-top:12px;">' +
+      '<div style="font-size:12px;font-weight:800;color:#92400E;margin-bottom:8px;">&#9888; No Tuta Email Assigned</div>' +
+      '<div style="font-size:12px;color:#78350F;margin-bottom:10px;">This client needs a Tuta email for bureau correspondence.</div>' +
+      '<input id="tuta-input" placeholder="cprclient.FirstLast@tuta.com" style="width:100%;padding:8px;border:1.5px solid #F59E0B;border-radius:6px;font-size:12px;box-sizing:border-box;margin-bottom:8px;">' +
+      '<button onclick="saveTutaEmail()" style="padding:8px 16px;background:#92400E;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Save Tuta Email</button>' +
       '</div>';
   } else {
-    protonSection = '<div style="background:#DCFCE7;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:12px;">' +
-      '<span style="font-weight:700;color:#166534;">&#128231; Proton Email:</span> <span style="color:#1E293B;font-weight:600;">' + c.proton_email + '</span>' +
+    tutaSection = '<div style="background:#DCFCE7;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:12px;">' +
+      '<span style="font-weight:700;color:#166534;">&#128231; Tuta Email:</span> <span style="color:#1E293B;font-weight:600;">' + c.tuta_email + '</span>' +
       '</div>';
   }
   document.getElementById('right-body').innerHTML=
@@ -1008,22 +1008,22 @@ function renderLogins(){
     bureauCard('Equifax','bc-eq','EQ','equifax_user','equifax_pass',null,null,null,c)+
     bureauCard('Experian','bc-ex','EX','experian_user','experian_pass','experian_pin','experian_sq','experian_sa',c)+
     bureauCard('TransUnion','bc-tu','TU','transunion_user','transunion_pass',null,null,null,c)+
-    protonSection;
+    tutaSection;
 }
 
-async function saveProtonEmail() {
+async function saveTutaEmail() {
   if(!currentClient) return;
-  var email = (document.getElementById('proton-input')||{}).value||'';
-  if(!email || !email.includes('proton')) { alert('Please enter a valid Proton email address.'); return; }
+  var email = (document.getElementById('tuta-input')||{}).value||'';
+  if(!email || !email.includes('tuta')) { alert('Please enter a valid Tuta email address.'); return; }
   try {
     var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
       method:'PATCH',
       headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
-      body:JSON.stringify({proton_email:email})
+      body:JSON.stringify({tuta_email:email})
     });
     if(r.ok||r.status===204) {
-      currentClient.proton_email = email;
-      alert('Proton email saved: '+email);
+      currentClient.tuta_email = email;
+      alert('Tuta email saved: '+email);
       renderLogins();
     }
   } catch(e) { alert('Error saving: '+e.message); }
