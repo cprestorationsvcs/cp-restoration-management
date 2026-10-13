@@ -1048,33 +1048,43 @@ function bureauCard(name,cls,abbr,uField,pField,pinField,sqField,saField,c){
 
 async function saveLogins(){
   if(!currentClient) return;
-  var loginData={
-    equifax:{user:''     ,pass:''},
-    experian:{user:'',pass:'',pin:'',secQuestion:'',secAnswer:''},
-    transunion:{user:'',pass:''}
-  };
-  var fieldMap={
-    equifax_user:'equifax.user',equifax_pass:'equifax.pass',
-    experian_user:'experian.user',experian_pass:'experian.pass',
-    experian_pin:'experian.pin',experian_sq:'experian.secQuestion',experian_sa:'experian.secAnswer',
-    transunion_user:'transunion.user',transunion_pass:'transunion.pass'
-  };
-  Object.keys(fieldMap).forEach(function(f){
-    var el=document.getElementById('f-'+f);
-    if(!el) return;
-    var val=el.value.trim();
-    var path=fieldMap[f].split('.');
-    loginData[path[0]][path[1]]=val;
-    currentClient[f]=val;
-  });
+  // Read all login fields
+  var eq_user  = (document.getElementById('f-equifax_user')||{}).value||'';
+  var eq_pass  = (document.getElementById('f-equifax_pass')||{}).value||'';
+  var ex_user  = (document.getElementById('f-experian_user')||{}).value||'';
+  var ex_pass  = (document.getElementById('f-experian_pass')||{}).value||'';
+  var ex_pin   = (document.getElementById('f-experian_pin')||{}).value||'';
+  var ex_sq    = (document.getElementById('f-experian_sq')||{}).value||'';
+  var ex_sa    = (document.getElementById('f-experian_sa')||{}).value||'';
+  var tu_user  = (document.getElementById('f-transunion_user')||{}).value||'';
+  var tu_pass  = (document.getElementById('f-transunion_pass')||{}).value||'';
   try{
-    // Try saving to bureau_logins JSON column (always exists)
-    var updates={bureau_logins:JSON.stringify(loginData),updated_at:new Date().toISOString()};
+    // Save to individual columns (matches actual DB schema)
+    var updates={
+      equifax_username:   eq_user.trim(),
+      equifax_password:   eq_pass.trim(),
+      experian_username:  ex_user.trim(),
+      experian_password:  ex_pass.trim(),
+      experian_pin:       ex_pin.trim(),
+      experian_security_question: ex_sq.trim(),
+      experian_security_answer:   ex_sa.trim(),
+      transunion_username: tu_user.trim(),
+      transunion_password: tu_pass.trim(),
+      updated_at: new Date().toISOString()
+    };
     var r=await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
-      method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
+      method:'PATCH',
+      headers:Object.assign({'Content-Type':'application/json','Prefer':'return=minimal'},HDR),
       body:JSON.stringify(updates)
     });
-    toast(r.ok?'&#10003; Logins saved':'&#10006; Failed: '+r.status,r.ok?'ok':'err');
+    if(r.ok || r.status===204){
+      // Update local cache
+      Object.assign(currentClient, updates);
+      toast('&#10003; Logins saved successfully','ok');
+    } else {
+      var err=await r.text();
+      toast('&#10006; Save failed: '+r.status+' — '+err.substring(0,80),'err');
+    }
   }catch(e){toast('Error: '+e.message,'err');}
 }
 
