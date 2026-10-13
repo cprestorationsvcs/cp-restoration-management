@@ -1143,6 +1143,212 @@ async function notifyCompliance(type){
 }
 
 // ── RIGHT TABS ──
+function renderStatusUpdate() {
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128203;</div><div>Select a client</div></div>';return;}
+  var c=currentClient;
+  document.getElementById('right-body').innerHTML=
+    '<div style="padding:4px 0 16px;">' +
+    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:14px;">&#128203; Status Update to Portal</div>' +
+    '<div style="margin-bottom:12px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">SELECT ACTION TAKEN</label>' +
+    '<select id="status-select" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;">' +
+    '<option value="">— Choose a status update —</option>' +
+    '<option value="Login credentials updated">Login credentials updated</option><option value="Payment plan explained">Payment plan explained</option><option value="Bureau login assistance provided">Bureau login assistance provided</option><option value="Dispute round completed">Dispute round completed</option><option value="Documents reviewed">Documents reviewed</option><option value="Follow-up call made">Follow-up call made</option><option value="Email sent to client">Email sent to client</option><option value="Verification pending">Verification pending</option><option value="Waiting for client response">Waiting for client response</option><option value="Account update completed">Account update completed</option><option value="Bureau call completed">Bureau call completed</option><option value="Credit report reviewed">Credit report reviewed</option><option value="Refund agreement sent">Refund agreement sent</option><option value="Onboarding completed">Onboarding completed</option><option value="File closed">File closed</option>' +
+    '</select></div>' +
+    '<div style="margin-bottom:12px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">ADDITIONAL NOTES (optional)</label>' +
+    '<textarea id="status-notes" placeholder="Any extra context..." style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;min-height:80px;resize:vertical;"></textarea>' +
+    '</div>' +
+    '<button onclick="postStatusUpdate()" style="padding:10px 20px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">&#128203; Post Update to Client Portal</button>' +
+    '<div id="status-history" style="margin-top:16px;"></div>' +
+    '</div>';
+  loadStatusHistory(c.id);
+}
+
+function renderEmailClient() {
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128231;</div><div>Select a client</div></div>';return;}
+  var c=currentClient;
+  document.getElementById('right-body').innerHTML=
+    '<div style="padding:4px 0;">' +
+    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:12px;">&#128231; Email Message to Client</div>' +
+    '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">TO</label>' +
+    '<input value="'+(c.email||'')+'" readonly style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;background:#F8FAFC;">' +
+    '</div>' +
+    '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">SUBJECT</label>' +
+    '<input id="email-subject" placeholder="e.g. Update on Your Credit Repair File" style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;">' +
+    '</div>' +
+    '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">MESSAGE</label>' +
+    '<div style="border:1.5px solid #E2E8F0;border-radius:8px;overflow:hidden;">' +
+    // Toolbar
+    '<div style="background:#F8FAFC;border-bottom:1.5px solid #E2E8F0;padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;">' +
+    '<button type="button" onclick="execCmd('bold')" title="Bold" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-weight:700;font-size:12px;">B</button>' +
+    '<button type="button" onclick="execCmd('italic')" title="Italic" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-style:italic;font-size:12px;">I</button>' +
+    '<button type="button" onclick="execCmd('underline')" title="Underline" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>' +
+    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
+    '<button type="button" onclick="execCmd('insertUnorderedList')" title="Bullet list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">• List</button>' +
+    '<button type="button" onclick="execCmd('insertOrderedList')" title="Numbered list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">1. List</button>' +
+    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
+    '<button type="button" onclick="insertEmailLink()" title="Insert link" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">🔗 Link</button>' +
+    '<button type="button" onclick="execCmd('removeFormat')" title="Clear formatting" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">✕ Clear</button>' +
+    '</div>' +
+    // Editable content area
+    '<div id="email-body-editor" contenteditable="true" style="min-height:140px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;line-height:1.6;" placeholder="Write your message here..."></div>' +
+    '</div>' +
+    '</div>' +
+    '<div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;">' +
+    '<input type="checkbox" id="email-post-portal" checked style="accent-color:#1B3A6B;transform:scale(1.2);">' +
+    '<label for="email-post-portal" style="font-size:12px;color:#64748B;">Also post copy to Client Portal → Email Messages tab</label>' +
+    '</div>' +
+    '<div style="margin-bottom:14px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">SEND OPTIONS</label>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<button onclick="sendClientEmail('email-only')" style="flex:1;padding:10px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send Email Only</button>' +
+    '<button onclick="sendClientEmail('email-portal')" style="flex:1;padding:10px;background:#C9A84C;color:#0A1628;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send + Post to Portal</button>' +
+    '</div></div>' +
+    '<div id="email-sent-history" style="margin-top:16px;"></div>' +
+    '</div>';
+  loadEmailHistory(c.id);
+  // Set placeholder behavior on contenteditable
+  setTimeout(function(){
+    var ed = document.getElementById('email-body-editor');
+    if(!ed) return;
+    ed.addEventListener('focus', function(){if(this.innerHTML==='<br>'||!this.textContent.trim())this.innerHTML='';});
+    ed.addEventListener('blur',  function(){if(!this.textContent.trim())this.innerHTML='';});
+  },100);
+}
+
+
+async function postStatusUpdate() {
+  if(!currentClient) return;
+  var action = (document.getElementById('status-select')||{}).value||'';
+  var notes  = (document.getElementById('status-notes') ||{}).value||'';
+  if(!action){alert('Please select a status update.');return;}
+  var payload = {
+    client_id: currentClient.id,
+    client_name: currentClient.name,
+    action: action,
+    notes: notes,
+    posted_by: currentUser,
+    posted_by_name: localStorage.getItem('cp_logged_in_name')||'CS Agent',
+    created_at: new Date().toISOString(),
+    visible_to_client: true
+  };
+  try {
+    var r = await fetch(SUPA+'/status_updates',{
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify(payload)
+    });
+    if(r.ok||r.status===201||r.status===204){
+      alert('✅ Status update posted to client portal!');
+      document.getElementById('status-select').value='';
+      document.getElementById('status-notes').value='';
+      loadStatusHistory(currentClient.id);
+    }
+  } catch(e){alert('Error posting update: '+e.message);}
+}
+async function loadStatusHistory(clientId) {
+  var el = document.getElementById('status-history');
+  if(!el) return;
+  try {
+    var r = await fetch(SUPA+'/status_updates?client_id=eq.'+encodeURIComponent(clientId)+'&order=created_at.desc&limit=20',{headers:HDR});
+    var data = await r.json();
+    if(!Array.isArray(data)||!data.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">No updates posted yet.</div>';return;}
+    el.innerHTML='<div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:8px;letter-spacing:.5px;">RECENT UPDATES</div>'+
+      data.map(function(u){
+        return '<div style="padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;background:#F8FAFC;">' +
+          '<div style="font-size:13px;font-weight:700;color:#1B3A6B;">&#10003; '+u.action+'</div>' +
+          (u.notes?'<div style="font-size:12px;color:#64748B;margin-top:3px;">'+u.notes+'</div>':'') +
+          '<div style="font-size:11px;color:#94A3B8;margin-top:4px;">'+(u.posted_by_name||'CS Agent')+' · '+new Date(u.created_at).toLocaleString()+'</div>' +
+          '</div>';
+      }).join('');
+  } catch(e){el.innerHTML='';}
+}
+async function sendClientEmail(mode) {
+  if(!currentClient) return;
+  var subject = (document.getElementById('email-subject')||{}).value||'';
+  var editor  = document.getElementById('email-body-editor');
+  var bodyHtml = editor ? editor.innerHTML : '';
+  var bodyText = editor ? editor.innerText : '';
+  var postPortal = mode === 'email-portal' || (document.getElementById('email-post-portal')||{}).checked;
+  if(!subject||!bodyText.trim()){alert('Please enter a subject and message.');return;}
+  var btn = event.target;
+  btn.textContent='Sending...'; btn.disabled=true;
+  try {
+    var r = await fetch('/.netlify/functions/send-email',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        to: currentClient.email,
+        clientName: currentClient.name,
+        subject: subject,
+        body: bodyHtml,
+        from: 'CP Restoration Services <info@35daycreditrepair.com>'
+      })
+    });
+    // Log in email_log table
+    await fetch(SUPA+'/email_logs',{
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({
+        client_id: currentClient.id,
+        client_name: currentClient.name,
+        client_email: currentClient.email,
+        subject: subject,
+        body: bodyHtml,
+        sent_by: currentUser,
+        sent_by_name: localStorage.getItem('cp_logged_in_name')||'CS Agent',
+        sent_at: new Date().toISOString(),
+        posted_to_portal: postPortal,
+        status: 'sent'
+      })
+    });
+    if(postPortal) {
+      await fetch(SUPA+'/client_messages',{
+        method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+        body:JSON.stringify({
+          client_id: currentClient.id,
+          from_cs: true,
+          subject: subject,
+          message: body,
+          created_at: new Date().toISOString()
+        })
+      });
+    }
+    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
+    alert('✅ Email sent to '+currentClient.email+(postPortal?' and posted to client portal.':'.'));
+    loadEmailHistory(currentClient.id);
+  } catch(e){
+    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
+    alert('Error: '+e.message);
+  }
+}
+async function loadEmailHistory(clientId) {
+  var el = document.getElementById('email-sent-history');
+  if(!el) return;
+  try {
+    var r = await fetch(SUPA+'/email_logs?client_id=eq.'+encodeURIComponent(clientId)+'&order=sent_at.desc&limit=10',{headers:HDR});
+    var data = await r.json();
+    if(!Array.isArray(data)||!data.length) return;
+    el.innerHTML='<div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:8px;letter-spacing:.5px;">SENT EMAILS</div>'+
+      data.map(function(e){
+        var statusBadge = e.status==='viewed'
+          ? '<span style="background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">👁 Viewed</span>'
+          : e.status==='delivered'
+          ? '<span style="background:#EFF6FF;color:#1B3A6B;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">✓ Delivered</span>'
+          : '<span style="background:#F1F5F9;color:#64748B;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">✉ Sent</span>';
+        return '<div style="padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;background:#F8FAFC;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+          '<div style="font-size:12px;font-weight:700;color:#1B3A6B;">&#128231; '+e.subject+'</div>' +
+          statusBadge +
+          '</div>' +
+          '<div style="font-size:11px;color:#94A3B8;">'+(e.sent_by_name||'CS Agent')+' · '+new Date(e.sent_at).toLocaleString()+
+          (e.posted_to_portal?' · <span style="color:#166534;">Posted to Portal</span>':'')+'</div>' +
+          '</div>';
+      }).join('');
+  } catch(e){}
+}
+
 function showRTab(tab){
   activeRTab=tab;
   ['info','logins','disputes','log','messages','payment','status','email','calls'].forEach(function(t){
