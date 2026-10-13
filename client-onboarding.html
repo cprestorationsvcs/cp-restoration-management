@@ -631,9 +631,18 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
     <div class="success-card">
       <div class="success-icon">🎉</div>
       <h2>You're enrolled!</h2>
-      <p>Welcome to CP Restoration Services. Your file has been received and is being reviewed by our team.</p>
+      <p>Welcome to CP Restoration Services. Your enrollment is complete and your file has been sent to our team.</p>
+      <div style="background:#EFF6FF;border-radius:10px;padding:16px;margin:16px 0;text-align:left;font-size:13px;">
+        <div style="font-weight:800;color:#1B3A6B;margin-bottom:10px;">What happens next:</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div>✅ <strong>Step 1 — Compliance Review</strong> (Today) — Queen will verify your enrollment and documents</div>
+          <div>✅ <strong>Step 2 — Dispute Department</strong> (Within 24hrs) — Your specialist will review your credit reports and begin filing disputes</div>
+          <div>✅ <strong>Step 3 — Bureau Calls</strong> (As needed) — Our bureau caller will follow up with Experian, Equifax, and TransUnion</div>
+          <div>✅ <strong>Step 4 — Updates</strong> — Log into your client portal anytime to check your dispute progress</div>
+        </div>
+      </div>
       <div class="success-id" id="success-id">CPR-XXXXX</div>
-      <p style="font-size:13px;color:var(--gray);">This is your Client ID. Save it — you will need it for any questions or updates.</p>
+      <p style="font-size:13px;color:var(--gray);">This is your Client ID. Save it — you will need it to log into your client portal.</p><div style="margin-top:12px;"><a href="/client-portal.html" style="display:inline-block;padding:12px 24px;background:#1B3A6B;color:white;border-radius:8px;font-weight:800;font-size:13px;text-decoration:none;">Open Client Portal →</a></div>
       <div class="next-steps">
         <div class="next-step"><div class="next-step-num">1</div><div>You will receive a confirmation email at the address you provided within the next few minutes.</div></div>
         <div class="next-step"><div class="next-step-num">2</div><div>Our compliance team will verify your documents within 1 business day. You may be contacted if anything is missing.</div></div>
@@ -947,20 +956,120 @@ function buildReview() {
 }
 
 // ── SUBMIT ───────────────────────────────────────────────────────
-function submitEnrollment() {
+async function submitEnrollment() {
   var btn = document.querySelector('.btn-submit');
   if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
 
-  // Generate client ID
-  var clientId = 'CPR-' + String(Math.floor(10000 + Math.random() * 89999));
+  var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+  var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+  var HDR  = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
 
-  setTimeout(function() {
+  // Generate client ID
+  var clientId = 'CPR-CP' + String(Math.floor(10000 + Math.random() * 89999));
+  var today = new Date().toISOString().split('T')[0];
+
+  // Collect all form data
+  var firstName  = (document.getElementById('f-first') ||{}).value||'';
+  var lastName   = (document.getElementById('f-last')  ||{}).value||'';
+  var fullName   = (firstName + ' ' + lastName).trim();
+  var email      = (document.getElementById('f-email') ||{}).value||'';
+  var phone      = (document.getElementById('f-phone') ||{}).value||'';
+  var dob        = (document.getElementById('f-dob')   ||{}).value||'';
+  var address    = (document.getElementById('f-address')||{}).value||'';
+  var city       = (document.getElementById('f-city')  ||{}).value||'';
+  var state      = (document.getElementById('f-state') ||{}).value||'';
+  var zip        = (document.getElementById('f-zip')   ||{}).value||'';
+  var selectedPkg = window._selectedPkg || 'Standard';
+  var selectedPrice = window._selectedPrice || 2499;
+
+  // Bureau logins
+  var expUser    = (document.getElementById('bl-exp-user') ||{}).value||'';
+  var expPass    = (document.getElementById('bl-exp-pass') ||{}).value||'';
+  var expPin     = (document.getElementById('bl-exp-pin')  ||{}).value||'';
+  var eqUser     = (document.getElementById('bl-eq-user')  ||{}).value||'';
+  var eqPass     = (document.getElementById('bl-eq-pass')  ||{}).value||'';
+  var tuUser     = (document.getElementById('bl-tu-user')  ||{}).value||'';
+  var tuPass     = (document.getElementById('bl-tu-pass')  ||{}).value||'';
+  var scUser     = (document.getElementById('bl-sc-user')  ||{}).value||'';
+  var scPass     = (document.getElementById('bl-sc-pass')  ||{}).value||'';
+  var protonEmail= (document.getElementById('bl-proton-email')||{}).value||'';
+  var protonPass = (document.getElementById('bl-proton-pass') ||{}).value||'';
+
+  // Dispute items
+  var items = window.disputeItems || [];
+  var itemNotes = items.map(function(i){ return i.bureaus.join('/')+': '+i.creditor+(i.balance?' $'+i.balance:''); }).join(' | ');
+
+  // Build client record
+  var clientRecord = {
+    id: clientId,
+    name: fullName,
+    email: email,
+    phone: phone,
+    dob: dob,
+    address: address+' '+city+' '+state+' '+zip,
+    package: selectedPkg,
+    status: 'Pending Compliance',
+    start_date: today,
+    notes: 'ONBOARDING '+today+' | Items: '+itemNotes,
+    experian_username: expUser||null,
+    experian_password: expPass||null,
+    equifax_pin: expPin||null,
+    equifax_username: eqUser||null,
+    equifax_password: eqPass||null,
+    transunion_username: tuUser||null,
+    transunion_password: tuPass||null,
+    smartcredit_username: scUser||null,
+    smartcredit_password: scPass||null,
+    bureau_email: protonEmail||null,
+    proton_email: protonEmail||null
+  };
+
+  try {
+    // 1. Save client to Supabase
+    var r1 = await fetch(SUPA+'/clients', {
+      method:'POST', headers:HDR,
+      body:JSON.stringify(clientRecord)
+    });
+
+    // 2. Save esignature record
+    await fetch(SUPA+'/esignatures', {
+      method:'POST', headers:HDR,
+      body:JSON.stringify({
+        client_id: clientId,
+        client_name: fullName,
+        client_email: email,
+        doc_type: 'Service Agreement',
+        signed_at: new Date().toISOString(),
+        signed_by: fullName,
+        status: 'signed'
+      })
+    });
+
+    // 3. Post to team chat — notify compliance
+    await fetch(SUPA+'/team_chat', {
+      method:'POST', headers:HDR,
+      body:JSON.stringify({
+        channel: 'general',
+        sender_name: 'Portal — New Enrollment',
+        sender_email: 'portal@mycprteam.com',
+        sender_initials: 'NE',
+        sender_color: '#C9A84C',
+        type: 'message',
+        message: '🆕 NEW CLIENT ONBOARDED\n\nClient: '+fullName+'\nID: '+clientId+'\nEmail: '+email+'\nPhone: '+phone+'\nPackage: '+selectedPkg+'\nBureau Logins: '+(expUser?'✅ Experian':'⚠️ No Experian')+' '+(eqUser?'✅ Equifax':'⚠️ No Equifax')+' '+(tuUser?'✅ TransUnion':'⚠️ No TransUnion')+'\nProton Email: '+(protonEmail||'⚠️ Not set up yet')+'\n\nQueen — please verify this enrollment in Compliance Review.\nOnce verified, Dispute Team — begin disputes immediately.'
+      })
+    });
+
+    // 4. Show success
     document.querySelectorAll('.step-card').forEach(function(s){ s.classList.remove('active'); });
     document.getElementById('step-success').classList.add('active');
     document.getElementById('success-id').textContent = clientId;
     updateProgress(7);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 1500);
+
+  } catch(e) {
+    if(btn) { btn.disabled=false; btn.textContent='✅ Submit Enrollment →'; }
+    alert('Error saving enrollment: '+e.message+'. Please try again or contact support.');
+  }
 }
 </script>
 </body>
