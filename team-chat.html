@@ -270,12 +270,13 @@ async function loadMessages(initial) {
       var empty=document.querySelector('.empty-chat');
       if(empty)empty.remove();
     });
-    // Auto-scroll logic: never interrupt user when they are scrolling up
+    // Auto-scroll logic: only scroll if user is within 80px of bottom
     var c=document.getElementById('messages');
-    var isNearBottom = (c.scrollHeight - c.scrollTop - c.clientHeight) < 150;
+    var distFromBottom = c.scrollHeight - c.scrollTop - c.clientHeight;
+    var isAtBottom = distFromBottom < 80;
     if (initial) {
       c.scrollTop = c.scrollHeight;
-    } else if (!userScrolling && isNearBottom) {
+    } else if (!userScrolling && isAtBottom) {
       c.scrollTop = c.scrollHeight;
     }
   } catch(e){showStatus('Network error: '+e.message,'error');}
@@ -448,6 +449,34 @@ document.addEventListener('DOMContentLoaded',function(){
   if(!initUser())return;
   loadMessages(true);
   pollTimer=setInterval(function(){loadMessages(false);},3000);
+
+  // Track when user is actively scrolling — prevent auto-scroll during scroll
+  var msgContainer = document.getElementById('messages');
+  if (msgContainer) {
+    msgContainer.addEventListener('scroll', function() {
+      userScrolling = true;
+      clearTimeout(scrollTimer);
+      // Only resume auto-scroll 4 seconds after user stops scrolling
+      scrollTimer = setTimeout(function() {
+        var distFromBottom = msgContainer.scrollHeight - msgContainer.scrollTop - msgContainer.clientHeight;
+        // Only re-enable auto-scroll if user scrolled back near bottom
+        if (distFromBottom < 80) {
+          userScrolling = false;
+        }
+      }, 4000);
+    });
+    // Touch support for mobile
+    msgContainer.addEventListener('touchstart', function() {
+      userScrolling = true;
+      clearTimeout(scrollTimer);
+    });
+    msgContainer.addEventListener('touchend', function() {
+      scrollTimer = setTimeout(function() {
+        var distFromBottom = msgContainer.scrollHeight - msgContainer.scrollTop - msgContainer.clientHeight;
+        if (distFromBottom < 80) userScrolling = false;
+      }, 4000);
+    });
+  }
 });
 
 function searchMessages(query) {
