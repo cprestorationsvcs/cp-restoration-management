@@ -289,6 +289,16 @@ async function loadStatusHistory(clientId) {
   } catch(e){el.innerHTML='';}
 }
 
+
+<!-- AI CALLS PANEL -->
+<div id="r-calls" style="display:none;padding:16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <span style="font-size:13px;font-weight:800;color:#1B3A6B;">📞 AI Receptionist Call History</span>
+    <button onclick="loadCSCalls()" style="padding:5px 12px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">🔄 Refresh</button>
+  </div>
+  <div id="cs-calls-list" style="font-size:12px;"></div>
+</div>
+
 function renderEmailClient() {
   if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128231;</div><div>Select a client</div></div>';return;}
   var c=currentClient;
@@ -533,6 +543,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
       <div class="rtab" id="rtab-log" onclick="showRTab('log')">&#128222; Contact Log</div>
       <div class="rtab" id="rtab-status" onclick="showRTab('status')">&#128203; Status Update</div>
       <div class="rtab" id="rtab-email" onclick="showRTab('email')">&#128231; Email Client</div>
+      <div class="rtab" id="rtab-calls" onclick="showRTab('calls');loadCSCalls()">&#128222; AI Calls</div>
     </div>
     <div class="right-body" id="right-body">
       <div class="empty-state"><div class="ico">&#128101;</div><div>Select a client to view their file</div></div>
@@ -1134,7 +1145,7 @@ async function notifyCompliance(type){
 // ── RIGHT TABS ──
 function showRTab(tab){
   activeRTab=tab;
-  ['info','logins','disputes','log','messages','payment','status','email'].forEach(function(t){
+  ['info','logins','disputes','log','messages','payment','status','email','calls'].forEach(function(t){
     var el=document.getElementById('rtab-'+t);
     if(el) el.classList.toggle('active',t===tab);
   });
@@ -1146,6 +1157,7 @@ function showRTab(tab){
   else if(tab==='payment') loadPaymentPlan(currentClient);
   else if(tab==='status') renderStatusUpdate();
   else if(tab==='email') renderEmailClient();
+  else if(tab==='calls') renderCSCalls();
 }
 
 function renderInfo(){
@@ -1859,6 +1871,42 @@ fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(functio
     el.style.color='#8B1A1A'; el.style.fontWeight='700';
   }
 }).catch(function(){});
+
+function renderCSCalls() {
+  document.querySelectorAll('[id^="r-"]').forEach(function(el){el.style.display='none';});
+  var panel = document.getElementById('r-calls');
+  if (panel) panel.style.display='block';
+  loadCSCalls();
+}
+
+async function loadCSCalls() {
+  if (!currentClient) return;
+  var list = document.getElementById('cs-calls-list');
+  if (!list) return;
+  list.innerHTML = 'Loading...';
+  try {
+    var r = await fetch(SUPA+'/call_logs?record_id=eq.'+encodeURIComponent(currentClient.id)+'&order=created_at.desc&limit=20',{headers:HDR});
+    var logs = await r.json();
+    if (!Array.isArray(logs)||!logs.length){list.innerHTML='<div style="text-align:center;padding:20px;color:#94A3B8;">No call history.</div>';return;}
+    list.innerHTML = logs.map(function(l){
+      var dt = l.created_at?new Date(l.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'—';
+      var dur = l.duration_sec?Math.floor(l.duration_sec/60)+'m '+l.duration_sec%60+'s':'—';
+      var oc = l.outcome||'unknown';
+      return '<div style="border:1.5px solid #E2E8F0;border-radius:8px;padding:10px;margin-bottom:8px;">' +
+        '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">' +
+          '<span style="font-weight:700;">'+(l.caller_number||'Unknown')+'</span>' +
+          '<span style="font-size:11px;color:#64748B;">'+dt+' · '+dur+'</span>' +
+        '</div>' +
+        '<div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;">' +
+          (l.verified?'<span style="background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">✅ Verified</span>':'')+
+          '<span style="background:#F1F5F9;color:#475569;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">'+oc+'</span>'+
+          (l.follow_up_needed&&!l.follow_up_done?'<span style="background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">🚨 Follow-Up</span>':'')+
+        '</div>' +
+        (l.summary?'<div style="margin-top:6px;padding:6px 8px;background:#F8FAFC;border-radius:6px;font-size:11px;color:#475569;">'+l.summary+'</div>':'')+
+      '</div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div style="color:#991B1B;">Error: '+e.message+'</div>';}
+}
 </script>
 </body>
 </html>
