@@ -202,7 +202,7 @@ document.getElementById('call-outcome').addEventListener('change', function() {
   document.getElementById('sale-package').style.display = this.value === 'sold' ? 'block' : 'none';
 });
 
-async async function logDial() {
+async function logDial() {
   if (!currentRep) return;
   var name = document.getElementById('lead-name').value.trim();
   var phone = document.getElementById('lead-phone').value.trim();
