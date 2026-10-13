@@ -136,9 +136,13 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
         </select>
         <select id="sale-package" style="display:none;">
           <option value="">-- Package Sold --</option>
-          <option value="express|3999">Express — $3,999</option>
-          <option value="standard|2500">Standard — $2,500</option>
-          <option value="financing|750">Financing — $750 down</option>
+          <option value="express|3999">Express — $3,999 (Commission: $400)</option>
+          <option value="standard|2499">Standard — $2,499 (Commission: $250)</option>
+          <option value="financing|750">Financing — $750 down (Commission: $75)</option>
+          <option value="inquiries|45">Inquiries Only — $45/inquiry/bureau (Commission: 10%)</option>
+          <option value="funding|0">Funding Client — 10% back-end of funding amount</option>
+          <option value="free_upgrade|2499">Free Guide Upgrade → Standard (Commission: $250)</option>
+          <option value="free_upgrade_express|3999">Free Guide Upgrade → Express (Commission: $400)</option>
         </select>
         <textarea id="call-notes" placeholder="Notes..." style="min-height:60px;resize:none;"></textarea>
         <button class="btn btn-navy" onclick="logDial()">&#128222; Log Call</button>
@@ -228,8 +232,16 @@ async async function logDial() {
     // If sold, also save commission
     if (outcome === 'sold' && pkg) {
       var pkgParts = pkg.split('|');
-      var amount = parseFloat(pkgParts[1]);
-      var commission = amount * 0.10;
+      var pkgName = pkgParts[0];
+      var amount = parseFloat(pkgParts[1])||0;
+      var commission = 0;
+      if(pkgName === 'express') commission = 400;
+      else if(pkgName === 'standard') commission = 250;
+      else if(pkgName === 'financing') commission = 75;
+      else if(pkgName === 'inquiries') commission = amount * 0.10;
+      else if(pkgName === 'funding') commission = 0; // recorded at back-end
+      else if(pkgName.startsWith('free_upgrade')) commission = pkgName.includes('express') ? 400 : 250;
+      else commission = amount * 0.10;
       await fetch(SUPA+'/commissions', {
         method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
         body: JSON.stringify({
