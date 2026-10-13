@@ -991,8 +991,8 @@ async function submitEnrollment() {
   var tuPass     = (document.getElementById('bl-tu-pass')  ||{}).value||'';
   var scUser     = (document.getElementById('bl-sc-user')  ||{}).value||'';
   var scPass     = (document.getElementById('bl-sc-pass')  ||{}).value||'';
-  var protonEmail= (document.getElementById('bl-proton-email')||{}).value||'';
-  var protonPass = (document.getElementById('bl-proton-pass') ||{}).value||'';
+  var tutaEmail= (document.getElementById('bl-tuta-email')||{}).value||'';
+  var tutaPass = (document.getElementById('bl-tuta-pass') ||{}).value||'';
 
   // Dispute items
   var items = window.disputeItems || [];
@@ -1019,8 +1019,8 @@ async function submitEnrollment() {
     transunion_password: tuPass||null,
     smartcredit_username: scUser||null,
     smartcredit_password: scPass||null,
-    bureau_email: protonEmail||null,
-    proton_email: protonEmail||null
+    bureau_email: tutaEmail||null,
+    tuta_email: tutaEmail||null
   };
 
   try {
@@ -1054,7 +1054,7 @@ async function submitEnrollment() {
         sender_initials: 'NE',
         sender_color: '#C9A84C',
         type: 'message',
-        message: '🆕 NEW CLIENT ONBOARDED\n\nClient: '+fullName+'\nID: '+clientId+'\nEmail: '+email+'\nPhone: '+phone+'\nPackage: '+selectedPkg+'\nBureau Logins: '+(expUser?'✅ Experian':'⚠️ No Experian')+' '+(eqUser?'✅ Equifax':'⚠️ No Equifax')+' '+(tuUser?'✅ TransUnion':'⚠️ No TransUnion')+'\nProton Email: '+(protonEmail||'⚠️ Not set up yet')+'\n\nQueen — please verify this enrollment in Compliance Review.\nOnce verified, Dispute Team — begin disputes immediately.'
+        message: '🆕 NEW CLIENT ONBOARDED\n\nClient: '+fullName+'\nID: '+clientId+'\nEmail: '+email+'\nPhone: '+phone+'\nPackage: '+selectedPkg+'\nBureau Logins: '+(expUser?'✅ Experian':'⚠️ No Experian')+' '+(eqUser?'✅ Equifax':'⚠️ No Equifax')+' '+(tuUser?'✅ TransUnion':'⚠️ No TransUnion')+'\nTuta Email: '+(tutaEmail||'⚠️ Not set up yet')+'\n\nQueen — please verify this enrollment in Compliance Review.\nOnce verified, Dispute Team — begin disputes immediately.'
       })
     });
 
