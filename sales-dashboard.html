@@ -74,6 +74,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
     <h2>&#128100; Select Your Name</h2>
     <select id="rep-select">
       <option value="">-- Select your name --</option>
+      <option value="Jason Crown|jason@mycprteam.com">Jason Crown</option>
       <option value="Bukunmi Aina|bukunmi@mycprteam.com">Bukunmi Aina</option>
     </select>
     <button class="btn btn-navy" onclick="repLogin()">&#9654; Enter Dashboard</button>
@@ -234,14 +235,7 @@ async async function logDial() {
       var pkgParts = pkg.split('|');
       var pkgName = pkgParts[0];
       var amount = parseFloat(pkgParts[1])||0;
-      var commission = 0;
-      if(pkgName === 'express') commission = 400;
-      else if(pkgName === 'standard') commission = 250;
-      else if(pkgName === 'financing') commission = 75;
-      else if(pkgName === 'inquiries') commission = amount * 0.10;
-      else if(pkgName === 'funding') commission = 0; // recorded at back-end
-      else if(pkgName.startsWith('free_upgrade')) commission = pkgName.includes('express') ? 400 : 250;
-      else commission = amount * 0.10;
+      var commission = amount * 0.10; // 10% on all packages
       await fetch(SUPA+'/commissions', {
         method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
         body: JSON.stringify({
