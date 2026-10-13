@@ -214,8 +214,18 @@ var currentLeadId = null;
 
 async function loadLeads() {
   try {
-    var r = await fetch(SUPA+'/leads?limit=500&order=id.desc',{headers:HDR});
-    allLeads = await r.json();
+    // Paginate to fetch all leads — Supabase max 1000 per request
+    allLeads = [];
+    var page = 0;
+    var pageSize = 1000;
+    while (true) {
+      var r = await fetch(SUPA+'/leads?limit='+pageSize+'&offset='+(page*pageSize)+'&order=id.desc',{headers:HDR});
+      var batch = await r.json();
+      if (!Array.isArray(batch) || batch.length === 0) break;
+      allLeads = allLeads.concat(batch);
+      if (batch.length < pageSize) break;
+      page++;
+    }
     if (!Array.isArray(allLeads)) allLeads=[];
     updateCounts();
     renderLeads();
