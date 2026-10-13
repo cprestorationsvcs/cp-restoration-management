@@ -535,14 +535,14 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
 
   <!-- RIGHT: Client Info + Bureau Logins + Disputes -->
   <div class="col-right">
-    <div class="right-tabs">
-      <div class="rtab active" id="rtab-info" onclick="showRTab('info')">&#128101; Client Info</div>
-      <div class="rtab" id="rtab-payment" onclick="showRTab('payment')">&#128178; Payment Plan</div>
-      <div class="rtab" id="rtab-logins" onclick="showRTab('logins')">&#128272; Bureau Logins</div>
-      <div class="rtab" id="rtab-disputes" onclick="showRTab('disputes')">&#128202; Disputes</div>
-      <div class="rtab" id="rtab-log" onclick="showRTab('log')">&#128222; Contact Log</div>
-      <div class="rtab" id="rtab-status" onclick="showRTab('status')">&#128203; Status Update</div>
-      <div class="rtab" id="rtab-email" onclick="showRTab('email')">&#128231; Email Client</div>
+    <div class="right-tabs" style="display:flex;flex-wrap:wrap;gap:2px;background:white;border-bottom:1px solid #E2E8F0;padding:6px 8px;">
+      <div class="rtab active" id="rtab-info" onclick="showRTab('info')" style="padding:7px 10px;font-size:11px;font-weight:700;color:#64748B;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;border-radius:4px;">&#128101; Info</div>
+      <div class="rtab" id="rtab-payment" onclick="showRTab('payment')" style="padding:7px 10px;font-size:11px;font-weight:700;color:#64748B;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;border-radius:4px;">&#128178; Payment</div>
+      <div class="rtab" id="rtab-logins" onclick="showRTab('logins')" style="padding:7px 10px;font-size:11px;font-weight:700;color:#64748B;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;border-radius:4px;">&#128272; Logins</div>
+      <div class="rtab" id="rtab-disputes" onclick="showRTab('disputes')" style="padding:7px 10px;font-size:11px;font-weight:700;color:#64748B;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;border-radius:4px;">&#128202; Disputes</div>
+      <div class="rtab" id="rtab-log" onclick="showRTab('log')" style="padding:7px 10px;font-size:11px;font-weight:700;color:#64748B;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;border-radius:4px;">&#128222; Log</div>
+      <div class="rtab" id="rtab-status" onclick="showRTab('status')" style="padding:7px 10px;font-size:11px;font-weight:700;color:#1B3A6B;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;border-radius:4px;background:#EFF6FF;">&#128203; Status Update</div>
+      <div class="rtab" id="rtab-email" onclick="showRTab('email')" style="padding:7px 10px;font-size:11px;font-weight:700;color:#1B3A6B;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;border-radius:4px;background:#EFF6FF;">&#128231; Email Client</div>
       <div class="rtab" id="rtab-calls" onclick="showRTab('calls');loadCSCalls()">&#128222; AI Calls</div>
     </div>
     <div class="right-body" id="right-body">
