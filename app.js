@@ -132,7 +132,7 @@ function loginAdmin() {
     window.location.href = '/cs-dashboard.html';
     return;
   } else if (emp.role === 'bureau') {
-    window.location.href = '/bureau-caller-dashboard.html';
+    window.location.href = '/cs-dashboard.html';
     return;
   }
   showPage('dashboard');
