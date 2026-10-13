@@ -143,9 +143,19 @@ var _ssCount     = 0;
 var _screenshots = [];
 var _stream      = null;
 
-// Init
-document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-document.getElementById('employee-name').textContent = _name || 'Employee';
+// Init — redirect to login if no session
+if(!_email || !_name) {
+  document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F8FAFC;font-family:system-ui,sans-serif;">' +
+    '<div style="background:white;border-radius:14px;border:2px solid #E2E8F0;padding:40px;text-align:center;max-width:400px;">' +
+    '<div style="font-size:40px;margin-bottom:16px;">🔐</div>' +
+    '<div style="font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:8px;">Please Log In First</div>' +
+    '<div style="font-size:13px;color:#64748B;margin-bottom:24px;">You need to log in through the main portal before using the Time Tracker.</div>' +
+    '<a href="https://portal-cprestorationsvcs.com" style="display:inline-block;padding:12px 28px;background:#1B3A6B;color:white;border-radius:8px;font-weight:800;font-size:14px;text-decoration:none;">Go to Portal Login →</a>' +
+    '</div></div>';
+} else {
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('employee-name').textContent = _name || 'Employee';
+}
 
 // Mouse activity tracking
 document.addEventListener('mousemove', resetIdle);
