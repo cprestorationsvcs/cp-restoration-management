@@ -197,7 +197,7 @@ document.getElementById('call-outcome').addEventListener('change', function() {
   document.getElementById('sale-package').style.display = this.value === 'sold' ? 'block' : 'none';
 });
 
-async function logDial() {
+async async function logDial() {
   if (!currentRep) return;
   var name = document.getElementById('lead-name').value.trim();
   var phone = document.getElementById('lead-phone').value.trim();
@@ -245,13 +245,38 @@ async function logDial() {
       });
     }
 
-    msg.style.color='#166534'; msg.textContent='✅ Call logged!';
-    document.getElementById('lead-name').value='';
-    document.getElementById('lead-phone').value='';
-    document.getElementById('call-outcome').value='';
-    document.getElementById('call-notes').value='';
-    document.getElementById('sale-package').style.display='none';
-    setTimeout(function(){msg.textContent='';loadDialLog();loadStats();}, 1500);
+    if(outcome === 'sold') {
+      var soldName = name || 'New Client';
+      var soldPhone = phone || '';
+      msg.style.color='#166534'; msg.textContent='🎉 SALE LOGGED! Great job!';
+      document.getElementById('lead-name').value='';
+      document.getElementById('lead-phone').value='';
+      document.getElementById('call-outcome').value='';
+      document.getElementById('call-notes').value='';
+      document.getElementById('sale-package').style.display='none';
+      // Show onboarding prompt
+      setTimeout(function(){
+        loadDialLog(); loadStats();
+        // Show onboarding banner
+        var banner = document.getElementById('onboarding-banner');
+        if(banner) {
+          banner.style.display='block';
+          banner.innerHTML = '<div style="background:#DCFCE7;border:2px solid #166534;border-radius:12px;padding:16px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">' +
+            '<div><div style="font-size:14px;font-weight:800;color:#166534;">🎉 Sale logged for '+soldName+'!</div>' +
+            '<div style="font-size:12px;color:#166534;margin-top:3px;">Commission recorded. Start onboarding this client now.</div></div>' +
+            '<a href="/client-onboarding.html?name='+encodeURIComponent(soldName)+'&phone='+encodeURIComponent(soldPhone)+'" target="_blank" style="padding:10px 20px;background:#166534;color:white;border-radius:8px;font-size:13px;font-weight:800;text-decoration:none;white-space:nowrap;">🚀 Start Onboarding →</a>' +
+            '</div>';
+        }
+      }, 800);
+    } else {
+      msg.style.color='#166534'; msg.textContent='✅ Call logged!';
+      document.getElementById('lead-name').value='';
+      document.getElementById('lead-phone').value='';
+      document.getElementById('call-outcome').value='';
+      document.getElementById('call-notes').value='';
+      document.getElementById('sale-package').style.display='none';
+      setTimeout(function(){msg.textContent='';loadDialLog();loadStats();}, 1500);
+    }
   } catch(e) { msg.style.color='#8B1A1A'; msg.textContent='Error: '+e.message; }
 }
 
