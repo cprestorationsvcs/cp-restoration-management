@@ -195,6 +195,13 @@ async function clockIn() {
 
   // Save session start to Supabase
   try {
+    // First close any existing active sessions for this employee
+    await fetch(_SUPA+'/time_sessions?employee_name=eq.'+encodeURIComponent(_name)+'&status=eq.active', {
+      method:'PATCH',
+      headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({status:'completed', clock_out:new Date().toISOString()})
+    }).catch(function(){});
+
     var r = await fetch(_SUPA+'/time_sessions', {
       method:'POST',
       headers:Object.assign({},_HDR,{'Prefer':'return=representation'}),
