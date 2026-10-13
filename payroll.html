@@ -145,6 +145,29 @@ function calcPay(emp, period, bonuses) {
 
 var _bonuses = {};
 
+var _hours = {};
+
+async function loadHours(workStart, workEnd) {
+  _hours = {};
+  try {
+    var r = await fetch(_SUPA+'/time_sessions?date=gte.'+workStart+'&date=lte.'+workEnd+'&status=eq.completed&select=employee_email,employee_name,active_hours,date',{headers:_HDR});
+    var sessions = await r.json();
+    if(!Array.isArray(sessions)) return;
+    sessions.forEach(function(s) {
+      var key = s.employee_email || s.employee_name;
+      if(!key) return;
+      if(!_hours[key]) _hours[key] = {hours:0, days:new Set()};
+      _hours[key].hours += parseFloat(s.active_hours||0);
+      _hours[key].days.add(s.date);
+    });
+    // Convert days Set to count and round hours
+    Object.keys(_hours).forEach(function(k) {
+      _hours[k].hours = Math.round(_hours[k].hours * 10) / 10;
+      _hours[k].days = _hours[k].days.size;
+    });
+  } catch(e) { console.error('Load hours error:', e); }
+}
+
 async function loadBonuses(workStart, workEnd) {
   _bonuses = {};
   try {
@@ -191,7 +214,8 @@ async function showPeriod(view, btn) {
 
     for (var pi=0; pi<upcoming.length; pi++) {
       var p = upcoming[pi];
-      await loadBonuses(p.workStart, p.workEnd);
+      await loadHours(p.workStart, p.workEnd);
+  await loadBonuses(p.workStart, p.workEnd);
       var periodTotal = 0; var periodBonus = 0;
       var rows = ROSTER.map(function(emp) {
         var pay = calcPay(emp, p, _bonuses);
@@ -211,7 +235,7 @@ async function showPeriod(view, btn) {
       if (pi===0) { nextTotal=periodTotal; }
       html += '<div class="payroll-card">'+
         '<div class="pc-header"><div><div class="pc-date">📅 '+p.label+'</div><div class="pc-period">Work period: '+p.workStart+' to '+p.workEnd+'</div></div><div class="pc-total">$'+periodTotal.toFixed(2)+'</div></div>'+
-        '<table><thead><tr><th>Employee</th><th>Role</th><th>Base Pay</th><th>Bonus</th><th>Total</th><th>Notes</th></tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+        '<table><thead><tr><th>Employee</th><th>Role</th><th>Hours</th><th>Days</th><th>Base Pay</th><th>Bonus</th><th>Total</th><th>Notes</th></tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
     }
     content.innerHTML = html;
     document.getElementById('s-next').textContent='$'+nextTotal.toFixed(2);
