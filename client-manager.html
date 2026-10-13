@@ -337,6 +337,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
         <button class="tab-btn" onclick="eTab('disputes',this)">Disputes</button>
         <button class="tab-btn" onclick="eTab('docs',this)">Documents</button>
         <button class="tab-btn" onclick="eTab('notes',this)">Notes</button>
+        <button class="tab-btn" onclick="eTab('calls-tab',this);loadClientCalls()">📞 Calls</button>
       </div>
 
       <!-- PERSONAL -->
@@ -461,6 +462,27 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
       <!-- NOTES -->
       <div id="e-notes" style="display:none;">
         <div class="fld"><label>Internal Notes (Team Only)</label><textarea id="e-notes-txt" style="min-height:200px;" placeholder="Internal notes not visible to client."></textarea></div>
+      </div>
+
+      <!-- CALLS TAB -->
+      <div id="e-calls-tab" style="display:none;">
+        <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13px;font-weight:800;color:#1B3A6B;">📞 AI Receptionist Call History</span>
+          <button onclick="loadClientCalls()" style="padding:6px 14px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">🔄 Refresh</button>
+        </div>
+        <div id="e-calls-list" style="font-size:12px;color:#64748B;">Loading calls...</div>
+
+        <div style="margin-top:20px;border-top:1.5px solid #E2E8F0;padding-top:16px;">
+          <div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:10px;">🔐 Authorized Contacts</div>
+          <p style="font-size:11px;color:#64748B;margin-bottom:10px;">People authorized to access this client's file info over the phone (spouse, parent, attorney, etc.)</p>
+          <div id="e-auth-contacts-list" style="margin-bottom:10px;"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input id="e-auth-name" placeholder="Contact Name" style="padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;flex:1;min-width:120px;">
+            <input id="e-auth-phone" placeholder="Phone" style="padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;flex:1;min-width:120px;">
+            <input id="e-auth-rel" placeholder="Relationship" style="padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;flex:1;min-width:120px;">
+            <button onclick="addAuthContact()" style="padding:8px 16px;background:#C9A84C;color:#0A1628;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">+ Add</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-foot">
@@ -1369,6 +1391,94 @@ document.addEventListener('change', function(e) {
     if (clientId && analyst) assignAnalyst(clientId, analyst);
   }
 });
+
+// ── AI RECEPTIONIST CALLS TAB ──────────────────────────
+async function loadClientCalls() {
+  if (!currentClient) return;
+  const list = document.getElementById('e-calls-list');
+  if (!list) return;
+  list.innerHTML = 'Loading...';
+  try {
+    const r = await fetch(SUPA + '/call_logs?record_id=eq.' + encodeURIComponent(currentClient.id) + '&order=created_at.desc&limit=20', {headers: HDR});
+    const logs = await r.json();
+    if (!Array.isArray(logs) || !logs.length) {
+      list.innerHTML = '<div style="text-align:center;padding:24px;color:#94A3B8;">No call history for this client.</div>';
+      return;
+    }
+    const outcomeColor = {booked:'#166534',transferred:'#1B3A6B',callback:'#92400E',abandoned:'#991B1B',info_only:'#475569'};
+    list.innerHTML = logs.map(function(l) {
+      const dt = l.created_at ? new Date(l.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+      const dur = l.duration_sec ? Math.floor(l.duration_sec/60)+'m '+l.duration_sec%60+'s' : '—';
+      const oc = l.outcome || 'unknown';
+      const col = outcomeColor[oc] || '#475569';
+      return '<div style="border:1.5px solid #E2E8F0;border-radius:8px;padding:12px;margin-bottom:8px;">' +
+        '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;">' +
+          '<div><span style="font-weight:700;">' + (l.caller_number||'Unknown') + '</span> · ' + dt + ' · ' + dur + '</div>' +
+          '<div style="display:flex;gap:6px;">' +
+            (l.verified ? '<span style="background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">✅ Verified</span>' : '') +
+            '<span style="background:#F1F5F9;color:'+col+';padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">' + oc + '</span>' +
+            (l.follow_up_needed && !l.follow_up_done ? '<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">🚨 Follow-Up</span>' : '') +
+          '</div>' +
+        '</div>' +
+        (l.summary ? '<div style="margin-top:6px;padding:8px;background:#F8FAFC;border-radius:6px;font-size:11px;color:#475569;">' + l.summary + '</div>' : '') +
+      '</div>';
+    }).join('');
+
+    // Load authorized contacts
+    loadAuthContacts();
+  } catch(e) {
+    list.innerHTML = '<div style="color:#991B1B;">Error loading calls: ' + e.message + '</div>';
+  }
+}
+
+function loadAuthContacts() {
+  const cl = document.getElementById('e-auth-contacts-list');
+  if (!cl || !currentClient) return;
+  var contacts = [];
+  try { contacts = JSON.parse(currentClient.authorized_contacts || '[]'); } catch(e) {}
+  if (!contacts.length) { cl.innerHTML = '<div style="color:#94A3B8;font-size:11px;">No authorized contacts added.</div>'; return; }
+  cl.innerHTML = contacts.map(function(c, i) {
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#F8FAFC;border-radius:6px;margin-bottom:6px;font-size:12px;">' +
+      '<span><strong>' + (c.name||'') + '</strong> · ' + (c.phone||'') + ' · ' + (c.relationship||'') + '</span>' +
+      '<button onclick="removeAuthContact(' + i + ')" style="background:none;border:none;color:#991B1B;cursor:pointer;font-size:14px;">×</button>' +
+    '</div>';
+  }).join('');
+}
+
+async function addAuthContact() {
+  if (!currentClient) return;
+  var name = document.getElementById('e-auth-name').value.trim();
+  var phone = document.getElementById('e-auth-phone').value.trim();
+  var rel = document.getElementById('e-auth-rel').value.trim();
+  if (!name) return;
+  var contacts = [];
+  try { contacts = JSON.parse(currentClient.authorized_contacts || '[]'); } catch(e) {}
+  contacts.push({name, phone, relationship: rel});
+  await fetch(SUPA + '/clients?id=eq.' + encodeURIComponent(currentClient.id), {
+    method: 'PATCH',
+    headers: Object.assign({'Content-Type':'application/json','Prefer':'return=minimal'}, HDR),
+    body: JSON.stringify({authorized_contacts: JSON.stringify(contacts)})
+  });
+  currentClient.authorized_contacts = JSON.stringify(contacts);
+  document.getElementById('e-auth-name').value = '';
+  document.getElementById('e-auth-phone').value = '';
+  document.getElementById('e-auth-rel').value = '';
+  loadAuthContacts();
+}
+
+async function removeAuthContact(idx) {
+  if (!currentClient) return;
+  var contacts = [];
+  try { contacts = JSON.parse(currentClient.authorized_contacts || '[]'); } catch(e) {}
+  contacts.splice(idx, 1);
+  await fetch(SUPA + '/clients?id=eq.' + encodeURIComponent(currentClient.id), {
+    method: 'PATCH',
+    headers: Object.assign({'Content-Type':'application/json','Prefer':'return=minimal'}, HDR),
+    body: JSON.stringify({authorized_contacts: JSON.stringify(contacts)})
+  });
+  currentClient.authorized_contacts = JSON.stringify(contacts);
+  loadAuthContacts();
+}
 </script>
 </body>
 </html>
