@@ -162,13 +162,37 @@ var _screenshots = [];
 var _stream      = null;
 
 // Init — redirect to login if no session
+// All employees with their details
+var ALL_EMPLOYEES = {
+  'queen@mycprteam.com':          {name:'Queen Jearel Cruz',       role:'compliance', initials:'QJ'},
+  'elna@mycprteam.com':           {name:'Elna Palabrica',          role:'cs',         initials:'EP'},
+  'alec@mycprteam.com':           {name:'Alec Sarrosa',            role:'cs',         initials:'AS'},
+  'marcelo@mycprteam.com':        {name:'Marcelo Torres',          role:'dispute',    initials:'MT'},
+  'annabel@mycprteam.com':        {name:'Annabel Curada',          role:'dispute',    initials:'AC'},
+  'bukunmi@mycprteam.com':        {name:'Bukunmi Aina',            role:'leadgen',    initials:'BA'},
+  'fcacaasi@gmail.com':           {name:'Fatima Charfina Caasi',   role:'bureau',     initials:'FC'},
+  'raymon.guevarra@mycprteam.com':{name:'Raymon Guevarra',         role:'sales',      initials:'RG'},
+  'jose.perez@mycprteam.com':     {name:'Jose Isidro Perez',       role:'sales',      initials:'JP'},
+  'elmer.jungco@mycprteam.com':   {name:'Elmer Jungco',            role:'sales',      initials:'EJ'},
+  'cherry.manlapaz@mycprteam.com':{name:'Cherry Manlapaz',         role:'sales',      initials:'CM'},
+  'raven.pasco@mycprteam.com':    {name:'Raven Pasco',             role:'sales',      initials:'RP'},
+  'rosemarie.deguzman@mycprteam.com':{name:'Rosemarie De Guzman',  role:'bureau',     initials:'RD'},
+  'redan.abella@mycprteam.com':   {name:'Redan Abella',            role:'bureau',     initials:'RA'},
+  'jason@mycprteam.com':          {name:'Jason Crown',             role:'admin',      initials:'JC'},
+};
+
 if(!_email || !_name) {
-  document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F8FAFC;font-family:system-ui,sans-serif;">' +
-    '<div style="background:white;border-radius:14px;border:2px solid #E2E8F0;padding:40px;text-align:center;max-width:400px;">' +
-    '<div style="font-size:40px;margin-bottom:16px;">🔐</div>' +
-    '<div style="font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:8px;">Please Log In First</div>' +
-    '<div style="font-size:13px;color:#64748B;margin-bottom:24px;">You need to log in through the main portal before using the Time Tracker.</div>' +
-    '<a href="https://portal-cprestorationsvcs.com" style="display:inline-block;padding:12px 28px;background:#1B3A6B;color:white;border-radius:8px;font-weight:800;font-size:14px;text-decoration:none;">Go to Portal Login →</a>' +
+  // Show employee selector instead of redirect
+  document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F8FAFC;font-family:Inter,system-ui,sans-serif;">' +
+    '<div style="background:white;border-radius:14px;border:2px solid #E2E8F0;padding:40px;text-align:center;max-width:400px;width:100%;">' +
+    '<div style="width:56px;height:56px;background:#1B3A6B;border-radius:14px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;"><span style="color:#C9A84C;font-size:20px;font-weight:900;">CPR</span></div>' +
+    '<div style="font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:6px;">Time Tracker</div>' +
+    '<div style="font-size:13px;color:#64748B;margin-bottom:24px;">Select your name to clock in</div>' +
+    '<select id="emp-select" style="width:100%;padding:12px;border:2px solid #E2E8F0;border-radius:8px;font-size:14px;margin-bottom:16px;font-family:Inter,sans-serif;">' +
+    '<option value="">-- Select your name --</option>' +
+    Object.entries(ALL_EMPLOYEES).map(function(e){return '<option value="'+e[0]+'">'+e[1].name+'</option>';}).join('') +
+    '</select>' +
+    '<button onclick="manualLogin()" style="width:100%;padding:14px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">Clock In →</button>' +
     '</div></div>';
 } else {
   document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
@@ -521,6 +545,20 @@ async function logWorkEntry(action, details, qty) {
 </script>
 <script>
 (function(){var t=localStorage.getItem("cp_theme")||"light";document.documentElement.setAttribute("data-theme",t);})();
+
+function manualLogin() {
+  var sel = document.getElementById('emp-select');
+  if(!sel || !sel.value) { alert('Please select your name.'); return; }
+  var email = sel.value;
+  var emp = ALL_EMPLOYEES[email];
+  if(!emp) { alert('Employee not found.'); return; }
+  localStorage.setItem('cp_logged_in_user', email);
+  localStorage.setItem('cp_logged_in_name', emp.name);
+  localStorage.setItem('cp_logged_in_role', emp.role);
+  localStorage.setItem('cp_logged_in_initials', emp.initials);
+  window.location.reload();
+}
+
 </script>
 </body>
 </html>
