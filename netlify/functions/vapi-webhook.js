@@ -499,12 +499,24 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  // Verify VAPI secret
+  // Verify VAPI secret — Netlify normalizes headers to lowercase
   if (VAPI_SECRET) {
-    const incoming = event.headers['x-vapi-secret'] || event.headers['X-Vapi-Secret'] || '';
-    if (incoming !== VAPI_SECRET) {
-      return { statusCode: 401, body: 'Unauthorized' };
+    // Check all possible header casings (Netlify lowercases everything)
+    const headerKeys = Object.keys(event.headers || {});
+    const secretKey = headerKeys.find(k => k.toLowerCase() === 'x-vapi-secret');
+    const incoming = secretKey ? (event.headers[secretKey] || '').trim() : '';
+    const expected = VAPI_SECRET.trim();
+
+    // Log whether header arrived (not its value)
+    console.log('[VAPI-AUTH] x-vapi-secret header present:', !!incoming, '| header key found:', secretKey || 'MISSING');
+
+    if (incoming !== expected) {
+      console.log('[VAPI-AUTH] 401 — secret mismatch. Header arrived:', !!incoming);
+      return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized', headerPresent: !!incoming }) };
     }
+    console.log('[VAPI-AUTH] 200 — secret verified OK');
+  } else {
+    console.log('[VAPI-AUTH] VAPI_SECRET env var not set — skipping auth check');
   }
 
   let body;
