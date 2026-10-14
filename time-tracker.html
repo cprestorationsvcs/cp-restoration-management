@@ -2,603 +2,208 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Time Tracker — CP Restoration Services</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Tracker | CP Restoration</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',system-ui,sans-serif;background:#F1F5F9;min-height:100vh;}
-header{background:#1B3A6B;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
-header h1{color:white;font-size:16px;font-weight:800;}
-.status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
-.dot-active{background:#22C55E;animation:pulse 1.5s infinite;}
-.dot-idle{background:#F59E0B;}
-.dot-off{background:#94A3B8;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-.container{max-width:900px;margin:0 auto;padding:20px;}
-.session-card{background:white;border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
-.session-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-.session-title{font-size:16px;font-weight:800;color:#1B3A6B;}
-.timer-display{font-size:48px;font-weight:800;color:#1B3A6B;font-family:monospace;text-align:center;padding:20px 0;}
-.timer-sub{text-align:center;font-size:13px;color:#64748B;margin-bottom:20px;}
-.btn-row{display:flex;gap:10px;justify-content:center;}
-.btn-clockin{padding:14px 32px;background:#166534;color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;}
-.btn-clockout{padding:14px 32px;background:#DC2626;color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;}
-.btn-ss{padding:14px 24px;background:#1B3A6B;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;}
-.btn-disabled{opacity:.4;cursor:not-allowed;}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:20px;}
-.stat-box{background:#F8FAFC;border-radius:10px;padding:14px;text-align:center;border:1.5px solid #E2E8F0;}
-.stat-num{font-size:22px;font-weight:800;color:#1B3A6B;}
-.stat-lbl{font-size:11px;color:#64748B;margin-top:3px;}
-.idle-banner{background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#92400E;display:none;}
-.screenshots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:16px;}
-.ss-thumb{border-radius:8px;overflow:hidden;border:1.5px solid #E2E8F0;position:relative;}
-.ss-thumb img{width:100%;display:block;}
-.ss-thumb .ss-time{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:white;font-size:10px;padding:4px 8px;}
-.history-table table{width:100%;border-collapse:collapse;}
-.history-table th{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;padding:10px 14px;border-bottom:2px solid #F1F5F9;text-align:left;}
-.history-table td{font-size:13px;padding:10px 14px;border-bottom:1px solid #F8FAFC;color:#1E293B;}
-.pay-badge{display:inline-block;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;}
-.screen-request{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:16px;text-align:center;margin-bottom:16px;}
-.screen-request button{padding:10px 20px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;}
-
-/* DARK MODE */
-[data-theme="dark"] { color-scheme: dark; }
-[data-theme="dark"] body { background: #0F172A !important; color: #F1F5F9 !important; }
-[data-theme="dark"] .card, [data-theme="dark"] .section, [data-theme="dark"] table { background: #1E293B !important; }
-[data-theme="dark"] th { background: #0F172A !important; color: #94A3B8 !important; }
-[data-theme="dark"] td { border-color: #1E293B !important; color: #F1F5F9 !important; }
-[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: #0F172A !important; border-color: #334155 !important; color: #F1F5F9 !important; }
-/* SKELETON */
-.skeleton { background: linear-gradient(90deg,#E2E8F0 25%,#F1F5F9 50%,#E2E8F0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; }
-@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-/* BUTTON ACTIVE */
-button:active { transform: translateY(1px); }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+body { background: #1B3A6B; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.card { background: white; border-radius: 20px; padding: 36px 32px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.logo { text-align: center; margin-bottom: 28px; }
+.logo-badge { width: 60px; height: 60px; background: #1B3A6B; border-radius: 14px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; }
+.logo-badge span { color: #C9A84C; font-size: 18px; font-weight: 900; }
+.logo h1 { color: #1B3A6B; font-size: 20px; font-weight: 800; }
+.logo p { color: #C9A84C; font-size: 12px; font-weight: 600; margin-top: 2px; }
+label { display: block; font-size: 11px; font-weight: 700; color: #1B3A6B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; margin-top: 16px; }
+select, input { width: 100%; padding: 12px 14px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; color: #1E293B; }
+select:focus, input:focus { border-color: #1B3A6B; }
+.btn { width: 100%; padding: 14px; background: #1B3A6B; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 20px; font-family: 'Inter', sans-serif; }
+.btn:hover { background: #142d55; }
+.btn:disabled { background: #94A3B8; cursor: not-allowed; }
+.btn-out { background: #8B1A1A; }
+.btn-out:hover { background: #6b1414; }
+.timer { text-align: center; font-size: 48px; font-weight: 900; color: #1B3A6B; margin: 20px 0 8px; letter-spacing: -2px; }
+.timer-label { text-align: center; font-size: 12px; color: #94A3B8; font-weight: 600; margin-bottom: 20px; }
+.status { text-align: center; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; margin-top: 16px; display: none; }
+.status.success { background: #DCFCE7; color: #166534; display: block; }
+.status.error { background: #FEE2E2; color: #991B1B; display: block; }
+.clocked-in-badge { display: none; text-align: center; background: #DCFCE7; border-radius: 10px; padding: 12px; margin-top: 16px; font-size: 13px; font-weight: 700; color: #166534; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.2/phosphor.min.js"></script>
 </head>
 <body>
-<header>
-  <h1>⏱️ Time Tracker — CP Restoration Services</h1>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <span class="status-dot dot-off" id="status-dot"></span>
-    <span style="color:white;font-size:13px;font-weight:600;" id="status-text">Not clocked in</span>
-  </div>
-</header>
-
-<div class="container">
-
-  <!-- SCREEN PERMISSION REQUEST -->
-  <div class="screen-request" id="screen-request" style="display:none;">
-    <div style="font-size:14px;font-weight:700;color:#1B3A6B;margin-bottom:6px;">📸 Screen Monitoring Required</div>
-    <div style="font-size:13px;color:#374151;">CP Restoration monitors work sessions via automatic screenshots every 30 minutes. Please grant screen sharing permission to clock in.</div>
-    <button onclick="requestScreenAccess()">🖥️ Grant Screen Access</button>
+<div class="card">
+  <div class="logo">
+    <div class="logo-badge"><span>CPR</span></div>
+    <h1>CP Restoration Services</h1>
+    <p>Time Tracker</p>
   </div>
 
-  <!-- IDLE ALERT -->
-  <div class="idle-banner" id="idle-banner">
-    ⏸️ <strong>You appear to be idle.</strong> Move your mouse to resume tracking. Time paused after 10 minutes of inactivity.
+  <div id="select-screen">
+    <label>Select Your Name</label>
+    <select id="name-select">
+      <option value="">-- Select your name --</option>
+      <option value="jason@mycprteam.com|Jason Crown|admin">Jason Crown</option>
+      <option value="queen@mycprteam.com|Queen Jearel Cruz|compliance">Queen Jearel Cruz</option>
+      <option value="elna@mycprteam.com|Elna Palabrica|cs">Elna Palabrica</option>
+      <option value="alec@mycprteam.com|Alec Sarrosa|cs">Alec Sarrosa</option>
+      <option value="marcelo@mycprteam.com|Marcelo Torres|dispute">Marcelo Torres</option>
+      <option value="annabel@mycprteam.com|Annabel Curada|dispute">Annabel Curada</option>
+      <option value="bukunmi@mycprteam.com|Bukunmi Aina|leadgen">Bukunmi Aina</option>
+      <option value="fcacaasi@gmail.com|Fatima Charfina Caasi|bureau">Fatima Charfina Caasi</option>
+      <option value="raymon.guevarra@mycprteam.com|Raymon Guevarra|sales">Raymon Guevarra</option>
+      <option value="jose.perez@mycprteam.com|Jose Perez (Sid)|sales">Jose Perez (Sid)</option>
+      <option value="elmer.jungco@mycprteam.com|Elmer Jungco|sales">Elmer Jungco</option>
+      <option value="cherry.manlapaz@mycprteam.com|Cherry Manlapaz|sales">Cherry Manlapaz</option>
+      <option value="raven.pasco@mycprteam.com|Raven Pasco|sales">Raven Pasco</option>
+      <option value="rosemarie.deguzman@mycprteam.com|Rosemarie De Guzman|bureau">Rosemarie De Guzman</option>
+      <option value="redan.abella@mycprteam.com|Redan Abella|bureau">Redan Abella</option>
+    </select>
+    <button class="btn" onclick="confirmName()">Continue →</button>
   </div>
 
-  <!-- SESSION CARD -->
-  <div class="session-card">
-    <div class="session-header">
-      <div class="session-title">Today's Session — <span id="today-date"></span></div>
-      <select id="employee-name" onchange="switchEmployee(this.value)" style="font-size:13px;color:#1B3A6B;background:white;border:1.5px solid #E2E8F0;border-radius:6px;padding:6px 10px;cursor:pointer;font-family:Inter,sans-serif;max-width:100%;margin-top:4px;">
-  <option value="">-- Select your name --</option>
-  <option value="jason@mycprteam.com|Jason Crown|admin">Jason Crown</option>
-  <option value="queen@mycprteam.com|Queen Jearel Cruz|compliance">Queen Jearel Cruz</option>
-  <option value="elna@mycprteam.com|Elna Palabrica|cs">Elna Palabrica</option>
-  <option value="alec@mycprteam.com|Alec Sarrosa|cs">Alec Sarrosa</option>
-  <option value="marcelo@mycprteam.com|Marcelo Torres|dispute">Marcelo Torres</option>
-  <option value="annabel@mycprteam.com|Annabel Curada|dispute">Annabel Curada</option>
-  <option value="bukunmi@mycprteam.com|Bukunmi Aina|leadgen">Bukunmi Aina</option>
-  <option value="fcacaasi@gmail.com|Fatima Charfina Caasi|bureau">Fatima Charfina Caasi</option>
-  <option value="raymon.guevarra@mycprteam.com|Raymon Guevarra|sales">Raymon Guevarra</option>
-  <option value="jose.perez@mycprteam.com|Jose Perez (Sid)|sales">Jose Perez (Sid)</option>
-  <option value="elmer.jungco@mycprteam.com|Elmer Jungco|sales">Elmer Jungco</option>
-  <option value="cherry.manlapaz@mycprteam.com|Cherry Manlapaz|sales">Cherry Manlapaz</option>
-  <option value="raven.pasco@mycprteam.com|Raven Pasco|sales">Raven Pasco</option>
-  <option value="rosemarie.deguzman@mycprteam.com|Rosemarie De Guzman|bureau">Rosemarie De Guzman</option>
-  <option value="redan.abella@mycprteam.com|Redan Abella|bureau">Redan Abella</option>
-</select>
-    </div>
-
-    <div class="timer-display" id="timer">00:00:00</div>
-    <div class="timer-sub" id="timer-sub">Clock in to start tracking</div>
-
-    <div class="btn-row">
-      <button class="btn-clockin" id="btn-clockin" onclick="clockIn()">⏺ Clock In</button>
-      <button class="btn-clockout btn-disabled" id="btn-clockout" onclick="clockOut()" disabled>⏹ Clock Out</button>
-      <button class="btn-ss" onclick="takeScreenshot()">📸 Screenshot</button>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-box"><div class="stat-num" id="s-hours">0.0</div><div class="stat-lbl">Hours Today</div></div>
-      <div class="stat-box"><div class="stat-num" id="s-daily-pay">$0</div><div class="stat-lbl">Earned Today</div></div>
-      <div class="stat-box"><div class="stat-num" id="s-week-hours">0.0</div><div class="stat-lbl">Hours This Week</div></div>
-      <div class="stat-box"><div class="stat-num" id="s-week-pay">$0</div><div class="stat-lbl">Earned This Week</div></div>
-      <div class="stat-box"><div class="stat-num" id="s-screenshots">0</div><div class="stat-lbl">Screenshots</div></div>
-      <div class="stat-box"><div class="stat-num" id="s-idle">0</div><div class="stat-lbl">Idle Minutes</div></div>
-    </div>
+  <div id="clock-screen" style="display:none;">
+    <div style="text-align:center;margin-bottom:8px;font-size:13px;color:#64748B;" id="greeting">Good morning</div>
+    <div style="text-align:center;font-size:22px;font-weight:800;color:#1B3A6B;" id="display-name"></div>
+    <div style="text-align:center;font-size:11px;color:#94A3B8;margin-bottom:16px;" id="display-date"></div>
+    <div class="timer" id="timer-display">00:00:00</div>
+    <div class="timer-label" id="timer-label">Not clocked in</div>
+    <button class="btn" id="btn-in" onclick="clockIn()">⏺ Clock In</button>
+    <button class="btn btn-out" id="btn-out" onclick="clockOut()" style="display:none;">⏹ Clock Out</button>
+    <div class="clocked-in-badge" id="clocked-badge">✅ You are clocked in</div>
+    <div style="text-align:center;margin-top:16px;"><a href="#" onclick="changeName()" style="font-size:12px;color:#94A3B8;">Not you? Switch name</a></div>
+    <div id="status-msg" class="status"></div>
   </div>
-
-  <!-- SCREENSHOTS -->
-  <div class="session-card" id="ss-card" style="display:none;">
-    <div class="session-title" style="margin-bottom:12px;">📸 Today's Screenshots</div>
-    <div class="screenshots-grid" id="screenshots-grid"></div>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="session-card">
-    <div class="session-title" style="margin-bottom:12px;">📋 Recent Sessions</div>
-    <div class="history-table">
-      <table>
-        <thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Active</th><th>Idle</th><th>Pay Earned</th></tr></thead>
-        <tbody id="history-tbody"><tr><td colspan="7" style="text-align:center;padding:20px;color:#94A3B8;">Loading...</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
 </div>
 
 <script>
-var _KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
-var _SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
-var _HDR  = {'apikey':_KEY,'Authorization':'Bearer '+_KEY,'Content-Type':'application/json'};
+var SUPA = "https://jzkfembagpiuuoexmpoy.supabase.co";
+var KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50";
+var HDR  = {"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json","Prefer":"return=minimal"};
 
-// Employee info
-var _email  = sessionStorage.getItem('cp_logged_in_user')  || localStorage.getItem('cp_logged_in_user')  || '';
-var _name   = sessionStorage.getItem('cp_logged_in_name')  || localStorage.getItem('cp_logged_in_name')  || '';
-var _role   = sessionStorage.getItem('cp_logged_in_role')  || localStorage.getItem('cp_logged_in_role')  || '';
+var _email = '', _name = '', _role = '';
+var _sessionId = null, _clockedIn = false, _clockInTime = null;
+var _timer = null;
 
-// Pay rates per week / 5 days
-var PAY_RATES = {
-  'queen@mycprteam.com':200,'elna@mycprteam.com':100,'alec@mycprteam.com':100,
-  'marcelo@mycprteam.com':100,'kimwell@mycprteam.com':100,'annabel@mycprteam.com':100,
-  'bukunmi@mycprteam.com':250,'fcacaasi@gmail.com':100,
-  'raymon.guevarra@mycprteam.com':100,'jose.perez@mycprteam.com':100,
-  'elmer.jungco@mycprteam.com':100,'cherry.manlapaz@mycprteam.com':100,
-  'raven.pasco@mycprteam.com':100,'rosemarie.deguzman@mycprteam.com':100,
-  'redan.abella@mycprteam.com':100,'jason@mycprteam.com':0
-};
-var _dailyRate = (PAY_RATES[_email] || 100) / 5; // daily rate
-
-// Session state
-var _clockedIn   = false;
-var _clockInTime = null;
-var _sessionId   = null;
-var _timerInterval = null;
-var _heartbeatInterval = null;
-var _ssInterval  = null;
-var _idleTimer   = null;
-var _idleSeconds = 0;
-var _activeSeconds = 0;
-var _lastActivity = Date.now();
-var _ssCount     = 0;
-var _screenshots = [];
-var _stream      = null;
-
-// Init — redirect to login if no session
-// All employees with their details
-var ALL_EMPLOYEES = {
-  'queen@mycprteam.com':          {name:'Queen Jearel Cruz',       role:'compliance', initials:'QJ'},
-  'elna@mycprteam.com':           {name:'Elna Palabrica',          role:'cs',         initials:'EP'},
-  'alec@mycprteam.com':           {name:'Alec Sarrosa',            role:'cs',         initials:'AS'},
-  'marcelo@mycprteam.com':        {name:'Marcelo Torres',          role:'dispute',    initials:'MT'},
-  'annabel@mycprteam.com':        {name:'Annabel Curada',          role:'dispute',    initials:'AC'},
-  'bukunmi@mycprteam.com':        {name:'Bukunmi Aina',            role:'leadgen',    initials:'BA'},
-  'fcacaasi@gmail.com':           {name:'Fatima Charfina Caasi',   role:'bureau',     initials:'FC'},
-  'raymon.guevarra@mycprteam.com':{name:'Raymon Guevarra',         role:'sales',      initials:'RG'},
-  'jose.perez@mycprteam.com':     {name:'Jose Isidro Perez',       role:'sales',      initials:'JP'},
-  'elmer.jungco@mycprteam.com':   {name:'Elmer Jungco',            role:'sales',      initials:'EJ'},
-  'cherry.manlapaz@mycprteam.com':{name:'Cherry Manlapaz',         role:'sales',      initials:'CM'},
-  'raven.pasco@mycprteam.com':    {name:'Raven Pasco',             role:'sales',      initials:'RP'},
-  'rosemarie.deguzman@mycprteam.com':{name:'Rosemarie De Guzman',  role:'bureau',     initials:'RD'},
-  'redan.abella@mycprteam.com':   {name:'Redan Abella',            role:'bureau',     initials:'RA'},
-  'jason@mycprteam.com':          {name:'Jason Crown',             role:'admin',      initials:'JC'},
-};
-
-if(!_email || !_name) {
-  // Show employee selector instead of redirect
-  document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F8FAFC;font-family:Inter,system-ui,sans-serif;">' +
-    '<div style="background:white;border-radius:14px;border:2px solid #E2E8F0;padding:40px;text-align:center;max-width:400px;width:100%;">' +
-    '<div style="width:56px;height:56px;background:#1B3A6B;border-radius:14px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;"><span style="color:#C9A84C;font-size:20px;font-weight:900;">CPR</span></div>' +
-    '<div style="font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:6px;">Time Tracker</div>' +
-    '<div style="font-size:13px;color:#64748B;margin-bottom:24px;">Select your name to clock in</div>' +
-    '<select id="emp-select" style="width:100%;padding:12px;border:2px solid #E2E8F0;border-radius:8px;font-size:14px;margin-bottom:16px;font-family:Inter,sans-serif;">' +
-    '<option value="">-- Select your name --</option>' +
-    '<option value="jason@mycprteam.com">Jason Crown</option>' +
-    '<option value="queen@mycprteam.com">Queen Jearel Cruz</option>' +
-    '<option value="elna@mycprteam.com">Elna Palabrica</option>' +
-    '<option value="alec@mycprteam.com">Alec Sarrosa</option>' +
-    '<option value="marcelo@mycprteam.com">Marcelo Torres</option>' +
-    '<option value="annabel@mycprteam.com">Annabel Curada</option>' +
-    '<option value="bukunmi@mycprteam.com">Bukunmi Aina</option>' +
-    '<option value="fcacaasi@gmail.com">Fatima Charfina Caasi</option>' +
-    '<option value="raymon.guevarra@mycprteam.com">Raymon Guevarra</option>' +
-    '<option value="jose.perez@mycprteam.com">Jose Perez (Sid)</option>' +
-    '<option value="elmer.jungco@mycprteam.com">Elmer Jungco</option>' +
-    '<option value="cherry.manlapaz@mycprteam.com">Cherry Manlapaz</option>' +
-    '<option value="raven.pasco@mycprteam.com">Raven Pasco</option>' +
-    '<option value="rosemarie.deguzman@mycprteam.com">Rosemarie De Guzman</option>' +
-    '<option value="redan.abella@mycprteam.com">Redan Abella</option>' +
-    '</select>' +
-    '<button onclick="manualLogin()" style="width:100%;padding:14px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">Clock In →</button>' +
-    '</div></div>';
-} else {
-  // Pre-select current user in dropdown
-var sel = document.getElementById('employee-name');
-if(sel && sel.tagName === 'SELECT' && _email && _name) {
-  for(var i=0;i<sel.options.length;i++){
-    if(sel.options[i].value.startsWith(_email+'|')){
-      sel.selectedIndex = i; break;
-    }
-  }
-}
-document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  document.getElementById('employee-name').textContent = _name || 'Employee';
+function confirmName() {
+  var sel = document.getElementById('name-select');
+  if(!sel.value) { alert('Please select your name.'); return; }
+  var parts = sel.value.split('|');
+  _email = parts[0]; _name = parts[1]; _role = parts[2]||'staff';
+  localStorage.setItem('cp_logged_in_user', _email);
+  localStorage.setItem('cp_logged_in_name', _name);
+  localStorage.setItem('cp_logged_in_role', _role);
+  showClock();
 }
 
-// Mouse activity tracking
-document.addEventListener('mousemove', resetIdle);
-document.addEventListener('keydown', resetIdle);
-document.addEventListener('click', resetIdle);
-document.addEventListener('scroll', resetIdle);
-
-function resetIdle() {
-  _lastActivity = Date.now();
-  if (_clockedIn) {
-    document.getElementById('idle-banner').style.display='none';
-    document.getElementById('status-dot').className='status-dot dot-active';
-    document.getElementById('status-text').textContent='Active';
-  }
+function changeName() {
+  _email=''; _name=''; _role='';
+  if(_timer) clearInterval(_timer);
+  document.getElementById('select-screen').style.display='block';
+  document.getElementById('clock-screen').style.display='none';
 }
 
-async function requestScreenAccess() {
-  try {
-    _stream = await navigator.mediaDevices.getDisplayMedia({video:true, audio:false});
-    document.getElementById('screen-request').style.display='none';
-    alert('✅ Screen access granted. You can now clock in.');
-  } catch(e) {
-    alert('Screen access denied. Screenshots will not be captured, but time tracking will still work.');
-    document.getElementById('screen-request').style.display='none';
-  }
+function showClock() {
+  document.getElementById('select-screen').style.display='none';
+  document.getElementById('clock-screen').style.display='block';
+  document.getElementById('display-name').textContent = _name;
+  var now = new Date();
+  var hr = now.getHours();
+  var greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting').textContent = greeting + ',';
+  document.getElementById('display-date').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 }
 
 async function clockIn() {
-  if (!_email) { alert('Please log in first.'); return; }
-
-  // Request screen access if not already granted
-  if (!_stream) {
-    try {
-      _stream = await navigator.mediaDevices.getDisplayMedia({video:true, audio:false});
-    } catch(e) {
-      // Continue without screen capture
-      console.warn('Screen capture not available:', e.message);
-    }
-  }
-
-  _clockedIn   = true;
-  _clockInTime = new Date();
-  _idleSeconds = 0;
-  _activeSeconds = 0;
-  _ssCount     = 0;
-  _screenshots = [];
-
-  // Save session start to Supabase
+  if(_clockedIn) return;
+  var btn = document.getElementById('btn-in');
+  btn.disabled = true; btn.textContent = 'Clocking in...';
   try {
-    // First close any existing active sessions for this employee
-    await fetch(_SUPA+'/time_sessions?employee_name=eq.'+encodeURIComponent(_name)+'&status=eq.active', {
-      method:'PATCH',
-      headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
-      body:JSON.stringify({status:'completed', clock_out:new Date().toISOString()})
+    // Close any existing active sessions
+    await fetch(SUPA+'/rest/v1/time_sessions?employee_email=eq.'+encodeURIComponent(_email)+'&status=eq.active', {
+      method:'PATCH', headers:HDR, body:JSON.stringify({status:'completed',clock_out:new Date().toISOString()})
     }).catch(function(){});
-
-    var r = await fetch(_SUPA+'/time_sessions', {
+    // Create new session
+    var r = await fetch(SUPA+'/rest/v1/time_sessions', {
       method:'POST',
-      headers:Object.assign({},_HDR,{'Prefer':'return=representation'}),
+      headers:Object.assign({},HDR,{'Prefer':'return=representation'}),
       body:JSON.stringify({
         employee_email:_email, employee_name:_name, role:_role,
-        clock_in:_clockInTime.toISOString(),
-        date:_clockInTime.toISOString().split('T')[0],
+        clock_in:new Date().toISOString(),
+        date:new Date().toISOString().split('T')[0],
         status:'active'
       })
     });
     var data = await r.json();
-    _sessionId = Array.isArray(data) ? data[0]?.id : data?.id;
-  } catch(e) { console.error('Clock in save error:', e); }
-
-  // Update UI
-  document.getElementById('btn-clockin').disabled=true;
-  document.getElementById('btn-clockin').classList.add('btn-disabled');
-  document.getElementById('btn-clockout').disabled=false;
-  document.getElementById('btn-clockout').classList.remove('btn-disabled');
-  document.getElementById('status-dot').className='status-dot dot-active';
-  document.getElementById('status-text').textContent='Active';
-  document.getElementById('timer-sub').textContent='Clocked in at '+_clockInTime.toLocaleTimeString();
-
-  // Start timer
-  _timerInterval = setInterval(updateTimer, 1000);
-
-  // Heartbeat every 60 seconds
-  _heartbeatInterval = setInterval(saveHeartbeat, 60000);
-
-  // Screenshot every 30 minutes
-  _ssInterval = setInterval(takeScreenshot, 30*60*1000);
-
-  // Idle check every 30 seconds
-  _idleTimer = setInterval(checkIdle, 30000);
-
-  // Also log to work_log
-  logWorkEntry('Clock In', 'Session started at '+_clockInTime.toLocaleTimeString(), 1);
+    _sessionId = Array.isArray(data) ? data[0].id : data.id;
+    _clockedIn = true;
+    _clockInTime = new Date();
+    document.getElementById('btn-in').style.display='none';
+    document.getElementById('btn-out').style.display='block';
+    document.getElementById('clocked-badge').style.display='block';
+    document.getElementById('timer-label').textContent = 'Session started at '+_clockInTime.toLocaleTimeString();
+    showStatus('Clocked in successfully!','success');
+    _timer = setInterval(updateTimer, 1000);
+  } catch(e) {
+    btn.disabled=false; btn.textContent='⏺ Clock In';
+    showStatus('Error clocking in. Please try again.','error');
+  }
 }
 
 async function clockOut() {
-  if (!_clockedIn) return;
-  _clockedIn = false;
-  var clockOutTime = new Date();
-  var totalMs = clockOutTime - _clockInTime;
-  var totalHours = (totalMs / 3600000).toFixed(2);
-  var activeHours = (_activeSeconds / 3600).toFixed(2);
-  var idleMins = Math.round(_idleSeconds / 60);
-  var payEarned = (_dailyRate * parseFloat(activeHours) / 8).toFixed(2); // 8hr work day
-
-  // Clear all intervals
-  clearInterval(_timerInterval);
-  clearInterval(_heartbeatInterval);
-  clearInterval(_ssInterval);
-  clearInterval(_idleTimer);
-
-  // Save to Supabase
-  if (_sessionId) {
-    try {
-      await fetch(_SUPA+'/time_sessions?id=eq.'+_sessionId, {
-        method:'PATCH',
-        headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
-        body:JSON.stringify({
-          clock_out:clockOutTime.toISOString(),
-          total_hours:parseFloat(totalHours),
-          active_hours:parseFloat(activeHours),
-          idle_minutes:idleMins,
-          screenshots_count:_ssCount,
-          pay_earned:parseFloat(payEarned),
-          status:'completed'
-        })
-      });
-    } catch(e) { console.error('Clock out save:', e); }
+  if(!_clockedIn) return;
+  var btn = document.getElementById('btn-out');
+  btn.disabled=true; btn.textContent='Clocking out...';
+  try {
+    var now = new Date();
+    var hrs = (now - _clockInTime) / 3600000;
+    await fetch(SUPA+'/rest/v1/time_sessions?id=eq.'+_sessionId, {
+      method:'PATCH', headers:HDR,
+      body:JSON.stringify({status:'completed',clock_out:now.toISOString(),active_hours:Math.round(hrs*100)/100})
+    });
+    clearInterval(_timer);
+    _clockedIn=false; _sessionId=null;
+    document.getElementById('btn-out').style.display='none';
+    document.getElementById('btn-in').style.display='block';
+    document.getElementById('btn-in').disabled=false;
+    document.getElementById('clocked-badge').style.display='none';
+    document.getElementById('timer-label').textContent='Not clocked in';
+    document.getElementById('timer-display').textContent='00:00:00';
+    showStatus('Clocked out. Total: '+document.getElementById('timer-display').textContent,'success');
+  } catch(e) {
+    btn.disabled=false; btn.textContent='⏹ Clock Out';
+    showStatus('Error clocking out. Please try again.','error');
   }
-
-  // Log to work_log for payroll integration
-  logWorkEntry('Clock Out', 'Session: '+totalHours+'h total, '+activeHours+'h active, '+idleMins+'m idle. Pay: $'+payEarned, 1);
-
-  // Update UI
-  document.getElementById('btn-clockin').disabled=false;
-  document.getElementById('btn-clockin').classList.remove('btn-disabled');
-  document.getElementById('btn-clockout').disabled=true;
-  document.getElementById('btn-clockout').classList.add('btn-disabled');
-  document.getElementById('status-dot').className='status-dot dot-off';
-  document.getElementById('status-text').textContent='Clocked out';
-  document.getElementById('timer-sub').textContent='Session ended — '+activeHours+'h active | $'+payEarned+' earned';
-  document.getElementById('idle-banner').style.display='none';
-
-  // Stop screen stream
-  if (_stream) { _stream.getTracks().forEach(function(t){t.stop();}); _stream=null; }
-
-  loadHistory();
-  alert('✅ Clocked out!\n\nTotal: '+totalHours+'h\nActive: '+activeHours+'h\nIdle: '+idleMins+' min\nPay Earned: $'+payEarned);
 }
 
 function updateTimer() {
-  var now = new Date();
-  var elapsed = now - _clockInTime;
-  var h = Math.floor(elapsed/3600000);
-  var m = Math.floor((elapsed%3600000)/60000);
-  var s = Math.floor((elapsed%60000)/1000);
-  document.getElementById('timer').textContent =
+  if(!_clockInTime) return;
+  var diff = Math.floor((new Date()-_clockInTime)/1000);
+  var h=Math.floor(diff/3600), m=Math.floor((diff%3600)/60), s=diff%60;
+  document.getElementById('timer-display').textContent =
     String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-
-  // Check if idle
-  var idleSecs = (Date.now()-_lastActivity)/1000;
-  if (idleSecs < 600) { // Not idle
-    _activeSeconds++;
-  } else {
-    _idleSeconds++;
-  }
-
-  // Update stats
-  var activeH = (_activeSeconds/3600);
-  var idleM = Math.round(_idleSeconds/60);
-  var payToday = (_dailyRate * activeH / 8).toFixed(2);
-  document.getElementById('s-hours').textContent=(elapsed/3600000).toFixed(1);
-  document.getElementById('s-daily-pay').textContent='$'+payToday;
-  document.getElementById('s-idle').textContent=idleM;
-  document.getElementById('s-screenshots').textContent=_ssCount;
 }
 
-function checkIdle() {
-  if (!_clockedIn) return;
-  var idleSecs = (Date.now()-_lastActivity)/1000;
-  if (idleSecs > 600) { // 10 minutes idle
-    document.getElementById('idle-banner').style.display='block';
-    document.getElementById('status-dot').className='status-dot dot-idle';
-    document.getElementById('status-text').textContent='Idle ('+Math.round(idleSecs/60)+' min)';
-  }
+function showStatus(msg, type) {
+  var el = document.getElementById('status-msg');
+  el.textContent = msg; el.className = 'status '+type;
+  setTimeout(function(){ el.className='status'; }, 4000);
 }
 
-async function saveHeartbeat() {
-  if (!_clockedIn || !_sessionId) return;
-  var activeH = (_activeSeconds/3600);
-  var payEarned = (_dailyRate * activeH / 8).toFixed(2);
-  try {
-    await fetch(_SUPA+'/time_sessions?id=eq.'+_sessionId, {
-      method:'PATCH',
-      headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
-      body:JSON.stringify({
-        last_heartbeat:new Date().toISOString(),
-        active_hours:parseFloat(activeH.toFixed(2)),
-        idle_minutes:Math.round(_idleSeconds/60),
-        screenshots_count:_ssCount,
-        pay_earned:parseFloat(payEarned),
-        status:'active'
-      })
-    });
-  } catch(e) {}
-}
-
-async function takeScreenshot() {
-  if (!_stream) {
-    // Try to get stream
-    try {
-      _stream = await navigator.mediaDevices.getDisplayMedia({video:true});
-    } catch(e) {
-      console.warn('Cannot take screenshot:', e.message);
-      return;
-    }
-  }
-  try {
-    var track = _stream.getVideoTracks()[0];
-    var imageCapture = new ImageCapture(track);
-    var bitmap = await imageCapture.grabFrame();
-    var canvas = document.createElement('canvas');
-    canvas.width = Math.min(bitmap.width, 1280);
-    canvas.height = Math.round(bitmap.height * (canvas.width/bitmap.width));
-    var ctx = canvas.getContext('2d');
-    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
-    _ssCount++;
-    var timestamp = new Date().toLocaleTimeString();
-    _screenshots.push({url:dataUrl, time:timestamp});
-
-    // Show screenshots
-    document.getElementById('ss-card').style.display='block';
-    var grid = document.getElementById('screenshots-grid');
-    var div = document.createElement('div');
-    div.className='ss-thumb';
-    div.innerHTML='<img src="'+dataUrl+'" onclick="this.parentElement.requestFullscreen()"><div class="ss-time">'+timestamp+'</div>';
-    grid.insertBefore(div, grid.firstChild);
-
-    // Save to Supabase (base64 in screenshots table)
-    if (_sessionId) {
-      fetch(_SUPA+'/screenshots', {
-        method:'POST',
-        headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
-        body:JSON.stringify({
-          session_id:_sessionId, employee_email:_email,
-          employee_name:_name, taken_at:new Date().toISOString(),
-          image_data:dataUrl, date:new Date().toISOString().split('T')[0]
-        })
-      }).catch(function(){});
-    }
-    document.getElementById('s-screenshots').textContent=_ssCount;
-  } catch(e) {
-    console.warn('Screenshot failed:', e.message);
-  }
-}
-
-async function loadHistory() {
-  var tbody = document.getElementById('history-tbody');
-  try {
-    var r = await fetch(_SUPA+'/time_sessions?employee_email=eq.'+encodeURIComponent(_email)+'&order=date.desc&limit=14&select=*', {headers:_HDR});
-    var sessions = await r.json();
-    if (!Array.isArray(sessions)||!sessions.length) {
-      tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:#94A3B8;">No sessions yet.</td></tr>';
-      return;
-    }
-    // Sum week hours
-    var today = new Date();
-    var day = today.getDay();
-    var mon = new Date(today); mon.setDate(today.getDate()-(day===0?6:day-1));
-    var monStr = mon.toISOString().split('T')[0];
-    var weekH=0, weekPay=0;
-    sessions.forEach(function(s){
-      if(s.date>=monStr){weekH+=(s.active_hours||s.total_hours||0);weekPay+=(s.pay_earned||0);}
-    });
-    document.getElementById('s-week-hours').textContent=weekH.toFixed(1);
-    document.getElementById('s-week-pay').textContent='$'+weekPay.toFixed(2);
-
-    tbody.innerHTML=sessions.map(function(s){
-      var ci=s.clock_in?new Date(s.clock_in).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'—';
-      var co=s.clock_out?new Date(s.clock_out).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'Active';
-      var pay=s.pay_earned?'<span class="pay-badge">$'+parseFloat(s.pay_earned).toFixed(2)+'</span>':'—';
-      return '<tr>'+
-        '<td style="font-weight:600;">'+s.date+'</td>'+
-        '<td>'+ci+'</td><td>'+co+'</td>'+
-        '<td style="font-weight:700;">'+(s.total_hours||0).toFixed(1)+'h</td>'+
-        '<td style="color:#166534;font-weight:700;">'+(s.active_hours||0).toFixed(1)+'h</td>'+
-        '<td style="color:#F59E0B;">'+(s.idle_minutes||0)+' min</td>'+
-        '<td>'+pay+'</td></tr>';
-    }).join('');
-  } catch(e) {
-    tbody.innerHTML='<tr><td colspan="7" style="color:red;padding:20px;text-align:center;">Error loading history</td></tr>';
-  }
-}
-
-async function logWorkEntry(action, details, qty) {
-  if (!_email) return;
-  var today = new Date();
-  var day = today.getDay();
-  var mon = new Date(today); mon.setDate(today.getDate()-(day===0?6:day-1));
-  var deptMap={admin:'Compliance',dispute:'Dispute',cs:'CS',bureau:'Bureau',sales:'Sales',compliance:'Compliance',staff:'Staff'};
-  fetch(_SUPA+'/work_log', {
-    method:'POST',
-    headers:Object.assign({},_HDR,{'Prefer':'return=minimal'}),
-    body:JSON.stringify({
-      employee_email:_email, employee_name:_name,
-      department:deptMap[_role]||'Staff',
-      action_type:action, details:details, quantity:qty||1,
-      week_start:mon.toISOString().split('T')[0], compliance_status:'pending'
-    })
-  }).catch(function(){});
-}
-
-// Auto-load history and check if already clocked in today
+// Auto-load if session exists
 (function(){
-  loadHistory();
-  // Check if there's an active session
-  fetch(_SUPA+'/time_sessions?employee_email=eq.'+encodeURIComponent(_email)+'&status=eq.active&order=clock_in.desc&limit=1', {headers:_HDR})
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(Array.isArray(data)&&data.length){
-        var s=data[0];
-        var today=new Date().toISOString().split('T')[0];
-        if(s.date===today){
-          // Resume active session
-          _clockedIn=true;
-          _sessionId=s.id;
-          _clockInTime=new Date(s.clock_in);
-          document.getElementById('btn-clockin').disabled=true;
-          document.getElementById('btn-clockin').classList.add('btn-disabled');
-          document.getElementById('btn-clockout').disabled=false;
-          document.getElementById('btn-clockout').classList.remove('btn-disabled');
-          document.getElementById('status-dot').className='status-dot dot-active';
-          document.getElementById('status-text').textContent='Active (resumed)';
-          document.getElementById('timer-sub').textContent='Session resumed from '+_clockInTime.toLocaleTimeString();
-          _timerInterval=setInterval(updateTimer,1000);
-          _heartbeatInterval=setInterval(saveHeartbeat,60000);
-          _ssInterval=setInterval(takeScreenshot,30*60*1000);
-          _idleTimer=setInterval(checkIdle,30000);
-        }
-      }
-    }).catch(function(){});
+  var e = localStorage.getItem('cp_logged_in_user');
+  var n = localStorage.getItem('cp_logged_in_name');
+  var r = localStorage.getItem('cp_logged_in_role');
+  if(e && n) {
+    _email=e; _name=n; _role=r||'staff';
+    // Pre-select in dropdown
+    var sel = document.getElementById('name-select');
+    for(var i=0;i<sel.options.length;i++){
+      if(sel.options[i].value.startsWith(e+'|')){ sel.selectedIndex=i; break; }
+    }
+    showClock();
+  }
 })();
-</script>
-<script>
-(function(){var t=localStorage.getItem("cp_theme")||"light";document.documentElement.setAttribute("data-theme",t);})();
-
-function manualLogin() {
-  var sel = document.getElementById('emp-select');
-  if(!sel || !sel.value) { alert('Please select your name.'); return; }
-  var email = sel.value;
-  var emp = ALL_EMPLOYEES[email];
-  if(!emp) { alert('Employee not found.'); return; }
-  localStorage.setItem('cp_logged_in_user', email);
-  localStorage.setItem('cp_logged_in_name', emp.name);
-  localStorage.setItem('cp_logged_in_role', emp.role);
-  localStorage.setItem('cp_logged_in_initials', emp.initials);
-  window.location.reload();
-}
-
 </script>
 </body>
 </html>
