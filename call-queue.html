@@ -294,7 +294,22 @@ function render() {
   // Wire events
   document.querySelectorAll('.ms-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      markStatus(this.getAttribute('data-id'), this.getAttribute('data-status'));
+      var id = this.getAttribute('data-id');
+      var status = this.getAttribute('data-status');
+      // Save notes first if any
+      var noteEl = document.getElementById('note-'+id);
+      var note = noteEl ? noteEl.value.trim() : '';
+      if(status === 'called' && !note) {
+        noteEl.style.border = '2px solid #991B1B';
+        noteEl.placeholder = '⚠️ Please enter call outcome notes before marking called';
+        noteEl.focus();
+        return;
+      }
+      if(note) {
+        saveNote(id, note).then(function(){ markStatus(id, status); });
+      } else {
+        markStatus(id, status);
+      }
     });
   });
   document.querySelectorAll('.outcome-ta').forEach(function(ta) {
@@ -302,6 +317,20 @@ function render() {
       saveNote(this.getAttribute('data-id'), this.value);
     });
   });
+}
+
+async function assignToMe(id) {
+  var name = localStorage.getItem('cp_logged_in_name') || 'CS Rep';
+  try {
+    await fetch(SUPA+'/requests?id=eq.'+id, {
+      method:'PATCH',
+      headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+      body:JSON.stringify({assigned_to:name, status:'in_progress', updated_at:new Date().toISOString()})
+    });
+    var item = all.find(function(i){return String(i.id)===String(id);});
+    if(item){ item.assigned_to=name; item.status='in_progress'; }
+    counts(); render();
+  } catch(e){ console.error('assignToMe error:', e); }
 }
 
 async function markStatus(id, status) {
