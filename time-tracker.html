@@ -40,7 +40,21 @@ header h1{color:white;font-size:16px;font-weight:800;}
 .pay-badge{display:inline-block;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;}
 .screen-request{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:16px;text-align:center;margin-bottom:16px;}
 .screen-request button{padding:10px 20px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;}
+
+/* DARK MODE */
+[data-theme="dark"] { color-scheme: dark; }
+[data-theme="dark"] body { background: #0F172A !important; color: #F1F5F9 !important; }
+[data-theme="dark"] .card, [data-theme="dark"] .section, [data-theme="dark"] table { background: #1E293B !important; }
+[data-theme="dark"] th { background: #0F172A !important; color: #94A3B8 !important; }
+[data-theme="dark"] td { border-color: #1E293B !important; color: #F1F5F9 !important; }
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: #0F172A !important; border-color: #334155 !important; color: #F1F5F9 !important; }
+/* SKELETON */
+.skeleton { background: linear-gradient(90deg,#E2E8F0 25%,#F1F5F9 50%,#E2E8F0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+/* BUTTON ACTIVE */
+button:active { transform: translateY(1px); }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.2/phosphor.min.js"></script>
 </head>
 <body>
 <header>
@@ -500,6 +514,9 @@ async function logWorkEntry(action, details, qty) {
       }
     }).catch(function(){});
 })();
+</script>
+<script>
+(function(){var t=localStorage.getItem("cp_theme")||"light";document.documentElement.setAttribute("data-theme",t);})();
 </script>
 </body>
 </html>
