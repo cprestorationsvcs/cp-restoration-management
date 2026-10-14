@@ -287,6 +287,12 @@ function render() {
         '<button class="btn btn-called" onclick="handleMarkCalled(\'' + item.id + '\')" >&#9989; Mark Called</button>' +
         '<button class="btn btn-resolve" onclick="markStatus(\'' + item.id + '\',\'resolved\')">&#10003; Resolve</button>' +
         (item.client_id?'<a href="/cs-dashboard.html?client='+item.client_id+'" target="_blank" class="btn btn-view">&#128269; View File</a>':'') +
+        (item.status==='pending'?'<button class="btn" style="background:#1A5C38;color:white;font-size:12px;padding:7px 12px;" onclick="assignToMe(\''+item.id+'\')" >&#128080; Assign to Me</button>':'') +
+        (item.assigned_to&&item.status==='in_progress'?'<span style="font-size:11px;color:#1A5C38;font-weight:700;padding:4px 8px;background:#DCFCE7;border-radius:6px;">&#128100; Assigned: '+esc(item.assigned_to)+'</span>':'') +
+      '</div>' +
+      '<div style="margin-top:10px;">' +
+        '<textarea id="note-'+item.id+'" placeholder="Call outcome notes (required before marking called)" style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;font-family:inherit;min-height:55px;resize:vertical;box-sizing:border-box;"></textarea>' +
+        (item.outcome_notes||item.notes?'<div style="font-size:11px;color:#64748B;margin-top:4px;background:#F8FAFC;padding:6px 8px;border-radius:6px;"><strong>Last note:</strong> '+esc(item.outcome_notes||item.notes||'')+'</div>':'') +
       '</div>' +
     '</div>';
   }).join('');
