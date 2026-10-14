@@ -84,6 +84,71 @@ fbq('init', '1362385498386512');
 fbq('track', 'PageView');
 
 var _emailVerified = false;
+var _emailVerified2 = false;
+
+async function handleSubmit2() {
+  var name = (document.getElementById('lead-name2')||document.getElementById('name2')||{}).value||'';
+  var email = (document.getElementById('lead-email2')||document.getElementById('email2')||{}).value||'';
+  var phone = (document.getElementById('lead-phone2')||document.getElementById('phone2')||{}).value||'';
+  if(!name||!email||!phone) { alert('Please fill in all fields.'); return; }
+  if(!_emailVerified2) {
+    await sendOTP2(name, email);
+    return;
+  }
+  submitLead2();
+}
+
+async function sendOTP2(name, email) {
+  if(!email||!email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  var btn = document.getElementById('submit-btn2');
+  if(btn) { btn.disabled=true; btn.textContent='Sending code...'; }
+  try {
+    var r = await fetch('/.netlify/functions/verify-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'send', email:email, name:name})
+    });
+    var data = await r.json();
+    if(data.success) {
+      var otpDiv = document.getElementById('otp-section2');
+      if(otpDiv) otpDiv.style.display='block';
+      if(btn) { btn.disabled=false; btn.textContent='Verify & Get My Guide →'; btn.onclick=function(){verifyOTP2();}; }
+    } else {
+      if(btn) { btn.disabled=false; btn.textContent='Get My Free Guide'; }
+      alert(data.error||'Failed to send code.');
+    }
+  } catch(e) {
+    if(btn) { btn.disabled=false; btn.textContent='Get My Free Guide'; }
+  }
+}
+
+async function verifyOTP2() {
+  var email = (document.getElementById('lead-email2')||document.getElementById('email2')||{}).value||'';
+  var code = (document.getElementById('otp-input2')||{}).value||'';
+  if(!code||code.length<4) { alert('Please enter the 4-digit code.'); return; }
+  var btn = document.getElementById('submit-btn2');
+  if(btn) { btn.disabled=true; btn.textContent='Verifying...'; }
+  try {
+    var r = await fetch('/.netlify/functions/verify-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'verify', email:email, code:code})
+    });
+    var data = await r.json();
+    if(data.verified) {
+      _emailVerified2=true;
+      var otpDiv = document.getElementById('otp-section2');
+      if(otpDiv) otpDiv.style.display='none';
+      var badge = document.getElementById('email-verified-badge2');
+      if(badge) badge.style.display='block';
+      if(btn) { btn.disabled=false; btn.textContent='Get My Free Guide'; btn.onclick=function(){handleSubmit2();}; }
+      submitLead2();
+    } else {
+      if(btn) { btn.disabled=false; btn.textContent='Verify & Get My Guide →'; }
+      alert(data.error||'Incorrect code.');
+    }
+  } catch(e) {
+    if(btn) { btn.disabled=false; btn.textContent='Verify & Get My Guide →'; }
+  }
+}
 var _otpSent = false;
 
 function formatPhone(input) {
@@ -303,7 +368,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
     <input type="text" id="lead-name2" placeholder="Your First Name">
     <input type="email" id="lead-email2" placeholder="Your Email Address">
     <input type="tel" id="lead-phone2" placeholder="Phone Number (optional)">
-    <button class="cta-btn" onclick="submitLead2()">&#128218; Get My Free Guide</button>
+    <button class="cta-btn" id="submit-btn2" onclick="handleSubmit2()">&#128218; Get My Free Guide</button>
   </div>
 </section>
 
