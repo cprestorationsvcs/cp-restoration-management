@@ -37,7 +37,6 @@ var EMPLOYEES = {
   // jay@mycprteam.com DEACTIVATED
   'fcacaasi@gmail.com':    { password:'CPRFatima2026',  name:'Fatima Charfina Caasi', role:'dispute', label:'Bureau Caller',      initials:'FC' },
   'raymon.guevarra@mycprteam.com': { password:'CPRRaymon2026', name:'Raymon Guevarra', role:'sales', label:'Sales Rep', initials:'RG' },
-  'jose.perez@mycprteam.com': { password:'CPRSid2026', name:'Jose Isidro Perez', role:'sales', label:'Sales Rep', initials:'JP' },
   'elmer.jungco@mycprteam.com': { password:'CPRElmer2026', name:'Elmer Jungco', role:'sales', label:'Sales Rep', initials:'EJ' },
   'raven.pasco@mycprteam.com': { password:'CPRRaven2026', name:'Raven Pasco', role:'sales', label:'Sales Rep', initials:'RP' },
   'rosemarie.deguzman@mycprteam.com': { password:'CPRRosemarie2026', name:'Rosemarie De Guzman', role:'dispute', label:'Bureau Caller', initials:'RD' },
