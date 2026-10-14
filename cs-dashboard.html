@@ -389,64 +389,7 @@ function insertEmailLink() {
   document.execCommand('insertHTML', false, '<a href="'+url+'" target="_blank">'+text+'</a>');
 }
 
-async function sendClientEmail(mode) {
-  if(!currentClient) return;
-  var subject = (document.getElementById('email-subject')||{}).value||'';
-  var editor  = document.getElementById('email-body-editor');
-  var bodyHtml = editor ? editor.innerHTML : '';
-  var bodyText = editor ? editor.innerText : '';
-  var postPortal = mode === 'email-portal' || (document.getElementById('email-post-portal')||{}).checked;
-  if(!subject||!bodyText.trim()){alert('Please enter a subject and message.');return;}
-  var btn = event.target;
-  btn.textContent='Sending...'; btn.disabled=true;
-  try {
-    var r = await fetch('/.netlify/functions/send-email',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        to: currentClient.email,
-        clientName: currentClient.name,
-        subject: subject,
-        body: bodyHtml,
-        from: 'CP Restoration Services <info@35daycreditrepair.com>'
-      })
-    });
-    // Log in email_log table
-    await fetch(SUPA+'/email_logs',{
-      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
-      body:JSON.stringify({
-        client_id: currentClient.id,
-        client_name: currentClient.name,
-        client_email: currentClient.email,
-        subject: subject,
-        body: bodyHtml,
-        sent_by: currentUser,
-        sent_by_name: localStorage.getItem('cp_logged_in_name')||'CS Agent',
-        sent_at: new Date().toISOString(),
-        posted_to_portal: postPortal,
-        status: 'sent'
-      })
-    });
-    if(postPortal) {
-      await fetch(SUPA+'/client_messages',{
-        method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
-        body:JSON.stringify({
-          client_id: currentClient.id,
-          from_cs: true,
-          subject: subject,
-          message: bodyHtml,
-          sent_by_name: currentAgentName,
-          created_at: new Date().toISOString()
-        })
-      });
-    }
-    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
-    alert('✅ Email sent to '+currentClient.email+(postPortal?' and posted to client portal.':'.'));
-    loadEmailHistory(currentClient.id);
-  } catch(e){
-    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
-    alert('Error: '+e.message);
-  }
-}
+async 
 
 async function loadEmailHistory(clientId) {
   var el = document.getElementById('email-sent-history');
@@ -1335,7 +1278,8 @@ async function sendClientEmail(mode) {
           client_id: currentClient.id,
           from_cs: true,
           subject: subject,
-          message: body,
+          message: bodyHtml,
+          sent_by_name: currentAgentName,
           created_at: new Date().toISOString()
         })
       });
