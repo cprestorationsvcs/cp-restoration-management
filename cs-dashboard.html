@@ -275,6 +275,11 @@ async function postStatusUpdate() {
       method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
       body:JSON.stringify(payload)
     });
+    // Also post to client_status_updates so it shows in client portal
+    await fetch(SUPA+'/client_status_updates',{
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify(payload)
+    }).catch(function(){});
     if(r.ok||r.status===201||r.status===204){
       alert('✅ Status update posted to client portal!');
       document.getElementById('status-select').value='';
@@ -428,7 +433,8 @@ async function sendClientEmail(mode) {
           client_id: currentClient.id,
           from_cs: true,
           subject: subject,
-          message: body,
+          message: bodyHtml,
+          sent_by_name: currentAgentName,
           created_at: new Date().toISOString()
         })
       });
