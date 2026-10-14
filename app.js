@@ -41,7 +41,6 @@ var EMPLOYEES = {
   'elmer.jungco@mycprteam.com': { password:'CPRElmer2026', name:'Elmer Jungco', role:'sales', label:'Sales Rep', initials:'EJ' },
   'raven.pasco@mycprteam.com': { password:'CPRRaven2026', name:'Raven Pasco', role:'sales', label:'Sales Rep', initials:'RP' },
   'rosemarie.deguzman@mycprteam.com': { password:'CPRRosemarie2026', name:'Rosemarie De Guzman', role:'dispute', label:'Bureau Caller', initials:'RD' },
-  'redan.abella@mycprteam.com': { password:'CPRRedan2026', name:'Redan Abella', role:'dispute', label:'Bureau Caller', initials:'RA' },
 
   'bseo.sidd@gmail.com': { password:'CPRSid2026', name:'Jose Isidro Perez', role:'sales', label:'Sales Rep', initials:'JP' },
   'etjjr1989@gmail.com': { password:'CPRElmer2026', name:'Elmer Jungco', role:'sales', label:'Sales Rep', initials:'EJ' },
