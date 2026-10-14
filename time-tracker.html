@@ -83,7 +83,24 @@ button:active { transform: translateY(1px); }
   <div class="session-card">
     <div class="session-header">
       <div class="session-title">Today's Session — <span id="today-date"></span></div>
-      <div style="font-size:13px;color:#64748B;" id="employee-name">Loading...</div>
+      <select id="employee-name" onchange="switchEmployee(this.value)" style="font-size:13px;color:#1B3A6B;background:white;border:1.5px solid #E2E8F0;border-radius:6px;padding:6px 10px;cursor:pointer;font-family:Inter,sans-serif;max-width:100%;margin-top:4px;">
+  <option value="">-- Select your name --</option>
+  <option value="jason@mycprteam.com|Jason Crown|admin">Jason Crown</option>
+  <option value="queen@mycprteam.com|Queen Jearel Cruz|compliance">Queen Jearel Cruz</option>
+  <option value="elna@mycprteam.com|Elna Palabrica|cs">Elna Palabrica</option>
+  <option value="alec@mycprteam.com|Alec Sarrosa|cs">Alec Sarrosa</option>
+  <option value="marcelo@mycprteam.com|Marcelo Torres|dispute">Marcelo Torres</option>
+  <option value="annabel@mycprteam.com|Annabel Curada|dispute">Annabel Curada</option>
+  <option value="bukunmi@mycprteam.com|Bukunmi Aina|leadgen">Bukunmi Aina</option>
+  <option value="fcacaasi@gmail.com|Fatima Charfina Caasi|bureau">Fatima Charfina Caasi</option>
+  <option value="raymon.guevarra@mycprteam.com|Raymon Guevarra|sales">Raymon Guevarra</option>
+  <option value="jose.perez@mycprteam.com|Jose Perez (Sid)|sales">Jose Perez (Sid)</option>
+  <option value="elmer.jungco@mycprteam.com|Elmer Jungco|sales">Elmer Jungco</option>
+  <option value="cherry.manlapaz@mycprteam.com|Cherry Manlapaz|sales">Cherry Manlapaz</option>
+  <option value="raven.pasco@mycprteam.com|Raven Pasco|sales">Raven Pasco</option>
+  <option value="rosemarie.deguzman@mycprteam.com|Rosemarie De Guzman|bureau">Rosemarie De Guzman</option>
+  <option value="redan.abella@mycprteam.com|Redan Abella|bureau">Redan Abella</option>
+</select>
     </div>
 
     <div class="timer-display" id="timer">00:00:00</div>
@@ -210,8 +227,8 @@ if(!_email || !_name) {
     '</div></div>';
 } else {
   // Pre-select current user in dropdown
-var sel = document.getElementById('employee-name-select');
-if(sel && _email && _name) {
+var sel = document.getElementById('employee-name');
+if(sel && sel.tagName === 'SELECT' && _email && _name) {
   for(var i=0;i<sel.options.length;i++){
     if(sel.options[i].value.startsWith(_email+'|')){
       sel.selectedIndex = i; break;
