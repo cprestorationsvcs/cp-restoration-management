@@ -436,7 +436,7 @@ async function handleEndOfCall(body) {
   if (!callId) return;
 
   const session = await getSession(callId).catch(() => null);
-  const structured = report?.analysis?.structuredData || {};
+  const structured = report?.artifact?.structuredOutputs || report?.analysis?.structuredData || {};
   const summary = report?.analysis?.summary || '';
   const transcript = (report?.transcript || '').replace(/\d{9,}/g, '[REDACTED]'); // redact SSN-length digit runs
 
