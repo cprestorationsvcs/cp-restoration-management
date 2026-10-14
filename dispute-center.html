@@ -32,7 +32,7 @@
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,-apple-system,sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,-apple-system,sans-serif;}
 body{background:var(--bg);color:var(--dark);min-height:100vh;}
 .header{background:var(--blue);padding:16px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
 .header h1{color:white;font-size:18px;font-weight:800;}
@@ -1827,7 +1827,7 @@ async function sendNotifications(dispute) {
           subject: emailSubjFinal,
           content: [
             {type:'text/plain', value: emailMsg},
-            {type:'text/html',  value: '<div style="font-family:'Inter',system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+emailMsg.replace(/\n/g,'<br>')+'<br><br><hr style="border:none;border-top:1px solid #eee;margin:24px 0;"><p style="font-size:12px;color:#888;">CP Restoration Services<br>cprestorationsvcs@gmail.com<br>1-855-327-5847<br>Monday — Friday | 9:00 AM – 5:00 PM EST<br>35daycreditrepair.com</p></div>'}
+            {type:'text/html',  value: '<div style="font-family:Inter,system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+emailMsg.replace(/\n/g,'<br>')+'<br><br><hr style="border:none;border-top:1px solid #eee;margin:24px 0;"><p style="font-size:12px;color:#888;">CP Restoration Services<br>cprestorationsvcs@gmail.com<br>1-855-327-5847<br>Monday — Friday | 9:00 AM – 5:00 PM EST<br>35daycreditrepair.com</p></div>'}
           ]
         })
       });
