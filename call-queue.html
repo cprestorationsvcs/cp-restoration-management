@@ -284,39 +284,31 @@ function render() {
       '</div>' +
       '<div class="actions">' +
         (item.client_phone?'<a href="tel:'+item.client_phone+'" class="btn btn-call">&#128222; Call Now</a>':'') +
-        '<button class="btn btn-called ms-btn" data-id="'+item.id+'" data-status="called">&#9989; Mark Called</button>' +
-        '<button class="btn btn-resolve ms-btn" data-id="'+item.id+'" data-status="resolved">&#10003; Resolve</button>' +
+        '<button class="btn btn-called" onclick="handleMarkCalled(\'' + item.id + '\')" >&#9989; Mark Called</button>' +
+        '<button class="btn btn-resolve" onclick="markStatus(\'' + item.id + '\',\'resolved\')">&#10003; Resolve</button>' +
         (item.client_id?'<a href="/cs-dashboard.html?client='+item.client_id+'" target="_blank" class="btn btn-view">&#128269; View File</a>':'') +
       '</div>' +
     '</div>';
   }).join('');
 
-  // Wire events
-  document.querySelectorAll('.ms-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var id = this.getAttribute('data-id');
-      var status = this.getAttribute('data-status');
-      // Save notes first if any
-      var noteEl = document.getElementById('note-'+id);
-      var note = noteEl ? noteEl.value.trim() : '';
-      if(status === 'called' && !note) {
-        noteEl.style.border = '2px solid #991B1B';
-        noteEl.placeholder = '⚠️ Please enter call outcome notes before marking called';
-        noteEl.focus();
-        return;
-      }
-      if(note) {
-        saveNote(id, note).then(function(){ markStatus(id, status); });
-      } else {
-        markStatus(id, status);
-      }
-    });
-  });
-  document.querySelectorAll('.outcome-ta').forEach(function(ta) {
-    ta.addEventListener('change', function() {
-      saveNote(this.getAttribute('data-id'), this.value);
-    });
-  });
+  // Wire events — use onclick directly in HTML instead of event listeners
+  // (event listeners get detached when innerHTML is replaced)
+
+}
+
+function handleMarkCalled(id) {
+  var noteEl = document.getElementById('note-'+id);
+  var note = noteEl ? noteEl.value.trim() : '';
+  if(!note) {
+    if(noteEl) {
+      noteEl.style.border = '2px solid #991B1B';
+      noteEl.placeholder = '⚠️ Enter call outcome notes first';
+      noteEl.focus();
+    }
+    return;
+  }
+  if(noteEl) noteEl.style.border = '';
+  saveNote(id, note).then(function(){ markStatus(id, 'called'); });
 }
 
 async function assignToMe(id) {
