@@ -32,7 +32,7 @@
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,-apple-system,sans-serif;}
 body{background:var(--bg);color:var(--dark);min-height:100vh;}
 .header{background:var(--blue);padding:16px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
 .header h1{color:white;font-size:18px;font-weight:800;}
@@ -128,6 +128,19 @@ tr:hover td{background:#FAFAFA;}
   .form-grid{grid-template-columns:1fr;}
   .dispute-item-row{grid-template-columns:1fr 1fr;gap:8px;}
 }
+
+/* DARK MODE */
+[data-theme="dark"] { color-scheme: dark; }
+[data-theme="dark"] body { background: #0F172A !important; color: #F1F5F9 !important; }
+[data-theme="dark"] .card, [data-theme="dark"] .section, [data-theme="dark"] table { background: #1E293B !important; }
+[data-theme="dark"] th { background: #0F172A !important; color: #94A3B8 !important; }
+[data-theme="dark"] td { border-color: #1E293B !important; color: #F1F5F9 !important; }
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: #0F172A !important; border-color: #334155 !important; color: #F1F5F9 !important; }
+/* SKELETON */
+.skeleton { background: linear-gradient(90deg,#E2E8F0 25%,#F1F5F9 50%,#E2E8F0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+/* BUTTON ACTIVE */
+button:active { transform: translateY(1px); }
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -212,6 +225,7 @@ src="https://www.facebook.com/tr?id=1584028236255374&ev=PageView&noscript=1"
 src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.2/phosphor.min.js"></script>
 </head>
 <body>
 
@@ -1810,7 +1824,7 @@ async function sendNotifications(dispute) {
           subject: emailSubjFinal,
           content: [
             {type:'text/plain', value: emailMsg},
-            {type:'text/html',  value: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+emailMsg.replace(/\n/g,'<br>')+'<br><br><hr style="border:none;border-top:1px solid #eee;margin:24px 0;"><p style="font-size:12px;color:#888;">CP Restoration Services<br>cprestorationsvcs@gmail.com<br>1-855-327-5847<br>Monday — Friday | 9:00 AM – 5:00 PM EST<br>35daycreditrepair.com</p></div>'}
+            {type:'text/html',  value: '<div style="font-family:'Inter',system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+emailMsg.replace(/\n/g,'<br>')+'<br><br><hr style="border:none;border-top:1px solid #eee;margin:24px 0;"><p style="font-size:12px;color:#888;">CP Restoration Services<br>cprestorationsvcs@gmail.com<br>1-855-327-5847<br>Monday — Friday | 9:00 AM – 5:00 PM EST<br>35daycreditrepair.com</p></div>'}
           ]
         })
       });
@@ -3383,6 +3397,9 @@ fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(functio
     el.style.color='#8B1A1A'; el.style.fontWeight='700';
   }
 }).catch(function(){});
+</script>
+<script>
+(function(){var t=localStorage.getItem("cp_theme")||"light";document.documentElement.setAttribute("data-theme",t);})();
 </script>
 </body>
 </html>
