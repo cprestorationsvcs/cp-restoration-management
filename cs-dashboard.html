@@ -1556,7 +1556,7 @@ function renderContactLog(){
 async function addContactLog(){
   if(!currentClient) return;
   var type = document.getElementById('log-type').value;
-  var entry = document.getElementById('log-entry').value.trim();
+  var entry = document.getElementById('log-entry').value.replace(/^\s+|\s+$/g, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   if(!entry){ alert('Please enter contact details.'); return; }
   
   var agentName = localStorage.getItem('cp_logged_in_name') || 'CS Agent';
