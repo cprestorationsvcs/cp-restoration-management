@@ -209,7 +209,16 @@ if(!_email || !_name) {
     '<button onclick="manualLogin()" style="width:100%;padding:14px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">Clock In →</button>' +
     '</div></div>';
 } else {
-  document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  // Pre-select current user in dropdown
+var sel = document.getElementById('employee-name-select');
+if(sel && _email && _name) {
+  for(var i=0;i<sel.options.length;i++){
+    if(sel.options[i].value.startsWith(_email+'|')){
+      sel.selectedIndex = i; break;
+    }
+  }
+}
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   document.getElementById('employee-name').textContent = _name || 'Employee';
 }
 
