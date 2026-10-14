@@ -2,545 +2,548 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Refund & Signature Tracker — CP Restoration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refund & Signature Tracker | CP Restoration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --navy: #0A1628;
-  --blue: #1B3A6B;
-  --gold: #C9A84C;
-  --green: #166534;
-  --green-light: #DCFCE7;
-  --red: #991B1B;
-  --red-light: #FEE2E2;
-  --yellow: #92400E;
-  --yellow-light: #FEF3C7;
-  --gray: #64748B;
-  --border: #E2E8F0;
-  --bg: #F8FAFC;
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  box-sizing: border-box;
-}
-*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--navy); min-height: 100vh; }
-
-.header {
-  background: var(--navy); padding: 14px 24px;
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 100;
-}
-.logo { color: var(--gold); font-size: 15px; font-weight: 800; }
-.logo-sub { color: #94A3B8; font-size: 11px; margin-top: 2px; }
-.header-right { display: flex; align-items: center; gap: 10px; }
-.back-btn {
-  color: #94A3B8; font-size: 12px; text-decoration: none;
-  padding: 6px 12px; border: 1px solid #334155; border-radius: 6px;
-  transition: all .15s;
-}
-.back-btn:hover { color: white; border-color: white; }
-
-.page { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
-
-/* Stats row */
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
-.stat {
-  background: white; border-radius: 12px; border: 1.5px solid var(--border);
-  padding: 16px; text-align: center;
-}
-.stat-val { font-size: 24px; font-weight: 800; color: var(--navy); }
-.stat-lbl { font-size: 11px; color: var(--gray); margin-top: 3px; font-weight: 600; }
-.stat.green .stat-val { color: var(--green); }
-.stat.gold .stat-val { color: #B8943D; }
-.stat.red .stat-val { color: var(--red); }
-.stat.blue .stat-val { color: var(--blue); }
-
-/* Filters */
-.filters {
-  background: white; border-radius: 12px; border: 1.5px solid var(--border);
-  padding: 14px 16px; margin-bottom: 16px;
-  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-}
-.search-box {
-  padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px;
-  font-size: 13px; flex: 1; min-width: 200px; font-family: inherit;
-}
-.filter-select {
-  padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px;
-  font-size: 12px; font-family: inherit; background: white; cursor: pointer;
-}
-.filter-btn {
-  padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;
-  border: 2px solid var(--border); background: white; cursor: pointer;
-  transition: all .15s;
-}
-.filter-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
-.download-btn {
-  padding: 8px 16px; background: var(--green); color: white;
-  border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
-  cursor: pointer; margin-left: auto;
-}
-
-/* Table */
-.table-wrap { background: white; border-radius: 12px; border: 1.5px solid var(--border); overflow: hidden; }
-.table-header {
-  padding: 14px 20px; border-bottom: 1.5px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.table-title { font-size: 14px; font-weight: 800; color: var(--navy); }
-.table-count { font-size: 12px; color: var(--gray); }
-
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead th {
-  background: var(--navy); color: white; padding: 10px 14px;
-  text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .3px;
-  white-space: nowrap;
-}
-tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
-tbody tr:hover { background: #F8FAFC; }
-tbody td { padding: 12px 14px; vertical-align: middle; }
-tbody tr:last-child { border-bottom: none; }
-
-.client-cell .name { font-weight: 700; color: var(--navy); }
-.client-cell .id { font-size: 11px; color: var(--gray); margin-top: 2px; }
-
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 4px 10px; border-radius: 20px;
-  font-size: 11px; font-weight: 700; white-space: nowrap;
-}
-.badge-signed { background: var(--green-light); color: var(--green); }
-.badge-pending-sig { background: #EFF6FF; color: var(--blue); }
-.badge-paid { background: var(--green-light); color: var(--green); }
-.badge-pending-pay { background: var(--yellow-light); color: var(--yellow); }
-.badge-overdue { background: var(--red-light); color: var(--red); }
-
-.amount { font-weight: 800; color: var(--green); font-size: 14px; }
-
-.mark-paid-btn {
-  padding: 6px 12px; background: var(--gold); color: var(--navy);
-  border: none; border-radius: 6px; font-size: 11px; font-weight: 700;
-  cursor: pointer; white-space: nowrap;
-}
-.mark-paid-btn:hover { background: #B8943D; }
-.view-btn {
-  padding: 6px 12px; background: white; color: var(--blue);
-  border: 1.5px solid var(--blue); border-radius: 6px;
-  font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
-  text-decoration: none; display: inline-block;
-}
-
-/* Modal */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,.5);
-  display: none; align-items: center; justify-content: center;
-  z-index: 1000; padding: 16px;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: white; border-radius: 16px; padding: 28px;
-  width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
-}
-.modal-title { font-size: 16px; font-weight: 800; margin-bottom: 20px; color: var(--navy); }
-.field { margin-bottom: 14px; }
-.label { font-size: 11px; font-weight: 700; color: var(--gray); display: block; margin-bottom: 5px; }
-.input, .select-input {
-  width: 100%; padding: 10px 12px;
-  border: 1.5px solid var(--border); border-radius: 8px;
-  font-size: 13px; font-family: inherit; color: var(--navy);
-}
-.input:focus, .select-input:focus { outline: none; border-color: var(--blue); }
-.modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-.btn { padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; font-family: inherit; }
-.btn-primary { background: var(--blue); color: white; }
-.btn-gold { background: var(--gold); color: var(--navy); }
-.btn-outline { background: white; color: var(--navy); border: 1.5px solid var(--border); }
-
-.empty { text-align: center; padding: 50px; color: var(--gray); font-size: 13px; }
-.loading-row td { text-align: center; padding: 40px; color: var(--gray); }
-
-.payment-methods { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
-.pm-chip {
-  padding: 6px 14px; border-radius: 20px; border: 2px solid var(--border);
-  background: white; font-size: 12px; font-weight: 700; cursor: pointer;
-  transition: all .15s;
-}
-.pm-chip.selected { border-color: var(--gold); background: #FEF9C3; }
-
-@media (max-width: 768px) {
-  table { font-size: 12px; }
-  thead th { padding: 8px 10px; }
-  tbody td { padding: 10px; }
-  .stats { grid-template-columns: 1fr 1fr; }
-}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;}
+:root{--navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;--border:#E2E8F0;--bg:#F8FAFC;--white:#FFFFFF;--gray:#64748B;}
+body{background:var(--bg);color:#1E293B;min-height:100vh;}
+.header{background:var(--navy);color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header h1{font-size:16px;font-weight:800;}
+.header-links a{color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;margin-left:16px;}
+.header-links a:hover{color:white;}
+.wrap{max-width:1400px;margin:0 auto;padding:24px 20px;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+.stat{background:white;border:1.5px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.stat-num{font-size:28px;font-weight:900;color:var(--navy);}
+.stat-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;}
+.stat.pending .stat-num{color:#D97706;}
+.stat.approved .stat-num{color:var(--green);}
+.stat.paid .stat-num{color:#7C3AED;}
+.stat.denied .stat-num{color:var(--red);}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+.filter-btn{padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:white;font-size:12px;font-weight:700;color:var(--gray);cursor:pointer;}
+.filter-btn.active{background:var(--navy);color:white;border-color:var(--navy);}
+.search-box{padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;min-width:240px;outline:none;font-family:'Inter',sans-serif;}
+.search-box:focus{border-color:var(--navy);}
+.table-wrap{background:white;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--navy);color:white;padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover{background:#F8FAFC;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;}
+.badge-pending{background:#FEF3C7;color:#92400E;}
+.badge-approved{background:#DCFCE7;color:#166534;}
+.badge-denied{background:#FEE2E2;color:#991B1B;}
+.badge-paid{background:#EDE9FE;color:#5B21B6;}
+.badge-review{background:#E0F2FE;color:#075985;}
+.badge-signed{background:#DCFCE7;color:#166534;}
+.badge-unsigned{background:#FEE2E2;color:#991B1B;}
+.btn{padding:7px 14px;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-approve{background:#166534;color:white;}
+.btn-deny{background:#991B1B;color:white;}
+.btn-review{background:#075985;color:white;}
+.btn-edit{background:#1B3A6B;color:white;}
+.btn-pay{background:#5B21B6;color:white;}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.empty{text-align:center;padding:48px;color:var(--gray);}
+.empty-ico{font-size:40px;margin-bottom:12px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border-radius:16px;padding:28px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;}
+.modal h2{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:20px;}
+.field-group{margin-bottom:16px;}
+.field-group label{display:block;font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.field-group input,.field-group select,.field-group textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;outline:none;}
+.field-group input:focus,.field-group select:focus,.field-group textarea:focus{border-color:var(--navy);}
+.field-group textarea{min-height:80px;resize:vertical;}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.section-label{font-size:12px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--border);}
+.sig-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;}
+.amount-big{font-size:16px;font-weight:800;color:var(--navy);}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div>
-    <div class="logo">CP RESTORATION SERVICES</div>
-    <div class="logo-sub">Refund & Signature Tracker</div>
-  </div>
-  <div class="header-right">
-    <a href="/dashboard.html" class="back-btn">← Dashboard</a>
+  <h1>💰 Refund & Signature Tracker</h1>
+  <div class="header-links">
+    <a href="/dashboard.html">← Dashboard</a>
+    <a href="/esign.html">E-Sign Center</a>
+    <a href="/cs-dashboard.html">CS Dashboard</a>
+    <span id="hdr-user" style="color:#C9A84C;font-weight:700;margin-left:16px;font-size:12px;"></span>
   </div>
 </div>
 
-<div class="page">
+<div class="wrap">
 
   <!-- Stats -->
-  <div class="stats">
-    <div class="stat blue"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Total Agreements</div></div>
-    <div class="stat green"><div class="stat-val" id="stat-signed">—</div><div class="stat-lbl">Signed</div></div>
-    <div class="stat"><div class="stat-val" id="stat-pending-sig">—</div><div class="stat-lbl">Awaiting Signature</div></div>
-    <div class="stat gold"><div class="stat-val" id="stat-total-refunds">—</div><div class="stat-lbl">Total Refunds ($)</div></div>
-    <div class="stat green"><div class="stat-val" id="stat-paid">—</div><div class="stat-lbl">Paid</div></div>
-    <div class="stat red"><div class="stat-val" id="stat-pending-pay">—</div><div class="stat-lbl">Pending Payment</div></div>
+  <div class="stats-row">
+    <div class="stat pending"><div class="stat-num" id="s-pending">—</div><div class="stat-label">Pending Review</div></div>
+    <div class="stat approved"><div class="stat-num" id="s-approved">—</div><div class="stat-label">Approved</div></div>
+    <div class="stat paid"><div class="stat-num" id="s-paid">—</div><div class="stat-label">Paid Out</div></div>
+    <div class="stat denied"><div class="stat-num" id="s-denied">—</div><div class="stat-label">Denied</div></div>
+    <div class="stat"><div class="stat-num" id="s-total-amt" style="font-size:18px;">—</div><div class="stat-label">Total Approved $</div></div>
+    <div class="stat"><div class="stat-num" id="s-sigs">—</div><div class="stat-label">Signed Docs</div></div>
   </div>
 
-  <!-- Filters -->
-  <div class="filters">
-    <input class="search-box" id="search" placeholder="Search client name or ID..." oninput="renderTable()">
-    <button class="filter-btn active" id="f-all" onclick="setFilter('all',this)">All</button>
-    <button class="filter-btn" id="f-signed" onclick="setFilter('signed',this)">✅ Signed</button>
-    <button class="filter-btn" id="f-pending-sig" onclick="setFilter('pending-sig',this)">⏳ Awaiting Signature</button>
-    <button class="filter-btn" id="f-pending-pay" onclick="setFilter('pending-pay',this)">💰 Pending Payment</button>
-    <button class="filter-btn" id="f-paid" onclick="setFilter('paid',this)">✅ Paid</button>
-    <select class="filter-select" id="f-type" onchange="renderTable()">
-      <option value="">All Types</option>
-      <option value="Refund Agreement">Refund Agreements</option>
-      <option value="Service Agreement">Service Agreements</option>
-    </select>
-    <button class="download-btn" onclick="downloadCSV()">⬇ Export CSV</button>
+  <!-- Controls -->
+  <div class="controls">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+    <button class="filter-btn" onclick="setFilter('approved',this)">Approved</button>
+    <button class="filter-btn" onclick="setFilter('paid',this)">Paid</button>
+    <button class="filter-btn" onclick="setFilter('denied',this)">Denied</button>
+    <button class="filter-btn" onclick="setFilter('review',this)">Under Review</button>
+    <input class="search-box" id="search" placeholder="Search by client name or ID..." oninput="renderTable()">
+    <button class="btn btn-edit" style="margin-left:auto;" onclick="openNewRefund()">+ New Refund Request</button>
   </div>
 
   <!-- Table -->
   <div class="table-wrap">
-    <div class="table-header">
-      <div class="table-title">📋 Signed Documents & Refund Status</div>
-      <div class="table-count" id="table-count">Loading...</div>
-    </div>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Document Type</th>
-            <th>Signed Date</th>
-            <th>Signed By</th>
-            <th>Refund Amount</th>
-            <th>Signature Status</th>
-            <th>Payment Method</th>
-            <th>Payment Status</th>
-            <th>Paid Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <tr class="loading-row"><td colspan="10">Loading records...</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Request Date</th>
+          <th>Reason</th>
+          <th>Requested</th>
+          <th>Approved Amt</th>
+          <th>Approval Status</th>
+          <th>Agreement</th>
+          <th>Payment</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="9"><div class="empty"><div class="empty-ico">⏳</div><div>Loading refund requests...</div></div></td></tr>
+      </tbody>
+    </table>
   </div>
+
 </div>
 
-<!-- Mark Paid Modal -->
-<div class="modal-overlay" id="pay-modal">
+<!-- Review/Approve Modal -->
+<div class="modal-overlay" id="modal-overlay">
   <div class="modal">
-    <div class="modal-title">💰 Record Refund Payment</div>
-    <div id="modal-client-info" style="background:#F8FAFC;border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;"></div>
-    <div class="field">
-      <label class="label">Payment Method</label>
-      <div class="payment-methods" id="modal-pm-btns">
-        <button class="pm-chip" onclick="selectModalPM('Zelle')">💚 Zelle</button>
-        <button class="pm-chip" onclick="selectModalPM('Cash App')">💳 Cash App</button>
-        <button class="pm-chip" onclick="selectModalPM('PayPal')">🔵 PayPal</button>
-        <button class="pm-chip" onclick="selectModalPM('Check')">📝 Check</button>
-        <button class="pm-chip" onclick="selectModalPM('Wire')">🏦 Wire</button>
+    <h2 id="modal-title">Refund Approval</h2>
+
+    <div class="section-label">Client Information</div>
+    <div class="grid2">
+      <div class="field-group">
+        <label>Client Name</label>
+        <input type="text" id="m-client-name" readonly style="background:#F8FAFC;">
+      </div>
+      <div class="field-group">
+        <label>Client ID</label>
+        <input type="text" id="m-client-id" readonly style="background:#F8FAFC;">
       </div>
     </div>
-    <div class="field">
-      <label class="label">Payment Handle (Zelle email/phone, $Cashtag, etc.)</label>
-      <input class="input" id="modal-pm-handle" placeholder="e.g. darrellgreen@gmail.com or $DarrellG">
+
+    <div class="section-label">Refund Details</div>
+    <div class="grid2">
+      <div class="field-group">
+        <label>Request Date</label>
+        <input type="date" id="m-request-date">
+      </div>
+      <div class="field-group">
+        <label>Reason for Refund</label>
+        <select id="m-reason">
+          <option value="">Select reason...</option>
+          <option>No progress made</option>
+          <option>No actionable items</option>
+          <option>Client dissatisfaction</option>
+          <option>Bureau login issues</option>
+          <option>Compensation / Goodwill</option>
+          <option>Duplicate charge</option>
+          <option>Service not delivered</option>
+          <option>Chargeback resolution</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Requested Refund Amount ($)</label>
+        <input type="number" id="m-requested-amt" placeholder="0.00" step="0.01">
+      </div>
+      <div class="field-group">
+        <label>Approved Refund Amount ($)</label>
+        <input type="number" id="m-approved-amt" placeholder="0.00" step="0.01">
+      </div>
     </div>
-    <div class="field">
-      <label class="label">Amount Paid</label>
-      <input class="input" id="modal-pm-amount" type="number" step="0.01" placeholder="460.00">
+    <div class="field-group">
+      <label>Compliance Notes</label>
+      <textarea id="m-notes" placeholder="Internal notes about this refund case..."></textarea>
     </div>
-    <div class="field">
-      <label class="label">Date Paid</label>
-      <input class="input" id="modal-pm-date" type="date">
+
+    <div class="section-label">Approval</div>
+    <div class="grid2">
+      <div class="field-group">
+        <label>Approval Status</label>
+        <select id="m-status">
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="denied">Denied</option>
+          <option value="review">Send Back for Review</option>
+          <option value="paid">Paid Out</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Approver Name</label>
+        <input type="text" id="m-approver" placeholder="Auto-filled">
+      </div>
+      <div class="field-group">
+        <label>Approval Date</label>
+        <input type="date" id="m-approval-date">
+      </div>
     </div>
-    <div class="field">
-      <label class="label">Notes (optional)</label>
-      <input class="input" id="modal-pm-notes" placeholder="e.g. Sent via Zelle at 2:30 PM">
+
+    <div class="section-label">Payment Details</div>
+    <div class="grid2">
+      <div class="field-group">
+        <label>Payment Method</label>
+        <select id="m-payment-method">
+          <option value="">Not set</option>
+          <option>Zelle</option>
+          <option>CashApp</option>
+          <option>PayPal</option>
+          <option>Check</option>
+          <option>Bank Transfer</option>
+          <option>Venmo</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Payment Handle / Account</label>
+        <input type="text" id="m-payment-handle" placeholder="e.g. 951-291-3051">
+      </div>
+      <div class="field-group">
+        <label>Payment Status</label>
+        <select id="m-payment-status">
+          <option value="none">Not Paid</option>
+          <option value="pending">Payment Pending</option>
+          <option value="paid">Paid</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Date Paid</label>
+        <input type="date" id="m-paid-date">
+      </div>
     </div>
+
+    <div class="section-label">Signed Agreement</div>
+    <div id="sig-info" style="background:#F8FAFC;border:1.5px solid var(--border);border-radius:10px;padding:14px;font-size:13px;margin-bottom:16px;">
+      <div class="sig-status" id="sig-status-display"><span>⏳ Checking signature status...</span></div>
+    </div>
+
     <div class="modal-btns">
-      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-gold" onclick="savePaid()">✅ Mark as Paid</button>
+      <button class="btn" style="background:#E2E8F0;color:#475569;" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-deny" onclick="quickAction('denied')">✗ Deny Refund</button>
+      <button class="btn btn-review" onclick="quickAction('review')">↩ Send for Review</button>
+      <button class="btn btn-approve" onclick="quickAction('approved')">✓ Approve Refund</button>
+      <button class="btn btn-edit" onclick="saveRefund()">💾 Save</button>
     </div>
   </div>
 </div>
 
 <script>
-const SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
-const K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
-const HDR = {'apikey':K,'Authorization':'Bearer '+K,'Content-Type':'application/json'};
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var K1 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0';
+var K2 = '8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var KEY = K1 + '.' + K2;
+var HDR = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
 
-let allDocs = [];
-let currentFilter = 'all';
-let currentModalId = null;
-let currentModalPM = '';
+var allData = [];
+var currentFilter = 'all';
+var currentRecord = null;
+var agentName = localStorage.getItem('cp_logged_in_name') || 'Compliance';
 
-// ── Load all signed docs + pending clients ──────────────────────────
-async function loadAll() {
+document.getElementById('hdr-user').textContent = agentName;
+
+async function loadData() {
   try {
-    // Load from esignatures table
-    const r1 = await fetch(SUPA+'/esignatures?order=signed_at.desc&limit=500', {headers:HDR});
-    const sigs = await r1.json();
+    // Load from esignatures table where it's a refund doc
+    var r1 = await fetch(SUPA+'/esignatures?order=created_at.desc&limit=500', {headers:HDR});
+    var sigs = await r1.json();
+    if(!Array.isArray(sigs)) sigs = [];
 
-    // Load clients with refund amounts (pending signatures)
-    const r2 = await fetch(SUPA+'/clients?refund_amount=not.is.null&select=id,name,email,refund_amount,refund_status,refund_payment_method,refund_payment_handle,refund_paid_date,refund_agreement_signed,refund_agreement_signed_date,status&limit=500', {headers:HDR});
-    const clients = await r2.json();
+    // Load clients with refund data
+    var r2 = await fetch(SUPA+'/clients?refund_status=neq.none&select=id,name,email,phone,refund_amount,refund_status,refund_payment_method,refund_payment_handle,refund_paid_date,refund_notes,refund_agreement_signed,refund_agreement_signed_date,refund_agreement_sent_by,status&order=id.desc&limit=500', {headers:HDR});
+    var clients = await r2.json();
+    if(!Array.isArray(clients)) clients = [];
 
-    // Merge — signed docs from esignatures, pending from clients not yet signed
-    const signedIds = new Set((Array.isArray(sigs)?sigs:[]).map(s=>s.client_id));
+    // Also get requests table for refund requests
+    var r3 = await fetch(SUPA+'/requests?type=eq.refund&order=created_at.desc&limit=200', {headers:HDR});
+    var requests = await r3.json();
+    if(!Array.isArray(requests)) requests = [];
 
-    let rows = [];
+    // Build unified list
+    allData = [];
 
-    // Add signed docs
-    if(Array.isArray(sigs)) {
-      sigs.forEach(s => {
-        rows.push({
-          id: s.id,
-          client_id: s.client_id,
-          client_name: s.client_name,
-          client_email: s.client_email,
-          doc_type: s.doc_type||'Refund Agreement',
-          signed_at: s.signed_at,
-          signed_by: s.signed_by,
-          refund_amount: s.refund_amount,
-          sig_status: 'signed',
-          payment_method: s.payment_method||'',
-          payment_handle: s.payment_handle||'',
-          payment_status: s.payment_status||'pending',
-          paid_date: s.paid_date||'',
-          source: 'esignatures'
+    // From clients with refund_status set
+    clients.forEach(function(c) {
+      // Find matching signature
+      var sig = sigs.find(function(s){ return s.client_id === c.id && (s.doc_type==='Refund Agreement'||s.doc_type==='Service Agreement'); });
+      allData.push({
+        source: 'client',
+        clientId: c.id,
+        clientName: c.name,
+        requestDate: c.refund_agreement_signed_date ? c.refund_agreement_signed_date.split('T')[0] : '',
+        reason: c.refund_notes || '',
+        requestedAmt: c.refund_amount || 0,
+        approvedAmt: c.refund_amount || 0,
+        status: c.refund_status || 'pending',
+        approver: c.refund_agreement_sent_by || '',
+        approvalDate: c.refund_paid_date || '',
+        paymentMethod: c.refund_payment_method || '',
+        paymentHandle: c.refund_payment_handle || '',
+        paymentStatus: c.refund_paid_date ? 'paid' : (c.refund_status === 'pending' ? 'none' : 'pending'),
+        paidDate: c.refund_paid_date || '',
+        agreementSigned: c.refund_agreement_signed || false,
+        agreementDate: c.refund_agreement_signed_date || '',
+        notes: c.refund_notes || '',
+        sig: sig || null,
+        rawClient: c
+      });
+    });
+
+    // From requests table (add ones not already in clients list)
+    requests.forEach(function(req) {
+      var exists = allData.find(function(d){ return d.clientId === req.client_id; });
+      if(!exists) {
+        allData.push({
+          source: 'request',
+          clientId: req.client_id || '',
+          clientName: req.client_name || 'Unknown',
+          requestDate: req.created_at ? req.created_at.split('T')[0] : '',
+          reason: req.notes || req.reason || '',
+          requestedAmt: 0,
+          approvedAmt: 0,
+          status: req.status === 'completed' ? 'approved' : 'pending',
+          approver: '',
+          approvalDate: '',
+          paymentMethod: '',
+          paymentHandle: '',
+          paymentStatus: 'none',
+          paidDate: '',
+          agreementSigned: false,
+          agreementDate: '',
+          notes: req.notes || '',
+          sig: null,
+          rawClient: null,
+          reqId: req.id
         });
-      });
-    }
+      }
+    });
 
-    // Add pending signature clients
-    if(Array.isArray(clients)) {
-      clients.forEach(c => {
-        if(!signedIds.has(c.id)) {
-          rows.push({
-            id: 'client-'+c.id,
-            client_id: c.id,
-            client_name: c.name,
-            client_email: c.email,
-            doc_type: 'Refund Agreement',
-            signed_at: null,
-            signed_by: null,
-            refund_amount: c.refund_amount,
-            sig_status: 'pending-sig',
-            payment_method: c.refund_payment_method||'',
-            payment_handle: c.refund_payment_handle||'',
-            payment_status: c.refund_status||'pending',
-            paid_date: c.refund_paid_date||'',
-            source: 'clients'
-          });
-        }
-      });
-    }
-
-    allDocs = rows;
     updateStats();
     renderTable();
   } catch(e) {
-    document.getElementById('table-body').innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:#64748B;">Error loading records: '+e.message+'</td></tr>';
+    console.error('loadData:', e);
+    document.getElementById('table-body').innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-ico">❌</div><div>Error loading data: '+e.message+'</div></div></td></tr>';
   }
 }
 
-// ── Stats ────────────────────────────────────────────────────────────
 function updateStats() {
-  const signed = allDocs.filter(d=>d.sig_status==='signed');
-  const pendingSig = allDocs.filter(d=>d.sig_status==='pending-sig');
-  const paid = allDocs.filter(d=>d.payment_status==='paid');
-  const pendingPay = allDocs.filter(d=>d.sig_status==='signed'&&d.payment_status!=='paid');
-  const totalRefunds = signed.reduce((a,d)=>a+(parseFloat(d.refund_amount)||0),0);
+  var pending = allData.filter(function(d){ return d.status==='pending'; }).length;
+  var approved = allData.filter(function(d){ return d.status==='approved'||d.status==='paid'; }).length;
+  var paid = allData.filter(function(d){ return d.paymentStatus==='paid'; }).length;
+  var denied = allData.filter(function(d){ return d.status==='denied'; }).length;
+  var totalAmt = allData.filter(function(d){ return d.status==='approved'||d.status==='paid'; }).reduce(function(s,d){ return s+(parseFloat(d.approvedAmt)||0); }, 0);
+  var sigs = allData.filter(function(d){ return d.agreementSigned; }).length;
 
-  document.getElementById('stat-total').textContent = allDocs.length;
-  document.getElementById('stat-signed').textContent = signed.length;
-  document.getElementById('stat-pending-sig').textContent = pendingSig.length;
-  document.getElementById('stat-total-refunds').textContent = '$'+totalRefunds.toFixed(0);
-  document.getElementById('stat-paid').textContent = paid.length;
-  document.getElementById('stat-pending-pay').textContent = pendingPay.length;
+  document.getElementById('s-pending').textContent = pending;
+  document.getElementById('s-approved').textContent = approved;
+  document.getElementById('s-paid').textContent = paid;
+  document.getElementById('s-denied').textContent = denied;
+  document.getElementById('s-total-amt').textContent = '$'+totalAmt.toFixed(2);
+  document.getElementById('s-sigs').textContent = sigs;
 }
 
-// ── Filter ───────────────────────────────────────────────────────────
 function setFilter(f, btn) {
   currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
   renderTable();
 }
 
-// ── Render table ─────────────────────────────────────────────────────
 function renderTable() {
-  const search = (document.getElementById('search').value||'').toLowerCase();
-  const typeFilter = (document.getElementById('f-type').value||'');
-
-  let filtered = allDocs.filter(d => {
-    if(search && !(d.client_name||'').toLowerCase().includes(search) && !(d.client_id||'').toLowerCase().includes(search)) return false;
-    if(typeFilter && d.doc_type !== typeFilter) return false;
-    if(currentFilter==='signed' && d.sig_status!=='signed') return false;
-    if(currentFilter==='pending-sig' && d.sig_status!=='pending-sig') return false;
-    if(currentFilter==='pending-pay' && !(d.sig_status==='signed'&&d.payment_status!=='paid')) return false;
-    if(currentFilter==='paid' && d.payment_status!=='paid') return false;
-    return true;
+  var q = document.getElementById('search').value.toLowerCase();
+  var items = allData.filter(function(d) {
+    if(q && !(d.clientName||'').toLowerCase().includes(q) && !(d.clientId||'').toLowerCase().includes(q)) return false;
+    if(currentFilter === 'all') return true;
+    if(currentFilter === 'paid') return d.paymentStatus === 'paid';
+    return d.status === currentFilter;
   });
 
-  document.getElementById('table-count').textContent = filtered.length + ' record' + (filtered.length!==1?'s':'');
-
-  if(!filtered.length) {
-    document.getElementById('table-body').innerHTML = '<tr><td colspan="10" class="loading-row">No records found.</td></tr>';
+  if(!items.length) {
+    document.getElementById('table-body').innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-ico">📋</div><div>No refund requests found.</div></div></td></tr>';
     return;
   }
 
-  const isOverdue = (d) => {
-    if(!d.signed_at || d.payment_status==='paid') return false;
-    var days = (new Date() - new Date(d.signed_at)) / (1000*60*60*24);
-    return days > 5;
-  };
+  var statusBadge = {pending:'badge-pending',approved:'badge-approved',denied:'badge-denied',paid:'badge-paid',review:'badge-review'};
+  var statusLabel = {pending:'Pending',approved:'Approved',denied:'Denied',paid:'Paid Out',review:'Under Review'};
 
-  document.getElementById('table-body').innerHTML = filtered.map(d => {
-    const sigBadge = d.sig_status==='signed'
-      ? '<span class="badge badge-signed">✅ Signed</span>'
-      : '<span class="badge badge-pending-sig">⏳ Awaiting</span>';
-
-    const payBadge = d.payment_status==='paid'
-      ? '<span class="badge badge-paid">✅ Paid</span>'
-      : isOverdue(d)
-        ? '<span class="badge badge-overdue">🔴 Overdue</span>'
-        : d.sig_status==='signed'
-          ? '<span class="badge badge-pending-pay">⏳ Pending</span>'
-          : '<span class="badge" style="background:#F1F5F9;color:#94A3B8;">Not Signed</span>';
-
-    const signedDate = d.signed_at ? new Date(d.signed_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
-    const paidDate = d.paid_date ? new Date(d.paid_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
-    const refund = d.refund_amount ? '<span class="amount">$'+parseFloat(d.refund_amount).toFixed(2)+'</span>' : '—';
-
-    const actions = d.sig_status==='signed' && d.payment_status!=='paid'
-      ? `<button class="mark-paid-btn" onclick="openPayModal('${d.id}','${(d.client_name||'').replace(/'/g,'\\'')}','${d.client_id}',${d.refund_amount||0})">Mark Paid</button>`
-      : d.sig_status==='pending-sig'
-        ? `<a class="view-btn" href="/sign.html?id=${d.client_id}" target="_blank">Sign Link</a>`
-        : '<span style="color:#94A3B8;font-size:11px;">Complete</span>';
-
-    return `<tr>
-      <td class="client-cell">
-        <div class="name">${d.client_name||'—'}</div>
-        <div class="id">${d.client_id||'—'}${d.client_email?' · '+d.client_email:''}</div>
-      </td>
-      <td style="font-size:12px;">${d.doc_type||'—'}</td>
-      <td style="font-size:12px;white-space:nowrap;">${signedDate}</td>
-      <td style="font-size:12px;">${d.signed_by||'—'}</td>
-      <td>${refund}</td>
-      <td>${sigBadge}</td>
-      <td style="font-size:12px;">${d.payment_method||'—'}${d.payment_handle?' · <span style="color:#64748B;">'+d.payment_handle+'</span>':''}</td>
-      <td>${payBadge}</td>
-      <td style="font-size:12px;white-space:nowrap;">${paidDate}</td>
-      <td>${actions}</td>
-    </tr>`;
+  document.getElementById('table-body').innerHTML = items.map(function(d, idx) {
+    var origIdx = allData.indexOf(d);
+    return '<tr>' +
+      '<td><strong>'+(d.clientName||'Unknown')+'</strong><br><span style="font-size:11px;color:#94A3B8;">'+(d.clientId||'')+'</span></td>' +
+      '<td style="font-size:12px;">'+(d.requestDate||'—')+'</td>' +
+      '<td style="font-size:12px;max-width:160px;">'+(d.reason?d.reason.substring(0,60)+(d.reason.length>60?'...':''):'—')+'</td>' +
+      '<td><span class="amount-big">$'+(parseFloat(d.requestedAmt)||0).toFixed(2)+'</span></td>' +
+      '<td><span class="amount-big" style="color:#166534;">$'+(parseFloat(d.approvedAmt)||0).toFixed(2)+'</span></td>' +
+      '<td><span class="badge '+(statusBadge[d.status]||'badge-pending')+'">'+(statusLabel[d.status]||d.status)+'</span></td>' +
+      '<td>'+(d.agreementSigned ? '<span class="badge badge-signed">✅ Signed</span>' : '<span class="badge badge-unsigned">⚠️ Unsigned</span>')+'</td>' +
+      '<td style="font-size:12px;">'+(d.paymentStatus==='paid'?'<span class="badge badge-approved">Paid '+( d.paidDate||'')+'</span>':(d.paymentMethod?d.paymentMethod+' — pending':'—'))+'</td>' +
+      '<td><button class="btn btn-edit btn-sm" onclick="openModal('+origIdx+')">Review</button></td>' +
+    '</tr>';
   }).join('');
 }
 
-// ── Mark Paid Modal ───────────────────────────────────────────────────
-function openPayModal(id, name, clientId, amount) {
-  currentModalId = id;
-  document.getElementById('modal-client-info').innerHTML =
-    '<strong>'+name+'</strong> ('+clientId+')<br>Refund Amount: <strong style="color:var(--green);">$'+parseFloat(amount).toFixed(2)+'</strong>';
-  document.getElementById('modal-pm-amount').value = parseFloat(amount).toFixed(2);
-  document.getElementById('modal-pm-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('modal-pm-handle').value = '';
-  document.getElementById('modal-pm-notes').value = '';
-  document.querySelectorAll('.pm-chip').forEach(b=>b.classList.remove('selected'));
-  currentModalPM = '';
-  document.getElementById('pay-modal').classList.add('open');
+function openNewRefund() {
+  currentRecord = {
+    source: 'new',
+    clientId: '', clientName: '', requestDate: new Date().toISOString().split('T')[0],
+    reason: '', requestedAmt: 0, approvedAmt: 0, status: 'pending',
+    approver: agentName, approvalDate: '', paymentMethod: '', paymentHandle: '',
+    paymentStatus: 'none', paidDate: '', agreementSigned: false, agreementDate: '', notes: ''
+  };
+  populateModal(currentRecord);
+  document.getElementById('modal-title').textContent = 'New Refund Request';
+  document.getElementById('modal-overlay').classList.add('open');
 }
-function closeModal() {
-  document.getElementById('pay-modal').classList.remove('open');
-  currentModalId = null;
-}
-function selectModalPM(pm) {
-  currentModalPM = pm;
-  document.querySelectorAll('.pm-chip').forEach(b=>b.classList.toggle('selected', b.textContent.includes(pm)));
-}
-async function savePaid() {
-  if(!currentModalId) return;
-  var handle = document.getElementById('modal-pm-handle').value;
-  var amount = document.getElementById('modal-pm-amount').value;
-  var date   = document.getElementById('modal-pm-date').value;
-  var notes  = document.getElementById('modal-pm-notes').value;
-  if(!currentModalPM){alert('Please select a payment method.');return;}
-  if(!date){alert('Please enter the date paid.');return;}
 
-  var row = allDocs.find(d=>d.id==currentModalId||d.id===currentModalId);
-  if(!row){alert('Record not found.');return;}
+function openModal(idx) {
+  currentRecord = allData[idx];
+  populateModal(currentRecord);
+  document.getElementById('modal-title').textContent = 'Refund Review — ' + (currentRecord.clientName || 'Unknown');
+  loadSignatureInfo(currentRecord.clientId);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function populateModal(d) {
+  document.getElementById('m-client-name').value = d.clientName || '';
+  document.getElementById('m-client-id').value = d.clientId || '';
+  document.getElementById('m-request-date').value = d.requestDate || '';
+  document.getElementById('m-reason').value = d.reason || '';
+  document.getElementById('m-requested-amt').value = d.requestedAmt || '';
+  document.getElementById('m-approved-amt').value = d.approvedAmt || '';
+  document.getElementById('m-status').value = d.status || 'pending';
+  document.getElementById('m-approver').value = d.approver || agentName;
+  document.getElementById('m-approval-date').value = d.approvalDate || '';
+  document.getElementById('m-payment-method').value = d.paymentMethod || '';
+  document.getElementById('m-payment-handle').value = d.paymentHandle || '';
+  document.getElementById('m-payment-status').value = d.paymentStatus || 'none';
+  document.getElementById('m-paid-date').value = d.paidDate || '';
+  document.getElementById('m-notes').value = d.notes || '';
+  document.getElementById('sig-status-display').innerHTML = '<span>⏳ Loading signature info...</span>';
+}
+
+async function loadSignatureInfo(clientId) {
+  if(!clientId) { document.getElementById('sig-status-display').innerHTML = '<span style="color:#94A3B8;">No client ID — save first</span>'; return; }
+  try {
+    var r = await fetch(SUPA+'/esignatures?client_id=eq.'+encodeURIComponent(clientId)+'&order=signed_at.desc&limit=5', {headers:HDR});
+    var sigs = await r.json();
+    if(!Array.isArray(sigs)||!sigs.length) {
+      document.getElementById('sig-status-display').innerHTML = '<span style="color:#991B1B;">⚠️ No signed documents found for this client</span>';
+      return;
+    }
+    var html = sigs.map(function(s) {
+      return '<div style="margin-bottom:8px;padding:8px 10px;background:white;border:1px solid #E2E8F0;border-radius:6px;">'+
+        '<div style="font-weight:700;font-size:12px;color:#166534;">✅ '+( s.doc_type||'Document')+'</div>'+
+        '<div style="font-size:11px;color:#64748B;margin-top:2px;">Signed by: '+(s.signed_by||s.client_name||'—')+' on '+(s.signed_at?new Date(s.signed_at).toLocaleDateString():'—')+'</div>'+
+        (s.refund_amount?'<div style="font-size:11px;color:#1B3A6B;margin-top:2px;">Refund amount: $'+parseFloat(s.refund_amount).toFixed(2)+'</div>':'')+
+        (s.payment_method?'<div style="font-size:11px;color:#1B3A6B;">Payment: '+s.payment_method+' → '+(s.payment_handle||'—')+'</div>':'')+
+      '</div>';
+    }).join('');
+    document.getElementById('sig-status-display').innerHTML = html;
+  } catch(e) {
+    document.getElementById('sig-status-display').innerHTML = '<span style="color:#94A3B8;">Error loading signatures</span>';
+  }
+}
+
+function quickAction(status) {
+  document.getElementById('m-status').value = status;
+  if(status === 'approved') {
+    document.getElementById('m-approver').value = agentName;
+    document.getElementById('m-approval-date').value = new Date().toISOString().split('T')[0];
+  }
+  saveRefund();
+}
+
+async function saveRefund() {
+  var clientId = document.getElementById('m-client-id').value.trim();
+  var clientName = document.getElementById('m-client-name').value.trim();
+  if(!clientId && !clientName) { alert('Please enter a client ID or name.'); return; }
+
+  var status = document.getElementById('m-status').value;
+  var approvedAmt = parseFloat(document.getElementById('m-approved-amt').value)||0;
+  var requestedAmt = parseFloat(document.getElementById('m-requested-amt').value)||0;
+  var paymentStatus = document.getElementById('m-payment-status').value;
+
+  var payload = {
+    refund_amount: approvedAmt || requestedAmt,
+    refund_status: status,
+    refund_payment_method: document.getElementById('m-payment-method').value || null,
+    refund_payment_handle: document.getElementById('m-payment-handle').value || null,
+    refund_paid_date: document.getElementById('m-paid-date').value || null,
+    refund_notes: document.getElementById('m-notes').value || null,
+    refund_agreement_sent_by: document.getElementById('m-approver').value || agentName,
+    refund_agreement_signed_date: document.getElementById('m-approval-date').value || null
+  };
 
   try {
-    // Update esignatures table if from there
-    if(row.source==='esignatures') {
-      await fetch(SUPA+'/esignatures?id=eq.'+encodeURIComponent(currentModalId), {
-        method:'PATCH', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
-        body:JSON.stringify({payment_method:currentModalPM,payment_handle:handle,payment_status:'paid',paid_date:date})
+    if(clientId) {
+      await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(clientId), {
+        method:'PATCH',
+        headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+        body:JSON.stringify(payload)
       });
     }
-    // Always update clients table
-    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(row.client_id), {
-      method:'PATCH', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
-      body:JSON.stringify({refund_payment_method:currentModalPM,refund_payment_handle:handle,refund_status:'paid',refund_paid_date:date,refund_notes:notes})
-    });
+
+    // Also save to esignatures if approved with amount
+    if(status === 'approved' && approvedAmt > 0) {
+      var sigPayload = {
+        client_id: clientId,
+        client_name: clientName,
+        doc_type: 'Refund Agreement',
+        signed_by: agentName,
+        signed_at: new Date().toISOString(),
+        refund_amount: approvedAmt,
+        payment_method: document.getElementById('m-payment-method').value || null,
+        payment_handle: document.getElementById('m-payment-handle').value || null,
+        payment_status: paymentStatus,
+        status: 'approved',
+        sent_by: agentName
+      };
+      await fetch(SUPA+'/esignatures', {
+        method:'POST',
+        headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+        body:JSON.stringify(sigPayload)
+      });
+    }
 
     closeModal();
-    await loadAll();
-    alert('✅ Payment recorded for '+row.client_name+' — $'+parseFloat(amount).toFixed(2)+' via '+currentModalPM);
-  } catch(e){alert('Error: '+e.message);}
+    await loadData();
+  } catch(e) {
+    alert('Error saving: '+e.message);
+  }
 }
 
-// ── Export CSV ────────────────────────────────────────────────────────
-function downloadCSV() {
-  var rows = [['Client Name','Client ID','Email','Doc Type','Signed Date','Signed By','Refund Amount','Sig Status','Payment Method','Payment Handle','Payment Status','Paid Date']];
-  allDocs.forEach(d=>{
-    rows.push([
-      d.client_name||'',
-      d.client_id||'',
-      d.client_email||'',
-      d.doc_type||'',
-      d.signed_at?new Date(d.signed_at).toLocaleDateString():'',
-      d.signed_by||'',
-      d.refund_amount?parseFloat(d.refund_amount).toFixed(2):'',
-      d.sig_status||'',
-      d.payment_method||'',
-      d.payment_handle||'',
-      d.payment_status||'',
-      d.paid_date||''
-    ].map(v=>('"'+(v+'').replace(/"/g,'""')+'"')));
-  });
-  var csv = rows.map(r=>r.join(',')).join('\n');
-  var a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download = 'refund-tracker-'+new Date().toISOString().split('T')[0]+'.csv';
-  a.click();
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  currentRecord = null;
 }
 
-// Close modal on overlay click
-document.getElementById('pay-modal').addEventListener('click', function(e){
-  if(e.target===this) closeModal();
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if(e.target === this) closeModal();
 });
 
-loadAll();
-setInterval(loadAll, 60000); // Auto-refresh every minute
+// Init
+loadData();
+setInterval(loadData, 60000); // Refresh every minute
 </script>
 </body>
 </html>
