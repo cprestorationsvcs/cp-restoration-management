@@ -863,7 +863,7 @@ function openPhone() {
   document.getElementById('close-call-btn').onclick = function() { overlay.remove(); };
   overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
 }
-async function submitStatusRequest(){
+async async function submitStatusRequest(){
   if(!currentClient) return;
   var reason=document.getElementById('su-reason').value;
   var notes=document.getElementById('su-notes').value.trim();
@@ -902,7 +902,7 @@ async function submitStatusRequest(){
   document.getElementById('su-notes').value='';
 }
 
-async function submitRefundRequest(){
+async async function submitRefundRequest(){
   if(!currentClient) return;
   var reason=document.getElementById('rf-reason').value;
   var notes=document.getElementById('rf-notes').value.trim();
