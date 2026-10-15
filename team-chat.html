@@ -346,8 +346,8 @@ function appendMsg(m) {
   ts.className='ts'; ts.textContent=time; bub.appendChild(ts);
 
   // Delete button — visible to sender and admin/Jason
-  var isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.name === 'Jason Crown');
-  if (isMine || isAdmin) {
+  var canDelete = currentUser && (currentUser.name === 'Jason Crown' || currentUser.name === 'Queen Jearel Cruz');
+  if (canDelete) {
     var delBtn = document.createElement('button');
     delBtn.textContent = '🗑';
     delBtn.title = 'Delete message';
