@@ -733,6 +733,14 @@ function renderActions(c){
   else document.getElementById('action-badge').style.display='none';
 
   el.innerHTML=
+    // Quick Launch — Status Update Tool
+    '<div class="action-card" style="border:2px solid #1B3A6B;">'+
+      '<div class="action-card-head ac-navy" style="background:#1B3A6B;">&#128203; Open Status Update Tool</div>'+
+      '<div class="action-card-body">'+
+        '<p style="font-size:12px;color:#475569;margin-bottom:10px;">Open the full Status Update Tool for this client to add dispute items, update notes, and post status to the client portal.</p>'+
+        '<a href="/status-update.html?id='+encodeURIComponent(c.id)+'" target="_blank" style="display:inline-block;padding:9px 18px;background:#1B3A6B;color:white;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;">&#128279; Open for '+escHtml(c.name)+'</a>'+
+      '</div>'+
+    '</div>'+
     // Status Update Request
     '<div class="action-card">'+
       '<div class="action-card-head ac-navy">&#128202; Request Status Update</div>'+
