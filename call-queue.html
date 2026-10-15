@@ -317,13 +317,34 @@ function handleMarkCalled(id) {
   saveNote(id, note).then(function(){ markStatus(id, 'called'); });
 }
 
+function setAgentName(name) {
+  if(!name) return;
+  localStorage.setItem('cp_logged_in_name', name);
+  // Re-render to show updated assigned badges
+  render();
+}
+
+// Auto-select from localStorage on load
+(function(){
+  var saved = localStorage.getItem('cp_logged_in_name');
+  if(saved) {
+    var sel = document.getElementById('agent-name-select');
+    if(sel) {
+      for(var i=0;i<sel.options.length;i++){
+        if(sel.options[i].value===saved){ sel.selectedIndex=i; break; }
+      }
+    }
+  }
+})();
+
 async function assignToMe(id) {
   var name = localStorage.getItem('cp_logged_in_name') || '';
   if(!name) {
-    name = prompt('Enter your name to assign this callback:');
-    if(!name || !name.trim()) return;
-    name = name.trim();
-    localStorage.setItem('cp_logged_in_name', name);
+    // Show a visible alert — prompt() may be blocked in some browsers
+    var sel = document.getElementById('agent-name-select');
+    if(sel) { sel.style.border='2px solid #C9A84C'; sel.focus(); }
+    alert('Please select your name from the dropdown at the top right before assigning.');
+    return;
   }
   try {
     await fetch(SUPA+'/requests?id=eq.'+id, {
