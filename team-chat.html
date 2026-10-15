@@ -285,7 +285,7 @@ async function loadMessages(initial) {
 // ── APPEND MESSAGE ──
 function appendMsg(m) {
   var c=document.getElementById('messages');
-  var isMine=currentUser&&m.sender_name===currentUser.name;
+  var _myname=localStorage.getItem('cp_logged_in_name')||''; var isMine=_myname&&m.sender_name===_myname;
   var color=m.sender_color||'#1B3A6B';
   var initials=m.sender_initials||(m.sender_name||'?').substring(0,2).toUpperCase();
   var time='';
@@ -346,7 +346,7 @@ function appendMsg(m) {
   ts.className='ts'; ts.textContent=time; bub.appendChild(ts);
 
   // Delete button — visible to sender and admin/Jason
-  var canDelete = currentUser && (currentUser.name === 'Jason Crown' || currentUser.name === 'Queen Jearel Cruz');
+  var _uname = localStorage.getItem('cp_logged_in_name') || ''; var canDelete = (_uname === 'Jason Crown' || _uname === 'Queen Jearel Cruz');
   if (canDelete) {
     var delBtn = document.createElement('button');
     delBtn.textContent = '🗑';
