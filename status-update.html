@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CP Restoration — Status Update Tool — v2 b173630</title>
+<title>CP Restoration — Status Update Tool — v2 b173630 fix185924</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Arial,sans-serif;background:#F8FAFC;color:#1E293B;min-height:100vh;}
@@ -155,7 +155,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
 <script>
 var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
 var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
-var HDR  = {apikey:KEY,'Authorization':'Bearer '+KEY};
+var HDR  = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
 var client = null, items = [], filterBy = 'all', timer = null;
 
 // ── SEARCH ──
