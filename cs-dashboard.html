@@ -1189,34 +1189,7 @@ function renderEmailClient() {
 }
 
 
-async function postStatusUpdate() {
-  if(!currentClient) return;
-  var action = (document.getElementById('status-select')||{}).value||'';
-  var notes  = (document.getElementById('status-notes') ||{}).value||'';
-  if(!action){alert('Please select a status update.');return;}
-  var payload = {
-    client_id: currentClient.id,
-    client_name: currentClient.name,
-    action: action,
-    notes: notes,
-    posted_by: currentUser,
-    posted_by_name: localStorage.getItem('cp_logged_in_name')||'CS Agent',
-    created_at: new Date().toISOString(),
-    visible_to_client: true
-  };
-  try {
-    var r = await fetch(SUPA+'/status_updates',{
-      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
-      body:JSON.stringify(payload)
-    });
-    if(r.ok||r.status===201||r.status===204){
-      alert('✅ Status update posted to client portal!');
-      document.getElementById('status-select').value='';
-      document.getElementById('status-notes').value='';
-      loadStatusHistory(currentClient.id);
-    }
-  } catch(e){alert('Error posting update: '+e.message);}
-}
+
 async function loadStatusHistory(clientId) {
   var el = document.getElementById('status-history');
   if(!el) return;
@@ -1242,8 +1215,8 @@ async function sendClientEmail(mode) {
   var bodyText = editor ? editor.innerText : '';
   var postPortal = mode === 'email-portal' || (document.getElementById('email-post-portal')||{}).checked;
   if(!subject||!bodyText.trim()){alert('Please enter a subject and message.');return;}
-  var btn = event.target;
-  btn.textContent='Sending...'; btn.disabled=true;
+  var btn = document.querySelector('#email-send-btn') || (event && event.target) || {};
+  if(btn.textContent !== undefined) { btn.textContent='Sending...'; btn.disabled=true; }
   try {
     var r = await fetch('/.netlify/functions/send-email',{
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -1694,30 +1667,7 @@ async function sendCSReply() {
   } catch(e){console.error(e);}
 }
 
-async function postStatusUpdate() {
-  if (!currentClient) return;
-  var input = document.getElementById('cs-reply-input');
-  var msg = input.value.trim();
-  if (!msg) { alert('Enter the status update text first.'); return; }
-  var agentName = localStorage.getItem('cp_logged_in_name')||'CS Agent';
-  try {
-    await fetch(SUPA+'/client_status_updates', {
-      method:'POST',
-      headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
-      body:JSON.stringify({
-        client_id:currentClient.id,
-        client_name:currentClient.name,
-        update_text:msg,
-        update_type:'status',
-        posted_by:agentName,
-        created_at:new Date().toISOString()
-      })
-    });
-    input.value='';
-    alert('Status update posted to client portal!');
-    trackLog();
-  } catch(e){console.error(e);}
-}
+
 
 // Check for unread messages across all clients (badge)
 async function checkUnreadMessages() {
