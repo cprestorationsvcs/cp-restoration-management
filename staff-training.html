@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CP Restoration Services — Staff Training Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;}
+body{background:#F8FAFC;color:#1E293B;}
+.hdr{background:#1B3A6B;color:white;padding:20px 32px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+.hdr h1{font-size:18px;font-weight:900;}
+.hdr p{font-size:12px;opacity:0.7;margin-top:4px;}
+.progress-bar{background:rgba(255,255,255,0.2);border-radius:20px;height:6px;width:200px;margin-top:8px;}
+.progress-fill{background:#C9A84C;border-radius:20px;height:6px;transition:width 0.3s;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:260px;background:white;border-right:1.5px solid #E2E8F0;padding:20px;position:sticky;top:73px;height:calc(100vh - 73px);overflow-y:auto;flex-shrink:0;}
+.sidebar h3{font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.sidebar a{display:flex;align-items:center;gap:8px;font-size:13px;color:#475569;text-decoration:none;padding:7px 10px;border-radius:6px;margin-bottom:2px;font-weight:500;}
+.sidebar a:hover{background:#EFF6FF;color:#1B3A6B;}
+.sidebar a.done{color:#166534;}
+.sidebar a.done .check{display:inline;}
+.check{display:none;color:#166534;font-size:12px;}
+.content{flex:1;padding:40px;max-width:860px;}
+.module{margin-bottom:60px;scroll-margin-top:80px;}
+.mod-header{background:linear-gradient(135deg,#1B3A6B,#2d5aa8);color:white;border-radius:16px;padding:28px;margin-bottom:28px;}
+.mod-num{font-size:11px;font-weight:800;color:#C9A84C;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.mod-header h2{font-size:24px;font-weight:900;margin-bottom:8px;}
+.mod-header p{opacity:0.8;font-size:14px;line-height:1.5;}
+.mod-header .role{display:inline-block;background:rgba(201,168,76,0.3);border:1px solid rgba(201,168,76,0.5);color:#C9A84C;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-top:12px;}
+h3{font-size:16px;font-weight:800;color:#1B3A6B;margin:24px 0 12px;}
+p{font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;}
+ul,ol{padding-left:20px;margin-bottom:16px;}
+li{font-size:14px;color:#475569;line-height:1.8;}
+.step-list{list-style:none;padding:0;counter-reset:steps;}
+.step-list li{counter-increment:steps;padding:12px 12px 12px 50px;position:relative;border-left:2px solid #E2E8F0;margin-left:16px;margin-bottom:10px;font-size:14px;color:#475569;background:white;border-radius:0 8px 8px 0;}
+.step-list li::before{content:counter(steps);position:absolute;left:-16px;top:10px;width:30px;height:30px;background:#1B3A6B;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;}
+.quiz{background:white;border:2px solid #E2E8F0;border-radius:14px;padding:24px;margin-top:24px;}
+.quiz h4{font-size:15px;font-weight:800;color:#1B3A6B;margin-bottom:16px;}
+.quiz-q{margin-bottom:20px;}
+.quiz-q p{font-weight:600;color:#1E293B;margin-bottom:10px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:8px;cursor:pointer;font-size:13px;color:#475569;transition:all 0.15s;}
+.quiz-opt:hover{border-color:#1B3A6B;background:#EFF6FF;}
+.quiz-opt.correct{border-color:#166534;background:#DCFCE7;color:#166534;font-weight:700;}
+.quiz-opt.wrong{border-color:#991B1B;background:#FEE2E2;color:#991B1B;}
+.quiz-btn{margin-top:16px;padding:10px 24px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+.quiz-result{margin-top:12px;padding:12px;border-radius:8px;font-size:13px;font-weight:700;display:none;}
+.quiz-result.pass{background:#DCFCE7;color:#166534;}
+.quiz-result.fail{background:#FEE2E2;color:#991B1B;}
+.tip{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin:16px 0;}
+.tip p{color:#1B3A6B;margin:0;font-size:13px;}
+.danger{background:#FEE2E2;border:1.5px solid #FCA5A5;border-radius:10px;padding:14px 18px;margin:16px 0;}
+.danger p{color:#991B1B;margin:0;font-size:13px;}
+.complete-btn{display:block;width:100%;padding:14px;background:#C9A84C;color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:24px;transition:background 0.2s;}
+.complete-btn:hover{background:#b8952f;}
+.complete-btn.done{background:#166534;}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;}
+th{background:#1B3A6B;color:white;padding:10px 12px;text-align:left;font-weight:700;}
+td{padding:9px 12px;border-bottom:1px solid #F1F5F9;color:#475569;}
+.cert{background:linear-gradient(135deg,#C9A84C,#b8952f);color:white;border-radius:16px;padding:40px;text-align:center;display:none;}
+.cert h2{font-size:28px;font-weight:900;margin-bottom:8px;}
+.cert p{opacity:0.9;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div>
+    <h1>🛡️ CP Restoration Services — Staff Training Guide</h1>
+    <p>Complete all modules to receive your certification</p>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  </div>
+  <div style="text-align:right;">
+    <div style="font-size:24px;font-weight:900;color:#C9A84C;" id="pct">0%</div>
+    <div style="font-size:11px;opacity:0.6;">Complete</div>
+  </div>
+</div>
+<div class="layout">
+  <div class="sidebar">
+    <h3>Modules</h3>
+    <a href="#m1" id="nav-m1"><span class="check">✓</span> 1. Welcome & Company Overview</a>
+    <a href="#m2" id="nav-m2"><span class="check">✓</span> 2. Portal Login & Navigation</a>
+    <a href="#m3" id="nav-m3"><span class="check">✓</span> 3. CS Dashboard — Core Workflow</a>
+    <a href="#m4" id="nav-m4"><span class="check">✓</span> 4. Client Communication Standards</a>
+    <a href="#m5" id="nav-m5"><span class="check">✓</span> 5. Call Queue & Callbacks</a>
+    <a href="#m6" id="nav-m6"><span class="check">✓</span> 6. Dispute Process</a>
+    <a href="#m7" id="nav-m7"><span class="check">✓</span> 7. Compliance & Legal Rules</a>
+    <a href="#m8" id="nav-m8"><span class="check">✓</span> 8. Escalation Protocol</a>
+    <a href="#m9" id="nav-m9"><span class="check">✓</span> 9. Team Chat Rules</a>
+    <a href="#m10" id="nav-m10"><span class="check">✓</span> 10. Final Assessment</a>
+  </div>
+  <div class="content">
+
+    <!-- MODULE 1 -->
+    <div class="module" id="m1">
+      <div class="mod-header">
+        <div class="mod-num">Module 1</div>
+        <h2>Welcome & Company Overview</h2>
+        <p>Learn who we are, what we do, and your role in the company's success.</p>
+        <div class="role">All Staff</div>
+      </div>
+      <h3>About CP Restoration Services</h3>
+      <p>CP Restoration Services is a credit repair company founded in 2014. We help clients remove negative items from their credit reports — collections, charge-offs, late payments, hard inquiries, bankruptcies — across all three major bureaus: TransUnion, Equifax, and Experian.</p>
+      <p>As of October 2026, the company is under new leadership with a brand new team. Our commitment is simple: <strong>every client who paid for our service will be worked and communicated with.</strong></p>
+      <h3>Our Services</h3>
+      <table>
+        <tr><th>Package</th><th>Price</th><th>Description</th></tr>
+        <tr><td>Standard Credit Repair</td><td>$2,499</td><td>Full 3-bureau credit repair, disputes every 35 days</td></tr>
+        <tr><td>Express Credit Repair</td><td>$3,999</td><td>Priority file handling, expedited disputes</td></tr>
+        <tr><td>Inquiries Only</td><td>$45/bureau</td><td>Hard inquiry removal only</td></tr>
+        <tr><td>Business Funding</td><td>10% of funded</td><td>Connect repaired clients with funding</td></tr>
+        <tr><td>Financing</td><td>$750 down</td><td>Payment plan for Standard/Express</td></tr>
+      </table>
+      <h3>Company Contact Info</h3>
+      <ul>
+        <li><strong>Phone:</strong> 1-855-327-5847</li>
+        <li><strong>Email:</strong> cprestorationsvcs@gmail.com</li>
+        <li><strong>CS Hours:</strong> Monday–Friday, 9:00 AM – 5:00 PM ET</li>
+        <li><strong>Sales:</strong> 24 hours / 7 days a week</li>
+        <li><strong>Daily Meeting:</strong> meet.google.com/ree-qcrf-bqp at 9:00 AM EST weekdays</li>
+        <li><strong>Portal:</strong> portal-cprestorationsvcs.com</li>
+      </ul>
+      <h3>Your Role</h3>
+      <p>Every team member plays a critical role. <strong>CS agents</strong> are the voice of the company — clients trust us because of how you treat them. <strong>Dispute specialists</strong> are the engine — your work produces the results clients paid for. <strong>Bureau callers</strong> make things happen at the bureau level. <strong>Compliance</strong> keeps us legally protected.</p>
+      <div class="tip"><p>💡 <strong>Golden Rule:</strong> Treat every client the way you would want a company to treat you if you paid $2,499 and were waiting for results.</p></div>
+      <button class="complete-btn" onclick="complete('m1',this)">✅ Mark Module Complete</button>
+    </div>
+
+    <!-- MODULE 2 -->
+    <div class="module" id="m2">
+      <div class="mod-header">
+        <div class="mod-num">Module 2</div>
+        <h2>Portal Login & Navigation</h2>
+        <p>How to log in, where to go, and what each page does.</p>
+        <div class="role">All Staff</div>
+      </div>
+      <h3>Logging In</h3>
+      <ol class="step-list">
+        <li>Open <strong>portal-cprestorationsvcs.com</strong> in Google Chrome</li>
+        <li>Enter your work email (e.g. elna@mycprteam.com)</li>
+        <li>Enter your password</li>
+        <li>Click Login — you will be taken to your dashboard automatically based on your role</li>
+      </ol>
+      <div class="tip"><p>💡 If you see "Invalid email or password," open an <strong>incognito window</strong> (Ctrl+Shift+N) and try again. This clears any cached login issues.</p></div>
+      <h3>Your Dashboard by Role</h3>
+      <table>
+        <tr><th>Your Role</th><th>Where You Land</th><th>Main Tools</th></tr>
+        <tr><td>CS Agent (Elna, Alec)</td><td>CS Dashboard</td><td>Client list, search, status updates, emails</td></tr>
+        <tr><td>Compliance (Queen)</td><td>CS Dashboard</td><td>Refund Tracker, escalations, approvals</td></tr>
+        <tr><td>Dispute Specialist (Marcelo, Annabel)</td><td>Dispute Center</td><td>Dispute log, status updates, client files</td></tr>
+        <tr><td>Bureau Caller (Rosemarie)</td><td>Bureau Caller Dashboard</td><td>Bureau call log, assignments</td></tr>
+        <tr><td>Sales Rep (Raymon)</td><td>Sales Dashboard</td><td>Leads, appointments, pipeline</td></tr>
+        <tr><td>Admin (Jason)</td><td>Full portal access</td><td>All pages</td></tr>
+      </table>
+      <h3>Pages You Need to Know</h3>
+      <ul>
+        <li><strong>/cs-dashboard.html</strong> — Work client files, post updates, send emails</li>
+        <li><strong>/call-queue.html</strong> — Manage urgent client callbacks</li>
+        <li><strong>/team-chat.html</strong> — Internal team communication</li>
+        <li><strong>/time-tracker.html</strong> — Clock in and out every day</li>
+        <li><strong>/appointments.html</strong> — View and manage consultation bookings</li>
+      </ul>
+      <div class="danger"><p>🚫 <strong>Never share your login credentials.</strong> Your account is traceable to you. If something happens under your login, you are responsible.</p></div>
+      <button class="complete-btn" onclick="complete('m2',this)">✅ Mark Module Complete</button>
+    </div>
+
+    <!-- MODULE 3 -->
+    <div class="module" id="m3">
+      <div class="mod-header">
+        <div class="mod-num">Module 3</div>
+        <h2>CS Dashboard — Core Workflow</h2>
+        <p>The daily workflow for customer service agents.</p>
+        <div class="role">CS Agents · Compliance</div>
+      </div>
+      <h3>Starting Your Day</h3>
+      <ol class="step-list">
+        <li>Log in and open the CS Dashboard</li>
+        <li>Clock in at <strong>/time-tracker.html</strong></li>
+        <li>Check Team Chat for overnight alerts and messages from Jason</li>
+        <li>Check the Call Queue for urgent callbacks — handle these first</li>
+        <li>Review client list — clients with a red dot have unread messages</li>
+        <li>Begin working through your client files</li>
+      </ol>
+      <h3>Working a Client File</h3>
+      <ol class="step-list">
+        <li>Click the client's name in the left panel to open their file</li>
+        <li>Review their Info tab — check status, package, and notes</li>
+        <li>Read any messages in the Messages tab</li>
+        <li>Take the appropriate action — post an update, send an email, or submit a request</li>
+        <li>Log all contact in the Contact Log tab with date, type, and outcome</li>
+      </ol>
+      <h3>Posting a Status Update</h3>
+      <p>Status updates are visible to clients in their portal. They must be professional and accurate.</p>
+      <ol class="step-list">
+        <li>Open the client file → click <strong>Status Update</strong> tab</li>
+        <li>Select the appropriate status type</li>
+        <li>Write clear, professional notes explaining what is happening on the file</li>
+        <li>Click <strong>Post Update</strong></li>
+      </ol>
+      <div class="tip"><p>💡 <strong>Never leave a client without a status update for more than 2 weeks.</strong> Even "Your file is active and disputes are pending" is better than silence.</p></div>
+      <h3>Using the Status Update Tool</h3>
+      <p>For a more detailed update interface, use the Status Update Tool. In the CS Dashboard, open any client → Actions tab → click <strong>Open Status Update Tool</strong>. It opens pre-loaded for that client.</p>
+      <div class="quiz">
+        <h4>🧠 Quick Check</h4>
+        <div class="quiz-q" id="q3-1">
+          <p>A client sends a message asking "what's happening with my file?" — what do you do first?</p>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answer(this,'wrong')">Tell them to call the main number</div>
+            <div class="quiz-opt" onclick="answer(this,'correct')">Open their file, review the status, and reply with a professional update</div>
+            <div class="quiz-opt" onclick="answer(this,'wrong')">Ignore it until Jason tells you what to say</div>
+            <div class="quiz-opt" onclick="answer(this,'wrong')">Transfer them to the dispute team</div>
+          </div>
+        </div>
+      </div>
+      <button class="complete-btn" onclick="complete('m3',this)">✅ Mark Module Complete</button>
+    </div>
+
+    <!-- MODULE 4 -->
+    <div class="module" id="m4">
+      <div class="mod-header">
+        <div class="mod-num">Module 4</div>
+        <h2>Client Communication Standards</h2>
+        <p>How we speak to and treat every client.</p>
+        <div class="role">All Client-Facing Staff</div>
+      </div>
+      <h3>The Standard</h3>
+      <p>Every client paid $2,499 or more. They are not a ticket number — they are someone who trusted us with their financial future. Communicate with that level of respect at all times.</p>
+      <h3>Phone Call Standards</h3>
+      <ul>
+        <li>Answer with: <strong>"Thank you for calling CP Restoration Services, this is [your name], how can I help you today?"</strong></li>
+        <li>Never put a client on hold for more than 2 minutes without checking back</li>
+        <li>If you don't know the answer, say: <strong>"Let me look into that for you and get right back to you"</strong> — never guess</li>
+        <li>Always end with: <strong>"Is there anything else I can help you with today?"</strong></li>
+        <li>Log every call in the Contact Log with date, duration, and outcome</li>
+      </ul>
+      <h3>Written Communication Standards</h3>
+      <ul>
+        <li>Always use proper grammar and spelling — proofread before sending</li>
+        <li>Never use slang, abbreviations, or informal language in client emails</li>
+        <li>Respond to all client messages within 24 hours, Monday through Friday</li>
+        <li>All emails sent through the portal are automatically logged</li>
+      </ul>
+      <h3>Things You Must NEVER Say to a Client</h3>
+      <div class="danger">
+        <p>🚫 "I don't know" (say "Let me find out for you")<br>
+        🚫 "That's not my department"<br>
+        🚫 "We're backed up / we're short staffed"<br>
+        🚫 "I can't help you with that"<br>
+        🚫 Any promise of a specific score increase or guaranteed result<br>
+        🚫 Any comment about legal issues, chargebacks, or lawsuits<br>
+        🚫 Anything about other clients — never reference other client situations</p>
+      </div>
+      <div class="quiz">
+        <h4>🧠 Quick Check</h4>
+        <div class="quiz-q">
+          <p>A client calls and says "I've been waiting 6 months and nothing has changed." What is the correct response?</p>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answer(this,'wrong')">Tell them the process takes time and hang up</div>
+            <div class="quiz-opt" onclick="answer(this,'wrong')">Apologize and offer a full refund immediately</div>
+            <div class="quiz-opt" onclick="answer(this,'correct')">Apologize sincerely, pull up their file, explain what has been done, and escalate to Queen if a refund is requested</div>
+            <div class="quiz-opt" onclick="answer(this,'wrong')">Transfer them to Jason without saying anything</div>
+          </div>
+        </div>
+      </div>
+      <button class="complete-btn" onclick="complete('m4',this)">✅ Mark Module Complete</button>
+    </div>
+
+    <!-- MODULE 5 -->
+    <div class="module" id="m5">
+      <div class="mod-header">
+        <div class="mod-num">Module 5</div>
+        <h2>Call Queue & Callbacks</h2>
+        <p>How to manage the urgent callback queue.</p>
+        <div class="role">CS Agents</div>
+      </div>
+      <h3>What is the Call Queue?</h3>
+      <p>The Call Queue at <strong>/call-queue.html</strong> captures urgent callback requests from clients — people who called in and need to be called back. These are high priority. A client in the queue has already been waiting.</p>
+      <h3>Working the Queue</h3>
+      <ol class="step-list">
+        <li>Open the Call Queue</li>
+        <li>Select your name from the <strong>"You are:"</strong> dropdown</li>
+        <li>Review all pending items</li>
+        <li>Click <strong>Assign to Me</strong> on a card to claim it</li>
+        <li>Call the client back using RingCentral (RC)</li>
+        <li>Add your call notes to the card</li>
+        <li>Click <strong>Mark Called</strong> when done</li>
+      </ol>
+      <h3>Filters</h3>
+      <p>Use the filters at the top — filter by your name and by date. Use "Today" to see only today's callbacks during your shift.</p>
+      <div class="tip"><p>💡 <strong>Rule:</strong> No callback should sit in the queue for more than 4 hours during business hours. If you see items older than that, handle them or escalate to your supervisor.</p></div>
+      <button class="complete-btn" onclick="complete('m5',this)">✅ Mark Module Complete</button>
+    </div>
+
+    <!-- MODULE 6 -->
+    <div class="module" id="m6">
+      <div class="mod-header">
+        <div class="mod-num">Module 6</div>
+        <h2>Dispute Process</h2>
+        <p>How disputes are filed and tracked. For dispute specialists and CS agents alike.</p>
+        <div class="role">Dispute Specialists · CS Agents</div>
+      </div>
+      <h3>The 35-Day Cycle</h3>
+      <p>Credit bureaus are required to respond to disputes within 35 business days. Our process is built around this cycle. Disputes are filed, the bureau investigates, and the result is logged back in the client's file.</p>
+      <h3>CS Agent Role in Disputes</h3>
+      <ul>
+        <li>You do NOT file disputes — that is Marcelo and Annabel's job</li>
+        <li>You request disputes via the CS Dashboard → client file → Actions tab → <strong>Request Status Update</strong></li>
+        <li>You communicate dispute results TO the client via status updates and email</li>
+        <li>You never tell a client their dispute was "approved" or "removed" unless you can see it confirmed in the file</li>
+      </ul>
+      <h3>Dispute Specialist Role</h3>
+      <ol class="step-list">
+        <li>Check Requests Inbox for new CS requests daily</li>
+        <li>Log into client's bureau accounts</li>
+        <li>Review negative items and identify what can be disputed</li>
+        <li>File disputes with the appropriate bureau(s)</li>
+        <li>Log the dispute in the client's portal file — bureau, item, date filed</li>
+        <li>Post a status update to the client portal</li>
+        <li>Email the client a confirmation</li>
+      </ol>
+      <div class="danger"><p>🚫 Never log into a bureau account using a personal device or outside of work hours without authorization. Bureau access is logged and monitored.</p></div>
+      <button class="complete-btn" onclick="complete('m6',this)">✅ Mark Module Complete</button>
+    </div>
+
+    <!-- MODULE 7 -->
+    <div class="module" id="m7">
+      <div class="mod-header">
+        <div class="mod-num">Module 7</div>
+        <h2>Compliance & Legal Rules</h2>
+        <p>The non-negotiable rules that protect you, the client, and the company.</p>
+        <div class="role">All Staff — Mandatory</div>
+      </div>
+      <h3>Federal Law</h3>
+      <p>Credit repair companies are regulated under the <strong>Credit Repair Organizations Act (CROA)</strong>. Violations can result in fines, lawsuits, and criminal liability. Take these rules seriously.</p>
+      <h3>Absolute Rules — Zero Tolerance</h3>
+      <div class="danger">
+        <p>🚫 <strong>Never post SSNs or Social Security numbers anywhere</strong> — not in Team Chat, not in client notes, not in email. This is a federal compliance violation and grounds for immediate termination.<br><br>
+        🚫 <strong>Never promise a specific credit score increase.</strong> You can say "we work to improve your score" — never "we will get you to 700."<br><br>
+        🚫 <strong>Never contact a client with a CHARGEBACK or LEGAL HOLD</strong> on their file. Take their number and escalate to Jason immediately.<br><br>
+        🚫 <strong>Never discuss one client's situation with another client.</strong><br><br>
+        🚫 <strong>Never authorize a refund</strong> — only Jason can approve refunds. You can acknowledge the request and escalate to Queen.<br><br>
+        🚫 <strong>Never discuss the Xyla situation, former employees, or internal company issues</strong> with any client or partner.</p>
+      </div>
+      <h3>Sensitive Client Files — Do Not Contact</h3>
+      <table>
+        <tr><th>Client</th><th>ID</th><th>Rule</th></tr>
+        <tr><td>Tracey Ilene</td><td>CPR-CP17241</td><td>Chargeback in progress — DO NOT discuss. Take number, escalate to Jason.</td></tr>
+        <tr><td>Joseph Lee Rea</td><td>CPR-CP16412</td><td>Chargeback — Queen handling only</td></tr>
+        <tr><td>Eric Phillips</td><td>CPR-CP16954</td><td>Threatened lawsuit — Jason only, no exceptions</td></tr>
+      </table>
+      <div class="quiz">
+        <h4>🧠 Quick Check</h4>
+        <div class="quiz-q">
+          <p>A client calls and mentions their SSN to verify their identity. What do you do?</p>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="answer(this,'wrong')">Write it down in their client notes for reference</div>
+            <div class="quiz-opt" onclick="answer(this,'wrong')">Post it in Team Chat so the dispute team can verify</div>
+            <div class="quiz-opt" onclick="answer(this,'correct')">Do not record it anywhere in the portal. Use their Client ID and name to verify identity instead.</div>
+            <div class="quiz-opt" onclick="answer(this,'wrong')">Email it to yourself for safekeeping</div>
+          </div>
+        </div>
+      </div>
+      <button class="complete-btn" onclick="complete('m7',this)">✅ Mark Module Complete</button>
+    </div>
+
+    <!-- MODULE 8 -->
+    <div class="module" id="m8">
+      <div class="mod-header">
+        <div class="mod-num">Module 8</div>
+        <h2>Escalation Protocol</h2>
+        <p>Know when and how to escalate — never handle alone what should go up the chain.</p>
+        <div class="role">All Staff</div>
+      </div>
+      <h3>Escalation Chain</h3>
+      <table>
+        <tr><th>Situation</th><th>Who to Contact</th><th>How Fast</th></tr>
+        <tr><td>Client threatens lawsuit or law enforcement</td><td>Jason Crown</td><td>Immediately</td></tr>
+        <tr><td>Chargeback call comes in</td><td>Jason Crown</td><td>Immediately</td></tr>
+        <tr><td>Refund request</td><td>Queen Jearel Cruz</td><td>Same day</td></tr>
+        <tr><td>Client threatening social media blast</td><td>Jason Crown</td><td>Immediately</td></tr>
+        <tr><td>Dispute needs to be filed</td><td>Marcelo / Annabel</td><td>Via portal request</td></tr>
+        <tr><td>Bureau login verification code needed</td><td>Rosemarie De Guzman</td><td>Same day</td></tr>
+        <tr><td>Compliance concern</td><td>Queen Jearel Cruz</td><td>Same day</td></tr>
+        <tr><td>Portal down / not working</td><td>Jason Crown</td><td>Immediately via Team Chat</td></tr>
+      </table>
+      <h3>How to Escalate</h3>
+      <ol class="step-list">
+        <li>Tell the client: <strong>"Let me get a specialist who can assist you with this right away."</strong></li>
+        <li>Take their callback number if they are on the phone</li>
+        <li>Go to Team Chat and tag the appropriate person with the client's name and ID</li>
+        <li>Add a note in the client's Contact Log that the escalation occurred</li>
+      </ol>
+      <div class="danger"><p>🚫 <strong>Never try to handle a chargeback, legal threat, or refund on your own.</strong> These situations require authorization from Jason or Queen. Doing the wrong thing can cost the company thousands of dollars.</p></div>
+      <button class="complete-btn" onclick="complete('m8',this)">✅ Mark Module Complete</button>
+    </div>
+
+    <!-- MODULE 9 -->
+    <div class="module" id="m9">
+      <div class="mod-header">
+        <div class="mod-num">Module 9</div>
+        <h2>Team Chat Rules</h2>
+        <p>How to use Team Chat professionally and safely.</p>
+        <div class="role">All Staff</div>
+      </div>
+      <h3>What Team Chat Is For</h3>
+      <ul>
+        <li>Quick internal updates and questions</li>
+        <li>Escalation notifications ("Client CPR-XXXXX on the phone, needs Jason")</li>
+        <li>AI Receptionist alerts — new leads, appointments, callbacks</li>
+        <li>Daily check-ins and announcements from Jason</li>
+      </ul>
+      <h3>What Team Chat Is NOT For</h3>
+      <div class="danger">
+        <p>🚫 SSNs or Social Security numbers — ever<br>
+        🚫 Bureau login passwords<br>
+        🚫 Client payment information<br>
+        🚫 Personal conversations unrelated to work<br>
+        🚫 Complaints about clients, coworkers, or the company<br>
+        🚫 Confidential client information beyond name and ID</p>
+      </div>
+      <h3>Message Deletion</h3>
+      <p>Only <strong>Jason Crown</strong> and <strong>Queen Jearel Cruz</strong> can delete messages. If you post something by mistake that contains sensitive information, notify Jason in Team Chat immediately so it can be deleted.</p>
+      <div class="tip"><p>💡 <strong>Rule of thumb:</strong> If you wouldn't want a client or a regulator to read what you're about to type, don't type it in Team Chat.</p></div>
+      <button class="complete-btn" onclick="complete('m9',this)">✅ Mark Module Complete</button>
+    </div>
+
+    <!-- MODULE 10 — FINAL ASSESSMENT -->
+    <div class="module" id="m10">
+      <div class="mod-header">
+        <div class="mod-num">Module 10</div>
+        <h2>Final Assessment</h2>
+        <p>Answer all questions correctly to complete your training and receive your certification.</p>
+        <div class="role">All Staff — Required</div>
+      </div>
+
+      <div class="quiz">
+        <h4>📝 Final Assessment — Answer All Questions</h4>
+
+        <div class="quiz-q" id="fa1">
+          <p>1. A client calls asking what their Client ID is. What do you tell them?</p>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Tell them to check their email</div>
+            <div class="quiz-opt" onclick="fa(this,'correct')">Direct them to call Customer Service at 1-855-327-5847 Mon–Fri 9AM–5PM ET and our team will look them up by name</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Post the ID in Team Chat</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Tell them you don't know</div>
+          </div>
+        </div>
+
+        <div class="quiz-q" id="fa2">
+          <p>2. What is the $200 admin fee rule?</p>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="fa(this,'wrong')">It is refunded if the client is unsatisfied</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">It only applies to Express package clients</div>
+            <div class="quiz-opt" onclick="fa(this,'correct')">It is non-refundable in all cases — refunds are calculated as total paid minus $200</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Jason can waive it at any time</div>
+          </div>
+        </div>
+
+        <div class="quiz-q" id="fa3">
+          <p>3. Eric Phillips (CPR-CP16954) calls and demands to speak with someone about his account. What do you do?</p>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Open his file and try to help him</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Tell him his file is paused</div>
+            <div class="quiz-opt" onclick="fa(this,'correct')">Take his callback number, tell him a manager will call back shortly, and immediately notify Jason</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Transfer him to Queen</div>
+          </div>
+        </div>
+
+        <div class="quiz-q" id="fa4">
+          <p>4. A client posts their SSN in the client portal message box. What happens next?</p>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Save it to their file for verification</div>
+            <div class="quiz-opt" onclick="fa(this,'correct')">Notify Jason immediately so it can be removed. Never copy or repost the SSN anywhere.</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Send it to the dispute team so they can file</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Ignore it</div>
+          </div>
+        </div>
+
+        <div class="quiz-q" id="fa5">
+          <p>5. How often should clients receive a status update at minimum?</p>
+          <div class="quiz-opts">
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Only when disputes are filed</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Once a month</div>
+            <div class="quiz-opt" onclick="fa(this,'correct')">At least every 2 weeks — no client should go without contact longer than this</div>
+            <div class="quiz-opt" onclick="fa(this,'wrong')">Only when they ask</div>
+          </div>
+        </div>
+
+        <div id="fa-result" class="quiz-result"></div>
+        <button class="quiz-btn" onclick="submitFinal()">Submit Final Assessment</button>
+      </div>
+
+      <div class="cert" id="cert">
+        <div style="font-size:64px;margin-bottom:16px;">🏆</div>
+        <h2>Training Complete!</h2>
+        <p style="font-size:18px;margin-top:8px;font-weight:700;" id="cert-name">Certified CP Restoration Staff Member</p>
+        <p style="margin-top:16px;opacity:0.9;">You have completed all 10 training modules and passed the final assessment. You are now ready to serve our clients with excellence.</p>
+        <p style="margin-top:12px;font-size:13px;opacity:0.7;">CP Restoration Services · October 2026</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var completed = {};
+var faAnswers = {};
+var totalModules = 10;
+
+function complete(id, btn) {
+  completed[id] = true;
+  btn.textContent = '✅ Module Complete';
+  btn.classList.add('done');
+  btn.disabled = true;
+  var nav = document.getElementById('nav-'+id);
+  if(nav) { nav.classList.add('done'); nav.querySelector('.check').style.display='inline'; }
+  updateProgress();
+}
+
+function updateProgress() {
+  var done = Object.keys(completed).length;
+  var pct = Math.round((done/totalModules)*100);
+  document.getElementById('progress').style.width = pct+'%';
+  document.getElementById('pct').textContent = pct+'%';
+}
+
+function answer(el, type) {
+  var opts = el.parentElement.querySelectorAll('.quiz-opt');
+  opts.forEach(function(o){o.style.pointerEvents='none';});
+  el.classList.add(type);
+}
+
+// Final assessment
+function fa(el, type) {
+  var qDiv = el.closest('.quiz-q');
+  var qId = qDiv.id;
+  var opts = qDiv.querySelectorAll('.quiz-opt');
+  opts.forEach(function(o){o.style.pointerEvents='none';});
+  el.classList.add(type);
+  faAnswers[qId] = type;
+}
+
+function submitFinal() {
+  var questions = ['fa1','fa2','fa3','fa4','fa5'];
+  var allAnswered = questions.every(function(q){ return faAnswers[q]; });
+  if(!allAnswered){ alert('Please answer all 5 questions before submitting.'); return; }
+  var correct = questions.filter(function(q){ return faAnswers[q]==='correct'; }).length;
+  var result = document.getElementById('fa-result');
+  result.style.display='block';
+  if(correct>=4){
+    result.className='quiz-result pass';
+    result.textContent='✅ Passed! '+correct+'/5 correct. You are certified!';
+    setTimeout(function(){
+      document.getElementById('cert').style.display='block';
+      complete('m10', document.querySelector('#m10 .complete-btn'));
+    }, 500);
+  } else {
+    result.className='quiz-result fail';
+    result.textContent='❌ '+correct+'/5 correct. You need at least 4 to pass. Please review the modules and try again.';
+    // Reset answers for retry
+    setTimeout(function(){
+      faAnswers={};
+      document.querySelectorAll('#m10 .quiz-opt').forEach(function(o){
+        o.classList.remove('correct','wrong');
+        o.style.pointerEvents='auto';
+      });
+      result.style.display='none';
+    }, 3000);
+  }
+}
+</script>
+</body>
+</html>
