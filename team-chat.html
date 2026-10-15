@@ -282,7 +282,7 @@ async function loadMessages(initial) {
   } catch(e){showStatus('Network error: '+e.message,'error');}
 }
 
-// ── APPEND MESSAGE ──
+// ── APPEND MESSAGE ── (fixed 2026-10-15)
 function appendMsg(m) {
   var c=document.getElementById('messages');
   var _myname=localStorage.getItem('cp_logged_in_name')||''; var isMine=_myname&&m.sender_name===_myname;
