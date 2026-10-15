@@ -35,10 +35,8 @@ var EMPLOYEES = {
   'kimwell@mycprteam.com': { password:'CPRKimwell2026', name:'Kimwell Ablaza',     role:'dispute',    label:'Dispute Specialist', initials:'KA' },
   'annabel@mycprteam.com': { password:'CPRAnnabel2026', name:'Annabel Curada',     role:'dispute',    label:'Dispute Specialist', initials:'AC' },
   // jay@mycprteam.com DEACTIVATED
-  'fcacaasi@gmail.com':    { password:'CPRFatima2026',  name:'Fatima Charfina Caasi', role:'dispute', label:'Bureau Caller',      initials:'FC' },
   'raymon.guevarra@mycprteam.com': { password:'CPRRaymon2026', name:'Raymon Guevarra', role:'sales', label:'Sales Rep', initials:'RG' },
   'elmer.jungco@mycprteam.com': { password:'CPRElmer2026', name:'Elmer Jungco', role:'sales', label:'Sales Rep', initials:'EJ' },
-  'raven.pasco@mycprteam.com': { password:'CPRRaven2026', name:'Raven Pasco', role:'sales', label:'Sales Rep', initials:'RP' },
   'rosemarie.deguzman@mycprteam.com': { password:'CPRRosemarie2026', name:'Rosemarie De Guzman', role:'dispute', label:'Bureau Caller', initials:'RD' },
 
   'bseo.sidd@gmail.com': { password:'CPRSid2026', name:'Jose Isidro Perez', role:'sales', label:'Sales Rep', initials:'JP' },
@@ -66,7 +64,6 @@ var TEAM_ROSTER = {
   'bukunmi@mycprteam.com':        {name:'Bukunmi Aina',         role:'Lead Generation',     start:'2026-09-21', weekly:250, active:true},
   'jay@mycprteam.com':            {name:'Jay Rico',             role:'Terminated',          start:'',           weekly:0,   active:false},
   'lester.leonardo1997@gmail.com':{name:'Lester Leonardo',      role:'Terminated',          start:'',           weekly:0,   active:false},
-  'fcacaasi@gmail.com':           {name:'Fatima Charfina Caasi','role':'Bureau Caller',     start:'2026-10-12', weekly:100, active:true},
   'jonahmariedeguzman2@gmail.com':{name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
   'jonah@mycprteam.com':          {name:'Jonah Marie De Guzman','role':'Terminated',        start:'',           weekly:0,   active:false},
   'anthongiuseppe@gmail.com':     {name:'Anthon Giuseppe Sumbiling','role':'Terminated',    start:'',           weekly:0,   active:false},
