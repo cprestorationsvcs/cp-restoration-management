@@ -361,11 +361,13 @@ async function assignToMe(id) {
     await fetch(SUPA+'/requests?id=eq.'+id, {
       method:'PATCH',
       headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
-      body:JSON.stringify({assigned_to:name, status:'in_progress', updated_at:new Date().toISOString()})
+      body:JSON.stringify({assigned_to:name, status:'in_progress'})
     });
     var item = all.find(function(i){return String(i.id)===String(id);});
     if(item){ item.assigned_to=name; item.status='in_progress'; }
     counts(); render();
+    // Show confirmation
+    toast('✅ Assigned to '+name);
   } catch(e){ console.error('assignToMe error:', e); }
 }
 
