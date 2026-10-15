@@ -134,6 +134,10 @@ function loginAdmin() {
   });
 
   // Load dashboard — redirect specific roles to their dedicated pages
+  if (emp.role === 'sales') {
+    window.location.href = '/sales-dashboard.html';
+    return;
+  }
   if (emp.role === 'dispute') {
     window.location.href = '/cs-dashboard.html';
     return;
