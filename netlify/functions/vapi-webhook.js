@@ -2,15 +2,17 @@
 // CP RESTORATION — VAPI WEBHOOK HANDLER v2
 // ═══════════════════════════════════════════════════════
 
-const SUPA_URL    = process.env.SUPABASE_URL;
-const SUPA_KEY    = process.env.SUPABASE_KEY;   // server-side service key only
+const SUPA_URL    = process.env.SUPABASE_URL    || 'https://jzkfembagpiuuoexmpoy.supabase.co';
+const SUPA_KEY    = process.env.SUPABASE_KEY    || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
 const VAPI_SECRET = process.env.VAPI_SECRET;
 const ASSISTANT_ID = process.env.VAPI_ASSISTANT_ID || '';
 
-// FIX #3: Fail hard if env vars missing
-if (!SUPA_URL || !SUPA_KEY) {
-  console.error('[BOOT] FATAL: SUPABASE_URL or SUPABASE_KEY env var not set');
-}
+// Log env var status on boot (not values)
+console.log('[BOOT] SUPABASE_URL set:', !!process.env.SUPABASE_URL);
+console.log('[BOOT] SUPABASE_KEY set:', !!process.env.SUPABASE_KEY);
+console.log('[BOOT] VAPI_SECRET set:', !!process.env.VAPI_SECRET);
+console.log('[BOOT] Using fallback URL:', !process.env.SUPABASE_URL);
+console.log('[BOOT] Using fallback KEY:', !process.env.SUPABASE_KEY);
 
 const STAFF = {
   alec:  { name: 'Alec',  email: 'alec@mycprteam.com',  phone: '+12407883686' },
