@@ -133,6 +133,10 @@ function loginAdmin() {
   });
 
   // Load dashboard — redirect specific roles to their dedicated pages
+  if (emp.role === 'partner') {
+    window.location.href = '/partner-dashboard.html';
+    return;
+  }
   if (emp.role === 'sales' || (emp.role === 'cs' && emp.label && emp.label.includes('Sales'))) {
     window.location.href = '/sales-dashboard.html';
     return;
