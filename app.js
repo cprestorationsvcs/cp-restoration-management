@@ -35,7 +35,6 @@ var EMPLOYEES = {
   'annabel@mycprteam.com': { password:'CPRAnnabel2026', name:'Annabel Curada',     role:'dispute',    label:'Dispute Specialist', initials:'AC' },
   // jay@mycprteam.com DEACTIVATED
   'raymon.guevarra@mycprteam.com': { password:'CPRRaymon2026', name:'Raymon Guevarra', role:'cs', label:'Sales Rep / CS', initials:'RG' },
-  'elmer.jungco@mycprteam.com': { password:'CPRElmer2026', name:'Elmer Jungco', role:'sales', label:'Sales Rep', initials:'EJ' },
   'rosemarie.deguzman@mycprteam.com': { password:'CPRRosemarie2026', name:'Rosemarie De Guzman', role:'dispute', label:'Bureau Caller', initials:'RD' },
 
   'bseo.sidd@gmail.com': { password:'CPRSid2026', name:'Jose Isidro Perez', role:'sales', label:'Sales Rep', initials:'JP' },
