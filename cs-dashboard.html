@@ -296,7 +296,7 @@ button:active { transform: translateY(1px); }
 // Single script block — no scope issues
 // ═══════════════════════════════════════════════
 
-// ── GLOBALS ── build-173630 ── v171346 ────────────────────────────
+// ── GLOBALS ── fix-185759 ── build-173630 ── v171346 ────────────────────────────
 var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
 var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
 var HDR  = {'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json'};
@@ -425,13 +425,18 @@ function filterClients(q){
 }
 
 async function openClient(c,el){
-  // Fetch full client record from Supabase when selected
+  // Set basic data immediately so UI doesn't wait
+  currentClient=c;
+  // Show loading in right panel immediately
+  var rb=document.getElementById('right-body');
+  if(rb) rb.innerHTML='<div style="padding:40px;text-align:center;color:#94A3B8;font-size:13px;">⏳ Loading client file...</div>';
+  // Fetch FULL client record from Supabase
   try {
     var r=await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(c.id)+'&limit=1&select=*',{headers:HDR});
     var data=await r.json();
-    if(Array.isArray(data)&&data.length) c=data[0];
+    if(Array.isArray(data)&&data.length){ c=data[0]; currentClient=c; }
+    else { console.warn('Client not found in full fetch:',c.id); }
   } catch(e){ console.log('Full client fetch error:',e.message); }
-  currentClient=c;
 
   // ── CHARGEBACK WARNING ─────────────────────────────
   var cbBanner = document.getElementById('cb-warning-banner');
