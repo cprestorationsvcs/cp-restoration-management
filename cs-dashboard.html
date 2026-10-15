@@ -401,8 +401,6 @@ function insertEmailLink() {
   document.execCommand('insertHTML', false, '<a href="'+url+'" target="_blank">'+text+'</a>');
 }
 
-async 
-
 async function loadEmailHistory(clientId) {
   var el = document.getElementById('email-sent-history');
   if(!el) return;
@@ -863,7 +861,7 @@ function openPhone() {
   document.getElementById('close-call-btn').onclick = function() { overlay.remove(); };
   overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
 }
-async async function submitStatusRequest(){
+async function submitStatusRequest(){
   if(!currentClient) return;
   var reason=document.getElementById('su-reason').value;
   var notes=document.getElementById('su-notes').value.trim();
@@ -902,7 +900,7 @@ async async function submitStatusRequest(){
   document.getElementById('su-notes').value='';
 }
 
-async async function submitRefundRequest(){
+async function submitRefundRequest(){
   if(!currentClient) return;
   var reason=document.getElementById('rf-reason').value;
   var notes=document.getElementById('rf-notes').value.trim();
