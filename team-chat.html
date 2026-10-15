@@ -550,5 +550,34 @@ function searchMessages(query) {
   if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
 }
 </script>
+<div id="db-outage-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#7F1D1D;color:white;padding:10px 20px;text-align:center;font-size:13px;font-weight:700;font-family:Inter,sans-serif;">
+  ⚠️ Database temporarily unavailable — our provider is experiencing an outage. Your data is safe. Please wait a moment and refresh.
+  <button onclick="document.getElementById('db-outage-banner').style.display='none'" style="margin-left:16px;background:rgba(255,255,255,0.2);border:none;color:white;padding:3px 10px;border-radius:4px;cursor:pointer;font-weight:700;">✕</button>
+</div>
+<script>
+(function() {
+  function checkDB() {
+    fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/team_chat?limit=1', {
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'
+      }
+    }).then(function(r) {
+      var banner = document.getElementById('db-outage-banner');
+      if (!banner) return;
+      if (r.status === 503 || r.status === 500 || r.status === 504) {
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
+    }).catch(function() {
+      var banner = document.getElementById('db-outage-banner');
+      if (banner) banner.style.display = 'block';
+    });
+  }
+  checkDB();
+  setInterval(checkDB, 30000);
+})();
+</script>
 </body>
 </html>
