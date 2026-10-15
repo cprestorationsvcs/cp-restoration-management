@@ -313,7 +313,7 @@ var activeMTab       = 'msg';
 
 // ── AUTH CHECK ───────────────────────────────────
 (function() {
-  var allowed = ['admin','cs','compliance','dispute'];
+  var allowed = ['admin','cs','compliance','dispute','sales'];
   if (!currentUser || !allowed.includes(currentRole)) {
     window.location.href = '/';
   }
