@@ -1133,60 +1133,7 @@ function renderStatusUpdate() {
   loadStatusHistory(c.id);
 }
 
-function renderEmailClient() {
-  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128231;</div><div>Select a client</div></div>';return;}
-  var c=currentClient;
-  document.getElementById('right-body').innerHTML=
-    '<div style="padding:4px 0;">' +
-    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:12px;">&#128231; Email Message to Client</div>' +
-    '<div style="margin-bottom:10px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">TO</label>' +
-    '<input value="'+(c.email||'')+'" readonly style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;background:#F8FAFC;">' +
-    '</div>' +
-    '<div style="margin-bottom:10px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">SUBJECT</label>' +
-    '<input id="email-subject" placeholder="e.g. Update on Your Credit Repair File" style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;">' +
-    '</div>' +
-    '<div style="margin-bottom:10px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">MESSAGE</label>' +
-    '<div style="border:1.5px solid #E2E8F0;border-radius:8px;overflow:hidden;">' +
-    // Toolbar
-    '<div style="background:#F8FAFC;border-bottom:1.5px solid #E2E8F0;padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;">' +
-    '<button type="button" onclick="execCmd(\'bold\')" title="Bold" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-weight:700;font-size:12px;">B</button>' +
-    '<button type="button" onclick="execCmd(\'italic\')" title="Italic" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-style:italic;font-size:12px;">I</button>' +
-    '<button type="button" onclick="execCmd(\'underline\')" title="Underline" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>' +
-    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
-    '<button type="button" onclick="execCmd(\'insertUnorderedList\')" title="Bullet list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">• List</button>' +
-    '<button type="button" onclick="execCmd(\'insertOrderedList\')" title="Numbered list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">1. List</button>' +
-    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
-    '<button type="button" onclick="insertEmailLink()" title="Insert link" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">🔗 Link</button>' +
-    '<button type="button" onclick="execCmd(\'removeFormat\')" title="Clear formatting" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">✕ Clear</button>' +
-    '</div>' +
-    // Editable content area
-    '<div id="email-body-editor" contenteditable="true" style="min-height:140px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;line-height:1.6;" placeholder="Write your message here..."></div>' +
-    '</div>' +
-    '</div>' +
-    '<div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;">' +
-    '<input type="checkbox" id="email-post-portal" checked style="accent-color:#1B3A6B;transform:scale(1.2);">' +
-    '<label for="email-post-portal" style="font-size:12px;color:#64748B;">Also post copy to Client Portal → Email Messages tab</label>' +
-    '</div>' +
-    '<div style="margin-bottom:14px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">SEND OPTIONS</label>' +
-    '<div style="display:flex;gap:8px;">' +
-    '<button onclick="sendClientEmail(&quot;email-only&quot;)" style="flex:1;padding:10px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send Email Only</button>' +
-    '<button onclick="sendClientEmail(&quot;email-portal&quot;)" style="flex:1;padding:10px;background:#C9A84C;color:#0A1628;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send + Post to Portal</button>' +
-    '</div></div>' +
-    '<div id="email-sent-history" style="margin-top:16px;"></div>' +
-    '</div>';
-  loadEmailHistory(c.id);
-  // Set placeholder behavior on contenteditable
-  setTimeout(function(){
-    var ed = document.getElementById('email-body-editor');
-    if(!ed) return;
-    ed.addEventListener('focus', function(){if(this.innerHTML==='<br>'||!this.textContent.trim())this.innerHTML='';});
-    ed.addEventListener('blur',  function(){if(!this.textContent.trim())this.innerHTML='';});
-  },100);
-}
+
 
 
 
