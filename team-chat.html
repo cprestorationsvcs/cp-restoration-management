@@ -165,12 +165,16 @@ async function loadMessages(initial) {
     if (!r.ok) {
       if (r.status === 503 || r.status === 500 || r.status === 504) {
         document.getElementById('db-outage-banner').style.display = 'block';
+        // Back off — slow poll to 30s on server errors to stop hammering
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(function(){ loadMessages(false); }, 30000); }
       }
       showStatus('Connection error: ' + r.status, 'error');
       document.getElementById('conn-status').textContent = 'Reconnecting...';
       return;
     }
     document.getElementById('db-outage-banner').style.display = 'none';
+    // Resume normal 10s poll if we were backed off
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(function(){ loadMessages(false); }, 10000); }
     var msgs = await r.json();
     if (!Array.isArray(msgs)) return;
     document.getElementById('conn-status').textContent = 'Connected';
@@ -353,7 +357,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   await loadMessages(true);
   document.getElementById('conn-status').textContent = 'Connected';
-  pollTimer = setInterval(function(){ loadMessages(false); }, 3000);
+  pollTimer = setInterval(function(){ loadMessages(false); }, 10000);
 
   var msgContainer = document.getElementById('messages');
   if (msgContainer) {
