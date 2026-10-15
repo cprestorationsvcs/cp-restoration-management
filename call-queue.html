@@ -172,6 +172,27 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
 
   <!-- FILTERS -->
   <div class="filters">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;padding:10px 16px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
+    <label style="font-size:12px;font-weight:700;color:#1B3A6B;">Filter by:</label>
+    <select id="filter-assigned" onchange="render()" style="padding:6px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;">
+      <option value="">All Agents</option>
+      <option value="Queen Jearel Cruz">Queen</option>
+      <option value="Elna Palabrica">Elna</option>
+      <option value="Alec Sarrosa">Alec</option>
+      <option value="Marcelo Torres">Marcelo</option>
+      <option value="Annabel Curada">Annabel</option>
+      <option value="Rosemarie De Guzman">Rosemarie</option>
+      <option value="Raymon Guevarra">Raymon</option>
+    </select>
+    <select id="filter-date" onchange="render()" style="padding:6px 10px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;font-family:inherit;">
+      <option value="">All Dates</option>
+      <option value="today">Today</option>
+      <option value="yesterday">Yesterday</option>
+      <option value="week">This Week</option>
+    </select>
+    <button onclick="document.getElementById('filter-assigned').value='';document.getElementById('filter-date').value='';render();" style="padding:6px 12px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:12px;background:white;cursor:pointer;">Clear</button>
+  </div>
+<div class="filters" style="display:none;">
     <button class="fb active" data-f="pending">All Pending</button>
     <button class="fb" data-f="urgent">&#128308; Urgent</button>
     <button class="fb" data-f="high">&#128993; High</button>
@@ -247,7 +268,19 @@ function counts() {
 }
 
 function render() {
+  var agentFilter = (document.getElementById('filter-assigned')||{value:''}).value;
+  var dateFilter = (document.getElementById('filter-date')||{value:''}).value;
+  var now = new Date(); var today = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  var yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+  var weekStart = new Date(today); weekStart.setDate(today.getDate()-7);
   var items = all.filter(function(i){
+    if(agentFilter && (i.assigned_to||'') !== agentFilter) return false;
+    if(dateFilter) {
+      var d = new Date(i.created_at);
+      if(dateFilter==='today' && d < today) return false;
+      if(dateFilter==='yesterday' && (d < yesterday || d >= today)) return false;
+      if(dateFilter==='week' && d < weekStart) return false;
+    }
     if (filt==='urgent') return i.priority==='urgent'&&(i.status==='pending'||i.status==='in_progress');
     if (filt==='high')   return i.priority==='high'&&(i.status==='pending'||i.status==='in_progress');
     if (filt==='normal') return i.priority==='normal'&&(i.status==='pending'||i.status==='in_progress');
