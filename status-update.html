@@ -198,6 +198,7 @@ async function runSearch(q) {
 
 // ── LOAD CLIENT ──
 function loadClient(c) {
+  if (!c) { console.error("loadClient called with undefined client"); return; }
   client = c;
   // Parse disputes
   try {
