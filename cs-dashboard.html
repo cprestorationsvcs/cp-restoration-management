@@ -378,7 +378,7 @@ async function loadClients(){
   try{
     // Load list — no ORDER BY to avoid timeout on large tables
     var cols='id,name,status,phone,email,package';
-    var r=await fetch(SUPA+'/clients?select='+cols+'&limit=100',{headers:HDR});
+    var r=await fetch(SUPA+'/clients?select='+cols+'&order=name.asc&limit=1000',{headers:HDR});
     var data=await r.json();
     if(!Array.isArray(data)){
       document.getElementById('client-list').innerHTML='<div style="padding:16px;color:#E53E3E;font-size:12px;">Error loading clients: '+(data.message||data.error||JSON.stringify(data).substring(0,100))+'</div>';
@@ -386,10 +386,13 @@ async function loadClients(){
     }
     // Sort: unread messages first, then by updated_at
     allClients=data.sort(function(a,b){
-      var aMsg=hasUnread(a), bMsg=hasUnread(b);
-      if(aMsg&&!bMsg) return -1;
-      if(!aMsg&&bMsg) return 1;
-      return new Date(b.updated_at)-new Date(a.updated_at);
+      try{
+        var aMsg=(typeof hasUnread==='function')?hasUnread(a):false;
+        var bMsg=(typeof hasUnread==='function')?hasUnread(b):false;
+        if(aMsg&&!bMsg) return -1;
+        if(!aMsg&&bMsg) return 1;
+      }catch(e){}
+      return (a.name||'').localeCompare(b.name||'');
     });
     renderClientList(allClients);
   }catch(e){
@@ -412,7 +415,7 @@ function filterClients(q){
     // If nothing found locally, search Supabase directly
     try{
       var url=SUPA+'/clients?select=id,name,status,phone,email,package,notes,bureau_logins,disputes&or=(name.ilike.*'+encodeURIComponent(ql)+'*,id.ilike.*'+encodeURIComponent(ql)+'*,email.ilike.*'+encodeURIComponent(ql)+'*,phone.ilike.*'+encodeURIComponent(ql)+'*)&limit=50';
-      var r=await fetch(url,{headers:HDR});
+      var r=await fetch(url,{headers:Object.assign({},HDR,{'Content-Type':'application/json'})});
       var data=await r.json();
       if(Array.isArray(data)&&data.length>0){renderClientList(data);}
       else{renderClientList([]);}
