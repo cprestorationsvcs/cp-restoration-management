@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Appointments | CP Restoration</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;}
+:root{--navy:#1B3A6B;--gold:#C9A84C;--green:#1A5C38;--red:#8B1A1A;--border:#E2E8F0;--bg:#F8FAFC;}
+body{background:var(--bg);min-height:100vh;}
+.header{background:var(--navy);color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header h1{font-size:16px;font-weight:800;}
+.header a{color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;margin-left:16px;}
+.header a:hover{color:white;}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 20px;}
+.top-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.rep-filter{display:flex;gap:8px;}
+.rep-btn{padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:white;font-size:12px;font-weight:700;color:#64748B;cursor:pointer;}
+.rep-btn.active-alec{background:#1B3A6B;color:white;border-color:#1B3A6B;}
+.rep-btn.active-elna{background:#5B21B6;color:white;border-color:#5B21B6;}
+.rep-btn.active-all{background:#166534;color:white;border-color:#166534;}
+.week-nav{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.week-nav button{padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:white;font-size:13px;font-weight:700;cursor:pointer;}
+.week-nav button:hover{background:var(--navy);color:white;border-color:var(--navy);}
+.week-label{font-size:14px;font-weight:700;color:var(--navy);min-width:180px;text-align:center;}
+.calendar{background:white;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;}
+.cal-header{display:grid;grid-template-columns:60px repeat(5,1fr);background:var(--navy);color:white;}
+.cal-header-time{padding:10px;font-size:11px;font-weight:700;}
+.cal-header-day{padding:10px;text-align:center;font-size:12px;font-weight:700;border-left:1px solid rgba(255,255,255,0.1);}
+.cal-header-day.today{background:rgba(201,168,76,0.3);}
+.cal-body{display:grid;grid-template-columns:60px repeat(5,1fr);position:relative;}
+.time-col{display:flex;flex-direction:column;}
+.time-slot{height:40px;padding:4px 8px;font-size:10px;color:#94A3B8;border-bottom:1px solid #F1F5F9;display:flex;align-items:flex-start;}
+.day-col{border-left:1px solid var(--border);position:relative;min-height:640px;}
+.hour-line{height:40px;border-bottom:1px solid #F1F5F9;}
+.appt-block{position:absolute;left:3px;right:3px;border-radius:6px;padding:4px 6px;font-size:11px;font-weight:600;cursor:pointer;overflow:hidden;z-index:2;}
+.appt-alec{background:#DBEAFE;border-left:3px solid #1B3A6B;color:#1E3A5F;}
+.appt-elna{background:#EDE9FE;border-left:3px solid #5B21B6;color:#3B0764;}
+.appt-block:hover{filter:brightness(0.95);}
+.block-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.block-type{font-size:10px;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.block-off{position:absolute;left:3px;right:3px;border-radius:6px;padding:4px 6px;font-size:11px;font-weight:600;background:#FEE2E2;border-left:3px solid #991B1B;color:#7F1D1D;z-index:2;}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border-radius:16px;padding:28px;width:100%;max-width:480px;}
+.modal h2{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:16px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;outline:none;}
+.field input:focus,.field select:focus{border-color:var(--navy);}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+.btn{padding:8px 16px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-navy{background:var(--navy);color:white;}
+.btn-red{background:#991B1B;color:white;}
+.btn-gray{background:#E2E8F0;color:#475569;}
+.btn-green{background:#166534;color:white;}
+.legend{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;}
+.legend-dot{width:12px;height:12px;border-radius:3px;}
+.empty{text-align:center;padding:40px;color:#94A3B8;font-size:13px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:white;border:1.5px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.stat-num{font-size:24px;font-weight:900;color:var(--navy);}
+.stat-label{font-size:11px;color:#64748B;font-weight:600;margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📅 Appointments Calendar</h1>
+  <div>
+    <a href="/portal-cprestorationsvcs.com">← Portal</a>
+    <a href="/cs-dashboard.html">CS Dashboard</a>
+    <span id="hdr-user" style="color:#C9A84C;font-weight:700;font-size:12px;margin-left:16px;"></span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="s-today">—</div><div class="stat-label">Today</div></div>
+    <div class="stat"><div class="stat-num" id="s-week">—</div><div class="stat-label">This Week</div></div>
+    <div class="stat"><div class="stat-num" id="s-alec">—</div><div class="stat-label">Alec's Bookings</div></div>
+    <div class="stat"><div class="stat-num" id="s-elna">—</div><div class="stat-label">Elna's Bookings</div></div>
+  </div>
+
+  <div class="top-bar">
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#1B3A6B;"></div>Alec</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#5B21B6;"></div>Elna</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#991B1B;"></div>Time Off</div>
+    </div>
+    <div class="rep-filter">
+      <button class="rep-btn active-all" onclick="setRepFilter('all',this)">All Staff</button>
+      <button class="rep-btn" onclick="setRepFilter('Alec',this)">Alec Only</button>
+      <button class="rep-btn" onclick="setRepFilter('Elna',this)">Elna Only</button>
+    </div>
+    <div class="week-nav">
+      <button onclick="prevWeek()">← Prev</button>
+      <div class="week-label" id="week-label"></div>
+      <button onclick="nextWeek()">Next →</button>
+      <button onclick="goToday()" style="background:#1B3A6B;color:white;border-color:#1B3A6B;">Today</button>
+    </div>
+    <button class="btn btn-green" onclick="openBlockTime()">+ Block Time Off</button>
+  </div>
+
+  <div class="calendar">
+    <div class="cal-header" id="cal-header"></div>
+    <div class="cal-body" id="cal-body"></div>
+  </div>
+</div>
+
+<!-- Appointment Detail Modal -->
+<div class="modal-overlay" id="appt-modal">
+  <div class="modal">
+    <h2 id="appt-modal-title">Appointment Details</h2>
+    <div class="field"><label>Client</label><input id="am-client" readonly style="background:#F8FAFC;"></div>
+    <div class="field"><label>Phone</label><input id="am-phone" readonly style="background:#F8FAFC;"></div>
+    <div class="field"><label>Email</label><input id="am-email" readonly style="background:#F8FAFC;"></div>
+    <div class="field"><label>Service</label><input id="am-type" readonly style="background:#F8FAFC;"></div>
+    <div class="field"><label>Assigned To</label><input id="am-rep" readonly style="background:#F8FAFC;"></div>
+    <div class="field"><label>Time</label><input id="am-time" readonly style="background:#F8FAFC;"></div>
+    <div class="field"><label>Notes</label><textarea id="am-notes" rows="3" placeholder="Add notes..."></textarea></div>
+    <div class="modal-btns">
+      <button class="btn btn-gray" onclick="closeModal('appt-modal')">Close</button>
+      <button class="btn btn-red" id="am-cancel-btn" onclick="cancelAppt()">Cancel Appointment</button>
+      <button class="btn btn-navy" onclick="saveApptNotes()">Save Notes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Block Time Off Modal -->
+<div class="modal-overlay" id="block-modal">
+  <div class="modal">
+    <h2>Block Time Off</h2>
+    <div class="field"><label>Staff Member</label>
+      <select id="bm-rep"><option value="Alec">Alec</option><option value="Elna">Elna</option></select>
+    </div>
+    <div class="field"><label>Date</label><input type="date" id="bm-date"></div>
+    <div class="field"><label>Start Time (ET)</label>
+      <select id="bm-start"></select>
+    </div>
+    <div class="field"><label>End Time (ET)</label>
+      <select id="bm-end"></select>
+    </div>
+    <div class="field"><label>Reason</label><input type="text" id="bm-reason" placeholder="e.g. Lunch, PTO, Training..."></div>
+    <div class="modal-btns">
+      <button class="btn btn-gray" onclick="closeModal('block-modal')">Cancel</button>
+      <button class="btn btn-red" onclick="saveBlock()">Block This Time</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR = {'apikey':K,'Authorization':'Bearer '+K,'Content-Type':'application/json'};
+
+var currentUser = localStorage.getItem('cp_logged_in_name') || '';
+var currentRole = localStorage.getItem('cp_logged_in_role') || '';
+document.getElementById('hdr-user').textContent = currentUser;
+
+// Calendar state
+var weekOffset = 0;
+var repFilter = 'all';
+var allAppts = [];
+var allBlocks = [];
+var selectedAppt = null;
+
+// Hours: 8am-6pm (slot per 30min for display, appointments at 15min intervals)
+var HOUR_START = 8;
+var HOUR_END = 18;
+var SLOT_HEIGHT = 40; // px per 30 min
+var MINUTES_PER_PX = 30 / SLOT_HEIGHT;
+
+function getWeekDates() {
+  var now = new Date();
+  var day = now.getDay(); // 0=Sun
+  var monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + weekOffset * 7);
+  monday.setHours(0,0,0,0);
+  var days = [];
+  for (var i = 0; i < 5; i++) {
+    var d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d);
+  }
+  return days;
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function setRepFilter(f, btn) {
+  repFilter = f;
+  document.querySelectorAll('.rep-btn').forEach(function(b){ b.className='rep-btn'; });
+  btn.className = 'rep-btn active-'+f;
+  renderCalendar();
+}
+
+function prevWeek() { weekOffset--; loadAndRender(); }
+function nextWeek() { weekOffset++; loadAndRender(); }
+function goToday()  { weekOffset = 0; loadAndRender(); }
+
+async function loadAndRender() {
+  var days = getWeekDates();
+  var weekStart = days[0].toISOString();
+  var weekEnd = new Date(days[4]); weekEnd.setHours(23,59,59,999);
+  var we = weekEnd.toISOString();
+
+  // Load appointments
+  var r = await fetch(SUPA+'/appointments?slot_start=gte.'+weekStart+'&slot_start=lte.'+we+'&order=slot_start.asc&limit=200', {headers:HDR});
+  allAppts = await r.json(); if(!Array.isArray(allAppts)) allAppts=[];
+
+  // Load blocked times
+  var r2 = await fetch(SUPA+'/time_off_blocks?start_time=gte.'+weekStart+'&start_time=lte.'+we+'&order=start_time.asc&limit=200', {headers:HDR}).catch(()=>({json:()=>[]}));
+  try { allBlocks = await r2.json(); if(!Array.isArray(allBlocks)) allBlocks=[]; } catch { allBlocks=[]; }
+
+  updateStats();
+  renderCalendar();
+}
+
+function updateStats() {
+  var today = new Date(); today.setHours(0,0,0,0);
+  var todayEnd = new Date(today); todayEnd.setHours(23,59,59,999);
+  var days = getWeekDates();
+  var weekEnd = new Date(days[4]); weekEnd.setHours(23,59,59,999);
+
+  var todayAppts = allAppts.filter(function(a){ var t=new Date(a.slot_start); return t>=today&&t<=todayEnd; }).length;
+  var weekAppts = allAppts.filter(function(a){ var t=new Date(a.slot_start); return t>=days[0]&&t<=weekEnd; }).length;
+  var alecAppts = allAppts.filter(function(a){ return a.rep_name==='Alec'; }).length;
+  var elnaAppts = allAppts.filter(function(a){ return a.rep_name==='Elna'; }).length;
+
+  document.getElementById('s-today').textContent = todayAppts;
+  document.getElementById('s-week').textContent = weekAppts;
+  document.getElementById('s-alec').textContent = alecAppts;
+  document.getElementById('s-elna').textContent = elnaAppts;
+}
+
+function renderCalendar() {
+  var days = getWeekDates();
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  // Update week label
+  var opts = {month:'short', day:'numeric'};
+  document.getElementById('week-label').textContent =
+    days[0].toLocaleDateString('en-US',opts) + ' – ' + days[4].toLocaleDateString('en-US',opts+{year:'numeric'});
+  // Fix label
+  document.getElementById('week-label').textContent =
+    days[0].toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' – ' +
+    days[4].toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  // Header
+  var hdr = '<div class="cal-header-time"></div>';
+  days.forEach(function(d) {
+    var isToday = d.getTime() === today.getTime();
+    hdr += '<div class="cal-header-day'+(isToday?' today':'')+'">'+fmtDate(d)+'</div>';
+  });
+  document.getElementById('cal-header').innerHTML = hdr;
+
+  // Body
+  var hourCount = HOUR_END - HOUR_START;
+  var totalHeight = hourCount * SLOT_HEIGHT * 2; // 2 slots per hour
+
+  // Time column
+  var timeHtml = '<div class="time-col">';
+  for (var h = HOUR_START; h < HOUR_END; h++) {
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    var hr = h > 12 ? h-12 : h;
+    timeHtml += '<div class="time-slot">'+(h===HOUR_START?'':hr+':00 '+ampm)+'</div><div class="time-slot"></div>';
+  }
+  timeHtml += '</div>';
+
+  // Day columns
+  var daysCols = '';
+  days.forEach(function(d, dayIdx) {
+    var colHtml = '<div class="day-col" id="day-col-'+dayIdx+'" style="height:'+totalHeight+'px;">';
+    // Hour lines
+    for (var h = 0; h < hourCount*2; h++) {
+      colHtml += '<div class="hour-line"></div>';
+    }
+
+    // Filter appointments for this day and rep
+    var dayAppts = allAppts.filter(function(a) {
+      if (a.status === 'cancelled') return false;
+      var sd = new Date(a.slot_start); sd.setHours(0,0,0,0);
+      if (sd.getTime() !== d.getTime()) return false;
+      if (repFilter === 'Alec' && a.rep_name !== 'Alec') return false;
+      if (repFilter === 'Elna' && a.rep_name !== 'Elna') return false;
+      return true;
+    });
+
+    dayAppts.forEach(function(a) {
+      var start = new Date(a.slot_start);
+      var end = new Date(a.slot_end || new Date(start.getTime()+15*60000));
+      var etStart = new Date(start.toLocaleString('en-US',{timeZone:'America/New_York'}));
+      var etEnd = new Date(end.toLocaleString('en-US',{timeZone:'America/New_York'}));
+      var startMin = (etStart.getHours()-HOUR_START)*60 + etStart.getMinutes();
+      var durMin = (etEnd - etStart)/60000;
+      var top = startMin / 30 * SLOT_HEIGHT;
+      var height = Math.max(durMin/30*SLOT_HEIGHT, 24);
+      var cls = a.rep_name==='Elna' ? 'appt-elna' : 'appt-alec';
+      var typeShort = (a.service_type||a.type||'').replace('Consultation','').replace('Credit Repair','CR').replace('Funding','Fund').trim();
+      colHtml += '<div class="appt-block '+cls+'" style="top:'+top+'px;height:'+height+'px;" onclick="openAppt(\''+a.id+'\')">' +
+        '<div class="block-name">'+(a.client_name||'Unknown')+'</div>' +
+        '<div class="block-type">'+(typeShort||'Appt')+'</div>' +
+        '</div>';
+    });
+
+    // Filter blocks
+    var dayBlocks = allBlocks.filter(function(b) {
+      var sd = new Date(b.start_time); sd.setHours(0,0,0,0);
+      if (sd.getTime() !== d.getTime()) return false;
+      if (repFilter !== 'all' && b.rep_name !== repFilter) return false;
+      return true;
+    });
+    dayBlocks.forEach(function(b) {
+      var start = new Date(b.start_time);
+      var end = new Date(b.end_time);
+      var etStart = new Date(start.toLocaleString('en-US',{timeZone:'America/New_York'}));
+      var startMin = (etStart.getHours()-HOUR_START)*60+etStart.getMinutes();
+      var durMin = (end-start)/60000;
+      var top = startMin/30*SLOT_HEIGHT;
+      var height = Math.max(durMin/30*SLOT_HEIGHT,20);
+      colHtml += '<div class="block-off" style="top:'+top+'px;height:'+height+'px;">🚫 '+(b.reason||b.rep_name+' off')+'</div>';
+    });
+
+    colHtml += '</div>';
+    daysCols += colHtml;
+  });
+
+  document.getElementById('cal-body').innerHTML = timeHtml + daysCols;
+}
+
+function openAppt(id) {
+  selectedAppt = allAppts.find(function(a){ return String(a.id)===String(id); });
+  if (!selectedAppt) return;
+  var start = new Date(selectedAppt.slot_start);
+  var when = start.toLocaleString('en-US',{timeZone:'America/New_York',weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+  document.getElementById('appt-modal-title').textContent = 'Appointment — '+(selectedAppt.client_name||'Unknown');
+  document.getElementById('am-client').value = selectedAppt.client_name||'';
+  document.getElementById('am-phone').value = selectedAppt.client_phone||'';
+  document.getElementById('am-email').value = selectedAppt.client_email||'';
+  document.getElementById('am-type').value = selectedAppt.service_type||selectedAppt.type||'';
+  document.getElementById('am-rep').value = selectedAppt.rep_name||'';
+  document.getElementById('am-time').value = when;
+  document.getElementById('am-notes').value = selectedAppt.notes||'';
+  document.getElementById('appt-modal').classList.add('open');
+}
+
+async function cancelAppt() {
+  if (!selectedAppt || !confirm('Cancel this appointment?')) return;
+  await fetch(SUPA+'/appointments?id=eq.'+selectedAppt.id, {
+    method:'PATCH', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+    body:JSON.stringify({status:'cancelled'})
+  });
+  closeModal('appt-modal');
+  await loadAndRender();
+}
+
+async function saveApptNotes() {
+  if (!selectedAppt) return;
+  var notes = document.getElementById('am-notes').value;
+  await fetch(SUPA+'/appointments?id=eq.'+selectedAppt.id, {
+    method:'PATCH', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+    body:JSON.stringify({notes:notes})
+  });
+  closeModal('appt-modal');
+  await loadAndRender();
+}
+
+// Block time off
+function openBlockTime() {
+  // Pre-select based on logged-in user
+  var rep = document.getElementById('bm-rep');
+  if (currentUser.includes('Alec')) rep.value='Alec';
+  else if (currentUser.includes('Elna')) rep.value='Elna';
+
+  // Set date to today
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById('bm-date').value = today;
+
+  // Populate time selects
+  var startSel = document.getElementById('bm-start');
+  var endSel = document.getElementById('bm-end');
+  startSel.innerHTML = ''; endSel.innerHTML = '';
+  for (var h = 8; h < 18; h++) {
+    for (var m = 0; m < 60; m+=15) {
+      var ampm = h>=12?'PM':'AM'; var hr=h>12?h-12:h===0?12:h;
+      var label = hr+':'+(m===0?'00':m)+' '+ampm;
+      var val = (h<10?'0':'')+h+':'+(m===0?'00':m);
+      startSel.innerHTML += '<option value="'+val+'">'+label+'</option>';
+      endSel.innerHTML += '<option value="'+val+'">'+label+'</option>';
+    }
+  }
+  endSel.value = '12:00';
+  document.getElementById('block-modal').classList.add('open');
+}
+
+async function saveBlock() {
+  var rep = document.getElementById('bm-rep').value;
+  var date = document.getElementById('bm-date').value;
+  var start = document.getElementById('bm-start').value;
+  var end = document.getElementById('bm-end').value;
+  var reason = document.getElementById('bm-reason').value || rep+' time off';
+  if (!date||!start||!end) { alert('Please fill in all fields.'); return; }
+  var startISO = date+'T'+start+':00';
+  var endISO = date+'T'+end+':00';
+  await fetch(SUPA+'/time_off_blocks', {
+    method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+    body:JSON.stringify({rep_name:rep, start_time:startISO, end_time:endISO, reason:reason, created_by:currentUser, created_at:new Date().toISOString()})
+  }).catch(function(e){ alert('Error: '+e.message); });
+  closeModal('block-modal');
+  await loadAndRender();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  selectedAppt = null;
+}
+
+document.querySelectorAll('.modal-overlay').forEach(function(el) {
+  el.addEventListener('click', function(e){ if(e.target===this) closeModal(this.id); });
+});
+
+// Init
+loadAndRender();
+setInterval(loadAndRender, 60000);
+</script>
+</body>
+</html>
