@@ -1,11 +1,16 @@
-
-      <a href="/cs-faq.html" target="_blank" style="color:rgba(255,255,255,.7);font-size:12px;text-decoration:none;margin-left:12px;">&#128172; FAQ & Scripts</a><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CP Restoration — CS Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS Dashboard | CP Restoration</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%9B%A1%EF%B8%8F</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.2/phosphor.min.js"></script>
 <style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#F1F5F9;color:#1E293B;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 .topbar{background:#1B3A6B;padding:11px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
@@ -185,257 +190,8 @@ textarea.notes-box {
 @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 /* BUTTON ACTIVE */
 button:active { transform: translateY(1px); }
+
 </style>
-<!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1584028236255374');
-fbq('init', '1362385498386512');
-fbq('track', 'PageView');
-
-// ── WORK LOG — logs all activity to unified work_log table ──────────
-async function logWork(actionType, details, clientId, clientName, quantity) {
-  var email = sessionStorage.getItem('cp_logged_in_user') || localStorage.getItem('cp_logged_in_user') || '';
-  var name  = sessionStorage.getItem('cp_logged_in_name') || localStorage.getItem('cp_logged_in_name') || '';
-  var role  = sessionStorage.getItem('cp_logged_in_role') || localStorage.getItem('cp_logged_in_role') || '';
-  if (!email) return;
-  var today = new Date();
-  var day = today.getDay();
-  var monday = new Date(today); monday.setDate(today.getDate() - (day===0?6:day-1));
-  var weekStart = monday.toISOString().split('T')[0];
-  var dept = role==='dispute'?'Dispute':role==='cs'||role==='customer_service'?'CS':role==='bureau'?'Bureau':'Staff';
-  try {
-    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/work_log', {
-      method: 'POST',
-      headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
-      body: JSON.stringify({
-        employee_email: email,
-        employee_name: name,
-        department: dept,
-        action_type: actionType,
-        client_id: clientId || null,
-        client_name: clientName || null,
-        details: details || null,
-        quantity: quantity || 1,
-        week_start: weekStart,
-        compliance_status: 'pending'
-      })
-    });
-  } catch(e) { console.warn('Work log error:', e.message); }
-}
-// ────────────────────────────────────────────────────────────────────
-
-
-function renderStatusUpdate() {
-  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128203;</div><div>Select a client</div></div>';return;}
-  var c=currentClient;
-  document.getElementById('right-body').innerHTML=
-    '<div style="padding:4px 0 16px;">' +
-    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:14px;">&#128203; Status Update to Portal</div>' +
-    '<div style="margin-bottom:12px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">SELECT ACTION TAKEN</label>' +
-    '<select id="status-select" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;">' +
-    '<option value="">— Choose a status update —</option>' +
-    '<option value="Login credentials updated">Login credentials updated</option><option value="Payment plan explained">Payment plan explained</option><option value="Bureau login assistance provided">Bureau login assistance provided</option><option value="Dispute round completed">Dispute round completed</option><option value="Documents reviewed">Documents reviewed</option><option value="Follow-up call made">Follow-up call made</option><option value="Email sent to client">Email sent to client</option><option value="Verification pending">Verification pending</option><option value="Waiting for client response">Waiting for client response</option><option value="Account update completed">Account update completed</option><option value="Bureau call completed">Bureau call completed</option><option value="Credit report reviewed">Credit report reviewed</option><option value="Refund agreement sent">Refund agreement sent</option><option value="Onboarding completed">Onboarding completed</option><option value="File closed">File closed</option>' +
-    '</select></div>' +
-    '<div style="margin-bottom:12px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">ADDITIONAL NOTES (optional)</label>' +
-    '<textarea id="status-notes" placeholder="Any extra context..." style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;min-height:80px;resize:vertical;"></textarea>' +
-    '</div>' +
-    '<button onclick="postStatusUpdate()" style="padding:10px 20px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">&#128203; Post Update to Client Portal</button>' +
-    '<div id="status-history" style="margin-top:16px;"></div>' +
-    '</div>';
-  loadStatusHistory(c.id);
-}
-
-async function postStatusUpdate() {
-  if(!currentClient) { alert('Please select a client first.'); return; }
-  var action = (document.getElementById('status-select')||{}).value||'';
-  var notes  = (document.getElementById('status-notes') ||{}).value||'';
-  if(!action){ alert('Please select a status update type.'); return; }
-  var agentName = localStorage.getItem('cp_logged_in_name')||'CS Agent';
-  var updateText = action + (notes ? ' — ' + notes : '');
-  // Match actual DB columns: client_id, client_name, update_text, update_type, posted_by, created_at
-  var payload = {
-    client_id:   currentClient.id,
-    client_name: currentClient.name,
-    update_text: updateText,
-    update_type: action,
-    posted_by:   agentName,
-    created_at:  new Date().toISOString()
-  };
-  try {
-    var hdrs = Object.assign({}, HDR, {'Content-Type':'application/json','Prefer':'return=minimal'});
-    var r1 = await fetch(SUPA+'/status_updates', {
-      method:'POST', headers:hdrs, body:JSON.stringify(payload)
-    });
-    var r2 = await fetch(SUPA+'/client_status_updates', {
-      method:'POST', headers:hdrs, body:JSON.stringify(payload)
-    });
-    if(r1.ok || r1.status===201 || r1.status===204) {
-      alert('✅ Status update posted to client portal!');
-      var ss = document.getElementById('status-select');
-      var sn = document.getElementById('status-notes');
-      if(ss) ss.value='';
-      if(sn) sn.value='';
-      if(typeof loadStatusHistory==='function') loadStatusHistory(currentClient.id);
-    } else {
-      var err = await r1.text();
-      alert('Error ' + r1.status + ': ' + err.substring(0,120));
-    }
-  } catch(e){ alert('Error: '+e.message); }
-}
-
-async function loadStatusHistory(clientId) {
-  var el = document.getElementById('status-history');
-  if(!el) return;
-  try {
-    var r = await fetch(SUPA+'/status_updates?client_id=eq.'+encodeURIComponent(clientId)+'&order=created_at.desc&limit=20',{headers:HDR});
-    var data = await r.json();
-    if(!Array.isArray(data)||!data.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">No updates posted yet.</div>';return;}
-    el.innerHTML='<div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:8px;letter-spacing:.5px;">RECENT UPDATES</div>'+
-      data.map(function(u){
-        return '<div style="padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;background:#F8FAFC;">' +
-          '<div style="font-size:13px;font-weight:700;color:#1B3A6B;">&#10003; '+u.action+'</div>' +
-          (u.notes?'<div style="font-size:12px;color:#64748B;margin-top:3px;">'+u.notes+'</div>':'') +
-          '<div style="font-size:11px;color:#94A3B8;margin-top:4px;">'+(u.posted_by_name||'CS Agent')+' · '+new Date(u.created_at).toLocaleString()+'</div>' +
-          '</div>';
-      }).join('');
-  } catch(e){el.innerHTML='';}
-}
-
-
-</script>
-<!-- AI CALLS PANEL -->
-<div id="r-calls" style="display:none;padding:16px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    <span style="font-size:13px;font-weight:800;color:#1B3A6B;">📞 AI Receptionist Call History</span>
-    <button onclick="loadCSCalls()" style="padding:5px 12px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">🔄 Refresh</button>
-  </div>
-  <div id="cs-calls-list" style="font-size:12px;"></div>
-</div>
-
-<script>
-// Early definitions so functions in this block can use them
-var _K1='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0';
-var _K2='8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
-if(typeof SUPA==='undefined') var SUPA='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
-if(typeof KEY==='undefined')  var KEY=_K1+'.'+_K2;
-if(typeof HDR==='undefined')  var HDR={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
-if(typeof currentUser==='undefined') var currentUser=localStorage.getItem('cp_logged_in_user')||'';
-if(typeof currentAgentName==='undefined') var currentAgentName=localStorage.getItem('cp_logged_in_name')||'CS Agent';
-
-function renderEmailClient() {
-  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128231;</div><div>Select a client</div></div>';return;}
-  var c=currentClient;
-  document.getElementById('right-body').innerHTML=
-    '<div style="padding:4px 0;">' +
-    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:12px;">&#128231; Email Message to Client</div>' +
-    '<div style="margin-bottom:10px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">TO</label>' +
-    '<input value="'+(c.email||'')+'" readonly style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;background:#F8FAFC;">' +
-    '</div>' +
-    '<div style="margin-bottom:10px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">SUBJECT</label>' +
-    '<input id="email-subject" placeholder="e.g. Update on Your Credit Repair File" style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;">' +
-    '</div>' +
-    '<div style="margin-bottom:10px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">MESSAGE</label>' +
-    '<div style="border:1.5px solid #E2E8F0;border-radius:8px;overflow:hidden;">' +
-    // Toolbar
-    '<div style="background:#F8FAFC;border-bottom:1.5px solid #E2E8F0;padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;">' +
-    '<button type="button" onclick="execCmd(\'bold\')" title="Bold" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-weight:700;font-size:12px;">B</button>' +
-    '<button type="button" onclick="execCmd(\'italic\')" title="Italic" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-style:italic;font-size:12px;">I</button>' +
-    '<button type="button" onclick="execCmd(\'underline\')" title="Underline" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>' +
-    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
-    '<button type="button" onclick="execCmd(\'insertUnorderedList\')" title="Bullet list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">• List</button>' +
-    '<button type="button" onclick="execCmd(\'insertOrderedList\')" title="Numbered list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">1. List</button>' +
-    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
-    '<button type="button" onclick="insertEmailLink()" title="Insert link" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">🔗 Link</button>' +
-    '<button type="button" onclick="execCmd(\'removeFormat\')" title="Clear formatting" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">✕ Clear</button>' +
-    '</div>' +
-    // Editable content area
-    '<div id="email-body-editor" contenteditable="true" style="min-height:140px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;line-height:1.6;" placeholder="Write your message here..."></div>' +
-    '</div>' +
-    '</div>' +
-    '<div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;">' +
-    '<input type="checkbox" id="email-post-portal" checked style="accent-color:#1B3A6B;transform:scale(1.2);">' +
-    '<label for="email-post-portal" style="font-size:12px;color:#64748B;">Also post copy to Client Portal → Email Messages tab</label>' +
-    '</div>' +
-    '<div style="margin-bottom:14px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">SEND OPTIONS</label>' +
-    '<div style="display:flex;gap:8px;">' +
-    '<button onclick="sendClientEmail(&quot;email-only&quot;)" style="flex:1;padding:10px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send Email Only</button>' +
-    '<button onclick="sendClientEmail(&quot;email-portal&quot;)" style="flex:1;padding:10px;background:#C9A84C;color:#0A1628;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send + Post to Portal</button>' +
-    '</div></div>' +
-    '<div id="email-sent-history" style="margin-top:16px;"></div>' +
-    '</div>';
-  loadEmailHistory(c.id);
-  // Set placeholder behavior on contenteditable
-  setTimeout(function(){
-    var ed = document.getElementById('email-body-editor');
-    if(!ed) return;
-    ed.addEventListener('focus', function(){if(this.innerHTML==='<br>'||!this.textContent.trim())this.innerHTML='';});
-    ed.addEventListener('blur',  function(){if(!this.textContent.trim())this.innerHTML='';});
-  },100);
-}
-
-function execCmd(cmd, val) {
-  document.getElementById('email-body-editor').focus();
-  document.execCommand(cmd, false, val||null);
-}
-
-function insertEmailLink() {
-  var url = prompt('Enter URL:','https://');
-  if(!url) return;
-  var text = prompt('Link text:','Click here');
-  if(!text) text = url;
-  document.getElementById('email-body-editor').focus();
-  document.execCommand('insertHTML', false, '<a href="'+url+'" target="_blank">'+text+'</a>');
-}
-
-async function loadEmailHistory(clientId) {
-  var el = document.getElementById('email-sent-history');
-  if(!el) return;
-  try {
-    var r = await fetch(SUPA+'/email_logs?client_id=eq.'+encodeURIComponent(clientId)+'&order=sent_at.desc&limit=10',{headers:HDR});
-    var data = await r.json();
-    if(!Array.isArray(data)||!data.length) return;
-    el.innerHTML='<div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:8px;letter-spacing:.5px;">SENT EMAILS</div>'+
-      data.map(function(e){
-        var statusBadge = e.status==='viewed'
-          ? '<span style="background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">👁 Viewed</span>'
-          : e.status==='delivered'
-          ? '<span style="background:#EFF6FF;color:#1B3A6B;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">✓ Delivered</span>'
-          : '<span style="background:#F1F5F9;color:#64748B;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">✉ Sent</span>';
-        return '<div style="padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;background:#F8FAFC;">' +
-          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-          '<div style="font-size:12px;font-weight:700;color:#1B3A6B;">&#128231; '+e.subject+'</div>' +
-          statusBadge +
-          '</div>' +
-          '<div style="font-size:11px;color:#94A3B8;">'+(e.sent_by_name||'CS Agent')+' · '+new Date(e.sent_at).toLocaleString()+
-          (e.posted_to_portal?' · <span style="color:#166534;">Posted to Portal</span>':'')+'</div>' +
-          '</div>';
-      }).join('');
-  } catch(e){}
-}
-
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1584028236255374&ev=PageView&noscript=1"
-/></noscript>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.2/phosphor.min.js"></script>
 </head>
 <body>
 <div class="topbar">
@@ -534,23 +290,48 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
   </div>
 
 </div>
-
 <script>
-var SUPA='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
-// Auth check — allow all valid roles into cs-dashboard
-(function(){
-  var user = localStorage.getItem('cp_logged_in_user') || sessionStorage.getItem('cp_logged_in_user') || '';
-  if(!user) { window.location.href = 'https://portal-cprestorationsvcs.com'; return; }
-  // All roles except bureau can access cs-dashboard
-})();
-var KEY=['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0','8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50'].join('.');
-var HDR={'apikey':KEY,'Authorization':'Bearer '+KEY};
-var allClients=[], currentClient=null, disputes=[], activeRTab='info', activeMTab='msg';
-var currentUser = localStorage.getItem('cp_logged_in_user') || '';
-var currentAgentName = localStorage.getItem('cp_logged_in_name') || 'CS Agent';
-var refreshTimer=null;
+// ═══════════════════════════════════════════════
+// CP RESTORATION — CS DASHBOARD v2 (CLEAN REWRITE)
+// Single script block — no scope issues
+// ═══════════════════════════════════════════════
 
-// ── LOAD CLIENTS ──
+// ── GLOBALS ──────────────────────────────────────
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var K1   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0';
+var K2   = '8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var KEY  = K1 + '.' + K2;
+var HDR  = {'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json'};
+
+var currentUser      = localStorage.getItem('cp_logged_in_user')  || '';
+var currentAgentName = localStorage.getItem('cp_logged_in_name')  || 'CS Agent';
+var currentRole      = localStorage.getItem('cp_logged_in_role')  || '';
+var allClients       = [];
+var currentClient    = null;
+var activeRTab       = 'info';
+var activeMTab       = 'msg';
+
+// ── AUTH CHECK ───────────────────────────────────
+(function() {
+  var allowed = ['admin','cs','compliance','dispute'];
+  if (!currentUser || !allowed.includes(currentRole)) {
+    window.location.href = '/';
+  }
+})();
+
+// ── THEME ────────────────────────────────────────
+(function() {
+  var t = localStorage.getItem('cp_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+
+function toggleDark() {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('cp_theme', isDark ? 'light' : 'dark');
+}
+
+// ── ALL FUNCTIONS ────────────────────────────────
 async function loadClients(){
   try{
     // Load list — no ORDER BY to avoid timeout on large tables
@@ -576,39 +357,6 @@ async function loadClients(){
   }
 }
 
-function hasUnread(c){
-  if(!c.notes) return false;
-  var lines=c.notes.split('\n');
-  // Has unread if last message tag is CLIENT MESSAGE not TEAM REPLY
-  var lastTag='';
-  for(var i=0;i<lines.length;i++){
-    var l=lines[i].trim();
-    if(l.indexOf('[CLIENT MESSAGE ')===0) lastTag='client';
-    if(l.indexOf('[TEAM REPLY ')===0) lastTag='team';
-  }
-  return lastTag==='client';
-}
-
-function renderClientList(list){
-  var el=document.getElementById('client-list');
-  var unread=list.filter(hasUnread).length;
-  var badge=document.getElementById('unread-count');
-  if(unread){badge.textContent=unread;badge.style.display='inline';}
-  else badge.style.display='none';
-  if(!list.length){el.innerHTML='<div style="padding:20px;text-align:center;color:#94A3B8;font-size:12px;">No clients found</div>';return;}
-  el.innerHTML='';
-  list.forEach(function(c){
-    var unrd=hasUnread(c);
-    var init=(c.name||'?').split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
-    var div=document.createElement('div');
-    div.className='cr'+(unrd?' has-msg':'')+(currentClient&&currentClient.id===c.id?' active':'');
-    div.innerHTML='<div class="av">'+init+'</div><div style="flex:1;min-width:0;"><div class="cr-name">'+safe(c.name)+'</div><div class="cr-id">'+safe(c.id)+'</div></div>'+(unrd?'<div class="msg-dot"></div>':'');
-    div.onclick=function(){openClient(c,div);};
-    el.appendChild(div);
-  });
-}
-
-var searchTimer;
 function filterClients(q){
   clearTimeout(searchTimer);
   searchTimer=setTimeout(async function(){
@@ -630,7 +378,6 @@ function filterClients(q){
   },300);
 }
 
-// ── OPEN CLIENT ──
 async function openClient(c,el){
   // Fetch full client record from Supabase when selected
   try {
@@ -671,67 +418,268 @@ async function openClient(c,el){
   updateFileBadge(c);
 }
 
-// ── MESSAGES ──
-function parseMsgs(notes){
-  if(!notes) return [];
-  var msgs=[];
-  var lines=notes.split('\n');
-  for(var i=0;i<lines.length;i++){
-    var line=lines[i].trim();
-    if(line.indexOf('[CLIENT MESSAGE ')===0){var c=line.indexOf(']:');if(c>0)msgs.push({from:'client',date:line.substring(16,c),text:line.substring(c+2).trim()});}
-    if(line.indexOf('[TEAM REPLY ')===0){var c2=line.indexOf(']:');if(c2>0)msgs.push({from:'team',date:line.substring(12,c2),text:line.substring(c2+2).trim()});}
-  }
-  return msgs;
+async function saveNotes(){
+  await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
+    method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
+    body:JSON.stringify({notes:currentClient.notes,updated_at:new Date().toISOString()})
+  });
 }
 
-function renderThread(c){
-  var msgs=parseMsgs(c.notes||'');
-  var el=document.getElementById('msg-thread');
-  if(!msgs.length){el.innerHTML='<div class="empty-state"><div class="ico">&#128172;</div><div>No messages yet</div></div>';return;}
-  el.innerHTML=msgs.map(function(m){
-    return '<div class="bubble-wrap '+m.from+'">'+
-      (m.from==='client'?'<div class="bname">'+safe(c.name)+'</div>':'')+
-      '<div class="bubble">'+safe(m.text)+'</div>'+
-      '<div class="btime">'+(m.from==='team'?'CP Restoration &bull; ':'')+fmtTime(m.date)+'</div>'+
-    '</div>';
-  }).join('');
-  el.scrollTop=el.scrollHeight;
-}
-
-function useQR(el){var t=document.getElementById('reply-txt');t.value=(t.value?t.value+' ':'')+el.textContent;t.focus();}
-
-async function sendReply(){
+async function saveLogins(){
   if(!currentClient) return;
-  var txt=document.getElementById('reply-txt').value.trim();
-  if(!txt) return;
-  document.getElementById('reply-txt').value='';
-  var tag='\n[TEAM REPLY '+new Date().toLocaleString()+']: '+txt;
-  currentClient.notes=(currentClient.notes||'')+tag;
-  renderThread(currentClient);
+  // Read all login fields
+  var eq_user  = (document.getElementById('f-equifax_user')||{}).value||'';
+  var eq_pass  = (document.getElementById('f-equifax_pass')||{}).value||'';
+  var ex_user  = (document.getElementById('f-experian_user')||{}).value||'';
+  var ex_pass  = (document.getElementById('f-experian_pass')||{}).value||'';
+  var ex_pin   = (document.getElementById('f-experian_pin')||{}).value||'';
+  var ex_sq    = (document.getElementById('f-experian_sq')||{}).value||'';
+  var ex_sa    = (document.getElementById('f-experian_sa')||{}).value||'';
+  var tu_user  = (document.getElementById('f-transunion_user')||{}).value||'';
+  var tu_pass  = (document.getElementById('f-transunion_pass')||{}).value||'';
   try{
-    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
-      method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
-      body:JSON.stringify({notes:currentClient.notes,updated_at:new Date().toISOString()})
+    // Save to individual columns (matches actual DB schema)
+    var updates={
+      equifax_username:   eq_user.trim(),
+      equifax_password:   eq_pass.trim(),
+      experian_username:  ex_user.trim(),
+      experian_password:  ex_pass.trim(),
+      experian_pin:       ex_pin.trim(),
+      experian_security_question: ex_sq.trim(),
+      experian_security_answer:   ex_sa.trim(),
+      transunion_username: tu_user.trim(),
+      transunion_password: tu_pass.trim(),
+      updated_at: new Date().toISOString()
+    };
+    var r=await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
+      method:'PATCH',
+      headers:Object.assign({'Content-Type':'application/json','Prefer':'return=minimal'},HDR),
+      body:JSON.stringify(updates)
     });
-    if(currentClient.email){
-      fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          personalizations:[{to:[{email:currentClient.email,name:currentClient.name}]}],
-          from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
-          subject:'Message from CP Restoration Services',
-          content:[
-            {type:'text/plain',value:'Dear '+currentClient.name+',\n\n'+txt+'\n\nLog in to reply:\nportal-cprestorationsvcs.com/client-portal.html\nUser ID: '+currentClient.id+'\nPassword: restore2026\n\nCP Restoration Services\n1-855-327-5847'},
-            {type:'text/html',value:'<div style="font-family:Arial;max-width:580px;margin:0 auto;"><div style="background:#1B3A6B;padding:16px 20px;border-radius:8px 8px 0 0;"><h2 style="color:white;margin:0;font-size:15px;">CP Restoration Services</h2></div><div style="border:1px solid #E2E8F0;border-top:none;padding:20px;border-radius:0 0 8px 8px;"><p>Dear <b>'+safe(currentClient.name)+'</b>,</p><div style="background:#F8FAFC;border-left:4px solid #1B3A6B;padding:12px;margin:14px 0;font-size:13px;line-height:1.7;">'+safe(txt)+'</div><p style="font-size:12px;color:#64748B;">Reply: <a href="https://portal-cprestorationsvcs.com/client-portal.html">portal-cprestorationsvcs.com</a><br>ID: '+safe(currentClient.id)+' | Password: restore2026</p><hr style="border:none;border-top:1px solid #eee;margin:14px 0;"><p style="font-size:11px;color:#94A3B8;">CP Restoration | 1-855-327-5847 | Mon-Fri 9AM-5PM EST</p></div></div>'}
-          ]
-        })
-      });
+    if(r.ok || r.status===204){
+      // Update local cache
+      Object.assign(currentClient, updates);
+      toast('&#10003; Logins saved successfully','ok');
+    } else {
+      var err=await r.text();
+      toast('&#10006; Save failed: '+r.status+' — '+err.substring(0,80),'err');
     }
-    toast('Reply sent');
-    loadClients();
   }catch(e){toast('Error: '+e.message,'err');}
 }
 
-// ── ACTIONS PANEL ──
+function renderInfo(){
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128101;</div><div>Select a client</div></div>';return;}
+  var c=currentClient;
+  document.getElementById('right-body').innerHTML=
+    '<div class="info-grid">'+
+    [['Client ID',c.id],['Name',c.name],['Email',c.email||'—'],['Phone',c.phone||'—'],
+     ['Package',c.package||'Standard'],['Start Date',c.start_date?new Date(c.start_date).toLocaleDateString():'—'],
+     ['Status',c.status||'Active'],['Portal Password','restore2026']
+    ].map(function(f){return '<div class="ig"><label>'+f[0]+'</label><span>'+safe(f[1])+'</span></div>';}).join('')+
+    '</div>'+
+    '<div style="background:#EFF4FF;border-radius:8px;padding:12px;font-size:12px;line-height:1.8;color:#1B3A6B;">'+
+    '<b>Portal URL:</b> portal-cprestorationsvcs.com/client-portal.html<br>'+
+    '<b>User ID:</b> '+safe(c.id)+'<br>'+
+    '<b>Password:</b> restore2026</div>';
+}
+
+function renderLogins(){
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128272;</div><div>Select a client</div></div>';return;}
+  var c=currentClient;
+  // If bureau_logins JSON exists, populate individual fields from it
+  if(c.bureau_logins && typeof c.bureau_logins === 'string') {
+    try {
+      var bl=JSON.parse(c.bureau_logins);
+      if(bl.equifax){c.equifax_user=bl.equifax.user||'';c.equifax_pass=bl.equifax.pass||'';}
+      if(bl.experian){c.experian_user=bl.experian.user||'';c.experian_pass=bl.experian.pass||'';c.experian_pin=bl.experian.pin||'';c.experian_sq=bl.experian.secQuestion||'';c.experian_sa=bl.experian.secAnswer||'';}
+      if(bl.transunion){c.transunion_user=bl.transunion.user||'';c.transunion_pass=bl.transunion.pass||'';}
+    } catch(e){}
+  }
+  // Map new DB columns to display fields (overrides JSON if present)
+  if(c.experian_username) c.experian_user = c.experian_username;
+  if(c.experian_password) c.experian_pass = c.experian_password;
+  if(c.equifax_pin)       c.experian_pin  = c.equifax_pin;
+  if(c.smartcredit_username) c.smartcredit_user = c.smartcredit_username;
+  if(c.smartcredit_password) c.smartcredit_pass = c.smartcredit_password;
+  var tutaSection = '';
+  if(!c.tuta_email) {
+    tutaSection = '<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:10px;padding:14px;margin-top:12px;">' +
+      '<div style="font-size:12px;font-weight:800;color:#92400E;margin-bottom:8px;">&#9888; No Tuta Email Assigned</div>' +
+      '<div style="font-size:12px;color:#78350F;margin-bottom:10px;">This client needs a Tuta email for bureau correspondence.</div>' +
+      '<input id="tuta-input" placeholder="cprclient.FirstLast@tuta.com" style="width:100%;padding:8px;border:1.5px solid #F59E0B;border-radius:6px;font-size:12px;box-sizing:border-box;margin-bottom:8px;">' +
+      '<button onclick="saveTutaEmail()" style="padding:8px 16px;background:#92400E;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Save Tuta Email</button>' +
+      '</div>';
+  } else {
+    tutaSection = '<div style="background:#DCFCE7;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:12px;">' +
+      '<span style="font-weight:700;color:#166534;">&#128231; Tuta Email:</span> <span style="color:#1E293B;font-weight:600;">' + c.tuta_email + '</span>' +
+      '</div>';
+  }
+  document.getElementById('right-body').innerHTML=
+    '<p style="font-size:11px;color:#64748B;margin-bottom:12px;">&#9888; Verify logins are working before submitting any requests. For Experian, confirm the 4-digit PIN and security question answer.</p>'+
+    bureauCard('Equifax','bc-eq','EQ','equifax_user','equifax_pass',null,null,null,c)+
+    bureauCard('Experian','bc-ex','EX','experian_user','experian_pass','experian_pin','experian_sq','experian_sa',c)+
+    bureauCard('TransUnion','bc-tu','TU','transunion_user','transunion_pass',null,null,null,c)+
+    tutaSection;
+}
+
+function renderContactLog(){
+  if(!currentClient){ return; }
+  var body = document.getElementById('right-body');
+  var logs = [];
+  // Parse contact log from client notes
+  if(currentClient.notes){
+    var lines = currentClient.notes.split('\n');
+    lines.forEach(function(line){
+      if(line.startsWith('[CONTACT]') || line.startsWith('[CALL]') || 
+         line.startsWith('[EMAIL]') || line.startsWith('[SMS]') || 
+         line.startsWith('[NOTE]') || line.startsWith('[UPDATE]')){
+        logs.push(line);
+      }
+    });
+  }
+
+  var logHTML = '<div style="margin-bottom:12px;">' +
+    '<div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:10px;">&#128222; Contact History</div>' +
+    '<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">' +
+      '<select id="log-type" style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;">' +
+        '<option value="CALL">&#128222; Phone Call</option>' +
+        '<option value="EMAIL">&#9993; Email</option>' +
+        '<option value="SMS">&#128172; SMS</option>' +
+        '<option value="UPDATE">&#128203; Status Update</option>' +
+        '<option value="NOTE">&#128221; Internal Note</option>' +
+      '</select>' +
+    '</div>' +
+    '<textarea id="log-entry" placeholder="What was communicated? What did the client say? Outcome? Next steps?" ' +
+    'style="width:100%;min-height:70px;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;resize:none;margin-bottom:6px;"></textarea>' +
+    '<button onclick="addContactLog()" style="width:100%;padding:8px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">&#43; Log Contact</button>' +
+  '</div>';
+
+  if(logs.length){
+    logHTML += '<div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">History (newest first)</div>';
+    var reversed = logs.slice().reverse();
+    logHTML += reversed.map(function(line){
+      var type = 'NOTE';
+      var color = '#64748B';
+      var bg = '#F8FAFC';
+      if(line.includes('[CALL]')){ type='CALL'; color='#1B3A6B'; bg='#EFF6FF'; }
+      else if(line.includes('[EMAIL]')){ type='EMAIL'; color='#166534'; bg='#DCFCE7'; }
+      else if(line.includes('[SMS]')){ type='SMS'; color='#7C3AED'; bg='#EDE9FE'; }
+      else if(line.includes('[UPDATE]')){ type='UPDATE'; color='#92400E'; bg='#FEF9C3'; }
+      var content = line.replace(/\[(?:CONTACT|CALL|EMAIL|SMS|NOTE|UPDATE)\]\s*/,'').replace(/\[\d{4}-\d{2}-\d{2}[^\]]*\]/,'').trim();
+      var dateMatch = line.match(/\[(\d{4}-\d{2}-\d{2}[^\]]*)\]/);
+      var dateStr = dateMatch ? dateMatch[1] : '';
+      return '<div style="background:'+bg+';border-left:3px solid '+color+';border-radius:0 6px 6px 0;padding:8px 10px;margin-bottom:6px;">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
+          '<span style="font-size:10px;font-weight:700;color:'+color+';">'+type+'</span>' +
+          '<span style="font-size:10px;color:#94A3B8;">'+dateStr+'</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:#1E293B;line-height:1.5;">'+content+'</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    logHTML += '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">No contact history yet.<br>Log your first contact above.</div>';
+  }
+
+  body.innerHTML = logHTML;
+}
+
+function renderDisputes(){
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128202;</div><div>Select a client</div></div>';return;}
+  var del=disputes.filter(function(d){return d.status==='removed';}).length;
+  var tot=disputes.length;
+  var pct=tot>0?Math.round(del/tot*100):0;
+  var eq=disputes.filter(function(d){return(d.bureau||'').includes('equifax');});
+  var tu=disputes.filter(function(d){return(d.bureau||'').includes('transunion');});
+  function pbox(n,l,p,col){return'<div class="prog-box"><div class="prog-num" style="color:'+col+';">'+n+'</div><div class="prog-lbl">'+l+'</div><div class="prog-bar-w"><div class="prog-bar" style="width:'+p+'%;background:'+col+';"></div></div></div>';}
+  var rows=disputes.length?disputes.map(function(d,i){
+    var bur=(d.bureau||'all').toLowerCase();
+    var dot=bur==='equifax'?'<span class="dot-eq">EQ</span>':bur==='experian'?'<span class="dot-ex">EX</span>':bur==='transunion'?'<span class="dot-tu">TU</span>':'<span class="dot-eq">EQ</span><span class="dot-ex">EX</span><span class="dot-tu">TU</span>';
+    var badge=d.status==='removed'?'<span class="badge b-del">&#10003; Deleted</span>':'<span class="badge b-pen">&#8987; Pending</span>';
+    return'<tr><td style="font-weight:600;">'+safe(d.name)+'</td><td style="font-size:10px;color:#64748B;">'+safe(d.type||'')+'</td><td>'+dot+'</td><td>'+badge+'</td></tr>';
+  }).join(''):'<tr><td colspan="4" style="text-align:center;padding:20px;color:#94A3B8;">No dispute items on file</td></tr>';
+  document.getElementById('right-body').innerHTML=
+    '<div class="prog-row">'+pbox(pct+'%','Overall',pct,'#166534')+pbox(del+'/'+tot,'Deleted',pct,'#1B3A6B')+pbox(eq.filter(function(d){return d.status==='removed';}).length+'/'+eq.length,'Equifax',eq.length?Math.round(eq.filter(function(d){return d.status==='removed';}).length/eq.length*100):0,'#E53E3E')+'</div>'+
+    '<p style="font-size:11px;color:#94A3B8;margin-bottom:8px;">View only — status updates are completed by the Dispute Department</p>'+
+    '<table class="dt"><thead><tr><th>Item</th><th>Type</th><th>Bureau</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function renderEmailClient() {
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128231;</div><div>Select a client</div></div>';return;}
+  var c=currentClient;
+  document.getElementById('right-body').innerHTML=
+    '<div style="padding:4px 0;">' +
+    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:12px;">&#128231; Email Message to Client</div>' +
+    '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">TO</label>' +
+    '<input value="'+(c.email||'')+'" readonly style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;background:#F8FAFC;">' +
+    '</div>' +
+    '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">SUBJECT</label>' +
+    '<input id="email-subject" placeholder="e.g. Update on Your Credit Repair File" style="width:100%;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:12px;">' +
+    '</div>' +
+    '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:4px;">MESSAGE</label>' +
+    '<div style="border:1.5px solid #E2E8F0;border-radius:8px;overflow:hidden;">' +
+    // Toolbar
+    '<div style="background:#F8FAFC;border-bottom:1.5px solid #E2E8F0;padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;">' +
+    '<button type="button" onclick="execCmd(\'bold\')" title="Bold" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-weight:700;font-size:12px;">B</button>' +
+    '<button type="button" onclick="execCmd(\'italic\')" title="Italic" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-style:italic;font-size:12px;">I</button>' +
+    '<button type="button" onclick="execCmd(\'underline\')" title="Underline" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>' +
+    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
+    '<button type="button" onclick="execCmd(\'insertUnorderedList\')" title="Bullet list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">• List</button>' +
+    '<button type="button" onclick="execCmd(\'insertOrderedList\')" title="Numbered list" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">1. List</button>' +
+    '<div style="width:1px;background:#E2E8F0;margin:0 4px;"></div>' +
+    '<button type="button" onclick="insertEmailLink()" title="Insert link" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">🔗 Link</button>' +
+    '<button type="button" onclick="execCmd(\'removeFormat\')" title="Clear formatting" style="padding:4px 8px;border:1px solid #E2E8F0;border-radius:4px;background:white;cursor:pointer;font-size:12px;">✕ Clear</button>' +
+    '</div>' +
+    // Editable content area
+    '<div id="email-body-editor" contenteditable="true" style="min-height:140px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;line-height:1.6;" placeholder="Write your message here..."></div>' +
+    '</div>' +
+    '</div>' +
+    '<div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;">' +
+    '<input type="checkbox" id="email-post-portal" checked style="accent-color:#1B3A6B;transform:scale(1.2);">' +
+    '<label for="email-post-portal" style="font-size:12px;color:#64748B;">Also post copy to Client Portal → Email Messages tab</label>' +
+    '</div>' +
+    '<div style="margin-bottom:14px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">SEND OPTIONS</label>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<button onclick="sendClientEmail(&quot;email-only&quot;)" style="flex:1;padding:10px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send Email Only</button>' +
+    '<button onclick="sendClientEmail(&quot;email-portal&quot;)" style="flex:1;padding:10px;background:#C9A84C;color:#0A1628;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">&#128231; Send + Post to Portal</button>' +
+    '</div></div>' +
+    '<div id="email-sent-history" style="margin-top:16px;"></div>' +
+    '</div>';
+  loadEmailHistory(c.id);
+  // Set placeholder behavior on contenteditable
+  setTimeout(function(){
+    var ed = document.getElementById('email-body-editor');
+    if(!ed) return;
+    ed.addEventListener('focus', function(){if(this.innerHTML==='<br>'||!this.textContent.trim())this.innerHTML='';});
+    ed.addEventListener('blur',  function(){if(!this.textContent.trim())this.innerHTML='';});
+  },100);
+}
+
+function renderStatusUpdate() {
+  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128203;</div><div>Select a client</div></div>';return;}
+  var c=currentClient;
+  document.getElementById('right-body').innerHTML=
+    '<div style="padding:4px 0 16px;">' +
+    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:14px;">&#128203; Status Update to Portal</div>' +
+    '<div style="margin-bottom:12px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">SELECT ACTION TAKEN</label>' +
+    '<select id="status-select" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;">' +
+    '<option value="">— Choose a status update —</option>' +
+    '<option value="Login credentials updated">Login credentials updated</option><option value="Payment plan explained">Payment plan explained</option><option value="Bureau login assistance provided">Bureau login assistance provided</option><option value="Dispute round completed">Dispute round completed</option><option value="Documents reviewed">Documents reviewed</option><option value="Follow-up call made">Follow-up call made</option><option value="Email sent to client">Email sent to client</option><option value="Verification pending">Verification pending</option><option value="Waiting for client response">Waiting for client response</option><option value="Account update completed">Account update completed</option><option value="Bureau call completed">Bureau call completed</option><option value="Credit report reviewed">Credit report reviewed</option><option value="Refund agreement sent">Refund agreement sent</option><option value="Onboarding completed">Onboarding completed</option><option value="File closed">File closed</option>' +
+    '</select></div>' +
+    '<div style="margin-bottom:12px;">' +
+    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">ADDITIONAL NOTES (optional)</label>' +
+    '<textarea id="status-notes" placeholder="Any extra context..." style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;min-height:80px;resize:vertical;"></textarea>' +
+    '</div>' +
+    '<button onclick="postStatusUpdate()" style="padding:10px 20px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">&#128203; Post Update to Client Portal</button>' +
+    '<div id="status-history" style="margin-top:16px;"></div>' +
+    '</div>';
+  loadStatusHistory(c.id);
+}
+
 function renderActions(c){
   var el=document.getElementById('actions-panel');
   var notes=c.notes||'';
@@ -803,64 +751,125 @@ function renderActions(c){
     '</div>';
 }
 
-async function submitLoginIssue(){
+async function sendClientEmail(mode) {
   if(!currentClient) return;
-  var bureaus = [];
-  if(document.getElementById('li-eq')&&document.getElementById('li-eq').checked) bureaus.push('Equifax');
-  if(document.getElementById('li-ex')&&document.getElementById('li-ex').checked) bureaus.push('Experian');
-  if(document.getElementById('li-tu')&&document.getElementById('li-tu').checked) bureaus.push('TransUnion');
-  if(!bureaus.length){toast('Select at least one bureau','err');return;}
-  var notes = (document.getElementById('li-new-creds')||document.getElementById('li-notes')||{}).value||'';
-  notes = notes.trim();
-  var tag = '\n[LOGIN ISSUE '+new Date().toLocaleString()+']: Bureau(s) with invalid login: '+bureaus.join(', ')+(notes?' — New credentials: '+notes:'');
-  currentClient.notes = (currentClient.notes||'') + tag;
-  // Save to Supabase
-  await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
-    method:'PATCH',
-    headers:Object.assign({'Content-Type':'application/json'},HDR),
-    body:JSON.stringify({notes:currentClient.notes,updated_at:new Date().toISOString()})
-  });
-  // Send email to dispute dept
-  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      personalizations:[{to:[{email:'jason@mycprteam.com',name:'Dispute Department'}]}],
-      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration CS Team'},
-      subject:'🔐 Invalid Bureau Login — '+currentClient.name+' ('+currentClient.id+')',
-      content:[{type:'text/plain',value:'A CS agent has reported invalid bureau login credentials for the following client:\n\nClient: '+currentClient.name+'\nID: '+currentClient.id+'\nPhone: '+(currentClient.phone||'N/A')+'\nBureau(s) failing: '+bureaus.join(', ')+'\n\n'+(notes?'Updated credentials provided by client:\n'+notes+'\n\n':'No new credentials yet — CS agent is still attempting to reach client.\n\n')+'Please update the Bureau Logins tab in the CS Dashboard and resume the dispute process.\n\nCP Restoration CS Team'}]
-    })
-  });
-  toast('Login issue reported to Dispute Department');
-  showAction('');
+  var subject = (document.getElementById('email-subject')||{}).value||'';
+  var editor  = document.getElementById('email-body-editor');
+  var bodyHtml = editor ? editor.innerHTML : '';
+  var bodyText = editor ? editor.innerText : '';
+  var postPortal = mode === 'email-portal' || (document.getElementById('email-post-portal')||{}).checked;
+  if(!subject||!bodyText.trim()){alert('Please enter a subject and message.');return;}
+  var btn = document.querySelector('#email-send-btn') || (event && event.target) || {};
+  if(btn.textContent !== undefined) { btn.textContent='Sending...'; btn.disabled=true; }
+  try {
+    var r = await fetch('/.netlify/functions/send-email',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        to: currentClient.email,
+        clientName: currentClient.name,
+        subject: subject,
+        body: bodyHtml,
+        from: 'CP Restoration Services <info@35daycreditrepair.com>'
+      })
+    });
+    // Log in email_log table
+    await fetch(SUPA+'/email_logs',{
+      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({
+        client_id: currentClient.id,
+        client_name: currentClient.name,
+        client_email: currentClient.email,
+        subject: subject,
+        body: bodyHtml,
+        sent_by: currentUser,
+        sent_by_name: localStorage.getItem('cp_logged_in_name')||'CS Agent',
+        sent_at: new Date().toISOString(),
+        posted_to_portal: postPortal,
+        status: 'sent'
+      })
+    });
+    if(postPortal) {
+      await fetch(SUPA+'/client_messages',{
+        method:'POST', headers:Object.assign({},HDR,{'Content-Type':'application/json','Prefer':'return=minimal'}),
+        body:JSON.stringify({
+          client_id:   currentClient.id,
+          client_name: currentClient.name,
+          from_role:   'cs',
+          from_name:   currentAgentName || localStorage.getItem('cp_logged_in_name') || 'CS Agent',
+          message:     (subject ? '[' + subject + '] ' : '') + bodyText,
+          is_read:     false,
+          created_at:  new Date().toISOString()
+        })
+      });
+    }
+    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
+    alert('✅ Email sent to '+currentClient.email+(postPortal?' and posted to client portal.':'.'));
+    loadEmailHistory(currentClient.id);
+  } catch(e){
+    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
+    alert('Error: '+e.message);
+  }
 }
 
-function openPhone() {
-  var phone = currentClient && (currentClient.phone || currentClient.homePhone || '');
-  if (!phone) { toast('No phone number on file.','err'); return; }
-  var clean = phone.replace(/[^0-9+]/g,'');
-  if (!clean.startsWith('+')) clean = '+1' + clean.replace(/^1/,'');
-  var clientName = currentClient.name || 'Client';
-  var overlay = document.createElement('div');
-  overlay.id = 'call-overlay';
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
-  var box = document.createElement('div');
-  box.style.cssText = 'background:white;border-radius:14px;padding:24px;min-width:300px;max-width:90vw;';
-  box.innerHTML = '<div style="font-size:16px;font-weight:800;color:#1B3A6B;margin-bottom:6px;">&#128222; Call Client</div>' +
-    '<div style="font-size:14px;color:#475569;margin-bottom:20px;">' + clientName + '<br><strong>' + phone + '</strong></div>' +
-    '<div style="display:flex;flex-direction:column;gap:10px;">' +
-      '<a href="rcmobile://call?number=' + encodeURIComponent(clean) + '" style="display:block;padding:12px;background:#1B3A6B;color:white;border-radius:8px;text-decoration:none;text-align:center;font-weight:700;">&#128222; Open RingCentral App</a>' +
-      '<a href="tel:' + clean + '" style="display:block;padding:12px;background:#166534;color:white;border-radius:8px;text-decoration:none;text-align:center;font-weight:700;">&#128241; Call via Device</a>' +
-    '</div>' +
-    '<button id="copy-num-btn" style="width:100%;margin-top:8px;padding:10px;background:#F1F5F9;border:1.5px solid #E2E8F0;border-radius:8px;cursor:pointer;font-weight:600;">&#128203; Copy Number</button>' +
-    '<button id="close-call-btn" style="width:100%;margin-top:6px;padding:10px;background:white;border:1.5px solid #E2E8F0;border-radius:8px;cursor:pointer;color:#64748B;">Cancel</button>';
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-  document.getElementById('copy-num-btn').onclick = function() {
-    navigator.clipboard.writeText(clean).then(function(){ toast('Number copied!'); });
-    overlay.remove();
+async function postStatusUpdate() {
+  if(!currentClient) { alert('Please select a client first.'); return; }
+  var action = (document.getElementById('status-select')||{}).value||'';
+  var notes  = (document.getElementById('status-notes') ||{}).value||'';
+  if(!action){ alert('Please select a status update type.'); return; }
+  var agentName = localStorage.getItem('cp_logged_in_name')||'CS Agent';
+  var updateText = action + (notes ? ' — ' + notes : '');
+  // Match actual DB columns: client_id, client_name, update_text, update_type, posted_by, created_at
+  var payload = {
+    client_id:   currentClient.id,
+    client_name: currentClient.name,
+    update_text: updateText,
+    update_type: action,
+    posted_by:   agentName,
+    created_at:  new Date().toISOString()
   };
-  document.getElementById('close-call-btn').onclick = function() { overlay.remove(); };
-  overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
+  try {
+    var hdrs = Object.assign({}, HDR, {'Content-Type':'application/json','Prefer':'return=minimal'});
+    var r1 = await fetch(SUPA+'/status_updates', {
+      method:'POST', headers:hdrs, body:JSON.stringify(payload)
+    });
+    var r2 = await fetch(SUPA+'/client_status_updates', {
+      method:'POST', headers:hdrs, body:JSON.stringify(payload)
+    });
+    if(r1.ok || r1.status===201 || r1.status===204) {
+      alert('✅ Status update posted to client portal!');
+      var ss = document.getElementById('status-select');
+      var sn = document.getElementById('status-notes');
+      if(ss) ss.value='';
+      if(sn) sn.value='';
+      if(typeof loadStatusHistory==='function') loadStatusHistory(currentClient.id);
+    } else {
+      var err = await r1.text();
+      alert('Error ' + r1.status + ': ' + err.substring(0,120));
+    }
+  } catch(e){ alert('Error: '+e.message); }
 }
+
+async function addContactLog(){
+  if(!currentClient) return;
+  var type = document.getElementById('log-type').value;
+  var entry = document.getElementById('log-entry').value.replace(/^\s+|\s+$/g, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  if(!entry){ alert('Please enter contact details.'); return; }
+  
+  var agentName = localStorage.getItem('cp_logged_in_name') || 'CS Agent';
+  var now = new Date();
+  var dateStr = now.toISOString().split('T')[0] + ' ' + 
+    now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  
+  var logLine = '['+type+'] ['+dateStr+'] ['+agentName+'] ' + entry;
+  
+  if(!currentClient.notes) currentClient.notes = '';
+  currentClient.notes = currentClient.notes + (currentClient.notes ? '\n' : '') + logLine;
+  
+  await saveNotes();
+  document.getElementById('log-entry').value = '';
+  renderContactLog();
+}
+
 async function submitStatusRequest(){
   if(!currentClient) return;
   var reason=document.getElementById('su-reason').value;
@@ -939,290 +948,6 @@ async function submitRefundRequest(){
   document.getElementById('rf-notes').value='';
 }
 
-async function saveCallNotes(){
-  if(!currentClient) return;
-  var notes=document.getElementById('call-notes').value.trim();
-  if(!notes){toast('Enter notes first','err');return;}
-  var tag='\n[CS NOTE '+new Date().toLocaleString()+']: '+notes;
-  currentClient.notes=(currentClient.notes||'')+tag;
-  trackLog();
-  await saveNotes();
-  document.getElementById('call-notes').value='';
-  toast('Notes saved');
-}
-
-async function saveNotes(){
-  await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
-    method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
-    body:JSON.stringify({notes:currentClient.notes,updated_at:new Date().toISOString()})
-  });
-}
-
-// ── BUREAU LOGINS ──
-function renderLogins(){
-  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128272;</div><div>Select a client</div></div>';return;}
-  var c=currentClient;
-  // If bureau_logins JSON exists, populate individual fields from it
-  if(c.bureau_logins && typeof c.bureau_logins === 'string') {
-    try {
-      var bl=JSON.parse(c.bureau_logins);
-      if(bl.equifax){c.equifax_user=bl.equifax.user||'';c.equifax_pass=bl.equifax.pass||'';}
-      if(bl.experian){c.experian_user=bl.experian.user||'';c.experian_pass=bl.experian.pass||'';c.experian_pin=bl.experian.pin||'';c.experian_sq=bl.experian.secQuestion||'';c.experian_sa=bl.experian.secAnswer||'';}
-      if(bl.transunion){c.transunion_user=bl.transunion.user||'';c.transunion_pass=bl.transunion.pass||'';}
-    } catch(e){}
-  }
-  // Map new DB columns to display fields (overrides JSON if present)
-  if(c.experian_username) c.experian_user = c.experian_username;
-  if(c.experian_password) c.experian_pass = c.experian_password;
-  if(c.equifax_pin)       c.experian_pin  = c.equifax_pin;
-  if(c.smartcredit_username) c.smartcredit_user = c.smartcredit_username;
-  if(c.smartcredit_password) c.smartcredit_pass = c.smartcredit_password;
-  var tutaSection = '';
-  if(!c.tuta_email) {
-    tutaSection = '<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:10px;padding:14px;margin-top:12px;">' +
-      '<div style="font-size:12px;font-weight:800;color:#92400E;margin-bottom:8px;">&#9888; No Tuta Email Assigned</div>' +
-      '<div style="font-size:12px;color:#78350F;margin-bottom:10px;">This client needs a Tuta email for bureau correspondence.</div>' +
-      '<input id="tuta-input" placeholder="cprclient.FirstLast@tuta.com" style="width:100%;padding:8px;border:1.5px solid #F59E0B;border-radius:6px;font-size:12px;box-sizing:border-box;margin-bottom:8px;">' +
-      '<button onclick="saveTutaEmail()" style="padding:8px 16px;background:#92400E;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Save Tuta Email</button>' +
-      '</div>';
-  } else {
-    tutaSection = '<div style="background:#DCFCE7;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:12px;">' +
-      '<span style="font-weight:700;color:#166534;">&#128231; Tuta Email:</span> <span style="color:#1E293B;font-weight:600;">' + c.tuta_email + '</span>' +
-      '</div>';
-  }
-  document.getElementById('right-body').innerHTML=
-    '<p style="font-size:11px;color:#64748B;margin-bottom:12px;">&#9888; Verify logins are working before submitting any requests. For Experian, confirm the 4-digit PIN and security question answer.</p>'+
-    bureauCard('Equifax','bc-eq','EQ','equifax_user','equifax_pass',null,null,null,c)+
-    bureauCard('Experian','bc-ex','EX','experian_user','experian_pass','experian_pin','experian_sq','experian_sa',c)+
-    bureauCard('TransUnion','bc-tu','TU','transunion_user','transunion_pass',null,null,null,c)+
-    tutaSection;
-}
-
-async function saveTutaEmail() {
-  if(!currentClient) return;
-  var email = (document.getElementById('tuta-input')||{}).value||'';
-  if(!email || !email.includes('tuta')) { alert('Please enter a valid Tuta email address.'); return; }
-  try {
-    var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
-      method:'PATCH',
-      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
-      body:JSON.stringify({tuta_email:email})
-    });
-    if(r.ok||r.status===204) {
-      currentClient.tuta_email = email;
-      alert('Tuta email saved: '+email);
-      renderLogins();
-    }
-  } catch(e) { alert('Error saving: '+e.message); }
-}
-
-function bureauCard(name,cls,abbr,uField,pField,pinField,sqField,saField,c){
-  c = c || {};
-  var hasLogins=c[uField]||c[pField];
-  var status=hasLogins?'<span class="login-status ls-ok">&#9989; Credentials on file</span>':'<span class="login-status ls-unk">&#128683; No credentials</span>';
-  var extra='';
-  if(pinField) extra+=
-    '<div class="login-row"><label>4-Digit PIN</label><input type="text" id="f-'+pinField+'" value="'+safe(c[pinField]||'')+'" maxlength="4" placeholder="1234"></div>'+
-    '<div class="login-row"><label>Security Question</label><input type="text" id="f-'+sqField+'" value="'+safe(c[sqField]||'')+'" placeholder="What is your security question?"></div>'+
-    '<div class="login-row"><label>Security Answer</label><input type="text" id="f-'+saField+'" value="'+safe(c[saField]||'')+'" placeholder="Answer"></div>';
-  return '<div class="bureau-card">'+
-    '<div class="bc-head '+cls+'">&#9679; '+name+' &nbsp;'+status+'</div>'+
-    '<div class="bc-body">'+
-      '<div class="login-row"><label>Username / Email</label><input type="text" id="f-'+uField+'" value="'+safe(c[uField]||'')+'" placeholder="username or email"></div>'+
-      '<div class="login-row"><label>Password</label><input type="text" id="f-'+pField+'" value="'+safe(c[pField]||'')+'" placeholder="password"></div>'+
-      extra+
-    '</div>'+
-  '</div>';
-}
-
-async function saveLogins(){
-  if(!currentClient) return;
-  // Read all login fields
-  var eq_user  = (document.getElementById('f-equifax_user')||{}).value||'';
-  var eq_pass  = (document.getElementById('f-equifax_pass')||{}).value||'';
-  var ex_user  = (document.getElementById('f-experian_user')||{}).value||'';
-  var ex_pass  = (document.getElementById('f-experian_pass')||{}).value||'';
-  var ex_pin   = (document.getElementById('f-experian_pin')||{}).value||'';
-  var ex_sq    = (document.getElementById('f-experian_sq')||{}).value||'';
-  var ex_sa    = (document.getElementById('f-experian_sa')||{}).value||'';
-  var tu_user  = (document.getElementById('f-transunion_user')||{}).value||'';
-  var tu_pass  = (document.getElementById('f-transunion_pass')||{}).value||'';
-  try{
-    // Save to individual columns (matches actual DB schema)
-    var updates={
-      equifax_username:   eq_user.trim(),
-      equifax_password:   eq_pass.trim(),
-      experian_username:  ex_user.trim(),
-      experian_password:  ex_pass.trim(),
-      experian_pin:       ex_pin.trim(),
-      experian_security_question: ex_sq.trim(),
-      experian_security_answer:   ex_sa.trim(),
-      transunion_username: tu_user.trim(),
-      transunion_password: tu_pass.trim(),
-      updated_at: new Date().toISOString()
-    };
-    var r=await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
-      method:'PATCH',
-      headers:Object.assign({'Content-Type':'application/json','Prefer':'return=minimal'},HDR),
-      body:JSON.stringify(updates)
-    });
-    if(r.ok || r.status===204){
-      // Update local cache
-      Object.assign(currentClient, updates);
-      toast('&#10003; Logins saved successfully','ok');
-    } else {
-      var err=await r.text();
-      toast('&#10006; Save failed: '+r.status+' — '+err.substring(0,80),'err');
-    }
-  }catch(e){toast('Error: '+e.message,'err');}
-}
-
-// ── FILE STATUS ──
-function updateFileBadge(c){
-  var badge=document.getElementById('file-badge');
-  var paused=c.status&&c.status.toLowerCase().includes('paused');
-  badge.textContent=c.status||'Active';
-  badge.className='file-badge '+(paused?'fb-paused':'fb-active');
-  document.getElementById('pause-btn').style.display=paused?'none':'inline-flex';
-  document.getElementById('resume-btn').style.display=paused?'inline-flex':'none';
-}
-
-async function pauseFile(){
-  if(!currentClient||!confirm('Pause this client file? This is used for chargebacks and refund disputes.')) return;
-  await updateStatus('Paused — Compliance Review');
-  toast('File paused — Compliance notified');
-  notifyCompliance('FILE PAUSED');
-}
-
-async function resumeFile(){
-  if(!currentClient||!confirm('Resume this client file?')) return;
-  await updateStatus('Active');
-  toast('File resumed');
-}
-
-async function updateStatus(status){
-  currentClient.status=status;
-  await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
-    method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
-    body:JSON.stringify({status:status,updated_at:new Date().toISOString()})
-  });
-  updateFileBadge(currentClient);
-}
-
-async function notifyCompliance(type){
-  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      personalizations:[{to:[{email:'queen@mycprteam.com',name:'Queen — Compliance'}]}],
-      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
-      subject:type+' — '+currentClient.name+' ('+currentClient.id+')',
-      content:[{type:'text/plain',value:type+'\n\nClient: '+currentClient.name+'\nID: '+currentClient.id+'\nEmail: '+currentClient.email+'\n\nThis client file has been paused pending compliance review.\n\nPlease review and take action within 24 hours.'}]
-    })
-  });
-}
-
-// ── RIGHT TABS ──
-function renderStatusUpdate() {
-  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128203;</div><div>Select a client</div></div>';return;}
-  var c=currentClient;
-  document.getElementById('right-body').innerHTML=
-    '<div style="padding:4px 0 16px;">' +
-    '<div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:14px;">&#128203; Status Update to Portal</div>' +
-    '<div style="margin-bottom:12px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">SELECT ACTION TAKEN</label>' +
-    '<select id="status-select" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;">' +
-    '<option value="">— Choose a status update —</option>' +
-    '<option value="Login credentials updated">Login credentials updated</option><option value="Payment plan explained">Payment plan explained</option><option value="Bureau login assistance provided">Bureau login assistance provided</option><option value="Dispute round completed">Dispute round completed</option><option value="Documents reviewed">Documents reviewed</option><option value="Follow-up call made">Follow-up call made</option><option value="Email sent to client">Email sent to client</option><option value="Verification pending">Verification pending</option><option value="Waiting for client response">Waiting for client response</option><option value="Account update completed">Account update completed</option><option value="Bureau call completed">Bureau call completed</option><option value="Credit report reviewed">Credit report reviewed</option><option value="Refund agreement sent">Refund agreement sent</option><option value="Onboarding completed">Onboarding completed</option><option value="File closed">File closed</option>' +
-    '</select></div>' +
-    '<div style="margin-bottom:12px;">' +
-    '<label style="font-size:11px;font-weight:700;color:#64748B;display:block;margin-bottom:5px;">ADDITIONAL NOTES (optional)</label>' +
-    '<textarea id="status-notes" placeholder="Any extra context..." style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;min-height:80px;resize:vertical;"></textarea>' +
-    '</div>' +
-    '<button onclick="postStatusUpdate()" style="padding:10px 20px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;">&#128203; Post Update to Client Portal</button>' +
-    '<div id="status-history" style="margin-top:16px;"></div>' +
-    '</div>';
-  loadStatusHistory(c.id);
-}
-
-
-
-
-
-async function loadStatusHistory(clientId) {
-  var el = document.getElementById('status-history');
-  if(!el) return;
-  try {
-    var r = await fetch(SUPA+'/status_updates?client_id=eq.'+encodeURIComponent(clientId)+'&order=created_at.desc&limit=20',{headers:HDR});
-    var data = await r.json();
-    if(!Array.isArray(data)||!data.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">No updates posted yet.</div>';return;}
-    el.innerHTML='<div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:8px;letter-spacing:.5px;">RECENT UPDATES</div>'+
-      data.map(function(u){
-        return '<div style="padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;background:#F8FAFC;">' +
-          '<div style="font-size:13px;font-weight:700;color:#1B3A6B;">&#10003; '+u.action+'</div>' +
-          (u.notes?'<div style="font-size:12px;color:#64748B;margin-top:3px;">'+u.notes+'</div>':'') +
-          '<div style="font-size:11px;color:#94A3B8;margin-top:4px;">'+(u.posted_by_name||'CS Agent')+' · '+new Date(u.created_at).toLocaleString()+'</div>' +
-          '</div>';
-      }).join('');
-  } catch(e){el.innerHTML='';}
-}
-async function sendClientEmail(mode) {
-  if(!currentClient) return;
-  var subject = (document.getElementById('email-subject')||{}).value||'';
-  var editor  = document.getElementById('email-body-editor');
-  var bodyHtml = editor ? editor.innerHTML : '';
-  var bodyText = editor ? editor.innerText : '';
-  var postPortal = mode === 'email-portal' || (document.getElementById('email-post-portal')||{}).checked;
-  if(!subject||!bodyText.trim()){alert('Please enter a subject and message.');return;}
-  var btn = document.querySelector('#email-send-btn') || (event && event.target) || {};
-  if(btn.textContent !== undefined) { btn.textContent='Sending...'; btn.disabled=true; }
-  try {
-    var r = await fetch('/.netlify/functions/send-email',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        to: currentClient.email,
-        clientName: currentClient.name,
-        subject: subject,
-        body: bodyHtml,
-        from: 'CP Restoration Services <info@35daycreditrepair.com>'
-      })
-    });
-    // Log in email_log table
-    await fetch(SUPA+'/email_logs',{
-      method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
-      body:JSON.stringify({
-        client_id: currentClient.id,
-        client_name: currentClient.name,
-        client_email: currentClient.email,
-        subject: subject,
-        body: bodyHtml,
-        sent_by: currentUser,
-        sent_by_name: localStorage.getItem('cp_logged_in_name')||'CS Agent',
-        sent_at: new Date().toISOString(),
-        posted_to_portal: postPortal,
-        status: 'sent'
-      })
-    });
-    if(postPortal) {
-      await fetch(SUPA+'/client_messages',{
-        method:'POST', headers:Object.assign({},HDR,{'Content-Type':'application/json','Prefer':'return=minimal'}),
-        body:JSON.stringify({
-          client_id:   currentClient.id,
-          client_name: currentClient.name,
-          from_role:   'cs',
-          from_name:   currentAgentName || localStorage.getItem('cp_logged_in_name') || 'CS Agent',
-          message:     (subject ? '[' + subject + '] ' : '') + bodyText,
-          is_read:     false,
-          created_at:  new Date().toISOString()
-        })
-      });
-    }
-    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
-    alert('✅ Email sent to '+currentClient.email+(postPortal?' and posted to client portal.':'.'));
-    loadEmailHistory(currentClient.id);
-  } catch(e){
-    btn.textContent='&#128231; Send Email to Client'; btn.disabled=false;
-    alert('Error: '+e.message);
-  }
-}
 async function loadEmailHistory(clientId) {
   var el = document.getElementById('email-sent-history');
   if(!el) return;
@@ -1249,6 +974,67 @@ async function loadEmailHistory(clientId) {
   } catch(e){}
 }
 
+async function loadStatusHistory(clientId) {
+  var el = document.getElementById('status-history');
+  if(!el) return;
+  try {
+    var r = await fetch(SUPA+'/status_updates?client_id=eq.'+encodeURIComponent(clientId)+'&order=created_at.desc&limit=20',{headers:HDR});
+    var data = await r.json();
+    if(!Array.isArray(data)||!data.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">No updates posted yet.</div>';return;}
+    el.innerHTML='<div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:8px;letter-spacing:.5px;">RECENT UPDATES</div>'+
+      data.map(function(u){
+        return '<div style="padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:8px;margin-bottom:8px;background:#F8FAFC;">' +
+          '<div style="font-size:13px;font-weight:700;color:#1B3A6B;">&#10003; '+u.action+'</div>' +
+          (u.notes?'<div style="font-size:12px;color:#64748B;margin-top:3px;">'+u.notes+'</div>':'') +
+          '<div style="font-size:11px;color:#94A3B8;margin-top:4px;">'+(u.posted_by_name||'CS Agent')+' · '+new Date(u.created_at).toLocaleString()+'</div>' +
+          '</div>';
+      }).join('');
+  } catch(e){el.innerHTML='';}
+}
+
+async function pauseFile(){
+  if(!currentClient||!confirm('Pause this client file? This is used for chargebacks and refund disputes.')) return;
+  await updateStatus('Paused — Compliance Review');
+  toast('File paused — Compliance notified');
+  notifyCompliance('FILE PAUSED');
+}
+
+async function resumeFile(){
+  if(!currentClient||!confirm('Resume this client file?')) return;
+  await updateStatus('Active');
+  toast('File resumed');
+}
+
+async function assignFileTo(agent) {
+  if (!currentClient || !agent) return;
+  try {
+    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
+      method:'PATCH', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+      body:JSON.stringify({assigned_to: agent, updated_at: new Date().toISOString()})
+    });
+    await fetch(SUPA+'/client_status_updates', {
+      method:'POST', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+      body:JSON.stringify({client_id:currentClient.id, client_name:currentClient.name,
+        update_text:'File assigned to: '+agent+' by '+( localStorage.getItem('cp_logged_in_name')||'Compliance')+'.',
+        update_type:'general', posted_by:localStorage.getItem('cp_logged_in_name')||'Compliance', created_at:new Date().toISOString()})
+    });
+    alert('File assigned to ' + agent);
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function toast(msg,type){var t=document.createElement('div');t.className='toast';t.textContent=msg;t.style.background=type==='err'?'#8B1A1A':'#166534';document.body.appendChild(t);setTimeout(function(){t.remove();},3000);}
+
+function safe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function fmtTime(s){
+  try{var d=new Date(s),now=new Date(),diff=now-d;
+  if(isNaN(diff))return s;
+  if(diff<60000)return'Just now';if(diff<3600000)return Math.floor(diff/60000)+'m ago';
+  if(diff<86400000)return Math.floor(diff/3600000)+'h ago';return d.toLocaleDateString();}catch(e){return s;}
+}
+
 function showRTab(tab){
   activeRTab=tab;
   ['info','logins','disputes','log','messages','payment','status','email','calls'].forEach(function(t){
@@ -1266,43 +1052,6 @@ function showRTab(tab){
   else if(tab==='calls') renderCSCalls();
 }
 
-function renderInfo(){
-  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128101;</div><div>Select a client</div></div>';return;}
-  var c=currentClient;
-  document.getElementById('right-body').innerHTML=
-    '<div class="info-grid">'+
-    [['Client ID',c.id],['Name',c.name],['Email',c.email||'—'],['Phone',c.phone||'—'],
-     ['Package',c.package||'Standard'],['Start Date',c.start_date?new Date(c.start_date).toLocaleDateString():'—'],
-     ['Status',c.status||'Active'],['Portal Password','restore2026']
-    ].map(function(f){return '<div class="ig"><label>'+f[0]+'</label><span>'+safe(f[1])+'</span></div>';}).join('')+
-    '</div>'+
-    '<div style="background:#EFF4FF;border-radius:8px;padding:12px;font-size:12px;line-height:1.8;color:#1B3A6B;">'+
-    '<b>Portal URL:</b> portal-cprestorationsvcs.com/client-portal.html<br>'+
-    '<b>User ID:</b> '+safe(c.id)+'<br>'+
-    '<b>Password:</b> restore2026</div>';
-}
-
-function renderDisputes(){
-  if(!currentClient){document.getElementById('right-body').innerHTML='<div class="empty-state"><div class="ico">&#128202;</div><div>Select a client</div></div>';return;}
-  var del=disputes.filter(function(d){return d.status==='removed';}).length;
-  var tot=disputes.length;
-  var pct=tot>0?Math.round(del/tot*100):0;
-  var eq=disputes.filter(function(d){return(d.bureau||'').includes('equifax');});
-  var tu=disputes.filter(function(d){return(d.bureau||'').includes('transunion');});
-  function pbox(n,l,p,col){return'<div class="prog-box"><div class="prog-num" style="color:'+col+';">'+n+'</div><div class="prog-lbl">'+l+'</div><div class="prog-bar-w"><div class="prog-bar" style="width:'+p+'%;background:'+col+';"></div></div></div>';}
-  var rows=disputes.length?disputes.map(function(d,i){
-    var bur=(d.bureau||'all').toLowerCase();
-    var dot=bur==='equifax'?'<span class="dot-eq">EQ</span>':bur==='experian'?'<span class="dot-ex">EX</span>':bur==='transunion'?'<span class="dot-tu">TU</span>':'<span class="dot-eq">EQ</span><span class="dot-ex">EX</span><span class="dot-tu">TU</span>';
-    var badge=d.status==='removed'?'<span class="badge b-del">&#10003; Deleted</span>':'<span class="badge b-pen">&#8987; Pending</span>';
-    return'<tr><td style="font-weight:600;">'+safe(d.name)+'</td><td style="font-size:10px;color:#64748B;">'+safe(d.type||'')+'</td><td>'+dot+'</td><td>'+badge+'</td></tr>';
-  }).join(''):'<tr><td colspan="4" style="text-align:center;padding:20px;color:#94A3B8;">No dispute items on file</td></tr>';
-  document.getElementById('right-body').innerHTML=
-    '<div class="prog-row">'+pbox(pct+'%','Overall',pct,'#166534')+pbox(del+'/'+tot,'Deleted',pct,'#1B3A6B')+pbox(eq.filter(function(d){return d.status==='removed';}).length+'/'+eq.length,'Equifax',eq.length?Math.round(eq.filter(function(d){return d.status==='removed';}).length/eq.length*100):0,'#E53E3E')+'</div>'+
-    '<p style="font-size:11px;color:#94A3B8;margin-bottom:8px;">View only — status updates are completed by the Dispute Department</p>'+
-    '<table class="dt"><thead><tr><th>Item</th><th>Type</th><th>Bureau</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>';
-}
-
-// ── MID TABS ──
 function showMidTab(tab){
   activeMTab=tab;
   ['msg','actions'].forEach(function(t){
@@ -1311,245 +1060,39 @@ function showMidTab(tab){
   });
 }
 
-// ── PORTAL LINK ──
-async function sendPortalLink(){
-  if(!currentClient||!currentClient.email){toast('No email on file','err');return;}
-  var c=currentClient;
-  try{
-    var r=await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        personalizations:[{to:[{email:c.email,name:c.name}]}],
-        from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
-        subject:'Your CP Restoration Client Portal — Login Information',
-        content:[{type:'text/plain',value:'Dear '+c.name+',\n\nCP Restoration Services is open and fully operational. We recently upgraded our client portal to give you better visibility into your credit repair progress.\n\nHere is your portal access:\nURL: portal-cprestorationsvcs.com/client-portal.html\nUser ID: '+c.id+'\nPassword: restore2026\n\nIn the portal you can:\n- See every item being disputed and its current status\n- View your overall progress percentage\n- Send us messages and receive replies\n- Access your status updates\n\nIf you have any questions, message us through the portal and we will respond within 24 hours Monday through Friday.\n\nCP Restoration Services\ncprestorationsvcs@gmail.com\n1-855-327-5847\nMonday - Friday 9:00 AM - 5:00 PM EST'}]
-      })
-    });
-    toast(r.ok?'Portal link sent to '+c.email:'Failed: '+r.status,r.ok?'ok':'err');
-  }catch(e){toast('Error','err');}
-}
-
-// ── HELPERS ──
-function parseNotes(notes){
-  var result=[],bureau='all';
-  notes.split('\n').forEach(function(line){
-    var l=line.trim();if(!l)return;
-    var ll=l.toLowerCase();
-    if(ll.includes('equifax')&&ll.length<40){bureau='equifax';return;}
-    if(ll.includes('transunion')&&ll.length<40){bureau='transunion';return;}
-    if(ll.includes('experian')&&ll.length<40){bureau='experian';return;}
-    var status=ll.includes('deleted')||l.includes('✅')?'removed':'pending';
-    var name=l.replace(/^[✅⏳\-•*\d.]+\s*/,'').replace(/\s*[—-]\s*(DELETED|PENDING).*/i,'').trim();
-    var type=/inquiry/i.test(name)?'Hard Inquiry':/collection/i.test(name)?'Collection':'Account';
-    if(name.length>3&&name.length<80&&!/^(accounts?|inquiri|collections?|score|note|bureau|update|experian|equifax|transunion|\[)/i.test(name))
-      result.push({name:name,type:type,bureau:bureau,status:status,date:''});
-  });
-  return result;
-}
-
-function fmtTime(s){
-  try{var d=new Date(s),now=new Date(),diff=now-d;
-  if(isNaN(diff))return s;
-  if(diff<60000)return'Just now';if(diff<3600000)return Math.floor(diff/60000)+'m ago';
-  if(diff<86400000)return Math.floor(diff/3600000)+'h ago';return d.toLocaleDateString();}catch(e){return s;}
-}
-function safe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function toast(msg,type){var t=document.createElement('div');t.className='toast';t.textContent=msg;t.style.background=type==='err'?'#8B1A1A':'#166534';document.body.appendChild(t);setTimeout(function(){t.remove();},3000);}
-
-// Init
-loadClients();
-// Auto-refresh every 30 seconds for real-time messages
-refreshTimer=setInterval(function(){
-  if(currentClient){
-    // Reload current client notes silently
-    fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id)+'&select=notes,updated_at',{headers:HDR})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(Array.isArray(d)&&d[0]&&d[0].notes!==currentClient.notes){
-          currentClient.notes=d[0].notes;
-          renderThread(currentClient);
-          toast('New message received');
-        }
-      }).catch(function(){});
-  }
-  loadClients();
-},30000);
-
-// ── CONTACT LOG ──────────────────────────────────────────────
-function renderContactLog(){
-  if(!currentClient){ return; }
-  var body = document.getElementById('right-body');
-  var logs = [];
-  // Parse contact log from client notes
-  if(currentClient.notes){
-    var lines = currentClient.notes.split('\n');
-    lines.forEach(function(line){
-      if(line.startsWith('[CONTACT]') || line.startsWith('[CALL]') || 
-         line.startsWith('[EMAIL]') || line.startsWith('[SMS]') || 
-         line.startsWith('[NOTE]') || line.startsWith('[UPDATE]')){
-        logs.push(line);
-      }
-    });
-  }
-
-  var logHTML = '<div style="margin-bottom:12px;">' +
-    '<div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:10px;">&#128222; Contact History</div>' +
-    '<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">' +
-      '<select id="log-type" style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;">' +
-        '<option value="CALL">&#128222; Phone Call</option>' +
-        '<option value="EMAIL">&#9993; Email</option>' +
-        '<option value="SMS">&#128172; SMS</option>' +
-        '<option value="UPDATE">&#128203; Status Update</option>' +
-        '<option value="NOTE">&#128221; Internal Note</option>' +
-      '</select>' +
-    '</div>' +
-    '<textarea id="log-entry" placeholder="What was communicated? What did the client say? Outcome? Next steps?" ' +
-    'style="width:100%;min-height:70px;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;font-family:inherit;resize:none;margin-bottom:6px;"></textarea>' +
-    '<button onclick="addContactLog()" style="width:100%;padding:8px;background:#1B3A6B;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">&#43; Log Contact</button>' +
-  '</div>';
-
-  if(logs.length){
-    logHTML += '<div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">History (newest first)</div>';
-    var reversed = logs.slice().reverse();
-    logHTML += reversed.map(function(line){
-      var type = 'NOTE';
-      var color = '#64748B';
-      var bg = '#F8FAFC';
-      if(line.includes('[CALL]')){ type='CALL'; color='#1B3A6B'; bg='#EFF6FF'; }
-      else if(line.includes('[EMAIL]')){ type='EMAIL'; color='#166534'; bg='#DCFCE7'; }
-      else if(line.includes('[SMS]')){ type='SMS'; color='#7C3AED'; bg='#EDE9FE'; }
-      else if(line.includes('[UPDATE]')){ type='UPDATE'; color='#92400E'; bg='#FEF9C3'; }
-      var content = line.replace(/\[(?:CONTACT|CALL|EMAIL|SMS|NOTE|UPDATE)\]\s*/,'').replace(/\[\d{4}-\d{2}-\d{2}[^\]]*\]/,'').trim();
-      var dateMatch = line.match(/\[(\d{4}-\d{2}-\d{2}[^\]]*)\]/);
-      var dateStr = dateMatch ? dateMatch[1] : '';
-      return '<div style="background:'+bg+';border-left:3px solid '+color+';border-radius:0 6px 6px 0;padding:8px 10px;margin-bottom:6px;">' +
-        '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
-          '<span style="font-size:10px;font-weight:700;color:'+color+';">'+type+'</span>' +
-          '<span style="font-size:10px;color:#94A3B8;">'+dateStr+'</span>' +
-        '</div>' +
-        '<div style="font-size:12px;color:#1E293B;line-height:1.5;">'+content+'</div>' +
-      '</div>';
-    }).join('');
-  } else {
-    logHTML += '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">No contact history yet.<br>Log your first contact above.</div>';
-  }
-
-  body.innerHTML = logHTML;
-}
-
-async function addContactLog(){
-  if(!currentClient) return;
-  var type = document.getElementById('log-type').value;
-  var entry = document.getElementById('log-entry').value.replace(/^\s+|\s+$/g, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  if(!entry){ alert('Please enter contact details.'); return; }
-  
-  var agentName = localStorage.getItem('cp_logged_in_name') || 'CS Agent';
-  var now = new Date();
-  var dateStr = now.toISOString().split('T')[0] + ' ' + 
-    now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  
-  var logLine = '['+type+'] ['+dateStr+'] ['+agentName+'] ' + entry;
-  
-  if(!currentClient.notes) currentClient.notes = '';
-  currentClient.notes = currentClient.notes + (currentClient.notes ? '\n' : '') + logLine;
-  
-  await saveNotes();
-  document.getElementById('log-entry').value = '';
-  renderContactLog();
-}
-
-// ── QUOTA TRACKER ────────────────────────────────────────────
-var quotaCalls = 0;
-var quotaFiles = 0;
-var quotaLogs  = 0;
-var quotaQueue = 0;
-
-function updateQuotaBar(id, barId, val, target) {
-  var el = document.getElementById(id);
-  var bar = document.getElementById(barId);
-  if (el) el.textContent = val + (target ? '/'+target : '');
-  if (bar) {
-    var pct = target ? Math.min(100, Math.round(val/target*100)) : Math.min(100, val*10);
-    bar.style.width = pct+'%';
-    if (pct >= 100) bar.style.background = '#166534';
-  }
-}
-
-function trackCall() {
-  quotaCalls++;
-  updateQuotaBar('q-calls','q-calls-bar', quotaCalls, 15);
-  saveQuotaToday();
-}
-
-function trackFile() {
-  quotaFiles++;
-  updateQuotaBar('q-files','q-files-bar', quotaFiles, 10);
-  saveQuotaToday();
-}
-
-function trackLog() {
-  quotaLogs++;
-  updateQuotaBar('q-logs','q-logs-bar', quotaLogs, 0);
-  saveQuotaToday();
-}
-
-function trackQueueItem() {
-  quotaQueue++;
-  updateQuotaBar('q-queue','q-queue-bar', quotaQueue, 0);
-  saveQuotaToday();
-}
-
-async function saveQuotaToday() {
-  var agentName = localStorage.getItem('cp_logged_in_name') || 'Unknown';
-  var today = new Date().toISOString().split('T')[0];
-  var key = 'quota_'+agentName+'_'+today;
-  var data = {calls:quotaCalls, files:quotaFiles, logs:quotaLogs, queue:quotaQueue, date:today};
-  localStorage.setItem(key, JSON.stringify(data));
-  // Also save to Supabase for Jason to see
+async function checkUnreadMessages() {
+  var agentName = localStorage.getItem('cp_logged_in_name')||'';
   try {
-    // Upsert today's quota record
-    await fetch(SUPA+'/cs_quotas?agent_name=eq.'+encodeURIComponent(agentName)+'&date=eq.'+today, {
-      method:'GET', headers:HDR
-    }).then(async function(r){
-      var existing = await r.json();
-      if (Array.isArray(existing) && existing.length > 0) {
-        // Update
-        await fetch(SUPA+'/cs_quotas?agent_name=eq.'+encodeURIComponent(agentName)+'&date=eq.'+today, {
-          method:'PATCH',
-          headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
-          body:JSON.stringify({calls:quotaCalls,files_reviewed:quotaFiles,contacts_logged:quotaLogs,queue_cleared:quotaQueue})
-        });
-      } else {
-        // Insert
-        await fetch(SUPA+'/cs_quotas', {
-          method:'POST',
-          headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
-          body:JSON.stringify({agent_name:agentName,date:today,calls:quotaCalls,files_reviewed:quotaFiles,contacts_logged:quotaLogs,queue_cleared:quotaQueue})
-        });
-      }
-    });
-  } catch(e){ /* quota save non-critical */ }
+    var r = await fetch(SUPA+'/client_messages?from_role=eq.client&is_read=eq.false&limit=50',{headers:HDR});
+    var msgs = await r.json();
+    var badge = document.getElementById('msg-badge');
+    if (badge) {
+      var count = Array.isArray(msgs)?msgs.length:0;
+      badge.style.display = count>0?'inline':'none';
+      badge.textContent = count;
+    }
+  } catch(e){}
 }
 
-function loadQuotaToday() {
-  var agentName = localStorage.getItem('cp_logged_in_name') || 'Unknown';
-  var today = new Date().toISOString().split('T')[0];
-  var key = 'quota_'+agentName+'_'+today;
-  var saved = localStorage.getItem(key);
-  if (saved) {
-    try {
-      var d = JSON.parse(saved);
-      quotaCalls = d.calls||0; quotaFiles = d.files||0;
-      quotaLogs  = d.logs||0;  quotaQueue = d.queue||0;
-      updateQuotaBar('q-calls','q-calls-bar', quotaCalls, 15);
-      updateQuotaBar('q-files','q-files-bar', quotaFiles, 10);
-      updateQuotaBar('q-logs','q-logs-bar',   quotaLogs,  0);
-      updateQuotaBar('q-queue','q-queue-bar', quotaQueue, 0);
-    } catch(e){}
-  }
+function bureauCard(name,cls,abbr,uField,pField,pinField,sqField,saField,c){
+  c = c || {};
+  var hasLogins=c[uField]||c[pField];
+  var status=hasLogins?'<span class="login-status ls-ok">&#9989; Credentials on file</span>':'<span class="login-status ls-unk">&#128683; No credentials</span>';
+  var extra='';
+  if(pinField) extra+=
+    '<div class="login-row"><label>4-Digit PIN</label><input type="text" id="f-'+pinField+'" value="'+safe(c[pinField]||'')+'" maxlength="4" placeholder="1234"></div>'+
+    '<div class="login-row"><label>Security Question</label><input type="text" id="f-'+sqField+'" value="'+safe(c[sqField]||'')+'" placeholder="What is your security question?"></div>'+
+    '<div class="login-row"><label>Security Answer</label><input type="text" id="f-'+saField+'" value="'+safe(c[saField]||'')+'" placeholder="Answer"></div>';
+  return '<div class="bureau-card">'+
+    '<div class="bc-head '+cls+'">&#9679; '+name+' &nbsp;'+status+'</div>'+
+    '<div class="bc-body">'+
+      '<div class="login-row"><label>Username / Email</label><input type="text" id="f-'+uField+'" value="'+safe(c[uField]||'')+'" placeholder="username or email"></div>'+
+      '<div class="login-row"><label>Password</label><input type="text" id="f-'+pField+'" value="'+safe(c[pField]||'')+'" placeholder="password"></div>'+
+      extra+
+    '</div>'+
+  '</div>';
 }
 
-
-// ── CLIENT MESSAGES ──────────────────────────────────────────
 async function renderClientMessages() {
   if (!currentClient) {
     document.getElementById('right-body').innerHTML = '<div class="empty-state"><div class="ico">&#128172;</div><div>Select a client to view messages</div></div>';
@@ -1625,54 +1168,308 @@ async function sendCSReply() {
   } catch(e){console.error(e);}
 }
 
-
-
-// Check for unread messages across all clients (badge)
-async function checkUnreadMessages() {
-  var agentName = localStorage.getItem('cp_logged_in_name')||'';
+async function loadCSCalls() {
+  if (!currentClient) return;
+  var list = document.getElementById('cs-calls-list');
+  if (!list) return;
+  list.innerHTML = 'Loading...';
   try {
-    var r = await fetch(SUPA+'/client_messages?from_role=eq.client&is_read=eq.false&limit=50',{headers:HDR});
-    var msgs = await r.json();
-    var badge = document.getElementById('msg-badge');
-    if (badge) {
-      var count = Array.isArray(msgs)?msgs.length:0;
-      badge.style.display = count>0?'inline':'none';
-      badge.textContent = count;
-    }
-  } catch(e){}
+    var r = await fetch(SUPA+'/call_logs?record_id=eq.'+encodeURIComponent(currentClient.id)+'&order=created_at.desc&limit=20',{headers:HDR});
+    var logs = await r.json();
+    if (!Array.isArray(logs)||!logs.length){list.innerHTML='<div style="text-align:center;padding:20px;color:#94A3B8;">No call history.</div>';return;}
+    list.innerHTML = logs.map(function(l){
+      var dt = l.created_at?new Date(l.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'—';
+      var dur = l.duration_sec?Math.floor(l.duration_sec/60)+'m '+l.duration_sec%60+'s':'—';
+      var oc = l.outcome||'unknown';
+      return '<div style="border:1.5px solid #E2E8F0;border-radius:8px;padding:10px;margin-bottom:8px;">' +
+        '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">' +
+          '<span style="font-weight:700;">'+(l.caller_number||'Unknown')+'</span>' +
+          '<span style="font-size:11px;color:#64748B;">'+dt+' · '+dur+'</span>' +
+        '</div>' +
+        '<div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;">' +
+          (l.verified?'<span style="background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">✅ Verified</span>':'')+
+          '<span style="background:#F1F5F9;color:#475569;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">'+oc+'</span>'+
+          (l.follow_up_needed&&!l.follow_up_done?'<span style="background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">🚨 Follow-Up</span>':'')+
+        '</div>' +
+        (l.summary?'<div style="margin-top:6px;padding:6px 8px;background:#F8FAFC;border-radius:6px;font-size:11px;color:#475569;">'+l.summary+'</div>':'')+
+      '</div>';
+    }).join('');
+  } catch(e){list.innerHTML='<div style="color:#991B1B;">Error: '+e.message+'</div>';}
 }
 
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-
-// ── AUTO CLOCK-OUT ────────────────────────────────────────────
-async function clockOut(email) {
-  try {
-    var today = new Date().toISOString().split('T')[0];
-    var now = new Date().toISOString();
-    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?employee_email=eq.'+encodeURIComponent(email)+'&date=eq.'+today+'&status=eq.active', {
-      method:'PATCH',
-      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({clock_out:now, status:'completed', last_seen:now})
-    });
-    console.log('Clocked out:', email, now);
-  } catch(e) { console.log('Clock-out error:', e.message); }
+function renderCSCalls() {
+  document.querySelectorAll('[id^="r-"]').forEach(function(el){el.style.display='none';});
+  var panel = document.getElementById('r-calls');
+  if (panel) panel.style.display='block';
+  loadCSCalls();
 }
 
-// Clock out on page unload (browser close, tab close, navigate away)
-window.addEventListener('beforeunload', function() {
-  var email = localStorage.getItem('cp_logged_in_user');
-  if (!email) return;
-  // Use sendBeacon for reliability on page close
+function loadQuotaToday() {
+  var agentName = localStorage.getItem('cp_logged_in_name') || 'Unknown';
   var today = new Date().toISOString().split('T')[0];
-  var now = new Date().toISOString();
-  var url = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?employee_email=eq.'+encodeURIComponent(email)+'&date=eq.'+today+'&status=eq.active';
-  var data = JSON.stringify({clock_out:now,status:'completed',last_seen:now});
-  navigator.sendBeacon(url + '&_method=PATCH', new Blob([data], {type:'application/json'}));
-});
+  var key = 'quota_'+agentName+'_'+today;
+  var saved = localStorage.getItem(key);
+  if (saved) {
+    try {
+      var d = JSON.parse(saved);
+      quotaCalls = d.calls||0; quotaFiles = d.files||0;
+      quotaLogs  = d.logs||0;  quotaQueue = d.queue||0;
+      updateQuotaBar('q-calls','q-calls-bar', quotaCalls, 15);
+      updateQuotaBar('q-files','q-files-bar', quotaFiles, 10);
+      updateQuotaBar('q-logs','q-logs-bar',   quotaLogs,  0);
+      updateQuotaBar('q-queue','q-queue-bar', quotaQueue, 0);
+    } catch(e){}
+  }
+}
 
-// Also clock out on explicit logout
-var _origSignOut = typeof signOut === 'function' ? signOut : null;
+async function saveQuotaToday() {
+  var agentName = localStorage.getItem('cp_logged_in_name') || 'Unknown';
+  var today = new Date().toISOString().split('T')[0];
+  var key = 'quota_'+agentName+'_'+today;
+  var data = {calls:quotaCalls, files:quotaFiles, logs:quotaLogs, queue:quotaQueue, date:today};
+  localStorage.setItem(key, JSON.stringify(data));
+  // Also save to Supabase for Jason to see
+  try {
+    // Upsert today's quota record
+    await fetch(SUPA+'/cs_quotas?agent_name=eq.'+encodeURIComponent(agentName)+'&date=eq.'+today, {
+      method:'GET', headers:HDR
+    }).then(async function(r){
+      var existing = await r.json();
+      if (Array.isArray(existing) && existing.length > 0) {
+        // Update
+        await fetch(SUPA+'/cs_quotas?agent_name=eq.'+encodeURIComponent(agentName)+'&date=eq.'+today, {
+          method:'PATCH',
+          headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+          body:JSON.stringify({calls:quotaCalls,files_reviewed:quotaFiles,contacts_logged:quotaLogs,queue_cleared:quotaQueue})
+        });
+      } else {
+        // Insert
+        await fetch(SUPA+'/cs_quotas', {
+          method:'POST',
+          headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
+          body:JSON.stringify({agent_name:agentName,date:today,calls:quotaCalls,files_reviewed:quotaFiles,contacts_logged:quotaLogs,queue_cleared:quotaQueue})
+        });
+      }
+    });
+  } catch(e){ /* quota save non-critical */ }
+}
+
+function updateQuotaBar(id, barId, val, target) {
+  var el = document.getElementById(id);
+  var bar = document.getElementById(barId);
+  if (el) el.textContent = val + (target ? '/'+target : '');
+  if (bar) {
+    var pct = target ? Math.min(100, Math.round(val/target*100)) : Math.min(100, val*10);
+    bar.style.width = pct+'%';
+    if (pct >= 100) bar.style.background = '#166534';
+  }
+}
+
+function trackLog() {
+  quotaLogs++;
+  updateQuotaBar('q-logs','q-logs-bar', quotaLogs, 0);
+  saveQuotaToday();
+}
+
+async function logWork(actionType, details, clientId, clientName, quantity) {
+  var email = sessionStorage.getItem('cp_logged_in_user') || localStorage.getItem('cp_logged_in_user') || '';
+  var name  = sessionStorage.getItem('cp_logged_in_name') || localStorage.getItem('cp_logged_in_name') || '';
+  var role  = sessionStorage.getItem('cp_logged_in_role') || localStorage.getItem('cp_logged_in_role') || '';
+  if (!email) return;
+  var today = new Date();
+  var day = today.getDay();
+  var monday = new Date(today); monday.setDate(today.getDate() - (day===0?6:day-1));
+  var weekStart = monday.toISOString().split('T')[0];
+  var dept = role==='dispute'?'Dispute':role==='cs'||role==='customer_service'?'CS':role==='bureau'?'Bureau':'Staff';
+  try {
+    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/work_log', {
+      method: 'POST',
+      headers: {'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify({
+        employee_email: email,
+        employee_name: name,
+        department: dept,
+        action_type: actionType,
+        client_id: clientId || null,
+        client_name: clientName || null,
+        details: details || null,
+        quantity: quantity || 1,
+        week_start: weekStart,
+        compliance_status: 'pending'
+      })
+    });
+  } catch(e) { console.warn('Work log error:', e.message); }
+}
+
+function renderThread(c){
+  var msgs=parseMsgs(c.notes||'');
+  var el=document.getElementById('msg-thread');
+  if(!msgs.length){el.innerHTML='<div class="empty-state"><div class="ico">&#128172;</div><div>No messages yet</div></div>';return;}
+  el.innerHTML=msgs.map(function(m){
+    return '<div class="bubble-wrap '+m.from+'">'+
+      (m.from==='client'?'<div class="bname">'+safe(c.name)+'</div>':'')+
+      '<div class="bubble">'+safe(m.text)+'</div>'+
+      '<div class="btime">'+(m.from==='team'?'CP Restoration &bull; ':'')+fmtTime(m.date)+'</div>'+
+    '</div>';
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function parseMsgs(notes){
+  if(!notes) return [];
+  var msgs=[];
+  var lines=notes.split('\n');
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i].trim();
+    if(line.indexOf('[CLIENT MESSAGE ')===0){var c=line.indexOf(']:');if(c>0)msgs.push({from:'client',date:line.substring(16,c),text:line.substring(c+2).trim()});}
+    if(line.indexOf('[TEAM REPLY ')===0){var c2=line.indexOf(']:');if(c2>0)msgs.push({from:'team',date:line.substring(12,c2),text:line.substring(c2+2).trim()});}
+  }
+  return msgs;
+}
+
+function parseNotes(notes){
+  var result=[],bureau='all';
+  notes.split('\n').forEach(function(line){
+    var l=line.trim();if(!l)return;
+    var ll=l.toLowerCase();
+    if(ll.includes('equifax')&&ll.length<40){bureau='equifax';return;}
+    if(ll.includes('transunion')&&ll.length<40){bureau='transunion';return;}
+    if(ll.includes('experian')&&ll.length<40){bureau='experian';return;}
+    var status=ll.includes('deleted')||l.includes('✅')?'removed':'pending';
+    var name=l.replace(/^[✅⏳\-•*\d.]+\s*/,'').replace(/\s*[—-]\s*(DELETED|PENDING).*/i,'').trim();
+    var type=/inquiry/i.test(name)?'Hard Inquiry':/collection/i.test(name)?'Collection':'Account';
+    if(name.length>3&&name.length<80&&!/^(accounts?|inquiri|collections?|score|note|bureau|update|experian|equifax|transunion|\[)/i.test(name))
+      result.push({name:name,type:type,bureau:bureau,status:status,date:''});
+  });
+  return result;
+}
+
+function pbox(n,l,p,col){return'<div class="prog-box"><div class="prog-num" style="color:'+col+';">'+n+'</div><div class="prog-lbl">'+l+'</div><div class="prog-bar-w"><div class="prog-bar" style="width:'+p+'%;background:'+col+';"></div></div></div>';}
+
+async function notifyCompliance(type){
+  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      personalizations:[{to:[{email:'queen@mycprteam.com',name:'Queen — Compliance'}]}],
+      from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
+      subject:type+' — '+currentClient.name+' ('+currentClient.id+')',
+      content:[{type:'text/plain',value:type+'\n\nClient: '+currentClient.name+'\nID: '+currentClient.id+'\nEmail: '+currentClient.email+'\n\nThis client file has been paused pending compliance review.\n\nPlease review and take action within 24 hours.'}]
+    })
+  });
+}
+
+async function updateStatus(status){
+  currentClient.status=status;
+  await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id),{
+    method:'PATCH',headers:Object.assign({'Content-Type':'application/json'},HDR),
+    body:JSON.stringify({status:status,updated_at:new Date().toISOString()})
+  });
+  updateFileBadge(currentClient);
+}
+
+function updateFileBadge(c){
+  var badge=document.getElementById('file-badge');
+  var paused=c.status&&c.status.toLowerCase().includes('paused');
+  badge.textContent=c.status||'Active';
+  badge.className='file-badge '+(paused?'fb-paused':'fb-active');
+  document.getElementById('pause-btn').style.display=paused?'none':'inline-flex';
+  document.getElementById('resume-btn').style.display=paused?'inline-flex':'none';
+}
+
+function rcCallClient(number) {
+  if (!number) { alert('No phone number on file for this client.'); return; }
+  // Open widget
+  document.getElementById('rc-widget-frame').style.display = 'block';
+  document.getElementById('rc-toggle-btn').innerHTML = '&#10006;';
+  // Send dial command to widget
+  setTimeout(function() {
+    var iframe = document.getElementById('rc-widget');
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        type: 'rc-adapter-new-call',
+        phoneNumber: number,
+        toCall: true
+      }, '*');
+    }
+  }, 1000);
+}
+
+function openPhone() {
+  var phone = currentClient && (currentClient.phone || currentClient.homePhone || '');
+  if (!phone) { toast('No phone number on file.','err'); return; }
+  var clean = phone.replace(/[^0-9+]/g,'');
+  if (!clean.startsWith('+')) clean = '+1' + clean.replace(/^1/,'');
+  var clientName = currentClient.name || 'Client';
+  var overlay = document.createElement('div');
+  overlay.id = 'call-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  var box = document.createElement('div');
+  box.style.cssText = 'background:white;border-radius:14px;padding:24px;min-width:300px;max-width:90vw;';
+  box.innerHTML = '<div style="font-size:16px;font-weight:800;color:#1B3A6B;margin-bottom:6px;">&#128222; Call Client</div>' +
+    '<div style="font-size:14px;color:#475569;margin-bottom:20px;">' + clientName + '<br><strong>' + phone + '</strong></div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px;">' +
+      '<a href="rcmobile://call?number=' + encodeURIComponent(clean) + '" style="display:block;padding:12px;background:#1B3A6B;color:white;border-radius:8px;text-decoration:none;text-align:center;font-weight:700;">&#128222; Open RingCentral App</a>' +
+      '<a href="tel:' + clean + '" style="display:block;padding:12px;background:#166534;color:white;border-radius:8px;text-decoration:none;text-align:center;font-weight:700;">&#128241; Call via Device</a>' +
+    '</div>' +
+    '<button id="copy-num-btn" style="width:100%;margin-top:8px;padding:10px;background:#F1F5F9;border:1.5px solid #E2E8F0;border-radius:8px;cursor:pointer;font-weight:600;">&#128203; Copy Number</button>' +
+    '<button id="close-call-btn" style="width:100%;margin-top:6px;padding:10px;background:white;border:1.5px solid #E2E8F0;border-radius:8px;cursor:pointer;color:#64748B;">Cancel</button>';
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  document.getElementById('copy-num-btn').onclick = function() {
+    navigator.clipboard.writeText(clean).then(function(){ toast('Number copied!'); });
+    overlay.remove();
+  };
+  document.getElementById('close-call-btn').onclick = function() { overlay.remove(); };
+  overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
+}
+
+function execCmd(cmd, val) {
+  document.getElementById('email-body-editor').focus();
+  document.execCommand(cmd, false, val||null);
+}
+
+function insertEmailLink() {
+  var url = prompt('Enter URL:','https://');
+  if(!url) return;
+  var text = prompt('Link text:','Click here');
+  if(!text) text = url;
+  document.getElementById('email-body-editor').focus();
+  document.execCommand('insertHTML', false, '<a href="'+url+'" target="_blank">'+text+'</a>');
+}
+
+async function saveTutaEmail() {
+  if(!currentClient) return;
+  var email = (document.getElementById('tuta-input')||{}).value||'';
+  if(!email || !email.includes('tuta')) { alert('Please enter a valid Tuta email address.'); return; }
+  try {
+    var r = await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
+      method:'PATCH',
+      headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+      body:JSON.stringify({tuta_email:email})
+    });
+    if(r.ok||r.status===204) {
+      currentClient.tuta_email = email;
+      alert('Tuta email saved: '+email);
+      renderLogins();
+    }
+  } catch(e) { alert('Error saving: '+e.message); }
+}
+
+async function sendPortalLink(){
+  if(!currentClient||!currentClient.email){toast('No email on file','err');return;}
+  var c=currentClient;
+  try{
+    var r=await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        personalizations:[{to:[{email:c.email,name:c.name}]}],
+        from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
+        subject:'Your CP Restoration Client Portal — Login Information',
+        content:[{type:'text/plain',value:'Dear '+c.name+',\n\nCP Restoration Services is open and fully operational. We recently upgraded our client portal to give you better visibility into your credit repair progress.\n\nHere is your portal access:\nURL: portal-cprestorationsvcs.com/client-portal.html\nUser ID: '+c.id+'\nPassword: restore2026\n\nIn the portal you can:\n- See every item being disputed and its current status\n- View your overall progress percentage\n- Send us messages and receive replies\n- Access your status updates\n\nIf you have any questions, message us through the portal and we will respond within 24 hours Monday through Friday.\n\nCP Restoration Services\ncprestorationsvcs@gmail.com\n1-855-327-5847\nMonday - Friday 9:00 AM - 5:00 PM EST'}]
+      })
+    });
+    toast(r.ok?'Portal link sent to '+c.email:'Failed: '+r.status,r.ok?'ok':'err');
+  }catch(e){toast('Error','err');}
+}
+
 function signOut() {
   var email = localStorage.getItem('cp_logged_in_user');
   if (email) clockOut(email);
@@ -1687,17 +1484,20 @@ function signOut() {
   }
 }
 
-
-// Auto-resize textareas in right panel
-document.addEventListener('input', function(e) {
-  if (e.target.tagName === 'TEXTAREA') {
-    e.target.style.height = 'auto';
-    e.target.style.height = Math.max(80, e.target.scrollHeight) + 'px';
+function toggleRCWidget() {
+  var frame = document.getElementById('rc-widget-frame');
+  var btn = document.getElementById('rc-toggle-btn');
+  if (frame.style.display === 'none') {
+    frame.style.display = 'block';
+    btn.innerHTML = '&#10006;';
+    btn.title = 'Close Phone';
+  } else {
+    frame.style.display = 'none';
+    btn.innerHTML = '&#128222;';
+    btn.title = 'Open Phone';
   }
-});
+}
 
-
-// ── PAYMENT PLAN ───────────────────────────────────────────────
 async function loadPaymentPlan(client) {
   var rb = document.getElementById('right-body');
   if (!rb) return;
@@ -1827,172 +1627,58 @@ async function loadPaymentPlan(client) {
   }
 }
 
-
-
-// ── PAUSE FILE (chargeback / refund) ──────────────────────
-async function pauseFile(reason) {
-  if (!currentClient) return;
-  var r = confirm('Pause file for ' + currentClient.name + '? Reason: ' + reason);
-  if (!r) return;
-  try {
-    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
-      method:'PATCH', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
-      body:JSON.stringify({status:'Paused', notes:(currentClient.notes||'') + '\n[PAUSED ' + new Date().toLocaleDateString() + ' — ' + reason + ' — by ' + (localStorage.getItem('cp_logged_in_name')||'Agent') + ']'})
-    });
-    // Post status update
-    await fetch(SUPA+'/client_status_updates', {
-      method:'POST', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
-      body:JSON.stringify({client_id:currentClient.id, client_name:currentClient.name,
-        update_text:'File PAUSED — Reason: '+reason+'. File will remain paused pending review by management.',
-        update_type:'status', posted_by:localStorage.getItem('cp_logged_in_name')||'Agent', created_at:new Date().toISOString()})
-    });
-    toast && toast('File paused for ' + currentClient.name, '#92400E');
-    loadClient(currentClient.id);
-  } catch(e) { alert('Error: ' + e.message); }
+function hasUnread(c){
+  if(!c.notes) return false;
+  var lines=c.notes.split('\n');
+  // Has unread if last message tag is CLIENT MESSAGE not TEAM REPLY
+  var lastTag='';
+  for(var i=0;i<lines.length;i++){
+    var l=lines[i].trim();
+    if(l.indexOf('[CLIENT MESSAGE ')===0) lastTag='client';
+    if(l.indexOf('[TEAM REPLY ')===0) lastTag='team';
+  }
+  return lastTag==='client';
 }
 
-// ── ASSIGN FILE ──────────────────────────────────────────
-async function assignFileTo(agent) {
-  if (!currentClient || !agent) return;
-  try {
-    await fetch(SUPA+'/clients?id=eq.'+encodeURIComponent(currentClient.id), {
-      method:'PATCH', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
-      body:JSON.stringify({assigned_to: agent, updated_at: new Date().toISOString()})
-    });
-    await fetch(SUPA+'/client_status_updates', {
-      method:'POST', headers:Object.assign({},HDR,{Prefer:'return=minimal'}),
-      body:JSON.stringify({client_id:currentClient.id, client_name:currentClient.name,
-        update_text:'File assigned to: '+agent+' by '+( localStorage.getItem('cp_logged_in_name')||'Compliance')+'.',
-        update_type:'general', posted_by:localStorage.getItem('cp_logged_in_name')||'Compliance', created_at:new Date().toISOString()})
-    });
-    alert('File assigned to ' + agent);
-  } catch(e) { alert('Error: ' + e.message); }
+function trackCall() {
+  quotaCalls++;
+  updateQuotaBar('q-calls','q-calls-bar', quotaCalls, 15);
+  saveQuotaToday();
 }
 
-</script>
-
-<!-- RingCentral Embeddable Softphone -->
-<div id="rc-widget-container" style="position:fixed;bottom:20px;right:20px;z-index:9998;">
-  <button id="rc-toggle-btn" onclick="toggleRCWidget()" style="
-    width:56px;height:56px;border-radius:50%;background:#1B3A6B;border:none;
-    color:white;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);
-    display:flex;align-items:center;justify-content:center;
-  " title="Open Phone">&#128222;</button>
-</div>
-
-<div id="rc-widget-frame" style="
-  position:fixed;bottom:90px;right:20px;z-index:9999;
-  width:300px;height:520px;border-radius:14px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.3);
-  display:none;overflow:hidden;border:1.5px solid #E2E8F0;
-">
-  <iframe id="rc-widget" allow="microphone; autoplay" style="width:100%;height:100%;border:none;"
-    src="https://ringcentral.github.io/ringcentral-embeddable/app.html?clientId=9XxWlKzJPckcCLW1TWZ0YO&appServer=https://platform.ringcentral.com&enableDiscovery=1&redirectUri=https://portal-cprestorationsvcs.com/rc-callback.html">
-  </iframe>
-</div>
-
-<script>
-function toggleRCWidget() {
-  var frame = document.getElementById('rc-widget-frame');
-  var btn = document.getElementById('rc-toggle-btn');
-  if (frame.style.display === 'none') {
-    frame.style.display = 'block';
-    btn.innerHTML = '&#10006;';
-    btn.title = 'Close Phone';
-  } else {
-    frame.style.display = 'none';
-    btn.innerHTML = '&#128222;';
-    btn.title = 'Open Phone';
-  }
+function trackFile() {
+  quotaFiles++;
+  updateQuotaBar('q-files','q-files-bar', quotaFiles, 10);
+  saveQuotaToday();
 }
 
-// Listen for RC widget events (incoming calls, etc)
-window.addEventListener('message', function(e) {
-  var data = e.data;
-  if (!data || !data.type) return;
-  if (data.type === 'rc-call-ring-onnce') {
-    // Incoming call - auto open widget
-    document.getElementById('rc-widget-frame').style.display = 'block';
-    document.getElementById('rc-toggle-btn').innerHTML = '&#10006;';
-  }
-  if (data.type === 'rc-dialer-status') {
-    console.log('RC status:', data.ready);
-  }
+function trackQueueItem() {
+  quotaQueue++;
+  updateQuotaBar('q-queue','q-queue-bar', quotaQueue, 0);
+  saveQuotaToday();
+}
+
+async function saveCallNotes(){
+  if(!currentClient) return;
+  var notes=document.getElementById('call-notes').value.trim();
+  if(!notes){toast('Enter notes first','err');return;}
+  var tag='\n[CS NOTE '+new Date().toLocaleString()+']: '+notes;
+  currentClient.notes=(currentClient.notes||'')+tag;
+  trackLog();
+  await saveNotes();
+  document.getElementById('call-notes').value='';
+  toast('Notes saved');
+}
+
+// ── INIT ─────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof loadClients === 'function') loadClients();
+  if (typeof checkUnreadMessages === 'function') setInterval(checkUnreadMessages, 30000);
+  if (typeof loadQuotaToday === 'function') loadQuotaToday();
+  // Set agent name display
+  var nameEl = document.getElementById('agent-name-display');
+  if (nameEl) nameEl.textContent = currentAgentName;
 });
-
-// Click to call from client file
-function rcCallClient(number) {
-  if (!number) { alert('No phone number on file for this client.'); return; }
-  // Open widget
-  document.getElementById('rc-widget-frame').style.display = 'block';
-  document.getElementById('rc-toggle-btn').innerHTML = '&#10006;';
-  // Send dial command to widget
-  setTimeout(function() {
-    var iframe = document.getElementById('rc-widget');
-    if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage({
-        type: 'rc-adapter-new-call',
-        phoneNumber: number,
-        toCall: true
-      }, '*');
-    }
-  }, 1000);
-}
-</script>
-
-<script>
-fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(function(d){
-  var el=document.getElementById('vpn-status');
-  var bn=document.getElementById('vpn-banner');
-  if(!el) return;
-  if(d.country_code==='US'){
-    el.innerHTML='&#9989; US IP — VPN Active';
-    el.style.color='#166534'; el.style.fontWeight='700';
-    if(bn) bn.style.background='#DCFCE7';
-  } else {
-    el.innerHTML='&#10060; '+( d.country_name||'Non-US')+' IP — Connect VPN Now';
-    el.style.color='#8B1A1A'; el.style.fontWeight='700';
-  }
-}).catch(function(){});
-
-function renderCSCalls() {
-  document.querySelectorAll('[id^="r-"]').forEach(function(el){el.style.display='none';});
-  var panel = document.getElementById('r-calls');
-  if (panel) panel.style.display='block';
-  loadCSCalls();
-}
-
-async function loadCSCalls() {
-  if (!currentClient) return;
-  var list = document.getElementById('cs-calls-list');
-  if (!list) return;
-  list.innerHTML = 'Loading...';
-  try {
-    var r = await fetch(SUPA+'/call_logs?record_id=eq.'+encodeURIComponent(currentClient.id)+'&order=created_at.desc&limit=20',{headers:HDR});
-    var logs = await r.json();
-    if (!Array.isArray(logs)||!logs.length){list.innerHTML='<div style="text-align:center;padding:20px;color:#94A3B8;">No call history.</div>';return;}
-    list.innerHTML = logs.map(function(l){
-      var dt = l.created_at?new Date(l.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'—';
-      var dur = l.duration_sec?Math.floor(l.duration_sec/60)+'m '+l.duration_sec%60+'s':'—';
-      var oc = l.outcome||'unknown';
-      return '<div style="border:1.5px solid #E2E8F0;border-radius:8px;padding:10px;margin-bottom:8px;">' +
-        '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">' +
-          '<span style="font-weight:700;">'+(l.caller_number||'Unknown')+'</span>' +
-          '<span style="font-size:11px;color:#64748B;">'+dt+' · '+dur+'</span>' +
-        '</div>' +
-        '<div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;">' +
-          (l.verified?'<span style="background:#DCFCE7;color:#166534;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">✅ Verified</span>':'')+
-          '<span style="background:#F1F5F9;color:#475569;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">'+oc+'</span>'+
-          (l.follow_up_needed&&!l.follow_up_done?'<span style="background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;">🚨 Follow-Up</span>':'')+
-        '</div>' +
-        (l.summary?'<div style="margin-top:6px;padding:6px 8px;background:#F8FAFC;border-radius:6px;font-size:11px;color:#475569;">'+l.summary+'</div>':'')+
-      '</div>';
-    }).join('');
-  } catch(e){list.innerHTML='<div style="color:#991B1B;">Error: '+e.message+'</div>';}
-}
-</script>
-<script>
-(function(){var t=localStorage.getItem("cp_theme")||"light";document.documentElement.setAttribute("data-theme",t);})();
 </script>
 </body>
 </html>
