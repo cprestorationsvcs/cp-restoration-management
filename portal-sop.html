@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CP Restoration Services — Portal SOP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;}
+body{background:#F8FAFC;color:#1E293B;}
+.hdr{background:#1B3A6B;color:white;padding:20px 32px;position:sticky;top:0;z-index:100;}
+.hdr h1{font-size:18px;font-weight:900;}
+.hdr p{font-size:12px;opacity:0.7;margin-top:4px;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:260px;background:white;border-right:1.5px solid #E2E8F0;padding:20px;position:sticky;top:65px;height:calc(100vh - 65px);overflow-y:auto;flex-shrink:0;}
+.sidebar h3{font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.sidebar a{display:block;font-size:13px;color:#475569;text-decoration:none;padding:6px 10px;border-radius:6px;margin-bottom:2px;font-weight:500;}
+.sidebar a:hover{background:#EFF6FF;color:#1B3A6B;}
+.sidebar a.active{background:#1B3A6B;color:white;}
+.content{flex:1;padding:40px;max-width:860px;}
+.section{margin-bottom:48px;scroll-margin-top:80px;}
+.section-num{font-size:11px;font-weight:800;color:#C9A84C;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.section h2{font-size:24px;font-weight:900;color:#1B3A6B;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #E2E8F0;}
+.section h3{font-size:16px;font-weight:800;color:#1B3A6B;margin:24px 0 10px;}
+.section p{font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;}
+.section ul,.section ol{padding-left:20px;margin-bottom:12px;}
+.section li{font-size:14px;color:#475569;line-height:1.7;margin-bottom:4px;}
+table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px;}
+th{background:#1B3A6B;color:white;padding:10px 12px;text-align:left;font-weight:700;}
+td{padding:9px 12px;border-bottom:1px solid #F1F5F9;color:#475569;}
+tr:hover td{background:#F8FAFC;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-navy{background:#EFF6FF;color:#1B3A6B;}
+.badge-red{background:#FEE2E2;color:#991B1B;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-gold{background:#FEF3C7;color:#92400E;}
+.warning{background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:10px;padding:14px 18px;margin-bottom:16px;}
+.warning strong{color:#92400E;}
+.warning p{color:#92400E;margin:0;}
+.danger{background:#FEE2E2;border:1.5px solid #FCA5A5;border-radius:10px;padding:14px 18px;margin-bottom:16px;}
+.danger strong{color:#991B1B;}
+.danger p{color:#991B1B;margin:0;}
+.tip{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin-bottom:16px;}
+.tip p{color:#1B3A6B;margin:0;}
+.step-list{list-style:none;padding:0;counter-reset:steps;}
+.step-list li{counter-increment:steps;padding:10px 10px 10px 44px;position:relative;border-left:2px solid #E2E8F0;margin-left:16px;margin-bottom:8px;font-size:14px;color:#475569;}
+.step-list li::before{content:counter(steps);position:absolute;left:-16px;top:8px;width:30px;height:30px;background:#1B3A6B;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>🛡️ CP Restoration Services — Portal Standard Operating Procedures</h1>
+  <p>Effective October 15, 2026 · Confidential — Staff Use Only</p>
+</div>
+<div class="layout">
+  <div class="sidebar">
+    <h3>Sections</h3>
+    <a href="#s1">1. Portal Overview</a>
+    <a href="#s2">2. Staff Logins & Roles</a>
+    <a href="#s3">3. CS Dashboard</a>
+    <a href="#s4">4. Client Manager</a>
+    <a href="#s5">5. Call Queue</a>
+    <a href="#s6">6. Dispute Center</a>
+    <a href="#s7">7. Bureau Caller Dashboard</a>
+    <a href="#s8">8. Team Chat</a>
+    <a href="#s9">9. Refund Tracker</a>
+    <a href="#s10">10. Appointments Calendar</a>
+    <a href="#s11">11. Compliance Rules</a>
+    <a href="#s12">12. Client Portal</a>
+    <a href="#s13">13. Escalation Protocol</a>
+  </div>
+  <div class="content">
+
+    <!-- SECTION 1 -->
+    <div class="section" id="s1">
+      <div class="section-num">Section 1</div>
+      <h2>Portal Overview</h2>
+      <p>The CP Restoration Services portal is the central hub for all staff operations, client management, disputes, communications, and tracking. Everything runs through this portal — there is no other system.</p>
+      <p><strong>Portal URL:</strong> portal-cprestorationsvcs.com</p>
+      <h3>Key Pages</h3>
+      <table>
+        <tr><th>Page</th><th>URL</th><th>Who Uses It</th></tr>
+        <tr><td>Staff Login</td><td>portal-cprestorationsvcs.com</td><td>All staff</td></tr>
+        <tr><td>CS Dashboard</td><td>/cs-dashboard.html</td><td>Queen, Elna, Alec, Raymon</td></tr>
+        <tr><td>Client Manager</td><td>/client-manager.html</td><td>CS & Compliance</td></tr>
+        <tr><td>Call Queue</td><td>/call-queue.html</td><td>CS agents</td></tr>
+        <tr><td>Dispute Center</td><td>/dispute-center.html</td><td>Marcelo, Annabel</td></tr>
+        <tr><td>Bureau Caller Dashboard</td><td>/bureau-caller-dashboard.html</td><td>Rosemarie</td></tr>
+        <tr><td>Refund & Signature Tracker</td><td>/refund-tracker.html</td><td>Queen</td></tr>
+        <tr><td>Team Chat</td><td>/team-chat.html</td><td>All staff</td></tr>
+        <tr><td>Appointments Calendar</td><td>/appointments.html</td><td>Alec, Elna</td></tr>
+        <tr><td>Time Tracker</td><td>/time-tracker.html</td><td>All staff</td></tr>
+        <tr><td>Client Portal</td><td>/client-portal.html</td><td>Clients only</td></tr>
+        <tr><td>Payroll</td><td>/payroll.html</td><td>Jason, Queen</td></tr>
+        <tr><td>Lead Registry</td><td>/lead-registry.html</td><td>Sales</td></tr>
+      </table>
+      <div class="tip"><p>💡 <strong>Tip:</strong> Always log into the portal first before opening any specific page. Your session is tied to the login — without it, data will not load.</p></div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section" id="s2">
+      <div class="section-num">Section 2</div>
+      <h2>Staff Logins & Roles</h2>
+      <p>Each staff member has a unique email and password. Logins are role-based — you will be redirected to the correct dashboard automatically after logging in.</p>
+      <h3>Current Team & Roles</h3>
+      <table>
+        <tr><th>Name</th><th>Email</th><th>Role</th><th>Dashboard</th></tr>
+        <tr><td>Jason Crown</td><td>jason@mycprteam.com</td><td><span class="badge badge-red">Admin</span></td><td>Full portal access</td></tr>
+        <tr><td>Queen Jearel Cruz</td><td>queen@mycprteam.com</td><td><span class="badge badge-gold">Compliance</span></td><td>CS Dashboard + Refund Tracker</td></tr>
+        <tr><td>Elna Palabrica</td><td>elna@mycprteam.com</td><td><span class="badge badge-navy">CS Agent</span></td><td>CS Dashboard</td></tr>
+        <tr><td>Alec Sarrosa</td><td>alec@mycprteam.com</td><td><span class="badge badge-navy">CS Agent</span></td><td>CS Dashboard</td></tr>
+        <tr><td>Marcelo Torres</td><td>marcelo@mycprteam.com</td><td><span class="badge badge-navy">Dispute Specialist</span></td><td>Dispute Center</td></tr>
+        <tr><td>Annabel Curada</td><td>annabel@mycprteam.com</td><td><span class="badge badge-navy">Dispute Specialist</span></td><td>Dispute Center</td></tr>
+        <tr><td>Bukunmi Aina</td><td>bukunmi@mycprteam.com</td><td><span class="badge badge-gold">Lead Generation</span></td><td>Lead Registry</td></tr>
+        <tr><td>Rosemarie De Guzman</td><td>rosemarie@mycprteam.com</td><td><span class="badge badge-navy">Bureau Caller</span></td><td>Bureau Caller Dashboard</td></tr>
+        <tr><td>Raymon Guevarra</td><td>raymon.guevarra@mycprteam.com</td><td><span class="badge badge-gold">Sales Rep / CS</span></td><td>Sales Dashboard + CS Dashboard</td></tr>
+      </table>
+      <h3>Login Instructions</h3>
+      <ol class="step-list">
+        <li>Go to <strong>portal-cprestorationsvcs.com</strong></li>
+        <li>Enter your work email and password exactly as provided</li>
+        <li>Click <strong>Login</strong> — you will be redirected to your dashboard automatically</li>
+        <li>If you see "Invalid email or password," open an incognito window and try again</li>
+        <li>If the issue persists, contact Jason for a password reset</li>
+      </ol>
+      <div class="warning"><strong>⚠️ Important:</strong> <p>Never share your login credentials with anyone, including other staff members. Each person must use their own login.</p></div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="section" id="s3">
+      <div class="section-num">Section 3</div>
+      <h2>CS Dashboard</h2>
+      <p>The CS Dashboard is the primary tool for customer service agents. It is used to manage client files, post status updates, send emails, log calls, and submit requests to the dispute team.</p>
+      <h3>Daily Workflow</h3>
+      <ol class="step-list">
+        <li>Log into the portal — you will land on the CS Dashboard automatically</li>
+        <li>Review the <strong>client list</strong> on the left — unread messages appear with a red dot</li>
+        <li>Handle any clients with unread messages first</li>
+        <li>Work through the Call Queue for any urgent callbacks</li>
+        <li>Process status update requests from the dispute team</li>
+      </ol>
+      <h3>Client Search</h3>
+      <p>Type a client name, ID, phone number, or email in the search box on the left panel. Results update automatically. If a client does not appear, try their ID (starts with CPR-) or phone number.</p>
+      <h3>Opening a Client File</h3>
+      <p>Click any client in the list to open their file. The right panel has tabs:</p>
+      <table>
+        <tr><th>Tab</th><th>What It Does</th></tr>
+        <tr><td>Info</td><td>Client details, contact info, package, status</td></tr>
+        <tr><td>Logins</td><td>Bureau login credentials (TransUnion, Equifax, Experian)</td></tr>
+        <tr><td>Disputes</td><td>Dispute log and items being worked</td></tr>
+        <tr><td>Contact Log</td><td>All call and contact history</td></tr>
+        <tr><td>Status Update</td><td>Post updates visible to the client portal</td></tr>
+        <tr><td>Email</td><td>Send emails directly to the client</td></tr>
+        <tr><td>Actions</td><td>Request status update, request refund, pause/resume file</td></tr>
+        <tr><td>Calls</td><td>RC dialer call log</td></tr>
+      </table>
+      <h3>Posting a Status Update</h3>
+      <ol class="step-list">
+        <li>Open the client file</li>
+        <li>Click the <strong>Status Update</strong> tab</li>
+        <li>Select a status type from the dropdown</li>
+        <li>Add notes explaining the update</li>
+        <li>Click <strong>Post Update to Client Portal</strong></li>
+        <li>The client will see this update when they log into their portal</li>
+      </ol>
+      <h3>Sending an Email to a Client</h3>
+      <ol class="step-list">
+        <li>Open the client file</li>
+        <li>Click the <strong>Email</strong> tab</li>
+        <li>Type the subject and message body</li>
+        <li>Click <strong>Send + Post to Portal</strong> to send the email AND post it to the client portal simultaneously</li>
+      </ol>
+      <h3>Requesting a Status Update from Dispute Team</h3>
+      <ol class="step-list">
+        <li>Open the client file</li>
+        <li>Click the <strong>Actions</strong> tab</li>
+        <li>Under "Request Status Update," select the reason</li>
+        <li>Add notes</li>
+        <li>Click <strong>Send Request</strong></li>
+        <li>This will appear in the Requests Inbox for the dispute team</li>
+      </ol>
+      <div class="danger"><strong>🚫 Never do this:</strong> <p>Do not post status updates or send emails for clients that are marked PAUSED, CHARGEBACK, or have a legal hold. Escalate to Jason immediately.</p></div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="section" id="s4">
+      <div class="section-num">Section 4</div>
+      <h2>Client Manager</h2>
+      <p>The Client Manager provides a full table view of all 600+ clients. Use it to search, filter, update assignments, and manage client information in bulk.</p>
+      <h3>How to Search</h3>
+      <p>Type in the search bar at the top to search by name, ID, email, or phone. Use the filter dropdowns to narrow by status, package, date range, or assigned analyst.</p>
+      <h3>Updating a Client's Analyst</h3>
+      <p>Find the client in the table, click the analyst dropdown in their row, and select the correct team member. The change saves automatically.</p>
+      <h3>When to Use Client Manager vs CS Dashboard</h3>
+      <table>
+        <tr><th>Use Client Manager for...</th><th>Use CS Dashboard for...</th></tr>
+        <tr><td>Searching all clients at once</td><td>Working a specific client file</td></tr>
+        <tr><td>Reassigning analysts in bulk</td><td>Posting updates and sending emails</td></tr>
+        <tr><td>Viewing a bird's eye view of the pipeline</td><td>Logging calls and contact notes</td></tr>
+      </table>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="section" id="s5">
+      <div class="section-num">Section 5</div>
+      <h2>Call Queue — Urgent Callbacks</h2>
+      <p>The Call Queue manages urgent callback requests from clients. CS agents are responsible for working through the queue daily.</p>
+      <h3>Daily Process</h3>
+      <ol class="step-list">
+        <li>Go to <strong>/call-queue.html</strong></li>
+        <li>Select your name from the <strong>"You are:"</strong> dropdown in the top right</li>
+        <li>Review all pending callback cards</li>
+        <li>Click <strong>👋 Assign to Me</strong> to take ownership of a callback</li>
+        <li>Call the client using RC (RingCentral)</li>
+        <li>Add call notes in the card</li>
+        <li>Click <strong>✅ Mark Called</strong> when done</li>
+      </ol>
+      <h3>Filters</h3>
+      <p>Use the filters at the top of the page to view callbacks by agent name or date (Today / Yesterday / This Week). This helps each agent focus on their own assigned items.</p>
+      <div class="tip"><p>💡 Always select your name from the dropdown BEFORE clicking Assign to Me. Your name will not appear on the card otherwise.</p></div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="section" id="s6">
+      <div class="section-num">Section 6</div>
+      <h2>Dispute Center</h2>
+      <p>The Dispute Center is used exclusively by Marcelo Torres and Annabel Curada to manage and file disputes on behalf of clients.</p>
+      <h3>Workflow</h3>
+      <ol class="step-list">
+        <li>Check the <strong>Requests Inbox</strong> (/requests-inbox.html) for new requests from CS agents</li>
+        <li>Open the Dispute Center and find the client</li>
+        <li>Review the client's bureau logins and dispute items</li>
+        <li>File disputes with the appropriate bureau(s)</li>
+        <li>Log the dispute in the client's file with date, bureau, and item disputed</li>
+        <li>Post a status update to the client portal via the CS Dashboard or Status Update Tool</li>
+        <li>Email the client confirmation of the dispute filed</li>
+      </ol>
+      <h3>Status Update Tool</h3>
+      <p>Open the Status Update Tool for a specific client by going to the CS Dashboard, opening their file, clicking the Actions tab, and clicking <strong>Open Status Update Tool</strong>. The tool opens pre-loaded with that client's file.</p>
+      <div class="warning"><strong>⚠️ Important:</strong> <p>Always log disputes in the portal immediately after filing. Do not rely on memory or external notes.</p></div>
+    </div>
+
+    <!-- SECTION 7 -->
+    <div class="section" id="s7">
+      <div class="section-num">Section 7</div>
+      <h2>Bureau Caller Dashboard</h2>
+      <p>Used exclusively by Rosemarie De Guzman for calling credit bureaus on behalf of clients.</p>
+      <h3>Login</h3>
+      <p>Email: <strong>rosemarie@mycprteam.com</strong> | Password: <strong>CPR2026</strong><br>
+      Opens directly to the Bureau Caller Dashboard after login.</p>
+      <h3>Workflow</h3>
+      <ol class="step-list">
+        <li>Log in — the Bureau Caller Dashboard opens automatically</li>
+        <li>Review assigned clients for the day</li>
+        <li>Use the bureau phone numbers and scripts provided</li>
+        <li>Log each call with outcome and notes</li>
+        <li>Update the client file in the portal after each call</li>
+        <li>Escalate unresolved items to Marcelo or Annabel</li>
+      </ol>
+    </div>
+
+    <!-- SECTION 8 -->
+    <div class="section" id="s8">
+      <div class="section-num">Section 8</div>
+      <h2>Team Chat</h2>
+      <p>Team Chat at <strong>/team-chat.html</strong> is the primary internal communication channel. You must be logged into the portal before opening Team Chat — otherwise history will not load.</p>
+      <h3>Rules</h3>
+      <ul>
+        <li><strong>NEVER post SSNs, Social Security numbers, passwords, or sensitive client data in Team Chat.</strong> This is a compliance violation.</li>
+        <li>Keep conversations professional and relevant to work</li>
+        <li>Use Team Chat for quick updates, not for formal records — formal records go in the client file</li>
+        <li>The AI Receptionist will post alerts here for new leads, appointments, and callbacks — check these regularly</li>
+      </ul>
+      <h3>Delete Messages</h3>
+      <p>Only <strong>Jason Crown</strong> and <strong>Queen Jearel Cruz</strong> can delete messages. Hover over a message to reveal the 🗑 delete button.</p>
+      <div class="danger"><strong>🚫 CRITICAL:</strong> <p>SSNs posted in Team Chat are a federal compliance violation. All staff who see this happen must notify Jason immediately.</p></div>
+    </div>
+
+    <!-- SECTION 9 -->
+    <div class="section" id="s9">
+      <div class="section-num">Section 9</div>
+      <h2>Refund & Signature Tracker</h2>
+      <p>Managed exclusively by Queen Jearel Cruz. Used to track all refund requests from intake to payment.</p>
+      <h3>Refund Process</h3>
+      <ol class="step-list">
+        <li>Client requests a refund — CS agent escalates to Queen</li>
+        <li>Queen opens <strong>/refund-tracker.html</strong> and clicks <strong>New Refund Request</strong></li>
+        <li>Enter client name, ID, reason, and refund amount (total paid minus $200 admin fee)</li>
+        <li>Set status to <strong>Under Review</strong></li>
+        <li>Queen reviews the file and calculates the correct refund based on work completed</li>
+        <li>Tag for Jason's approval — do NOT process until Jason approves</li>
+        <li>Once Jason approves, process the refund via the original payment method</li>
+        <li>Update status to <strong>Processed</strong> with payment confirmation</li>
+      </ol>
+      <h3>Refund Policy</h3>
+      <ul>
+        <li>$200 admin fee is <strong>non-refundable</strong> in all cases</li>
+        <li>Refund amount = Total paid minus $200</li>
+        <li>If client cannot provide bureau logins, note "Under Review — client declined to provide bureau access"</li>
+        <li>All refunds require Jason's written approval before processing</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 10 -->
+    <div class="section" id="s10">
+      <div class="section-num">Section 10</div>
+      <h2>Appointments Calendar</h2>
+      <p>Used by Alec Sarrosa and Elna Palabrica to manage consultation bookings. The AI Receptionist books appointments automatically — this calendar shows them in real time.</p>
+      <h3>Accessing the Calendar</h3>
+      <p>Go to <strong>/appointments.html</strong>. The calendar shows the current week with appointments for both Alec and Elna. Use the filters to view All Staff, Alec Only, or Elna Only.</p>
+      <h3>Blocking Time Off</h3>
+      <ol class="step-list">
+        <li>Click <strong>+ Block Time Off</strong> in the top right</li>
+        <li>Select your name, date, start and end time, and reason</li>
+        <li>Click <strong>Block This Time</strong></li>
+        <li>The AI Receptionist will not offer blocked slots to callers</li>
+      </ol>
+      <h3>Managing Appointments</h3>
+      <p>Click any appointment card to view full client details (name, phone, email, service type). You can add notes or cancel the appointment from this view.</p>
+      <div class="tip"><p>💡 The calendar auto-refreshes every 60 seconds. If you miss a notification in Team Chat, check the calendar directly.</p></div>
+    </div>
+
+    <!-- SECTION 11 -->
+    <div class="section" id="s11">
+      <div class="section-num">Section 11</div>
+      <h2>Compliance Rules</h2>
+      <p>These rules are non-negotiable. Violations may result in immediate termination.</p>
+      <div class="danger"><strong>🚫 NEVER do any of the following:</strong>
+        <p>• Post client SSNs, Social Security numbers, or government ID numbers anywhere in the portal, Team Chat, or email<br>
+        • Share your login credentials with anyone<br>
+        • Access a client file you are not assigned to without Jason's authorization<br>
+        • Contact a client marked with a CHARGEBACK or LEGAL HOLD — escalate to Jason immediately<br>
+        • Discuss Tracey Ilene (CPR-CP17241) with the client — chargeback in progress, evidence due Nov 17, 2026<br>
+        • Discuss Joseph Lee Rea (CPR-CP16412) with the client — chargeback filed, Queen handling<br>
+        • Promise refunds to clients without Jason's written approval<br>
+        • Share client data with anyone outside the company</p>
+      </div>
+      <h3>Chargeback Protocol</h3>
+      <p>If a client calls and their file is flagged with a chargeback:</p>
+      <ol class="step-list">
+        <li>Do NOT discuss the file, work done, or any details</li>
+        <li>Take the client's name and callback number</li>
+        <li>Tell them: "I'll have a manager reach back out to you shortly"</li>
+        <li>Immediately notify Jason via Team Chat or phone</li>
+      </ol>
+      <h3>Sensitive Client Alerts</h3>
+      <table>
+        <tr><th>Client</th><th>ID</th><th>Alert</th></tr>
+        <tr><td>Tracey Ilene</td><td>CPR-CP17241</td><td><span class="badge badge-red">CHARGEBACK — DO NOT DISCUSS</span></td></tr>
+        <tr><td>Joseph Lee Rea</td><td>CPR-CP16412</td><td><span class="badge badge-red">CHARGEBACK — Queen only</span></td></tr>
+        <tr><td>Eric Phillips</td><td>CPR-CP16954</td><td><span class="badge badge-red">Threatened lawsuit — Jason only</span></td></tr>
+      </table>
+    </div>
+
+    <!-- SECTION 12 -->
+    <div class="section" id="s12">
+      <div class="section-num">Section 12</div>
+      <h2>Client Portal</h2>
+      <p>The client portal at <strong>/client-portal.html</strong> is what clients see when they log in. Clients use their <strong>Client ID</strong> (e.g. CPR-CP17154) and password to access their file.</p>
+      <h3>What Clients Can See</h3>
+      <ul>
+        <li>Their case status and current stage</li>
+        <li>Status updates posted by CS agents</li>
+        <li>Messages from the CS team</li>
+        <li>Documents and agreements</li>
+        <li>The ability to send messages back to CS</li>
+      </ul>
+      <h3>Helping a Client Log In</h3>
+      <ol class="step-list">
+        <li>Ask the client for their name and phone number</li>
+        <li>Look up their Client ID in Client Manager</li>
+        <li>Their default password is: <strong>restore2026</strong></li>
+        <li>Direct them to: <strong>portal-cprestorationsvcs.com/client-portal.html</strong></li>
+        <li>If they have trouble, offer to walk them through it on the phone</li>
+      </ol>
+      <div class="tip"><p>💡 Clients who do not know their Client ID should call customer service at <strong>1-855-327-5847</strong> (Mon–Fri 9AM–5PM ET). Do not post Client IDs in Team Chat.</p></div>
+    </div>
+
+    <!-- SECTION 13 -->
+    <div class="section" id="s13">
+      <div class="section-num">Section 13</div>
+      <h2>Escalation Protocol</h2>
+      <p>When something is outside your authority or you are unsure how to handle a situation, escalate immediately. Do not guess or improvise.</p>
+      <table>
+        <tr><th>Situation</th><th>Escalate To</th><th>How</th></tr>
+        <tr><td>Client threatens legal action or law enforcement</td><td>Jason Crown</td><td>Immediately — call or Team Chat</td></tr>
+        <tr><td>Chargeback dispute call</td><td>Jason Crown</td><td>Immediately — take callback number first</td></tr>
+        <tr><td>Refund request</td><td>Queen Jearel Cruz</td><td>Team Chat or direct message</td></tr>
+        <tr><td>Bureau login issues / verification codes</td><td>Rosemarie De Guzman</td><td>Call Queue or Team Chat</td></tr>
+        <tr><td>Dispute filing needed</td><td>Marcelo Torres / Annabel Curada</td><td>Submit request via CS Dashboard Actions tab</td></tr>
+        <tr><td>Compliance concern or policy question</td><td>Queen Jearel Cruz</td><td>Team Chat</td></tr>
+        <tr><td>Portal down or data not loading</td><td>Jason Crown</td><td>Team Chat immediately</td></tr>
+        <tr><td>Client identity theft / fraud suspected</td><td>Jason Crown</td><td>Immediately — do not proceed with file</td></tr>
+      </table>
+      <h3>Daily Meeting</h3>
+      <p>All staff attend the daily team meeting every weekday at <strong>9:00 AM EST</strong>.</p>
+      <p>Meeting link: <strong>meet.google.com/ree-qcrf-bqp</strong></p>
+      <p>Camera on. Attendance is mandatory. No exceptions.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Sidebar active state on scroll
+var sections = document.querySelectorAll('.section');
+var links = document.querySelectorAll('.sidebar a');
+window.addEventListener('scroll', function() {
+  var scrollY = window.scrollY + 100;
+  sections.forEach(function(s) {
+    if (s.offsetTop <= scrollY && s.offsetTop + s.offsetHeight > scrollY) {
+      links.forEach(function(l) { l.classList.remove('active'); });
+      var link = document.querySelector('.sidebar a[href="#'+s.id+'"]');
+      if (link) link.classList.add('active');
+    }
+  });
+});
+</script>
+</body>
+</html>
