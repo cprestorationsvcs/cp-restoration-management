@@ -345,8 +345,38 @@ function appendMsg(m) {
   var ts=document.createElement('div');
   ts.className='ts'; ts.textContent=time; bub.appendChild(ts);
 
+  // Delete button — visible to sender and admin/Jason
+  var isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.name === 'Jason Crown');
+  if (isMine || isAdmin) {
+    var delBtn = document.createElement('button');
+    delBtn.textContent = '🗑';
+    delBtn.title = 'Delete message';
+    delBtn.style.cssText = 'display:none;position:absolute;top:4px;right:4px;background:rgba(139,26,26,0.85);color:white;border:none;border-radius:4px;padding:2px 6px;font-size:11px;cursor:pointer;z-index:10;';
+    delBtn.onclick = function() { deleteMsg(m.id, wrap); };
+    bub.style.position = 'relative';
+    bub.appendChild(delBtn);
+    // Show on hover
+    wrap.addEventListener('mouseenter', function(){ delBtn.style.display='block'; });
+    wrap.addEventListener('mouseleave', function(){ delBtn.style.display='none'; });
+  }
+
   wrap.appendChild(av); wrap.appendChild(bub);
   c.appendChild(wrap);
+}
+
+// Delete message from Supabase and DOM
+async function deleteMsg(id, wrapEl) {
+  if (!id) return;
+  if (!confirm('Delete this message? This cannot be undone.')) return;
+  try {
+    await fetch(SUPA + '/team_chat?id=eq.' + id, {
+      method: 'DELETE',
+      headers: Object.assign({}, HDR, { Prefer: 'return=minimal' })
+    });
+    if (wrapEl && wrapEl.parentNode) wrapEl.parentNode.removeChild(wrapEl);
+  } catch(e) {
+    alert('Error deleting message: ' + e.message);
+  }
 }
 
 // ── SEND MESSAGE ──
