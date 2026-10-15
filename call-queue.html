@@ -111,11 +111,22 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
 <!-- End Meta Pixel Code -->
 </head>
 <body>
-<header>
-  <img src="/images/logo.png" alt="CP Restoration">
-  <h1>&#128222; CSR Call Queue &mdash; Urgent Callbacks</h1>
-  <a href="/dashboard.html">&larr; Back</a>
-  <a href="/requests-inbox.html">Requests Inbox</a>
+<header style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+  <img src="/images/logo.png" alt="CP Restoration" style="height:32px;">
+  <h1 style="font-size:16px;font-weight:800;color:white;">&#128222; CSR Call Queue &mdash; Urgent Callbacks</h1>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <label style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);white-space:nowrap;">You are:</label>
+    <select id="agent-name-select" onchange="setAgentName(this.value)" style="padding:6px 10px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.4);background:rgba(255,255,255,0.15);color:white;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">
+      <option value="" style="color:#1B3A6B;background:white;">-- Select your name --</option>
+      <option value="Queen Jearel Cruz" style="color:#1B3A6B;background:white;">Queen Jearel Cruz</option>
+      <option value="Elna Palabrica" style="color:#1B3A6B;background:white;">Elna Palabrica</option>
+      <option value="Alec Sarrosa" style="color:#1B3A6B;background:white;">Alec Sarrosa</option>
+      <option value="Marcelo Torres" style="color:#1B3A6B;background:white;">Marcelo Torres</option>
+      <option value="Annabel Curada" style="color:#1B3A6B;background:white;">Annabel Curada</option>
+    </select>
+    <a href="/dashboard.html" style="color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;">&larr; Back</a>
+    <a href="/requests-inbox.html" style="color:rgba(255,255,255,0.7);font-size:12px;text-decoration:none;">Requests Inbox</a>
+  </div>
 </header>
 
 <div class="wrap">
