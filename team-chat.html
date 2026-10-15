@@ -475,9 +475,9 @@ document.getElementById('msg-input').addEventListener('input',function(){
 
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-document.addEventListener('DOMContentLoaded',function(){
+document.addEventListener('DOMContentLoaded',async function(){
   if(!initUser())return;
-  loadMessages(true);
+  await loadMessages(true);
   pollTimer=setInterval(function(){loadMessages(false);},3000);
 
   // Track when user is actively scrolling — prevent auto-scroll during scroll
