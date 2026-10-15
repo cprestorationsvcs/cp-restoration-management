@@ -248,9 +248,9 @@ function counts() {
 
 function render() {
   var items = all.filter(function(i){
-    if (filt==='urgent') return i.priority==='urgent'&&i.status==='pending';
-    if (filt==='high')   return i.priority==='high'&&i.status==='pending';
-    if (filt==='normal') return i.priority==='normal'&&i.status==='pending';
+    if (filt==='urgent') return i.priority==='urgent'&&(i.status==='pending'||i.status==='in_progress');
+    if (filt==='high')   return i.priority==='high'&&(i.status==='pending'||i.status==='in_progress');
+    if (filt==='normal') return i.priority==='normal'&&(i.status==='pending'||i.status==='in_progress');
     if (filt==='called') return i.status==='called';
     if (filt==='all')    return true;
     return i.status==='pending'||i.status==='called'; // pending
