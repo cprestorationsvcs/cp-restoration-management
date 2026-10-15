@@ -415,7 +415,28 @@ async function sendEmail() {
 function safe(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function toast(msg,type){ var t=document.createElement('div'); t.className='toast'; t.textContent=msg; t.style.background=type==='err'?'#8B1A1A':'#166534'; document.body.appendChild(t); setTimeout(function(){ t.remove(); },3000); }
 
-document.addEventListener("DOMContentLoaded", function() { loadClient() });
+document.addEventListener("DOMContentLoaded", async function() {
+  var params = new URLSearchParams(window.location.search);
+  var clientId = params.get('id') || params.get('client_id') || localStorage.getItem('su_client_id');
+  if (!clientId) {
+    document.getElementById('panel').style.display = 'none';
+    document.body.innerHTML += '<div style="padding:40px;text-align:center;color:#94A3B8;font-size:14px;">No client selected. Please open this page from the CS Dashboard.</div>';
+    return;
+  }
+  try {
+    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients?id=eq.'+encodeURIComponent(clientId)+'&limit=1', {
+      headers: {'apikey': + FULL_KEY + ,'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json'}
+    });
+    var rows = await r.json();
+    if (Array.isArray(rows) && rows[0]) {
+      loadClient(rows[0]);
+    } else {
+      document.body.innerHTML += '<div style="padding:40px;text-align:center;color:#E53E3E;font-size:14px;">Client not found: ' + clientId + '</div>';
+    }
+  } catch(e) {
+    document.body.innerHTML += '<div style="padding:40px;text-align:center;color:#E53E3E;font-size:14px;">Error loading client: ' + e.message + '</div>';
+  }
+});
 </script>
 </body>
 </html>
