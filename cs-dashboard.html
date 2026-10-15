@@ -1205,14 +1205,15 @@ async function sendClientEmail(mode) {
     });
     if(postPortal) {
       await fetch(SUPA+'/client_messages',{
-        method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
+        method:'POST', headers:Object.assign({},HDR,{'Content-Type':'application/json','Prefer':'return=minimal'}),
         body:JSON.stringify({
-          client_id: currentClient.id,
-          from_cs: true,
-          subject: subject,
-          message: bodyHtml,
-          sent_by_name: currentAgentName,
-          created_at: new Date().toISOString()
+          client_id:   currentClient.id,
+          client_name: currentClient.name,
+          from_role:   'cs',
+          from_name:   currentAgentName || localStorage.getItem('cp_logged_in_name') || 'CS Agent',
+          message:     (subject ? '[' + subject + '] ' : '') + bodyText,
+          is_read:     false,
+          created_at:  new Date().toISOString()
         })
       });
     }
