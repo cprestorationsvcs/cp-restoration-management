@@ -632,7 +632,8 @@ async function dbGetClients(searchTerm) {
       while(fetching) {
         var url = SUPA_API+'?select=*&order=name.asc&limit='+pageSize+'&offset='+offset;
         var resp = await fetch(url, {headers:hdrs});
-        if (!resp.ok) throw new Error('HTTP '+resp.status);
+        console.log('[CM] fetch status:', resp.status, 'url:', url.substring(0,80));
+        if (!resp.ok) throw new Error('HTTP '+resp.status+' '+url.substring(0,80));
         var page = await resp.json();
         if (!Array.isArray(page)) throw new Error('Bad response');
         data = data.concat(page);
@@ -665,9 +666,11 @@ async function dbGetClients(searchTerm) {
       if (!clients.find(function(c){return c.id===lc.id;})) clients.push(lc);
     });
     if (!searchTerm) { _clientCache = clients; _cacheTime = Date.now(); }
+    console.log('[CM] dbGetClients returning', clients.length, 'clients');
     return clients;
   } catch(e) {
-    console.error('Supabase error:', e);
+    console.error('[CM] Supabase fetch ERROR:', e.message, e);
+    alert('Client Manager error: ' + e.message + '\nCheck console for details.');
     return _clientCache || (getClientsLocal ? getClientsLocal() : []);
   }
 }
