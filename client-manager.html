@@ -294,7 +294,6 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
       <select id="srch-analyst" onchange="renderTable()" style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:13px;font-family:inherit;background:white;">
         <option value="">All Analysts</option>
         <option value="Marcelo Torres">Marcelo Torres</option>
-        <option value="Kimwell Ablaza">Kimwell Ablaza</option>
         <option value="Annabel Curada">Annabel Curada</option>
         <option value="Queen Cruz">Queen Cruz</option>
         <option value="Unassigned">Unassigned</option>
@@ -858,7 +857,7 @@ async function renderTable(){
       '<td id="ana-'+esc(c.id)+'"><select style="font-size:11px;padding:3px 5px;border:1px solid #E2E8F0;border-radius:4px;max-width:130px;" data-clientid="'+esc(c.id)+'" class="analyst-sel">'+
         '<option value="">'+(c.assigned_to||'— Assign —')+'</option>'+
         '<option value="Marcelo Torres"'+(c.assigned_to==='Marcelo Torres'?' selected':'')+'>Marcelo Torres</option>'+
-        '<option value="Kimwell Ablaza"'+(c.assigned_to==='Kimwell Ablaza'?' selected':'')+'>Kimwell Ablaza</option>'+
+        ''+
         '<option value="Annabel Curada"'+(c.assigned_to==='Annabel Curada'?' selected':'')+'>Annabel Curada</option>'+
         '<option value="Queen Cruz"'+(c.assigned_to==='Queen Cruz'?' selected':'')+'>Queen Cruz</option>'+
       '</select></td>'+
