@@ -248,11 +248,13 @@ async function sendEmailReply() {
     await fetch(SUPA+'/client_messages',{
       method:'POST', headers:Object.assign({},HDR,{'Prefer':'return=minimal'}),
       body:JSON.stringify({
-        client_id:currentClientId,
-        from_cs:false,
-        subject:'Re: Email Reply from '+currentClient.name,
-        message:body,
-        created_at:new Date().toISOString()
+        client_id:  currentClientId,
+        client_name:currentClient ? currentClient.name : '',
+        from_role:  'client',
+        from_name:  currentClient ? currentClient.name : 'Client',
+        message:    body,
+        is_read:    false,
+        created_at: new Date().toISOString()
       })
     });
     document.getElementById('email-reply-body').value='';
