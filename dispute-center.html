@@ -1059,7 +1059,6 @@ cprestorationsvcs@gmail.com
           <div class="field"><label>Default Dispute Specialist</label>
             <select id="default-specialist">
               <option>Marcelo Torres</option>
-              <option>Kimwell Ablaza</option>
               <option>Annabel Curada</option>
               <option>Queen Cruz</option>
               <option>Jason Crown</option>
@@ -2149,7 +2148,6 @@ function renderByEmployee(filteredDisputes, filteredCalls) {
   const tbody = document.getElementById('by-emp-table');
   if(!tbody) return;
 
-  const specialists = ['Marcelo Torres','Kimwell Ablaza','Annabel Curada','Queen Cruz','Jason Crown'];
   const rows = specialists.map(name => {
     const empDisputes = filteredDisputes.filter(d => d.specialist === name);
     const empCalls = filteredCalls.filter(c => c.specialist === name);
@@ -2785,7 +2783,6 @@ function renderEmployeeNotificationCards(data) {
   const container = document.getElementById('employee-notification-cards');
   if(!container) return;
 
-  const specialispecialists = ['Marcelo Torres','Kimwell Ablaza','Annabel Curada','Queen Cruz','Jason Crown'];
 
   container.innerHTML = specialists.map(name => {
     const myClients = data.filter(r => r.dispute.specialist === name);
@@ -2854,7 +2851,6 @@ async function notifyEmployee(specialistName) {
 }
 
 async function notifyAllEmployees() {
-  const specialispecialists = ['Marcelo Torres','Kimwell Ablaza','Annabel Curada','Queen Cruz','Jason Crown'];
   const statusEl = document.getElementById('notify-status');
   if(statusEl) statusEl.textContent = 'Sending notifications...';
 
