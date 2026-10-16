@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <script>
+function showTab(tabId,el){var tabs=document.querySelectorAll(".tab-content");tabs.forEach(function(t){t.style.display="none";});var btns=document.querySelectorAll(".tab-btn");btns.forEach(function(b){b.classList.remove("active");});var target=document.getElementById(tabId);if(target)target.style.display="block";if(el)el.classList.add("active");}
+
 // CP Restoration Shared Utilities v1
 var SUPA_BASE='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
 var PORTAL_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
@@ -1181,8 +1183,7 @@ async function loadFromDb() {
 // ============================================================
 // TABS
 // ============================================================
-function showTab(id) {
-  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
+);
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
   var panel = document.getElementById('tab-'+id);
   if(panel) panel.classList.add('active');
