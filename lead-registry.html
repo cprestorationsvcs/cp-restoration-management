@@ -361,7 +361,7 @@ function timeAgo(ts) {
   return Math.floor(s/86400)+'d ago';
 }
 
-function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 function escAttr(s) { return (s||'').replace(/'/g,"\'"); }
 
 document.addEventListener('DOMContentLoaded', loadLeads);
