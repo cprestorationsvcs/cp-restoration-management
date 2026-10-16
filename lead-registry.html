@@ -299,7 +299,7 @@ function renderLeads() {
     }
     makeBtn('&#128222; Call Script', 'btn-call', function(){ openScript(l.id, l.name||'', l.phone||'', l.email||''); });
     if (l.phone) { var d=document.createElement('a'); d.href='tel:'+l.phone; d.className='btn btn-call'; d.style.textDecoration='none'; d.innerHTML='&#128222; Dial'; actions.appendChild(d); }
-    if (l.email) { var e=document.createElement('button'); e.className='btn btn-sms'; e.innerHTML='&#9993; Send Email'; e.onclick=function(){ openEmailModal(l); }; actionDiv.appendChild(e); }
+    if (l.email) { var e=document.createElement('button'); e.className='btn btn-sms'; e.innerHTML='&#9993; Send Email'; e.onclick=function(){ openEmailModal(l); }; actions.appendChild(e); }
     [{s:'called',cls:'btn-call',lbl:'&#128222; Mark Called'},{s:'interested',cls:'btn-interested',lbl:'&#9989; Interested'},{s:'sold',cls:'btn-sold',lbl:'&#127881; Sold'},{s:'not_interested',cls:'btn-notint',lbl:'&#10060; Not Interested'}].forEach(function(item){
       makeBtn(item.lbl, item.cls, function(){ updateStatus(l.id, item.s); });
     });
