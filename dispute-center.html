@@ -1494,7 +1494,7 @@ function buildTemplateLetter(name, clientId, addr, dob, bureauCode, items, today
     `${i+1}. ${item.name}${item.acct ? ' -- Account No. ending in '+item.acct : ''}\n   Dispute Reason: ${item.reason}\n   This item is disputed as inaccurate and/or unverifiable under 15 U.S.C. § 1681i.`
   ).join('\n\n');
 
-  return '${today}
+  return `${today}
 
 ${name}
 ${addr || 'Address on file'}
@@ -1543,11 +1543,11 @@ Sincerely,
 
 
 _________________________________
-${name}';
+${name}`;
 }
 
 function buildTemplateFTC(name, clientId, addr, items, today) {
-  return 'FTC IDENTITY THEFT REPORT
+  return `FTC IDENTITY THEFT REPORT
 Prepared pursuant to 15 U.S.C. § 1681c-2
 
 
@@ -1586,7 +1586,7 @@ ${name}
 This Identity Theft Report was prepared in connection with a formal dispute filed with the major credit reporting agencies (Equifax, Experian, and TransUnion) as part of a credit restoration process conducted through CP Restoration Services.
 
 For FTC Identity Theft resources, visit: IdentityTheft.gov
-To file an FTC complaint: reportfraud.ftc.gov';
+To file an FTC complaint: reportfraud.ftc.gov`;
 }
 
 function displayLetters(style, bureaus, today) {
@@ -1835,14 +1835,14 @@ function renderNotificationLog() {
     return;
   }
   const statusBadge = s => s==='Sent'?'badge-green':s.includes('Queued')?'badge-gold':'badge-red';
-  tbody.innerHTML = notificationLog.map(n=>'<tr>
+  tbody.innerHTML = notificationLog.map(n=>'`tr>
     <td>${n.date}</td>
     <td><strong>${n.client}</strong><br><span style="font-size:11px;color:var(--gray);">${n.clientId||''}</span></td>
     <td>${n.type}</td>
     <td>${n.channel==='SMS'?'📱 SMS':'📧 Email'}</td>
     <td><span class="badge ${statusBadge(n.status)}">${n.status}</span></td>
     <td style="font-size:11px;color:var(--gray);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${n.preview}</td>
-  </tr>').join('');
+  </tr>`).join('');
 }
 
 async function sendTestNotification() {
