@@ -1345,7 +1345,7 @@ function addDisputeItem() {
         <option>Experian + TransUnion</option>
       </select>
     </div>
-    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeDisputeItem('${id}')">🗑 Remove</button>
+    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeDisputeItem(`${id}`)">🗑 Remove</button>
   `;
   list.appendChild(row);
 }
@@ -1380,7 +1380,7 @@ function addInquiryItem() {
         <option>Experian + TransUnion</option>
       </select>
     </div>
-    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeInquiryItem('${id}')">🗑 Remove</button>
+    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeInquiryItem(`${id}`)">🗑 Remove</button>
   `;
   list.appendChild(row);
 }
@@ -1596,7 +1596,7 @@ function displayLetters(style, bureaus, today) {
   // Bureau letter tabs
   const tabsEl = document.getElementById('letter-bureau-tabs');
   tabsEl.innerHTML = bureaus.map((code,i) =>
-    `<button class="bureau-pill bureau-${code}${i===0?' selected':''}" onclick="showLetter('${code}')" id="ltab-${code}">${BUREAU_NAMES[code]}</button>`
+    `<button class="bureau-pill bureau-${code}${i===0?' selected':''}" onclick="showLetter(`${code}`)" id="ltab-${code}">${BUREAU_NAMES[code]}</button>`
   ).join('');
 
   // Meta
@@ -1927,19 +1927,19 @@ function renderLog() {
     d.ex_conf_num ? '<div style="font-size:10px;"><span style="color:#C62828;font-weight:700;">EX:</span> '+d.ex_conf_num+'</div>' : '',
     d.tu_conf_num ? '<div style="font-size:10px;"><span style="color:#1B5E20;font-weight:700;">TU:</span> '+d.tu_conf_num+'</div>' : ''
   ].filter(Boolean).join('') || '<span style="color:#94A3B8;font-size:11px;">Not logged</span>';
-  return '<tr>
+  return `<tr>
     <td>${d.filedDate}</td>
     <td><strong>${d.clientName}</strong><br><span class="badge badge-blue">${d.clientId}</span></td>
-    <td>${(d.bureaus||[]).map(b=>`<span class="badge badge-gray" style="margin-right:2px;">${b.substring(0,2)}</span>`).join('')}</td>
-    <td>${(d.items||[]).length} item${(d.items||[]).length!==1?'s':''}</td>
+    <td>${(d.bureaus||[]).map(b=>`<span class="badge badge-gray" style="margin-right:2px;">${b.substring(0,2)}</span>`).join(``)}</td>
+    <td>${(d.items||[]).length} item${(d.items||[]).length!==1?`s':'`}</td>
     <td style="line-height:1.6;">${refNums}</td>
-    <td>${d.specialist||'--'}</td>
-    <td><span class="badge ${statusBadge[d.status]||'badge-gray'}">${d.status}</span></td>
+    <td>${d.specialist||`--`}</td>
+    <td><span class="badge ${statusBadge[d.status]||`badge-gray`}">${d.status}</span></td>
     <td>${bureauCallBadge}</td>
-    <td style="font-size:12px;color:var(--gray);">${d.nextAction||'--'}</td>
+    <td style="font-size:12px;color:var(--gray);">${d.nextAction||`--`}</td>
     <td style="display:flex;gap:4px;">
       <button class="btn btn-outline btn-sm" onclick="openDisputeDetail(${disputes.indexOf(d)})">📂 Open</button>
-      <button class="btn btn-blue btn-sm" onclick="viewTimeline('${d.clientId}')">Timeline</button>
+      <button class="btn btn-blue btn-sm" onclick="viewTimeline(`${d.clientId}')">Timeline</button>
     </td>
   </tr>';
 }).join('');
@@ -1999,21 +1999,21 @@ function renderTimeline() {
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">CLIENT</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${clientName}</div><div style="font-size:12px;color:var(--gray);">${clientId}</div></div>
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">TOTAL DISPUTES</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${clientDisputes.length} rounds</div></div>
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">ITEMS DISPUTED</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${totalItems} items</div></div>
-      <div><div style="font-size:11px;color:var(--gray);font-weight:700;">BUREAUS</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${bureaus.join(`, ')}</div></div>
+      <div><div style="font-size:11px;color:var(--gray);font-weight:700;">BUREAUS</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${bureaus.join(`, `)}</div></div>
     </div>
     <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:16px;">📅 Case Timeline -- What the client sees</div>
     <div class="timeline">
-      ${allEvents.map(e=>'
+      ${allEvents.map(e=>`
         <div class="tl-item">
           <div class="tl-dot ${e.type||'blue'}"></div>
           <div class="tl-date">${e.date}</div>
           <div class="tl-title">${e.title}</div>
           <div class="tl-desc">${e.desc}</div>
         </div>
-      ').join('')}
+      ').join('`)}
       <div class="tl-item">
         <div class="tl-dot gold"></div>
-        <div class="tl-date">${clientDisputes[0]?.filedDate || '--'}</div>
+        <div class="tl-date">${clientDisputes[0]?.filedDate || `--'}</div>
         <div class="tl-title">Case Opened</div>
         <div class="tl-desc">CP Restoration Services enrolled client and began credit restoration process.</div>
       </div>
@@ -2153,14 +2153,14 @@ function renderByEmployee(filteredDisputes, filteredCalls) {
     return;
   }
 
-  tbody.innerHTML = rows.map((r,i) => '<tr>
-    <td><strong>${r.name}</strong>${i===0?'<span class="badge badge-gold" style="margin-left:6px;">Top</span>':''}</td>
+  tbody.innerHTML = rows.map((r,i) => `<tr>
+    <td><strong>${r.name}</strong>${i===0?`<span class="badge badge-gold" style="margin-left:6px;">Top</span>':'`}</td>
     <td>${r.disputes}</td>
     <td>${r.calls}</td>
     <td><strong>${r.total}</strong></td>
-    <td>${r.resolved > 0 ? '<span style="color:var(--green);font-weight:700;">'+r.resolved+'</span>' : '--'}</td>
+    <td>${r.resolved > 0 ? `<span style="color:var(--green);font-weight:700;">'+r.resolved+'</span>' : '--`}</td>
     <td>${r.clients}</td>
-  </tr>').join('');
+  </tr>`).join('');
 }
 
 // Portal status updater
@@ -2224,12 +2224,12 @@ function renderMailLog() {
   const el = document.getElementById('mail-log-list');
   if(!el || mailLogs.length===0) return;
   el.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px;">Mailing History</div>' +
-    mailLogs.map(m=>'<div style="display:flex;gap:12px;align-items:center;padding:8px 12px;background:#F9FAFB;border-radius:6px;margin-bottom:6px;font-size:12px;">
+    mailLogs.map(m=>`<div style="display:flex;gap:12px;align-items:center;padding:8px 12px;background:#F9FAFB;border-radius:6px;margin-bottom:6px;font-size:12px;">
       <span>📬</span>
       <strong>${m.bureau}</strong>
       <span style="color:var(--gray);">Mailed: ${m.date}</span>
       <span style="color:var(--gray);">Tracking: <code style="background:#F3F4F6;padding:2px 6px;border-radius:4px;">${m.tracking}</code></span>
-      ${m.delivered?'<span class="badge badge-green">Delivered ✅</span>':'<span class="badge badge-gold">In Transit</span>'}
+      ${m.delivered?`<span class="badge badge-green">Delivered ✅</span>':'<span class="badge badge-gold">In Transit</span>'}
     </div>').join('');
 }
 
@@ -2446,7 +2446,7 @@ function openDisputeDetail(idx) {
         </div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-blue btn-sm" onclick="closeDisputeDetail();prepareNextRoundFromLog('${d.clientId}')">🔄 Start Next Round</button>
+        <button class="btn btn-blue btn-sm" onclick="closeDisputeDetail();prepareNextRoundFromLog(`${d.clientId}`)">🔄 Start Next Round</button>
         <button class="btn btn-outline btn-sm" onclick="quickUpdateStatus(${idx})">Update Status</button>
       </div>
     </div>
@@ -2492,7 +2492,7 @@ function openDisputeDetail(idx) {
             <input type="number" id="detail-score-ex" placeholder="🔴 Experian" min="300" max="850" style="padding:8px;border:1px solid var(--border);border-radius:6px;font-size:12px;">
             <input type="number" id="detail-score-tu" placeholder="🟢 TransUnion" min="300" max="850" style="padding:8px;border:1px solid var(--border);border-radius:6px;font-size:12px;grid-column:1/-1;">
           </div>
-          <button class="btn btn-blue btn-sm" onclick="addScoreFromDetail('${d.clientId}',${idx})" style="width:100%;">💾 Save Score Update</button>
+          <button class="btn btn-blue btn-sm" onclick="addScoreFromDetail(`${d.clientId}`,${idx})" style="width:100%;">💾 Save Score Update</button>
         </div>
       </div>
     </div>
@@ -2763,7 +2763,7 @@ function renderFollowUps(data) {
       <td style="font-size:12px;">${d.specialist||'--'}</td>
       <td><strong style="color:${statusColor[r.status]||'var(--gray)'};">${statusLabel[r.status]||r.status}</strong></td>
       <td style="display:flex;gap:4px;flex-wrap:wrap;">
-        <button class="btn btn-blue btn-sm" onclick="closeDisputeDetail();prepareNextRoundFromLog('${d.clientId}')">📝 File Action</button>
+        <button class="btn btn-blue btn-sm" onclick="closeDisputeDetail();prepareNextRoundFromLog(`${d.clientId}`)">📝 File Action</button>
         <button class="btn btn-outline btn-sm" onclick="openDisputeDetail(${disputes.indexOf(d)})">📂 Open</button>
       </td>
     </tr>`;
@@ -2795,7 +2795,7 @@ function renderEmployeeNotificationCards(data) {
         ${dueSoon.length>0?'<div style="color:#EA580C;">🟠 '+dueSoon.length+' due this week</div>':''}
         <div style="color:var(--green);">✅ ${myClients.filter(r=>r.status==='on-track').length} on track</div>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="notifyEmployee('${name}')" style="width:100%;">📣 Send Notification to ${name.split(' ')[0]}</button>
+      <button class="btn btn-outline btn-sm" onclick="notifyEmployee(`${name}`)" style="width:100%;">📣 Send Notification to ${name.split(' ')[0]}</button>
     </div>`;
   }).filter(Boolean).join('');
 }
