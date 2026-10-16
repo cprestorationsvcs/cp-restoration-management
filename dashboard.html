@@ -1136,5 +1136,136 @@ function signOut() {
 }
 
 </script>
+
+<!-- ═══ LIVE OPERATIONS PANEL (injected) ═══ -->
+<div id="live-ops-panel" style="max-width:1200px;margin:20px auto;padding:0 20px;">
+
+  <!-- HEADER -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="font-size:18px;font-weight:900;color:#1B3A6B;">⚡ Live Operations</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="font-size:12px;color:#94A3B8;">Updated: <span id="lop-time">—</span></span>
+      <button onclick="lopLoad()" style="padding:5px 12px;background:#C9A84C;color:white;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">⟳ Refresh</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px;">
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#1B3A6B;" id="lop-clients">—</div><div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;margin-top:4px;">Active Clients</div></div>
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#991B1B;" id="lop-refunds">—</div><div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;margin-top:4px;">Pending Refunds</div></div>
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#92400E;" id="lop-callbacks">—</div><div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;margin-top:4px;">Open Callbacks</div></div>
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#166534;" id="lop-updates">—</div><div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;margin-top:4px;">Updates (Week)</div></div>
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#1B3A6B;" id="lop-appts">—</div><div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;margin-top:4px;">Appts Today</div></div>
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#1D4ED8;" id="lop-leads">—</div><div style="font-size:10px;color:#64748B;font-weight:700;text-transform:uppercase;margin-top:4px;">New Leads (Week)</div></div>
+  </div>
+
+  <!-- 2-COL: ALERTS + DEPT -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:14px;padding:18px;">
+      <div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:12px;display:flex;justify-content:space-between;">🚨 Alerts <a href="/compliance-dashboard.html" style="font-size:11px;color:#C9A84C;font-weight:600;text-decoration:none;">Full View →</a></div>
+      <div id="lop-alerts"><div style="padding:16px;text-align:center;color:#94A3B8;font-size:12px;">Loading...</div></div>
+    </div>
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:14px;padding:18px;">
+      <div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:12px;display:flex;justify-content:space-between;">📊 Dept Status <a href="/kpi-dashboard.html" style="font-size:11px;color:#C9A84C;font-weight:600;text-decoration:none;">KPI Dashboard →</a></div>
+      <div id="lop-depts"><div style="padding:16px;text-align:center;color:#94A3B8;font-size:12px;">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- REFUNDS + CALLBACKS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:14px;padding:18px;">
+      <div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:12px;display:flex;justify-content:space-between;">💰 Pending Refunds <a href="/refund-tracker.html" style="font-size:11px;color:#C9A84C;font-weight:600;text-decoration:none;">Open Tracker →</a></div>
+      <div id="lop-refund-list"><div style="padding:16px;text-align:center;color:#94A3B8;font-size:12px;">Loading...</div></div>
+    </div>
+    <div style="background:white;border:1.5px solid #E2E8F0;border-radius:14px;padding:18px;">
+      <div style="font-size:13px;font-weight:800;color:#1B3A6B;margin-bottom:12px;display:flex;justify-content:space-between;">📞 Open Callbacks <a href="/call-queue.html" style="font-size:11px;color:#C9A84C;font-weight:600;text-decoration:none;">Call Queue →</a></div>
+      <div id="lop-callback-list"><div style="padding:16px;text-align:center;color:#94A3B8;font-size:12px;">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+    <a href="/compliance-dashboard.html" style="padding:8px 16px;background:#1B3A6B;color:white;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;">👑 Compliance Dashboard</a>
+    <a href="/kpi-dashboard.html" style="padding:8px 16px;background:#C9A84C;color:white;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;">📊 KPI Dashboard</a>
+    <a href="/client-manager.html" style="padding:8px 16px;background:white;border:1.5px solid #E2E8F0;color:#1B3A6B;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;">📋 Client Manager</a>
+    <a href="/refund-tracker.html" style="padding:8px 16px;background:white;border:1.5px solid #E2E8F0;color:#1B3A6B;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;">💰 Refunds</a>
+    <a href="/appointments.html" style="padding:8px 16px;background:white;border:1.5px solid #E2E8F0;color:#1B3A6B;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;">📅 Appointments</a>
+    <a href="/team-chat.html" style="padding:8px 16px;background:white;border:1.5px solid #E2E8F0;color:#1B3A6B;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;">💬 Team Chat</a>
+  </div>
+</div>
+
+<script>
+(function(){
+var SUPA='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR={'apikey':KEY,'Authorization':'Bearer '+KEY};
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+async function sf(url){try{var r=await fetch(url,{headers:HDR});if(!r.ok)return[];return r.json();}catch(e){return[];}}
+
+window.lopLoad = async function() {
+  document.getElementById('lop-time').textContent = new Date().toLocaleTimeString();
+  var now=new Date(); var weekAgo=new Date(now-7*24*60*60*1000).toISOString(); var todayStr=now.toISOString().split('T')[0];
+  var [clients,refunds,callbacks,updates,appts,leads] = await Promise.all([
+    sf(SUPA+'/clients?status=eq.Active&select=id'),
+    sf(SUPA+'/refund_requests?status=eq.Under+Review&select=id,client_name,client_id,refund_amount,created_at&order=created_at.desc&limit=5'),
+    sf(SUPA+'/requests?status=eq.pending&select=id,client_name,request_type,created_at&order=created_at.desc&limit=5'),
+    sf(SUPA+'/status_updates?created_at=gte.'+encodeURIComponent(weekAgo)+'&select=id,posted_by_name,action,client_name,created_at&order=created_at.desc&limit=20'),
+    sf(SUPA+'/appointments?appointment_date=gte.'+todayStr+'T00:00:00Z&appointment_date=lte.'+todayStr+'T23:59:59Z&select=id,client_name,appointment_status,appointment_date'),
+    sf(SUPA+'/leads?created_at=gte.'+encodeURIComponent(weekAgo)+'&select=id,name,status')
+  ]);
+  document.getElementById('lop-clients').textContent=clients.length;
+  document.getElementById('lop-refunds').textContent=refunds.length;
+  document.getElementById('lop-callbacks').textContent=callbacks.length;
+  document.getElementById('lop-updates').textContent=updates.length;
+  document.getElementById('lop-appts').textContent=appts.length;
+  document.getElementById('lop-leads').textContent=leads.length;
+
+  // Alerts
+  var alerts=[];
+  if(refunds.length) alerts.push({c:'#FEE2E2',b:'#EF4444',t:refunds.length+' refund(s) need approval',s:'Open Refund Tracker',l:'/refund-tracker.html'});
+  if(callbacks.length) alerts.push({c:'#FFFBEB',b:'#F59E0B',t:callbacks.length+' open callback(s)',s:'Check Call Queue',l:'/call-queue.html'});
+  var overdue=appts.filter(function(a){return a.appointment_status==='Booked'&&new Date(a.appointment_date)<new Date()-15*60*1000;});
+  if(overdue.length) alerts.push({c:'#FEE2E2',b:'#EF4444',t:overdue.length+' overdue appointment(s)',s:'Open Appointments',l:'/appointments.html'});
+  if(!alerts.length) alerts=[{c:'#F0FDF4',b:'#22C55E',t:'No urgent alerts',s:'All clear',l:''}];
+  document.getElementById('lop-alerts').innerHTML=alerts.map(function(a){
+    return '<div style="padding:10px;border-radius:8px;border-left:3px solid '+a.b+';background:'+a.c+';margin-bottom:8px;font-size:13px;">'+
+      '<strong>'+esc(a.t)+'</strong>'+(a.l?'&nbsp;<a href="'+a.l+'" style="color:#C9A84C;font-weight:700;font-size:11px;">→</a>':'')+
+      '<div style="font-size:11px;color:#64748B;">'+esc(a.s)+'</div></div>';
+  }).join('');
+
+  // Dept
+  var depts=[
+    {n:'Customer Service',ico:'👥',count:updates.filter(function(u){return['Elna','Alec','Raymon'].some(function(x){return(u.posted_by_name||'').includes(x);});}).length,target:150},
+    {n:'Dispute',ico:'⚖️',count:updates.filter(function(u){return['Marcelo','Annabel'].some(function(x){return(u.posted_by_name||'').includes(x);});}).length,target:100},
+    {n:'Bureau Calling',ico:'📞',count:0,target:50},
+    {n:'Sales',ico:'💰',count:leads.filter(function(l){return(l.status||'').toLowerCase().includes('sold');}).length,target:5}
+  ];
+  document.getElementById('lop-depts').innerHTML=depts.map(function(d){
+    var pct=Math.min(100,Math.round((d.count/d.target)*100));
+    var c=pct>=80?'#22C55E':pct>=50?'#F59E0B':'#EF4444';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F1F5F9;">'+
+      '<span style="font-size:13px;font-weight:600;">'+d.ico+' '+esc(d.n)+'</span>'+
+      '<div style="display:flex;align-items:center;gap:8px;">'+
+        '<div style="background:#E2E8F0;border-radius:20px;height:6px;width:60px;overflow:hidden;"><div style="height:6px;border-radius:20px;background:'+c+';width:'+pct+'%"></div></div>'+
+        '<span style="font-size:11px;font-weight:700;color:'+c+';">'+d.count+'/'+d.target+'</span>'+
+      '</div></div>';
+  }).join('');
+
+  // Refunds
+  document.getElementById('lop-refund-list').innerHTML=refunds.length?
+    refunds.map(function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F1F5F9;font-size:12px;"><div><strong>'+esc(r.client_name||'—')+'</strong><div style="color:#94A3B8;font-size:10px;">'+esc(r.client_id||'')+'</div></div><a href="/refund-tracker.html" style="padding:4px 10px;background:#C9A84C;color:white;border-radius:5px;font-size:10px;font-weight:700;text-decoration:none;">Review</a></div>';}).join('')
+    :'<div style="padding:16px;text-align:center;color:#94A3B8;font-size:12px;">No pending refunds ✅</div>';
+
+  // Callbacks
+  document.getElementById('lop-callback-list').innerHTML=callbacks.length?
+    callbacks.map(function(c){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F1F5F9;font-size:12px;"><div><strong>'+esc(c.client_name||'—')+'</strong><div style="color:#94A3B8;font-size:10px;">'+esc(c.request_type||'Callback')+'</div></div><a href="/call-queue.html" style="padding:4px 10px;background:#1B3A6B;color:white;border-radius:5px;font-size:10px;font-weight:700;text-decoration:none;">View</a></div>';}).join('')
+    :'<div style="padding:16px;text-align:center;color:#94A3B8;font-size:12px;">No open callbacks ✅</div>';
+};
+lopLoad();
+setInterval(lopLoad, 60000);
+})();
+</script>
+<!-- ═══ END LIVE OPERATIONS PANEL ═══ -->
+
 </body>
 </html>
