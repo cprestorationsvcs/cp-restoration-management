@@ -1824,7 +1824,7 @@ async function sendNotifications(dispute) {
           subject: emailSubjFinal,
           content: [
             {type:'text/plain', value: emailMsg},
-            {type:'text/html',  value: '<div style="font-family:Inter,system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+emailMsg.replace(/\n/g,'<br>'))+'<br><br><hr style="border:none;border-top:1px solid #eee;margin:24px 0;"><p style="font-size:12px;color:#888;">CP Restoration Services<br>cprestorationsvcs@gmail.com<br>1-855-327-5847<br>Monday — Friday | 9:00 AM – 5:00 PM EST<br>35daycreditrepair.com</p></div>'}
+            {type:'text/html',  value: '<div style="font-family:Inter,system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+emailMsg.replace(/\n/g,'<br>')+'<br><br><hr style="border:none;border-top:1px solid #eee;margin:24px 0;"><p style="font-size:12px;color:#888;">CP Restoration Services<br>cprestorationsvcs@gmail.com<br>1-855-327-5847<br>Monday — Friday | 9:00 AM – 5:00 PM EST<br>35daycreditrepair.com</p></div>'}
           ]
         })
       });
@@ -2413,7 +2413,7 @@ function renderScoreProgress(history) {
   const diffEx = (last.ex&&first.ex) ? last.ex-first.ex : null;
   const diffTu = (last.tu&&first.tu) ? last.tu-first.tu : null;
   const arrow = d => d===null?'—':d>0?'<span style="color:var(--green);">▲+'+d+'</span>':d<0?'<span style="color:var(--red);">▼'+d+'</span>':'<span style="color:var(--gray);">No change</span>';
-  return '<div style="margin-top:10px;padding:10px 14px;background:var(--lgo);border-radius:8px;font-size:12px;"><strong style="color:#92710A;">📈 Score Progress:</strong> Equifax '+arrow(diffEq))+' &nbsp; Experian '+arrow(diffEx))+' &nbsp; TransUnion '+arrow(diffTu))+'</div>';
+  return '<div style="margin-top:10px;padding:10px 14px;background:var(--lgo);border-radius:8px;font-size:12px;"><strong style="color:#92710A;">📈 Score Progress:</strong> Equifax '+arrow(diffEq)+' &nbsp; Experian '+arrow(diffEx)+' &nbsp; TransUnion '+arrow(diffTu)+'</div>';
 }
 
 // ============================================================
@@ -2766,7 +2766,7 @@ function renderFollowUps(data) {
       <td>${r.lastDate}</td>
       <td><strong>${r.nextDue}</strong></td>
       <td>${daysText}</td>
-      <td>${(d.bureaus||[]).map(b=>'<span class="badge badge-gray" style="margin-right:2px;">'+(b.substring(0,2)))+'</span>').join('')}</td>
+      <td>${(d.bureaus||[]).map(b=>'<span class="badge badge-gray" style="margin-right:2px;">'+(b.substring(0,2))+'</span>').join('')}</td>
       <td style="font-size:12px;">${d.specialist||'—'}</td>
       <td><strong style="color:${statusColor[r.status]||'var(--gray)'};">${statusLabel[r.status]||r.status}</strong></td>
       <td style="display:flex;gap:4px;flex-wrap:wrap;">
@@ -2797,8 +2797,8 @@ function renderEmployeeNotificationCards(data) {
         ${urgent>0?'<span class="badge badge-red">'+urgent+' urgent</span>':'<span class="badge badge-green">On track</span>'}
       </div>
       <div style="font-size:12px;color:var(--gray);margin-bottom:10px;">
-        ${overdue.length>0?'<div style="color:var(--red);font-weight:700;">🔴 '+overdue.length+' overdue: '+overdue.map(r=>r.dispute.clientName).join(', '))+'</div>':''}
-        ${dueToday.length>0?'<div style="color:#D97706;font-weight:700;">🟡 '+dueToday.length+' due today: '+dueToday.map(r=>r.dispute.clientName).join(', '))+'</div>':''}
+        ${overdue.length>0?'<div style="color:var(--red);font-weight:700;">🔴 '+overdue.length+' overdue: '+overdue.map(r=>r.dispute.clientName).join(', ')+'</div>':''}
+        ${dueToday.length>0?'<div style="color:#D97706;font-weight:700;">🟡 '+dueToday.length+' due today: '+dueToday.map(r=>r.dispute.clientName).join(', ')+'</div>':''}
         ${dueSoon.length>0?'<div style="color:#EA580C;">🟠 '+dueSoon.length+' due this week</div>':''}
         <div style="color:var(--green);">✅ ${myClients.filter(r=>r.status==='on-track').length} on track</div>
       </div>
@@ -2822,7 +2822,7 @@ async function notifyEmployee(specialistName) {
 
   if(urgent.length > 0) {
     msg += '🔴 ACTION REQUIRED NOW (' + urgent.length + ' clients):\n';
-    urgent.forEach(r => { msg += '• ' + r.dispute.clientName + ' (' + r.dispute.clientId + ') — ' + (r.status==='overdue'?Math.abs(r.bizDaysLeft))+' days overdue':'Due today') + '\n'; });
+    urgent.forEach(r => { msg += '• ' + r.dispute.clientName + ' (' + r.dispute.clientId + ') — ' + (r.status==='overdue'?Math.abs(r.bizDaysLeft)+' days overdue':'Due today') + '\n'; });
     msg += '\n';
   }
   if(dueSoon.length > 0) {
@@ -3003,13 +3003,13 @@ async function logBureauCall() {
   renderCallLog();
   updateStats();
 
-  if(statusEl) statusEl.innerHTML = '<span style="color:var(--green);">Call logged. Timeline updated.'+(entry.notified?' Client notified.':''))+'</span>';
+  if(statusEl) statusEl.innerHTML = '<span style="color:var(--green);">Call logged. Timeline updated.'+(entry.notified?' Client notified.':'')+'</span>';
   if(btn) { btn.disabled=false; btn.innerHTML='Log Call + Notify Client'; }
 
   ['call-ref-num','call-rep-name','call-duration','call-items','call-notes','call-internal-notes'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
-  alert('Call logged: '+(clientName||clientId))+' | '+bureau+' | '+result+(refNum?' | '+refLabel+' #: '+refNum:''));
+  alert('Call logged: '+(clientName||clientId)+' | '+bureau+' | '+result+(refNum?' | '+refLabel+' #: '+refNum:''));
 }
 
 async function sendCallNotif(dest, ch, msg, entry, subj) {
@@ -3029,9 +3029,9 @@ async function sendCallNotif(dest, ch, msg, entry, subj) {
       status=r.ok?'Sent':'Failed';
     }
   } catch(e) { status='Queued -- CORS'; }
-  const le={date:new Date().toLocaleString(),client:entry.clientName,clientId:entry.clientId,type:'Bureau Call -- '+entry.bureau,channel:ch,preview:msg.substring(0,80))+'...',status};
+  const le={date:new Date().toLocaleString(),client:entry.clientName,clientId:entry.clientId,type:'Bureau Call -- '+entry.bureau,channel:ch,preview:msg.substring(0,80)+'...',status};
   notificationLog.unshift(le);
-  if(db) db.doc('dispute_notifications/nc_'+Date.now())+'_'+ch).set(le).catch(()=>{});
+  if(db) db.doc('dispute_notifications/nc_'+Date.now()+'_'+ch).set(le).catch(()=>{});
   renderNotificationLog();
 }
 
@@ -3045,14 +3045,14 @@ function renderCallLog() {
   const rb = r => r.includes('removed')?'badge-green':r.includes('unresponsive')||r.includes('disconnected')?'badge-red':'badge-blue';
   const bb = b => b==='Equifax'?'badge-blue':b==='Experian'?'badge-red':'badge-green';
   tbody.innerHTML = bureauCalls.map(c =>
-    '<tr><td>'+c.dateStr+(c.callTime?'<br><small>'+c.callTime+'</small>':''))+'</td>' +
-    '<td><strong>'+(c.clientName||'--'))+'</strong><br><span class="badge badge-blue">'+c.clientId+'</span></td>' +
-    '<td><span class="badge '+bb(c.bureau))+'">'+c.bureau+'</span></td>' +
-    '<td><span class="badge '+rb(c.result))+'">'+c.result+'</span></td>' +
-    '<td style="font-size:12px;">'+(c.refNum?(c.refLabel||'Ref'))+' #: <strong>'+c.refNum+'</strong>':'--'))+'</td>' +
-    '<td style="font-size:12px;">'+(c.items||'--'))+'</td>' +
-    '<td>'+(c.specialist||'--'))+'</td>' +
-    '<td>'+(c.notified?'<span class="badge badge-green">Sent</span>':'<span class="badge badge-gray">Not sent</span>'))+'</td></tr>'
+    '<tr><td>'+c.dateStr+(c.callTime?'<br><small>'+c.callTime+'</small>':'')+'</td>' +
+    '<td><strong>'+(c.clientName||'--')+'</strong><br><span class="badge badge-blue">'+c.clientId+'</span></td>' +
+    '<td><span class="badge '+bb(c.bureau)+'">'+c.bureau+'</span></td>' +
+    '<td><span class="badge '+rb(c.result)+'">'+c.result+'</span></td>' +
+    '<td style="font-size:12px;">'+(c.refNum?(c.refLabel||'Ref')+' #: <strong>'+c.refNum+'</strong>':'--')+'</td>' +
+    '<td style="font-size:12px;">'+(c.items||'--')+'</td>' +
+    '<td>'+(c.specialist||'--')+'</td>' +
+    '<td>'+(c.notified?'<span class="badge badge-green">Sent</span>':'<span class="badge badge-gray">Not sent</span>')+'</td></tr>'
   ).join('');
 }
 
