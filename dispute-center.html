@@ -1,23 +1,4 @@
 <!DOCTYPE html>
-
-// Auto-select logged-in user as specialist
-(function() {
-  var name = localStorage.getItem('cp_logged_in_name');
-  if (name) {
-    var sel = document.getElementById('default-specialist');
-    if (sel) {
-      for (var i = 0; i < sel.options.length; i++) {
-        if (sel.options[i].value === name) { sel.selectedIndex = i; break; }
-      }
-      // If not found, add them
-      if (sel.value !== name) {
-        var opt = document.createElement('option');
-        opt.value = name; opt.text = name; opt.selected = true;
-        sel.appendChild(opt);
-      }
-    }
-  }
-})();
 <html lang="en">
 <head>
 <script>
@@ -3420,6 +3401,24 @@ fetch('https://cloudflare.com/cdn-cgi/trace').then(function(r){return r.json();}
 <script>
 // Ensure showTab is globally available
 
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var name = localStorage.getItem('cp_logged_in_name');
+  if (name) {
+    var sel = document.getElementById('default-specialist');
+    if (sel) {
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === name) { sel.selectedIndex = i; break; }
+      }
+      if (sel.value !== name) {
+        var opt = document.createElement('option');
+        opt.value = name; opt.text = name; opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+  }
+});
 </script>
 </body>
 </html>
