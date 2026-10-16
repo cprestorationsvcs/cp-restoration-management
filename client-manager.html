@@ -191,7 +191,7 @@ src="https://www.facebook.com/tr?id=1362385498386512&ev=PageView&noscript=1"
       <div class="card-title">&#128101; All Clients</div>
     </div>
     <div class="search-bar">
-      <input type="text" id="srch" placeholder="&#128269; Search name, ID, email, phone..." oninput="renderTable()" onkeyup="renderTable()">
+      <input type="text" id="srch" placeholder="&#128269; Search name, ID, email, phone..." oninput="renderTable()" onkeyup="renderTable()" autocomplete="off">
       <select id="srch-status" onchange="renderTable()">
         <option value="">All Statuses</option>
         <option value="Active">Active</option>
@@ -621,7 +621,7 @@ async function dbGetClients(searchTerm) {
     var data = [];
     if (searchTerm && searchTerm.length >= 2) {
       var s = encodeURIComponent(searchTerm);
-      var url = SUPA_API + '?select=*&or=(name.ilike.*'+s+'*,id.ilike.*'+s+'*,email.ilike.*'+s+'*,phone.ilike.*'+s+'*)&order=name.asc&limit=500';
+      var url = SUPA_API + '?select=id,name,email,phone,status,package,start_date,end_date,last_dispute_date,portal_pwd,assigned_email,sales_agent,assigned_to,chargeback_status,chargeback_note,notes,disputes,bureau_logins,docs&or=(name.ilike.*'+s+'*,id.ilike.*'+s+'*,email.ilike.*'+s+'*,phone.ilike.*'+s+'*)&order=name.asc&limit=500';
       var resp = await fetch(url, {headers:hdrs});
       if (!resp.ok) throw new Error('HTTP '+resp.status);
       data = await resp.json();
@@ -630,7 +630,7 @@ async function dbGetClients(searchTerm) {
       // Paginate — load ALL clients
       var pageSize=1000, offset=0, fetching=true;
       while(fetching) {
-        var url = SUPA_API+'?select=*&order=name.asc&limit='+pageSize+'&offset='+offset;
+        var url = SUPA_API+'?select=id,name,email,phone,status,package,start_date,end_date,last_dispute_date,portal_pwd,assigned_email,sales_agent,assigned_to,chargeback_status,chargeback_note,notes,disputes,bureau_logins,docs&order=name.asc&limit='+pageSize+'&offset='+offset;
         var resp = await fetch(url, {headers:hdrs});
         console.log('[CM] fetch status:', resp.status, 'url:', url.substring(0,80));
         if (!resp.ok) throw new Error('HTTP '+resp.status+' '+url.substring(0,80));
