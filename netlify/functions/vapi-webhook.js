@@ -325,9 +325,13 @@ async function handle_book_appointment({ slot_id, service_type, caller_phone, ca
 }
 
 // ── get_my_appointments (item 3) ────────────────────────
-async function handle_get_my_appointments({ caller_phone, client_id }) {
-  if (!client_id && !caller_phone) {
-    return { error: 'Caller must be verified before viewing appointments.' };
+async function handle_get_my_appointments({ _caller_phone, _client_id }) {
+  var caller_phone = _caller_phone; var client_id = _client_id;
+  if (!caller_phone) {
+    return { error: 'Unable to identify caller. Please call from your registered number.' };
+  }
+  if (!client_id) {
+    return { error: 'You must be verified as an existing client before viewing appointments. Please provide your date of birth to verify.' };
   }
   let query;
   if (client_id) {
@@ -356,7 +360,8 @@ async function handle_get_my_appointments({ caller_phone, client_id }) {
 }
 
 // ── reschedule_appointment (item 4) ────────────────────
-async function handle_reschedule_appointment({ appointment_id, new_slot_id, caller_phone, client_id }) {
+async function handle_reschedule_appointment({ appointment_id, new_slot_id, _caller_phone, _client_id }) {
+  var caller_phone = _caller_phone; var client_id = _client_id;
   // Verify ownership
   const existing = await supaGet(`appointments?id=eq.${appointment_id}&select=*`);
   if (!Array.isArray(existing) || !existing.length) {
@@ -431,7 +436,8 @@ async function handle_reschedule_appointment({ appointment_id, new_slot_id, call
 }
 
 // ── cancel_appointment (item 5) ─────────────────────────
-async function handle_cancel_appointment({ appointment_id, caller_phone, client_id }) {
+async function handle_cancel_appointment({ appointment_id, _caller_phone, _client_id }) {
+  var caller_phone = _caller_phone; var client_id = _client_id;
   const existing = await supaGet(`appointments?id=eq.${appointment_id}&select=*`);
   if (!Array.isArray(existing) || !existing.length) return { success: false, error: 'Not found.' };
   const appt = existing[0];
@@ -542,12 +548,34 @@ When booking appointments, always confirm the slot is available first using chec
     const toolCalls = body?.message?.toolCalls || [];
     const results = [];
 
-    for (const tc of toolCalls) {
+    // Extract caller identity from the call object — AI never needs to pass these
+  const callObj = body?.message?.call || {};
+  const callerPhone = callObj?.customer?.number || null;
+  // Get verified session if exists
+  let sessionClientId = null;
+  let sessionRecord = null;
+  if (callerPhone) {
+    const digits = callerPhone.replace(/\D/g, '');
+    const e164 = digits.length === 10 ? '+1' + digits : digits.length === 11 ? '+' + digits : callerPhone;
+    try {
+      const sessions = await supaGet('call_sessions?caller_phone=eq.' + encodeURIComponent(e164) + '&order=created_at.desc&limit=1&select=*');
+      if (Array.isArray(sessions) && sessions.length && sessions[0].verified) {
+        sessionClientId = sessions[0].client_id || null;
+        sessionRecord = sessions[0];
+      }
+    } catch(e) { console.log('[SESSION] lookup error:', e.message); }
+  }
+
+  for (const tc of toolCalls) {
       const name = tc?.function?.name;
       let args = {};
       try { args = typeof tc?.function?.arguments === 'string' ? JSON.parse(tc.function.arguments) : (tc?.function?.arguments || {}); } catch {}
 
-      console.log('[TOOL]', name, JSON.stringify(args));
+      // Inject caller identity — AI never passes these, we read from call object
+      args._caller_phone = callerPhone;
+      args._client_id = sessionClientId;
+
+      console.log('[TOOL]', name, JSON.stringify({...args, _caller_phone: callerPhone ? '[set]' : null}));
       let result;
 
       try {
