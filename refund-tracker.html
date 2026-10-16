@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+// CP Restoration Shared Utilities v1
+var SUPA_BASE='https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var PORTAL_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var PORTAL_HDR={'apikey':PORTAL_KEY,'Authorization':'Bearer '+PORTAL_KEY,'Content-Type':'application/json'};
+window.__portalData={};
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function safeFetch(url,opts){return fetch(url,opts).catch(function(e){console.error('[Portal]',url,e.message);return {ok:false,status:0,json:function(){return Promise.resolve([]);}};}); }
+(function(){
+  var page=location.pathname.split('/').pop()||'index.html';
+  var open=['index.html','staff-portal.html','client-portal.html','client-onboarding.html','partner-guide.html','free-guide.html','lead-capture.html','thank-you-guide.html','thank-you-funded.html','get-funded.html','onboard.html',''];
+  if(open.indexOf(page)>=0)return;
+  var user=localStorage.getItem('currentUser');
+  if(!user){window.location.href='/staff-portal.html';return;}
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Refund & Signature Tracker | CP Restoration</title>
