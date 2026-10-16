@@ -1327,7 +1327,7 @@ function addDisputeItem() {
   const row = document.createElement('div');
   row.className = 'dispute-item-row';
   row.id = id;
-  row.innerHTML = '
+  row.innerHTML = `
     <div class="field"><label>Account / Item Name</label><input type="text" placeholder="Capital One Credit Card" id="${id}-name"></div>
     <div class="field"><label>Account Number (last 4)</label><input type="text" placeholder="xxxx-1234" id="${id}-acct"></div>
     <div class="field"><label>Dispute Reason</label>
@@ -1356,7 +1356,7 @@ function addDisputeItem() {
         <option>Experian + TransUnion</option>
       </select>
     </div>
-    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeItem('${id}')">✕</button>';
+    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeItem(`${id}')">✕</button>';
   list.appendChild(row);
 }
 
