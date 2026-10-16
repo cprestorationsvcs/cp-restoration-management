@@ -72,7 +72,7 @@ function doLogin() {
   localStorage.setItem('currentRole',  emp.role);
   localStorage.setItem('currentLabel', emp.label || '');
   var role = emp.role;
-  if      (role === 'admin')      window.location.href = '/admin-dashboard.html';
+  if      (role === 'admin')      window.location.href = '/dashboard.html';
   else if (role === 'compliance') window.location.href = '/cs-dashboard.html';
   else if (role === 'cs')         window.location.href = '/cs-dashboard.html';
   else if (role === 'dispute')    window.location.href = '/dispute-center.html';
