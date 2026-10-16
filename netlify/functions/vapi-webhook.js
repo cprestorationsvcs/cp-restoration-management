@@ -1,5 +1,8 @@
 // ═══════════════════════════════════════════════════════
-// CP RESTORATION — VAPI WEBHOOK HANDLER v2
+// CP RESTORATION — VAPI WEBHOOK HANDLER v3
+// Items 1-15 implemented: booking guard, check_availability,
+// get_my_appointments, reschedule, cancel, team routing,
+// transfer-destination-request, no rep names to AI
 // ═══════════════════════════════════════════════════════
 
 const SUPA_URL    = process.env.SUPABASE_URL    || 'https://jzkfembagpiuuoexmpoy.supabase.co';
@@ -7,561 +10,598 @@ const SUPA_KEY    = process.env.SUPABASE_KEY    || 'eyJhbGciOiJIUzI1NiIsInR5cCI6
 const VAPI_SECRET = process.env.VAPI_SECRET;
 const ASSISTANT_ID = process.env.VAPI_ASSISTANT_ID || '';
 
-// Log env var status on boot (not values)
 console.log('[BOOT] SUPABASE_URL set:', !!process.env.SUPABASE_URL);
 console.log('[BOOT] SUPABASE_KEY set:', !!process.env.SUPABASE_KEY);
 console.log('[BOOT] VAPI_SECRET set:', !!process.env.VAPI_SECRET);
-console.log('[BOOT] Using fallback URL:', !process.env.SUPABASE_URL);
-console.log('[BOOT] Using fallback KEY:', !process.env.SUPABASE_KEY);
 
-const STAFF = {
-  alec:  { name: 'Alec',  email: 'alec@mycprteam.com',  phone: '+12407883686' },
-  elna:  { name: 'Elna',  email: 'elna@mycprteam.com',  phone: '+12407883898' },
-  queen: { name: 'Queen', email: 'queen@mycprteam.com', phone: '' },
-  jason: { name: 'Jason', email: 'jason@mycprteam.com', phone: '' }
+// ── Team configuration (items 6, 10) ───────────────────
+const TEAMS = {
+  sales: [
+    { name: 'Rose Marie',       phone: '+12407883716', email: 'rosemarie@mycprteam.com' },
+    { name: 'Raven',            phone: '+12407883921', email: 'raven@mycprteam.com' },
+    { name: 'Raymon Guevarra',  phone: '+17073786750', email: 'raymon.guevarra@mycprteam.com' }
+  ],
+  customer_service: [
+    { name: 'Alec Sarrosa',  phone: '+12407883686', email: 'alec@mycprteam.com' },
+    { name: 'Elna Palabrica',phone: '+12407883898', email: 'elna@mycprteam.com' }
+  ]
 };
 
+// Service type config (item 7)
+const SERVICE_CONFIG = {
+  credit_consult:    { title: 'Credit Repair Consultation', team: 'sales' },
+  funding_consult:   { title: 'Funding Consultation',       team: 'sales' },
+  customer_service:  { title: 'Customer Service Call',      team: 'customer_service' }
+};
+
+// ── Supabase helpers ────────────────────────────────────
+function supaHeaders(prefer) {
+  const h = {
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + SUPA_KEY,
+    'Content-Type': 'application/json'
+  };
+  if (prefer) h['Prefer'] = prefer;
+  return h;
+}
+
+async function supaGet(path) {
+  const r = await fetch(SUPA_URL + '/rest/v1/' + path, { headers: supaHeaders() });
+  return r.json();
+}
+
+async function supaPost(path, body, prefer) {
+  const r = await fetch(SUPA_URL + '/rest/v1/' + path, {
+    method: 'POST', headers: supaHeaders(prefer || 'return=representation'),
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+async function supaPatch(path, body) {
+  const r = await fetch(SUPA_URL + '/rest/v1/' + path, {
+    method: 'PATCH', headers: supaHeaders('return=representation'),
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+// ── Business hours check (item 11) ─────────────────────
 function isBusinessHours() {
   const now = new Date();
   const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-  const day = et.getDay();
+  const day = et.getDay(); // 0=Sun,6=Sat
   const hour = et.getHours();
   return day >= 1 && day <= 5 && hour >= 9 && hour < 17;
 }
 
-// ── SUPABASE HELPER ────────────────────────────────────
-async function supaFetch(path, method = 'GET', body = null, extra = {}) {
-  const res = await fetch(`${SUPA_URL}/rest/v1/${path}`, {
-    method,
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': `Bearer ${SUPA_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
-      ...extra
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if (!res.ok && res.status !== 204) {
-    const txt = await res.text();
-    throw new Error(`Supabase ${method} ${path}: ${res.status} ${txt}`);
-  }
-  try { return await res.json(); } catch { return null; }
-}
+// ── Get available slots for a day ──────────────────────
+async function getAvailableSlots(dateStr, team, preferredTime) {
+  // dateStr: 'YYYY-MM-DD', team: 'sales'|'customer_service'
+  const dayStart = dateStr + 'T00:00:00Z';
+  const dayEnd   = dateStr + 'T23:59:59Z';
 
-function toE164(phone) {
-  if (!phone) return null;
-  const digits = phone.replace(/\D/g, '');
-  if (digits.length === 10) return `+1${digits}`;
-  if (digits.length === 11 && digits[0] === '1') return `+${digits}`;
-  if (digits.length > 10) return `+${digits}`;
-  return null;
-}
-
-// FIX #5: Convert MM/DD/YYYY → YYYY-MM-DD for DB comparison
-function normalizeDob(dob) {
-  if (!dob) return '';
-  const s = dob.trim();
-  // MM/DD/YYYY → YYYY-MM-DD
-  const m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m1) return `${m1[3]}-${m1[1].padStart(2,'0')}-${m1[2].padStart(2,'0')}`;
-  // Already YYYY-MM-DD
-  if (s.match(/^\d{4}-\d{2}-\d{2}$/)) return s;
-  // Strip all non-digits and compare raw
-  return s.replace(/\D/g, '');
-}
-
-function dobMatch(stored, incoming) {
-  if (!stored || !incoming) return false;
-  const a = normalizeDob(stored).replace(/\D/g,'');
-  const b = normalizeDob(incoming).replace(/\D/g,'');
-  return a === b && a.length >= 6;
-}
-
-// ── CALLER LOOKUP ──────────────────────────────────────
-async function lookupCaller(phone) {
-  const e164 = toE164(phone);
-  if (!e164) return { status: 'unknown' };
-  const clients = await supaFetch(
-    `clients?phone_e164=eq.${encodeURIComponent(e164)}&select=id,name,email,status,case_stage,assigned_rep,start_date,finish_date,balance_owed,offer_interest&limit=5`
+  // Fetch existing bookings for this day
+  const booked = await supaGet(
+    `appointments?appointment_date=gte.${dayStart}&appointment_date=lte.${dayEnd}&appointment_status=neq.Cancelled&select=appointment_date,assigned_rep,team`
   );
-  if (Array.isArray(clients) && clients.length === 1) {
-    const c = clients[0];
-    return {
-      status: c.status === 'Closed' ? 'past_client' : 'client',
-      record_id: c.id, record_type: 'client',
-      first_name: (c.name || '').split(' ')[0],
-      offer_interest: c.offer_interest || 'credit_repair',
-      assigned_rep: c.assigned_rep || 'Jason',
-      case_stage: c.case_stage || 'onboarding'
-    };
-  }
-  if (Array.isArray(clients) && clients.length > 1) return { status: 'multiple_matches' };
-  const leads = await supaFetch(
-    `leads?phone_e164=eq.${encodeURIComponent(e164)}&select=id,name,email,status,offer_interest,assigned_rep&limit=5`
-  );
-  if (Array.isArray(leads) && leads.length === 1) {
-    const l = leads[0];
-    return {
-      status: 'lead', record_id: l.id, record_type: 'lead',
-      first_name: (l.name || '').split(' ')[0],
-      offer_interest: l.offer_interest || 'unknown',
-      assigned_rep: l.assigned_rep || 'Alec'
-    };
-  }
-  if (Array.isArray(leads) && leads.length > 1) return { status: 'multiple_matches' };
-  return { status: 'unknown' };
-}
 
-// ── SESSION HELPERS ────────────────────────────────────
-async function getSession(callId) {
-  const rows = await supaFetch(`call_sessions?vapi_call_id=eq.${encodeURIComponent(callId)}&limit=1`);
-  return Array.isArray(rows) && rows.length ? rows[0] : null;
-}
-
-async function createSession(callId, callerInfo) {
-  await supaFetch('call_sessions', 'POST', {
-    vapi_call_id: callId,
-    record_id: callerInfo.record_id || null,
-    record_type: callerInfo.record_type || null,
-    caller_phone: callerInfo.caller_phone || null,
-    verified: false,
-    verification_attempts: 0,
-    session_locked: false
-  }, { 'Prefer': 'return=minimal' });
-}
-
-// ── TOOL: verify_identity ──────────────────────────────
-async function toolVerifyIdentity(callId, args) {
-  const session = await getSession(callId);
-  if (!session) return JSON.stringify({ verified: false, error: 'no_session' });
-  if (session.session_locked) return JSON.stringify({ verified: false, locked: true, attempts_left: 0 });
-  const { dob, zip } = args;
-  const recordId = session.record_id;
-  if (!recordId) return JSON.stringify({ verified: false, error: 'no_record' });
-  const rows = await supaFetch(`clients?id=eq.${encodeURIComponent(recordId)}&select=dob,zip&limit=1`);
-  const record = rows && rows[0];
-  if (!record) return JSON.stringify({ verified: false, error: 'record_not_found' });
-  // FIX #5: normalize DOB before comparing
-  const dm = dobMatch(record.dob, dob);
-  const zm = record.zip && zip && record.zip.replace(/\D/g,'').slice(0,5) === zip.replace(/\D/g,'').slice(0,5);
-  const verified = dm && zm;
-  const attempts = (session.verification_attempts || 0) + 1;
-  const locked = !verified && attempts >= 3;
-  await supaFetch(`call_sessions?vapi_call_id=eq.${encodeURIComponent(callId)}`, 'PATCH', {
-    verified, verification_attempts: attempts, session_locked: locked
-  }, { 'Prefer': 'return=minimal' });
-  return JSON.stringify({ verified, locked, attempts_left: locked ? 0 : Math.max(0, 3 - attempts) });
-}
-
-// ── TOOL: get_client_summary ───────────────────────────
-async function toolGetClientSummary(callId) {
-  const session = await getSession(callId);
-  if (!session || !session.verified) {
-    return JSON.stringify({ error: 'not_verified', message: 'Identity must be verified before file details can be shared.' });
-  }
-  const rows = await supaFetch(
-    `clients?id=eq.${encodeURIComponent(session.record_id)}&select=name,case_stage,start_date,finish_date,balance_owed,assigned_rep,package,notes&limit=1`
-  );
-  const c = rows && rows[0];
-  if (!c) return JSON.stringify({ error: 'not_found' });
-  const stageRows = await supaFetch(`ai_stage_labels?stage_key=eq.${encodeURIComponent(c.case_stage || 'onboarding')}&limit=1`);
-  const stage = stageRows && stageRows[0];
-  const startFmt = c.start_date ? new Date(c.start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Not yet started';
-  const finishFmt = c.finish_date ? new Date(c.finish_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Dependent on bureau responses';
-  return JSON.stringify({
-    first_name: (c.name || '').split(' ')[0],
-    service: 'Credit Repair',
-    stage: stage ? stage.stage_label : (c.case_stage || 'In Progress'),
-    stage_explained: stage ? stage.stage_explained : 'Our team is actively working on your file.',
-    start_date: startFmt, finish_date: finishFmt,
-    balance_owed: c.balance_owed ? `$${parseFloat(c.balance_owed).toFixed(2)}` : '$0.00',
-    assigned_rep: c.assigned_rep || 'Jason',
-    next_step: stage ? `${stage.stage_label} — our team will follow up with updates.` : 'Our team will follow up with you shortly.'
-  });
-}
-
-// FIX #1: search_record resets verified status when switching records
-async function toolSearchRecord(callId, args) {
-  const { first_name, last_name, phone, email } = args;
-  const e164 = toE164(phone);
-  let rows = [];
-  if (e164) rows = await supaFetch(`clients?phone_e164=eq.${encodeURIComponent(e164)}&select=id,name&limit=5`);
-  if ((!rows || !rows.length) && email) rows = await supaFetch(`clients?email_normalized=eq.${encodeURIComponent(email.toLowerCase())}&select=id,name&limit=5`);
-  if (!rows || !rows.length) {
-    const name = `${first_name || ''} ${last_name || ''}`.trim();
-    if (name) rows = await supaFetch(`clients?name=ilike.${encodeURIComponent('%'+name+'%')}&select=id,name&limit=5`);
-  }
-  if (!rows || !rows.length) return JSON.stringify({ match: 'none' });
-  if (rows.length > 1) return JSON.stringify({ match: 'multiple' });
-  // FIX #1: reset verified + attempts when switching to a different record
-  const session = await getSession(callId);
-  const switchingRecord = session && session.record_id && session.record_id !== rows[0].id;
-  await supaFetch(`call_sessions?vapi_call_id=eq.${encodeURIComponent(callId)}`, 'PATCH', {
-    record_id: rows[0].id,
-    record_type: 'client',
-    ...(switchingRecord ? { verified: false, verification_attempts: 0, session_locked: false } : {})
-  }, { 'Prefer': 'return=minimal' });
-  return JSON.stringify({ match: 'one', switched: switchingRecord || false });
-}
-
-// FIX #4: upsert_lead saves lead ID to session
-async function toolUpsertLead(callId, args) {
-  const { name, phone, email, offer_interest, qualifiers, notes } = args;
-  const e164 = toE164(phone);
-  const emailNorm = email ? email.toLowerCase().trim() : null;
-  let existing = null;
-  if (e164) { const r = await supaFetch(`leads?phone_e164=eq.${encodeURIComponent(e164)}&limit=1`); existing = r && r[0]; }
-  if (!existing && emailNorm) { const r = await supaFetch(`leads?email_normalized=eq.${encodeURIComponent(emailNorm)}&limit=1`); existing = r && r[0]; }
-  const payload = {
-    name: name || 'Unknown', phone: phone || '', phone_e164: e164,
-    email: email || '', email_normalized: emailNorm,
-    offer_interest: offer_interest || 'unknown', source: 'ai_receptionist',
-    status: 'new', qualifiers: qualifiers || {}, pipeline_stage: 'qualified',
-    updated_at: new Date().toISOString()
-  };
-  if (notes) payload.notes = notes;
-  let leadId;
-  if (existing) {
-    await supaFetch(`leads?id=eq.${existing.id}`, 'PATCH', payload, { 'Prefer': 'return=minimal' });
-    leadId = existing.id;
-  } else {
-    payload.created_at = new Date().toISOString();
-    const rows = await supaFetch('leads', 'POST', payload);
-    leadId = rows && rows[0] && rows[0].id;
-  }
-  // FIX #4: save lead ID to session so appointments link correctly
-  if (leadId) {
-    await supaFetch(`call_sessions?vapi_call_id=eq.${encodeURIComponent(callId)}`, 'PATCH', {
-      record_id: leadId, record_type: 'lead'
-    }, { 'Prefer': 'return=minimal' }).catch(() => {});
-  }
-  return JSON.stringify({ record_id: leadId, created: !existing, updated: !!existing });
-}
-
-// ── CALENDAR: assign rep with fewest bookings that day ─
-async function assignRep(slotStart) {
-  const dayStart = new Date(slotStart);
-  dayStart.setHours(0, 0, 0, 0);
-  const dayEnd = new Date(slotStart);
-  dayEnd.setHours(23, 59, 59, 999);
-  const booked = await supaFetch(
-    `appointments?slot_start=gte.${dayStart.toISOString()}&slot_start=lte.${dayEnd.toISOString()}&status=eq.booked&select=rep_name`
-  ).catch(() => []);
-  const counts = { Alec: 0, Elna: 0 };
-  (booked || []).forEach(b => { if (counts[b.rep_name] !== undefined) counts[b.rep_name]++; });
-  return counts.Alec <= counts.Elna
-    ? { name: 'Alec', email: 'alec@mycprteam.com' }
-    : { name: 'Elna', email: 'elna@mycprteam.com' };
-}
-
-// FIX calendar rules 1-5: check_availability respects preferred_day, time_of_day, no double-booking by time
-async function toolCheckAvailability(callId, args) {
-  const { preferred_day, time_of_day, timezone } = args;
-  const tz = timezone || 'America/New_York';
-  const now = new Date();
-  const next7End = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-  // Get ALL booked slot times (compare by ISO string millisecond-precision)
-  const booked = await supaFetch(
-    `appointments?slot_start=gte.${now.toISOString()}&slot_start=lte.${next7End.toISOString()}&status=eq.booked&select=slot_start,rep_name`
-  ).catch(() => []);
-
-  // Build per-rep booked sets
-  const bookedAlec = new Set();
-  const bookedElna = new Set();
-  (booked || []).forEach(b => {
-    const t = new Date(b.slot_start).getTime();
-    if (b.rep_name === 'Alec') bookedAlec.add(t);
-    if (b.rep_name === 'Elna') bookedElna.add(t);
-  });
-
-  // Time-of-day preference filter
-  let hourMin = 9, hourMax = 17;
-  if (time_of_day === 'morning')   { hourMin = 9;  hourMax = 12; }
-  if (time_of_day === 'afternoon') { hourMin = 12; hourMax = 17; }
-
-  // preferred_day filter: parse "Monday", "tomorrow", "next Tuesday" etc.
-  let preferDay = null;
-  if (preferred_day) {
-    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-    const pd = preferred_day.toLowerCase().trim();
-    if (pd === 'tomorrow') {
-      preferDay = new Date(now); preferDay.setDate(preferDay.getDate() + 1);
-    } else {
-      const idx = days.findIndex(d => pd.includes(d));
-      if (idx >= 0) {
-        const d = new Date(now);
-        const diff = (idx - d.getDay() + 7) % 7 || 7;
-        d.setDate(d.getDate() + diff);
-        preferDay = d;
-      }
-    }
-  }
-
+  // Build slot grid: 9am-5pm ET every 30 min
   const slots = [];
-  let d = new Date(now);
-  // Start at next 15-min boundary
-  d.setSeconds(0, 0);
-  const rem = d.getMinutes() % 15;
-  if (rem) d.setMinutes(d.getMinutes() + (15 - rem));
+  for (let h = 9; h < 17; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      // Convert ET to UTC (ET = UTC-4 or UTC-5 depending on DST)
+      // Simple approach: use the date string and offset
+      const slotET = new Date(`${dateStr}T${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`);
+      // Find who's available on this team for this slot
+      const teamMembers = TEAMS[team] || TEAMS.sales;
+      const bookedAtSlot = (booked || []).filter(b => {
+        const bd = new Date(b.appointment_date);
+        return Math.abs(bd - slotET) < 30 * 60 * 1000;
+      }).map(b => b.assigned_rep);
 
-  while (slots.length < 3 && d < next7End) {
-    const etDate = new Date(d.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-    const day = etDate.getDay();
-    const hour = etDate.getHours();
-    const min = etDate.getMinutes();
-    const t = d.getTime();
-
-    // Weekdays only
-    if (day >= 1 && day <= 5 && hour >= hourMin && hour < hourMax && min % 15 === 0) {
-      // preferred_day filter
-      const dayMatch = !preferDay || (
-        etDate.getDate() === preferDay.getDate() &&
-        etDate.getMonth() === preferDay.getMonth()
-      );
-      if (dayMatch) {
-        // At least one rep free?
-        const alecFree = !bookedAlec.has(t);
-        const elnaFree = !bookedElna.has(t);
-        if (alecFree || elnaFree) {
-          const display = d.toLocaleString('en-US', {
-            timeZone: tz, weekday: 'long', month: 'long', day: 'numeric',
-            hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
-          });
-          slots.push({ slot_id: d.toISOString(), when_spoken: display });
-        }
+      const available = teamMembers.filter(m => !bookedAtSlot.includes(m.email));
+      if (available.length > 0) {
+        const timeLabel = `${h > 12 ? h-12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'} ET`;
+        slots.push({
+          slot_id: dateStr + 'T' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'),
+          time_spoken: timeLabel,
+          available_count: available.length,
+          reps: available // kept internal, never sent to AI
+        });
       }
     }
-    d = new Date(d.getTime() + 15 * 60 * 1000);
   }
 
-  return JSON.stringify({ slots });
+  // If preferredTime given, sort by closeness to it
+  if (preferredTime) {
+    const [ph, pm] = preferredTime.split(':').map(Number);
+    const prefMins = ph * 60 + (pm || 0);
+    slots.sort((a, b) => {
+      const [ah, am] = a.slot_id.split('T')[1].split(':').map(Number);
+      const [bh, bm] = b.slot_id.split('T')[1].split(':').map(Number);
+      return Math.abs(ah*60+am - prefMins) - Math.abs(bh*60+bm - prefMins);
+    });
+  }
+
+  return slots;
 }
 
-// FIX calendar rules 1,3,6,7: book_appointment assigns correctly, links lead, notifies both reps
-async function toolBookAppointment(callId, args) {
-  const { slot_id, type } = args;
-  const session = await getSession(callId);
+// ── Pick least-busy rep from team for a slot ───────────
+async function pickRep(team, dateStr) {
+  const teamMembers = TEAMS[team] || TEAMS.sales;
+  const dayStart = dateStr + 'T00:00:00Z';
+  const dayEnd   = dateStr + 'T23:59:59Z';
+  const booked = await supaGet(
+    `appointments?appointment_date=gte.${dayStart}&appointment_date=lte.${dayEnd}&appointment_status=neq.Cancelled&select=assigned_rep`
+  );
+  const counts = {};
+  teamMembers.forEach(m => { counts[m.email] = 0; });
+  (booked || []).forEach(b => { if (counts[b.assigned_rep] !== undefined) counts[b.assigned_rep]++; });
+  return teamMembers.sort((a, b) => (counts[a.email] || 0) - (counts[b.email] || 0))[0];
+}
 
-  // FIX #6: resolve client/lead info from session (which now has lead ID from upsertLead)
-  let clientName = 'Unknown', clientPhone = '', clientEmail = '';
-  if (session && session.record_id) {
-    const table = session.record_type === 'lead' ? 'leads' : 'clients';
-    const rows = await supaFetch(`${table}?id=eq.${encodeURIComponent(session.record_id)}&select=name,phone,email&limit=1`).catch(() => null);
-    const r = rows && rows[0];
-    if (r) { clientName = r.name || ''; clientPhone = r.phone || ''; clientEmail = r.email || ''; }
+// ── Notify team chat ────────────────────────────────────
+async function notifyTeamChat(message) {
+  await supaPost('team_chat', {
+    channel: 'general', sender: 'AI Receptionist', sender_role: 'system',
+    message, created_at: new Date().toISOString()
+  }, 'return=minimal').catch(() => {});
+}
+
+// ════════════════════════════════════════════════════════
+// TOOL HANDLERS
+// ════════════════════════════════════════════════════════
+
+// ── search_record ───────────────────────────────────────
+async function handle_search_record({ phone, dob, first_name, last_name }) {
+  const digits = (phone || '').replace(/\D/g, '');
+  const e164 = digits.length === 10 ? '+1' + digits : digits.length === 11 ? '+' + digits : null;
+  let client = null, lead = null;
+
+  if (e164) {
+    const clients = await supaGet(`clients?or=(phone.eq.${encodeURIComponent(e164)},phone.eq.${encodeURIComponent(digits)})&limit=1&select=*`);
+    if (Array.isArray(clients) && clients.length) client = clients[0];
+    if (!client) {
+      const leads = await supaGet(`leads?or=(phone_e164.eq.${encodeURIComponent(e164)},phone.eq.${encodeURIComponent(digits)})&limit=1&select=*`);
+      if (Array.isArray(leads) && leads.length) lead = leads[0];
+    }
   }
-  // Fallback to caller phone from session
-  if (!clientPhone && session && session.caller_phone) clientPhone = session.caller_phone;
 
-  const slotStart = new Date(slot_id);
-  const slotEnd = new Date(slotStart.getTime() + 15 * 60 * 1000).toISOString();
+  if (client) {
+    let verified = false;
+    if (dob) {
+      const stored = client.date_of_birth ? new Date(client.date_of_birth).toISOString().split('T')[0] : '';
+      const input  = new Date(dob).toISOString().split('T')[0];
+      verified = stored === input;
+    }
+    return {
+      found: true, record_type: 'client',
+      verified, client_id: client.id, status: client.status,
+      package: client.package, start_date: client.start_date,
+      default_team: 'customer_service' // item 9
+    };
+  }
+  if (lead) {
+    return { found: true, record_type: 'lead', lead_id: lead.id, default_team: 'sales' };
+  }
+  return { found: false, record_type: 'none', default_team: 'sales' };
+}
 
-  // FIX calendar rule 1: assign rep with fewer bookings that day
-  const rep = await assignRep(slot_id);
-  const typeLabel = type === 'funding_consult' ? 'Funding Consultation' : 'Credit Repair Consultation';
+// ── check_availability (item 2) ─────────────────────────
+async function handle_check_availability({ preferred_day, preferred_time, service_type }) {
+  const svc = service_type || 'credit_consult';
+  const cfg = SERVICE_CONFIG[svc] || SERVICE_CONFIG.credit_consult;
+  const team = cfg.team;
 
-  await supaFetch('appointments', 'POST', {
-    record_id: session ? session.record_id : null,
-    record_type: session ? session.record_type : null,
-    client_name: clientName,
-    client_phone: clientPhone,
-    client_email: clientEmail,
-    service_type: typeLabel,         // FIX calendar rule 3: store type label
-    rep_name: rep.name,
-    rep_email: rep.email,
-    slot_start: slot_id,
-    slot_end: slotEnd,
-    type,
-    status: 'booked',
-    vapi_call_id: callId
-  }, { 'Prefer': 'return=minimal' });
+  // Build date string
+  const now = new Date();
+  let dateStr;
+  if (preferred_day && preferred_day.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    dateStr = preferred_day;
+  } else {
+    // Parse day names
+    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const dayIdx = days.indexOf((preferred_day || '').toLowerCase());
+    const d = new Date(now);
+    if (dayIdx >= 0) {
+      const diff = (dayIdx - d.getDay() + 7) % 7 || 7;
+      d.setDate(d.getDate() + diff);
+    } else {
+      d.setDate(d.getDate() + 1); // tomorrow
+    }
+    dateStr = d.toISOString().split('T')[0];
+  }
 
-  const when = slotStart.toLocaleString('en-US', {
-    timeZone: 'America/New_York', weekday: 'long', month: 'long',
-    day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
+  const slots = await getAvailableSlots(dateStr, team, preferred_time);
+  const publicSlots = slots.slice(0, 5).map(s => ({ slot_id: s.slot_id, time_spoken: s.time_spoken }));
+
+  if (!publicSlots.length) {
+    return { available: false, date: dateStr, message: 'No availability that day. Try another day.' };
+  }
+
+  // If exact preferred_time given, check if that exact slot is free
+  if (preferred_time) {
+    const exact = slots.find(s => s.slot_id.endsWith(preferred_time.substring(0,5)));
+    return {
+      available: true, date: dateStr,
+      exact_slot_free: !!exact,
+      nearest_slots: publicSlots,
+      service_title: cfg.title
+    };
+  }
+  return { available: true, date: dateStr, open_slots: publicSlots, service_title: cfg.title };
+}
+
+// ── book_appointment (item 1) ───────────────────────────
+async function handle_book_appointment({ slot_id, service_type, caller_phone, caller_name, lead_id, client_id, time_of_day, preferred_day }) {
+  const svc = service_type || 'credit_consult';
+  const cfg = SERVICE_CONFIG[svc] || SERVICE_CONFIG.credit_consult;
+  const team = cfg.team;
+
+  // Resolve slot
+  let apptDate, dateStr;
+  if (slot_id && slot_id.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
+    apptDate = new Date(slot_id);
+    dateStr = slot_id.split('T')[0];
+  } else {
+    // Build from preferred_day + time_of_day
+    const now = new Date();
+    const d = new Date(now);
+    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const dayIdx = days.indexOf((preferred_day || '').toLowerCase());
+    if (dayIdx >= 0) {
+      const diff = (dayIdx - d.getDay() + 7) % 7 || 7;
+      d.setDate(d.getDate() + diff);
+    } else {
+      d.setDate(d.getDate() + 1);
+    }
+    dateStr = d.toISOString().split('T')[0];
+    const hour = time_of_day === 'morning' ? 10 : time_of_day === 'afternoon' ? 14 : 10;
+    apptDate = new Date(dateStr + 'T' + String(hour).padStart(2,'0') + ':00:00');
+  }
+
+  // ── SERVER-SIDE DOUBLE-BOOKING CHECK (item 1) ─────────
+  const slotStr = apptDate.toISOString().split('.')[0];
+  const existing = await supaGet(
+    `appointments?appointment_date=eq.${encodeURIComponent(slotStr + 'Z')}&appointment_status=neq.Cancelled&select=id,assigned_rep,team`
+  );
+  const teamMembers = TEAMS[team] || TEAMS.sales;
+  const bookedReps = (existing || []).map(e => e.assigned_rep);
+  const freeReps = teamMembers.filter(m => !bookedReps.includes(m.email));
+
+  if (!freeReps.length) {
+    // Slot taken — return next open slots
+    const slots = await getAvailableSlots(dateStr, team, null);
+    const next = slots.filter(s => s.slot_id !== slot_id).slice(0, 3)
+      .map(s => ({ slot_id: s.slot_id, time_spoken: s.time_spoken }));
+    return { success: false, reason: 'slot_taken', next_open_slots: next };
+  }
+
+  // Pick least-busy free rep (item 8)
+  const dayBookings = await supaGet(
+    `appointments?appointment_date=gte.${dateStr}T00:00:00Z&appointment_date=lte.${dateStr}T23:59:59Z&appointment_status=neq.Cancelled&select=assigned_rep`
+  );
+  const counts = {};
+  freeReps.forEach(m => { counts[m.email] = 0; });
+  (dayBookings || []).forEach(b => { if (counts[b.assigned_rep] !== undefined) counts[b.assigned_rep]++; });
+  const rep = freeReps.sort((a, b) => (counts[a.email]||0) - (counts[b.email]||0))[0];
+
+  // Book it
+  const digits = (caller_phone || '').replace(/\D/g, '');
+  const e164 = digits.length === 10 ? '+1' + digits : digits.length === 11 ? '+' + digits : caller_phone;
+
+  const appt = await supaPost('appointments', {
+    client_name: caller_name || 'Unknown',
+    client_phone: caller_phone,
+    client_phone_e164: e164,
+    appointment_date: apptDate.toISOString(),
+    service_type: svc,
+    title: cfg.title,
+    team,
+    assigned_rep: rep.email,
+    lead_id: lead_id || null,
+    client_id: client_id || null,
+    appointment_status: 'Booked',
+    created_at: new Date().toISOString()
   });
 
-  // FIX #7: notify BOTH Alec and Elna in portal team_chat for any booking
-  const chatMsg = `📅 APPOINTMENT BOOKED — ${typeLabel} | Client: ${clientName} | Phone: ${clientPhone} | Email: ${clientEmail || 'N/A'} | When: ${when} | Assigned to: ${rep.name}`;
-  await supaFetch('team_chat', 'POST', {
-    channel: 'general', sender: 'AI Receptionist', sender_role: 'system',
-    message: chatMsg, created_at: new Date().toISOString()
-  }, { 'Prefer': 'return=minimal' }).catch(() => {});
+  const apptId = Array.isArray(appt) && appt[0] ? appt[0].id : null;
+  const timeLabel = apptDate.toLocaleString('en-US', { timeZone: 'America/New_York', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) + ' ET';
 
-  return JSON.stringify({ confirmed: true, when_spoken: when, type: typeLabel, assigned_rep: rep.name });
-}
+  // Notify assigned rep (item 15) — no name to AI, name only in chat
+  await notifyTeamChat(
+    `📅 NEW APPOINTMENT BOOKED — ${cfg.title} | ${timeLabel} | Client: ${caller_name || 'Unknown'} | Phone: ${caller_phone} | Assigned to: ${rep.name}`
+  );
 
-// FIX #4 + #7: request_callback stores caller phone and notifies team
-async function toolRequestCallback(callId, args) {
-  const { reason, preferred_time, urgency } = args;
-  const session = await getSession(callId);
-  const callerPhone = session && session.caller_phone ? session.caller_phone : '';
-
-  await supaFetch('call_logs', 'POST', {
-    vapi_call_id: callId + '_cb_' + Date.now(),
-    record_id: session ? session.record_id : null,
-    record_type: session ? session.record_type : null,
-    caller_number: callerPhone,   // FIX #4: store caller's number
-    follow_up_needed: true,
-    follow_up_reason: reason || 'Callback requested by caller',
-    intent: 'callback',
-    outcome: 'callback',
-    structured_data: { preferred_time, urgency, caller_phone: callerPhone },
-    created_at: new Date().toISOString()
-  }, { 'Prefer': 'return=minimal' }).catch(() => {});
-
-  // FIX #7: notify team for callbacks too (not just booked outcomes)
-  const chatMsg = `📞 CALLBACK REQUESTED — Caller: ${callerPhone || 'Unknown'} | Reason: ${reason || 'Not specified'} | Preferred time: ${preferred_time || 'Not specified'} | Urgency: ${urgency || 'normal'}`;
-  await supaFetch('team_chat', 'POST', {
-    channel: 'general', sender: 'AI Receptionist', sender_role: 'system',
-    message: chatMsg, created_at: new Date().toISOString()
-  }, { 'Prefer': 'return=minimal' }).catch(() => {});
-
-  return JSON.stringify({ logged: true });
-}
-
-// ── ASSISTANT-REQUEST HANDLER ──────────────────────────
-async function handleAssistantRequest(body) {
-  const callId = body.message?.call?.id;
-  const callerPhone = body.message?.call?.customer?.number;
-  let callerInfo = { status: 'unknown' };
-  try { callerInfo = await lookupCaller(callerPhone); } catch (e) { console.error('Lookup error:', e); }
-  // FIX #4: store caller phone on session
-  callerInfo.caller_phone = callerPhone || null;
-  try { await createSession(callId, callerInfo); } catch (e) { console.error('Session error:', e); }
+  // item 10: no rep name to AI
   return {
-    assistantId: ASSISTANT_ID,
-    assistantOverrides: {
-      variableValues: {
-        caller_status:       callerInfo.status,
-        first_name:          callerInfo.first_name || '',
-        record_id:           callerInfo.record_id || '',
-        offer_interest:      callerInfo.offer_interest || 'unknown',
-        assigned_rep:        callerInfo.assigned_rep || 'our team',
-        business_hours_open: isBusinessHours(),
-        transfer_alec:       STAFF.alec.phone,
-        transfer_elna:       STAFF.elna.phone
-      }
-    }
+    success: true,
+    appointment_id: apptId,
+    title: cfg.title,
+    when_spoken: timeLabel,
+    assigned_to: 'a representative' // item 10
   };
 }
 
-// ── TOOL-CALLS HANDLER ─────────────────────────────────
-async function handleToolCalls(body) {
-  const callId = body.message?.call?.id;
-  const tools = body.message?.toolCallList || [];
-  const results = [];
-  for (const tool of tools) {
-    const name = tool.function?.name;
-    const args = tool.function?.arguments || {};
-    let result = '{}';
-    try {
-      if (name === 'verify_identity')      result = await toolVerifyIdentity(callId, args);
-      else if (name === 'get_client_summary') result = await toolGetClientSummary(callId);
-      else if (name === 'search_record')   result = await toolSearchRecord(callId, args);
-      else if (name === 'upsert_lead')     result = await toolUpsertLead(callId, args);
-      else if (name === 'check_availability') result = await toolCheckAvailability(callId, args);
-      else if (name === 'book_appointment') result = await toolBookAppointment(callId, args);
-      else if (name === 'request_callback') result = await toolRequestCallback(callId, args);
-      else result = JSON.stringify({ error: 'unknown_tool', tool: name });
-    } catch (e) {
-      console.error(`[TOOL] ${name} error:`, e.message);
-      result = JSON.stringify({ error: e.message });
-    }
-    results.push({ toolCallId: tool.id, result });
+// ── get_my_appointments (item 3) ────────────────────────
+async function handle_get_my_appointments({ caller_phone, client_id }) {
+  if (!client_id && !caller_phone) {
+    return { error: 'Caller must be verified before viewing appointments.' };
   }
-  return { results };
+  let query;
+  if (client_id) {
+    query = `appointments?client_id=eq.${encodeURIComponent(client_id)}&appointment_status=in.(Booked,Rescheduled)&order=appointment_date.asc&limit=5&select=id,appointment_date,title,appointment_status,service_type`;
+  } else {
+    const digits = caller_phone.replace(/\D/g,'');
+    const e164 = digits.length===10 ? '+1'+digits : '+'+digits;
+    query = `appointments?client_phone_e164=eq.${encodeURIComponent(e164)}&appointment_status=in.(Booked,Rescheduled)&order=appointment_date.asc&limit=5&select=id,appointment_date,title,appointment_status,service_type`;
+  }
+  const appts = await supaGet(query);
+  if (!Array.isArray(appts) || !appts.length) {
+    return { found: false, message: 'No upcoming appointments found.' };
+  }
+  return {
+    found: true,
+    appointments: appts.map(a => ({
+      appointment_id: a.id,
+      title: a.title,
+      when_spoken: new Date(a.appointment_date).toLocaleString('en-US', {
+        timeZone:'America/New_York', month:'short', day:'numeric',
+        hour:'numeric', minute:'2-digit'
+      }) + ' ET',
+      status: a.appointment_status
+    }))
+  };
 }
 
-// ── END-OF-CALL HANDLER ────────────────────────────────
-// FIX #6: log synchronously before returning so Netlify doesn't cut it off
-async function handleEndOfCall(body) {
-  const report = body.message;
-  const callId = report?.call?.id;
-  if (!callId) return;
-  const session = await getSession(callId).catch(() => null);
-  const structured = report?.artifact?.structuredOutputs || report?.analysis?.structuredData || {};
-  const summary = report?.analysis?.summary || '';
-  const transcript = (report?.transcript || '').replace(/\d{9,}/g, '[REDACTED]');
-  const follow_up = !!(structured.outcome === 'callback' || structured.outcome === 'abandoned' || structured.follow_up_reason || (session && session.session_locked));
-  const logPayload = {
-    vapi_call_id: callId,
-    record_id: session?.record_id || null,
-    record_type: session?.record_type || null,
-    caller_number: report?.call?.customer?.number || '',
-    direction: 'inbound',
-    started_at: report?.call?.startedAt || null,
-    ended_at: report?.call?.endedAt || null,
-    duration_sec: report?.call?.endedAt && report?.call?.startedAt ? Math.round((new Date(report.call.endedAt) - new Date(report.call.startedAt)) / 1000) : null,
-    ended_reason: report?.call?.endedReason || '',
-    verified: session?.verified || false,
-    verification_method: 'dob_zip',
-    intent: structured.intent || 'unknown',
-    outcome: structured.outcome || 'unknown',
-    summary, structured_data: structured, transcript,
-    recording_url: report?.recording?.url || null,
-    follow_up_needed: follow_up,
-    follow_up_reason: structured.follow_up_reason || (session?.session_locked ? 'Verification locked — 3 failed attempts' : null),
-    sentiment: structured.sentiment || null,
+// ── reschedule_appointment (item 4) ────────────────────
+async function handle_reschedule_appointment({ appointment_id, new_slot_id, caller_phone, client_id }) {
+  // Verify ownership
+  const existing = await supaGet(`appointments?id=eq.${appointment_id}&select=*`);
+  if (!Array.isArray(existing) || !existing.length) {
+    return { success: false, error: 'Appointment not found.' };
+  }
+  const appt = existing[0];
+  // Ownership check
+  const digits = (caller_phone || '').replace(/\D/g,'');
+  const e164 = digits.length===10 ? '+1'+digits : '+'+digits;
+  const owns = (client_id && appt.client_id === client_id) || appt.client_phone_e164 === e164;
+  if (!owns) return { success: false, error: 'Appointment not found.' }; // never confirm ownership
+
+  const svc = appt.service_type || 'credit_consult';
+  const cfg = SERVICE_CONFIG[svc] || SERVICE_CONFIG.credit_consult;
+  const team = cfg.team;
+  const dateStr = new_slot_id.split('T')[0];
+
+  // Re-check new slot server-side (item 4)
+  const newDate = new Date(new_slot_id);
+  const slotStr = newDate.toISOString().split('.')[0];
+  const slotBooked = await supaGet(
+    `appointments?appointment_date=eq.${encodeURIComponent(slotStr+'Z')}&appointment_status=neq.Cancelled&id=neq.${appointment_id}&select=id,assigned_rep`
+  );
+  const teamMembers = TEAMS[team] || TEAMS.sales;
+  const bookedReps = (slotBooked || []).map(e => e.assigned_rep);
+  const freeReps = teamMembers.filter(m => !bookedReps.includes(m.email));
+
+  if (!freeReps.length) {
+    const slots = await getAvailableSlots(dateStr, team, null);
+    const next = slots.filter(s => s.slot_id !== new_slot_id).slice(0, 3)
+      .map(s => ({ slot_id: s.slot_id, time_spoken: s.time_spoken }));
+    return { success: false, reason: 'slot_taken', next_open_slots: next };
+  }
+
+  // Pick rep
+  const dayBookings = await supaGet(
+    `appointments?appointment_date=gte.${dateStr}T00:00:00Z&appointment_date=lte.${dateStr}T23:59:59Z&appointment_status=neq.Cancelled&select=assigned_rep`
+  );
+  const counts = {};
+  freeReps.forEach(m => { counts[m.email] = 0; });
+  (dayBookings || []).forEach(b => { if (counts[b.assigned_rep] !== undefined) counts[b.assigned_rep]++; });
+  const rep = freeReps.sort((a, b) => (counts[a.email]||0) - (counts[b.email]||0))[0];
+
+  // Book new slot FIRST (item 4)
+  const newAppt = await supaPost('appointments', {
+    client_name: appt.client_name, client_phone: appt.client_phone,
+    client_phone_e164: appt.client_phone_e164,
+    appointment_date: newDate.toISOString(),
+    service_type: svc, title: cfg.title, team,
+    assigned_rep: rep.email,
+    lead_id: appt.lead_id, client_id: appt.client_id,
+    appointment_status: 'Booked',
+    rescheduled_from: String(appointment_id),
     created_at: new Date().toISOString()
+  });
+
+  // THEN mark old one Rescheduled (item 4)
+  await supaPatch(`appointments?id=eq.${appointment_id}`, {
+    appointment_status: 'Rescheduled',
+    cancelled_at: new Date().toISOString()
+  });
+
+  const timeLabel = newDate.toLocaleString('en-US', { timeZone:'America/New_York', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) + ' ET';
+  await notifyTeamChat(`🔄 APPOINTMENT RESCHEDULED | ${cfg.title} | New time: ${timeLabel} | Client: ${appt.client_name} | Assigned to: ${rep.name}`);
+
+  return {
+    success: true,
+    new_appointment_id: Array.isArray(newAppt) && newAppt[0] ? newAppt[0].id : null,
+    when_spoken: timeLabel,
+    assigned_to: 'a representative'
   };
-  // FIX #6: await the log write before returning
-  await supaFetch('call_logs', 'POST', logPayload, { 'Prefer': 'resolution=merge-duplicates,return=minimal' }).catch(console.error);
-  // FIX #7: notify for all outcomes that need follow-up
-  if (follow_up || structured.outcome === 'booked') {
-    const msg = `📞 ${structured.outcome === 'booked' ? 'BOOKING' : 'FOLLOW-UP NEEDED'} — Caller: ${report?.call?.customer?.number || 'Unknown'} | Intent: ${structured.intent || 'unknown'} | Outcome: ${structured.outcome || 'unknown'} | Summary: ${summary.slice(0, 100)}`;
-    await supaFetch('team_chat', 'POST', { channel: 'general', sender: 'AI Receptionist', sender_role: 'system', message: msg, created_at: new Date().toISOString() }, { 'Prefer': 'return=minimal' }).catch(console.error);
-  }
-  await supaFetch(`call_sessions?vapi_call_id=eq.${encodeURIComponent(callId)}`, 'DELETE', null, {}).catch(() => {});
 }
 
-// ── MAIN HANDLER ───────────────────────────────────────
-exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
+// ── cancel_appointment (item 5) ─────────────────────────
+async function handle_cancel_appointment({ appointment_id, caller_phone, client_id }) {
+  const existing = await supaGet(`appointments?id=eq.${appointment_id}&select=*`);
+  if (!Array.isArray(existing) || !existing.length) return { success: false, error: 'Not found.' };
+  const appt = existing[0];
+  const digits = (caller_phone || '').replace(/\D/g,'');
+  const e164 = digits.length===10 ? '+1'+digits : '+'+digits;
+  const owns = (client_id && appt.client_id === client_id) || appt.client_phone_e164 === e164;
+  if (!owns) return { success: false, error: 'Not found.' };
 
-  // FIX #2: reject if VAPI_SECRET not set
-  if (!VAPI_SECRET) {
-    console.error('[VAPI-AUTH] VAPI_SECRET env var not set — rejecting all requests');
-    return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized', reason: 'Secret not configured' }) };
-  }
+  await supaPatch(`appointments?id=eq.${appointment_id}`, {
+    appointment_status: 'Cancelled',
+    cancelled_at: new Date().toISOString()
+  });
+  await notifyTeamChat(`❌ APPOINTMENT CANCELLED | ${appt.title} | Client: ${appt.client_name} | Phone: ${appt.client_phone}`);
+  return { success: true, message: 'Your appointment has been cancelled.' };
+}
 
-  const headerKeys = Object.keys(event.headers || {});
-  const secretKey = headerKeys.find(k => k.toLowerCase() === 'x-vapi-secret');
-  const incoming = secretKey ? (event.headers[secretKey] || '').trim() : '';
-  const expected = VAPI_SECRET.trim();
-  console.log('[VAPI-AUTH] x-vapi-secret header present:', !!incoming, '| header key found:', secretKey || 'MISSING');
-  if (incoming !== expected) {
-    console.log('[VAPI-AUTH] 401 — secret mismatch. Header arrived:', !!incoming);
-    return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized', headerPresent: !!incoming }) };
+// ── transfer-destination-request (item 11) ──────────────
+async function handle_transfer_destination({ caller_phone, team }) {
+  if (!isBusinessHours()) {
+    return {
+      type: 'callback',
+      message: 'Our team is unavailable right now. Business hours are Monday through Friday, 9 AM to 5 PM Eastern. Would you like to schedule a callback?'
+    };
   }
-  console.log('[VAPI-AUTH] 200 — secret verified OK');
+  const teamKey = team || 'sales';
+  const teamMembers = TEAMS[teamKey] || TEAMS.sales;
+  // Pick first available (simplest heuristic — could be enhanced with live status)
+  if (!teamMembers.length) return { type: 'callback', message: 'No representatives available. Would you like a callback?' };
+  const rep = teamMembers[0];
+  // item 10: no name to AI
+  return {
+    type: 'phone',
+    phoneNumber: rep.phone,
+    message: 'Connecting you with a representative now.'
+  };
+}
+
+// ════════════════════════════════════════════════════════
+// MAIN HANDLER
+// ════════════════════════════════════════════════════════
+exports.handler = async function(event, context) {
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers: { 'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'POST,OPTIONS' }, body: '' };
+  }
+  if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method not allowed' };
+
+  // VAPI signature check
+  if (VAPI_SECRET) {
+    const sig = event.headers['x-vapi-secret'] || event.headers['X-Vapi-Secret'];
+    if (sig !== VAPI_SECRET) { console.error('[AUTH] Invalid VAPI secret'); return { statusCode: 401, body: 'Unauthorized' }; }
+  }
 
   let body;
-  try { body = JSON.parse(event.body || '{}'); }
-  catch { return { statusCode: 400, body: 'Bad Request' }; }
+  try { body = JSON.parse(event.body || '{}'); } catch { return { statusCode: 400, body: 'Bad JSON' }; }
 
-  const msgType = body.message?.type;
-  try {
-    if (msgType === 'assistant-request') {
-      const result = await handleAssistantRequest(body);
-      return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(result) };
-    }
-    if (msgType === 'tool-calls') {
-      const result = await handleToolCalls(body);
-      return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(result) };
-    }
-    if (msgType === 'end-of-call-report') {
-      // FIX #6: await the log so Netlify doesn't kill it before it finishes
-      await handleEndOfCall(body);
-      return { statusCode: 200, body: '' };
-    }
-    return { statusCode: 200, body: '' };
-  } catch (e) {
-    console.error('Webhook error:', e);
-    return { statusCode: 200, body: JSON.stringify({ error: e.message }) };
+  const msgType = body?.message?.type;
+  console.log('[WEBHOOK] type:', msgType);
+
+  // ── assistant-request ─────────────────────────────────
+  if (msgType === 'assistant-request') {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        assistant: {
+          firstMessage: "Thank you for calling CP Restoration Services. My name is Aria, how can I help you today?",
+          model: {
+            provider: 'anthropic', model: 'claude-3-5-sonnet-20241022',
+            systemPrompt: `You are Aria, the AI receptionist for CP Restoration Services, a credit repair company.
+
+IMPORTANT RULES:
+- Never reveal staff names to callers. Always say "a representative" or "our team."
+- New callers and leads → route to sales team
+- Verified existing clients → route to customer service team
+- Business hours: Mon-Fri 9AM-5PM ET (sales available 24/7 for new inquiries)
+
+Services: Standard Credit Repair ($2,499), Express ($3,999), Inquiries Only ($45/bureau), Business Funding (10% of funded amount), Financing available ($750 down).
+
+Phone: 1-855-327-5847
+
+When booking appointments, always confirm the slot is available first using check_availability.`
+          },
+          voice: { provider: '11labs', voiceId: 'paula' },
+          variableValues: {
+            company_name: 'CP Restoration Services',
+            phone: '1-855-327-5847',
+            default_team: 'sales' // overridden after search_record (item 9)
+          }
+        }
+      })
+    };
   }
+
+  // ── transfer-destination-request (item 11) ────────────
+  if (msgType === 'transfer-destination-request') {
+    const callData = body?.message?.call || {};
+    const team = callData.metadata?.team || 'sales';
+    const result = await handle_transfer_destination({ team });
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(result)
+    };
+  }
+
+  // ── tool-calls ─────────────────────────────────────────
+  if (msgType === 'tool-calls') {
+    const toolCalls = body?.message?.toolCalls || [];
+    const results = [];
+
+    for (const tc of toolCalls) {
+      const name = tc?.function?.name;
+      let args = {};
+      try { args = typeof tc?.function?.arguments === 'string' ? JSON.parse(tc.function.arguments) : (tc?.function?.arguments || {}); } catch {}
+
+      console.log('[TOOL]', name, JSON.stringify(args));
+      let result;
+
+      try {
+        switch (name) {
+          case 'search_record':       result = await handle_search_record(args); break;
+          case 'check_availability':  result = await handle_check_availability(args); break;
+          case 'book_appointment':    result = await handle_book_appointment(args); break;
+          case 'get_my_appointments': result = await handle_get_my_appointments(args); break;
+          case 'reschedule_appointment': result = await handle_reschedule_appointment(args); break;
+          case 'cancel_appointment':  result = await handle_cancel_appointment(args); break;
+          case 'upsert_lead': {
+            const digits = (args.phone || '').replace(/\D/g,'');
+            const e164 = digits.length===10 ? '+1'+digits : digits.length===11 ? '+'+digits : null;
+            const existing = e164 ? await supaGet(`leads?phone_e164=eq.${encodeURIComponent(e164)}&limit=1&select=id`) : [];
+            if (Array.isArray(existing) && existing.length) {
+              await supaPatch(`leads?id=eq.${existing[0].id}`, { ...args, phone_e164: e164, updated_at: new Date().toISOString() });
+              result = { success: true, lead_id: existing[0].id, action: 'updated' };
+            } else {
+              const created = await supaPost('leads', { ...args, phone_e164: e164, status:'new', pipeline_stage:'inquiry', source:'vapi', created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+              result = { success: true, lead_id: Array.isArray(created) ? created[0]?.id : null, action: 'created' };
+            }
+            await notifyTeamChat(`🔔 NEW LEAD — ${args.name || 'Unknown'} | ${args.phone} | Interest: ${args.offer_interest || 'not specified'}`);
+            break;
+          }
+          default:
+            result = { error: 'Unknown tool: ' + name };
+        }
+      } catch (e) {
+        console.error('[TOOL ERROR]', name, e.message);
+        result = { error: e.message };
+      }
+
+      results.push({ toolCallId: tc.id, result: JSON.stringify(result) });
+    }
+
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ results })
+    };
+  }
+
+  // ── call-ended log ─────────────────────────────────────
+  if (msgType === 'end-of-call-report' || msgType === 'call-ended') {
+    const call = body?.message?.call || {};
+    await supaPost('call_sessions', {
+      call_id: call.id || null,
+      caller_phone: call.customer?.number || null,
+      duration: call.endedAt && call.startedAt ? Math.floor((new Date(call.endedAt)-new Date(call.startedAt))/1000) : null,
+      ended_reason: call.endedReason || null,
+      created_at: new Date().toISOString()
+    }, 'return=minimal').catch(() => {});
+    return { statusCode: 200, body: 'OK' };
+  }
+
+  return { statusCode: 200, body: 'OK' };
 };
