@@ -1811,7 +1811,7 @@ async function sendNotifications(dispute) {
   const emailSubjFinal = replace(emailSubj);
 
   const logEntry = (type, channel, msg, status) => {
-    const entry = { date: now, client: dispute.clientName, clientId: dispute.clientId, type, channel, preview: (msg||'').substring(0,80))+'...', status };
+    const entry = { date: now, client: dispute.clientName, clientId: dispute.clientId, type, channel, preview: (msg||'').substring(0,80)+'...', status };
     notificationLog.unshift(entry);
   };
 
