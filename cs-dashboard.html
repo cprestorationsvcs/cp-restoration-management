@@ -1106,7 +1106,7 @@ function toast(msg,type){var t=document.createElement('div');t.className='toast'
 
 function safe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 
 function fmtTime(s){
   try{var d=new Date(s),now=new Date(),diff=now-d;
