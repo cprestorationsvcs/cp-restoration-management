@@ -1480,7 +1480,7 @@ async function generateLetters() {
 
   // Build template letters for each selected bureau
   for (const bureauCode of bureaus) {
-    genStatus.textContent = 'Building ' + (BUREAU_NAMES[bureauCode]||bureauCode) + ' letter...';
+    genStatus.textContent = 'Building ' + (BUREAU_NAMES[bureauCode]||bureauCode)+' letter...';
     generatedLetters[bureauCode] = buildTemplateLetter(clientName, clientId, clientAddr, clientDOB, bureauCode, items, today, uploadedDocs, style);
   }
 
@@ -1713,7 +1713,7 @@ async function fileDispute() {
 
     // Also update the client disputes column
     if (clientId) {
-      const cr = await fetch(SUPA + '/clients?id=eq.' + encodeURIComponent(clientId) + '&select=disputes', {
+      const cr = await fetch(SUPA + '/clients?id=eq.' + encodeURIComponent(clientId)+'&select=disputes', {
         headers: {'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY}
       });
       const cdata = await cr.json();
@@ -2273,7 +2273,7 @@ function startNextRound() {
 
   showTab('new-dispute');
   window.scrollTo({top:0,behavior:'smooth'});
-  alert('Client info pre-filled for Round ' + (existing+1) + '. Add the new or updated dispute items and generate fresh letters.');
+  alert('Client info pre-filled for Round ' + (existing+1)+'. Add the new or updated dispute items and generate fresh letters.');
 }
 
 function startNewDispute() {
@@ -2755,7 +2755,7 @@ function renderFollowUps(data) {
     const d = r.dispute;
     const rowBg = r.status === 'overdue' ? 'background:var(--lr);' : r.status === 'due-today' ? 'background:#FFF7ED;' : '';
     const daysText = r.status === 'overdue'
-      ? '<strong style="color:var(--red);">' + Math.abs(r.bizDaysLeft) + ' biz days overdue</strong>'
+      ? '<strong style="color:var(--red);">' + Math.abs(r.bizDaysLeft)+' biz days overdue</strong>'
       : r.status === 'due-today'
       ? '<strong style="color:#D97706;">Due today</strong>'
       : '<span style="color:var(--green);">' + r.bizDaysLeft + ' biz days</span>';
@@ -2839,7 +2839,7 @@ async function notifyEmployee(specialistName) {
     clientId: 'INTERNAL',
     type: 'Follow-Up Reminder',
     channel: 'Internal',
-    preview: msg.substring(0, 80) + '...',
+    preview: msg.substring(0, 80)+'...',
     status: 'Sent to ' + specialistName
   };
   notificationLog.unshift(entry);
