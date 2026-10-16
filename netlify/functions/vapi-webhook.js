@@ -498,33 +498,23 @@ exports.handler = async function(event, context) {
 
   // ── assistant-request ─────────────────────────────────
   if (msgType === 'assistant-request') {
+    // Do NOT do any DB lookups here — must respond within 2-3 seconds
+    const assistantId = ASSISTANT_ID || process.env.VAPI_ASSISTANT_ID || '';
+    const callerPhone = body?.message?.call?.customer?.number || '';
+    const isBusinessHours = isBusinessHoursNow();
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({
-        assistant: {
-          firstMessage: "Thank you for calling CP Restoration Services. My name is Aria, how can I help you today?",
-          model: {
-            provider: 'anthropic', model: 'claude-3-5-sonnet-20241022',
-            systemPrompt: `You are Aria, the AI receptionist for CP Restoration Services, a credit repair company.
-
-IMPORTANT RULES:
-- Never reveal staff names to callers. Always say "a representative" or "our team."
-- New callers and leads → route to sales team
-- Verified existing clients → route to customer service team
-- Business hours: Mon-Fri 9AM-5PM ET (sales available 24/7 for new inquiries)
-
-Services: Standard Credit Repair ($2,499), Express ($3,999), Inquiries Only ($45/bureau), Business Funding (10% of funded amount), Financing available ($750 down).
-
-Phone: 1-855-327-5847
-
-When booking appointments, always confirm the slot is available first using check_availability.`
-          },
-          voice: { provider: '11labs', voiceId: 'paula' },
+        assistantId: assistantId,
+        assistantOverrides: {
           variableValues: {
-            company_name: 'CP Restoration Services',
-            phone: '1-855-327-5847',
-            default_team: 'sales' // overridden after search_record (item 9)
+            company_name:        'CP Restoration Services',
+            phone:               '1-855-327-5847',
+            caller_status:       'unknown',
+            first_name:          'there',
+            business_hours_open: isBusinessHours ? 'true' : 'false',
+            default_team:        'sales'
           }
         }
       })
