@@ -154,7 +154,7 @@ fbq('init', '1584028236255374');
 fbq('init', '1362385498386512');
 fbq('track', 'PageView');
 
-// ── WORK LOG — logs all activity to unified work_log table ──────────
+// -- WORK LOG -- logs all activity to unified work_log table ----------
 async function logWork(actionType, details, clientId, clientName, quantity) {
   var email = sessionStorage.getItem('cp_logged_in_user') || localStorage.getItem('cp_logged_in_user') || '';
   var name  = sessionStorage.getItem('cp_logged_in_name') || localStorage.getItem('cp_logged_in_name') || '';
@@ -184,11 +184,11 @@ async function logWork(actionType, details, clientId, clientName, quantity) {
     });
   } catch(e) { console.warn('Work log error:', e.message); }
 }
-// ────────────────────────────────────────────────────────────────────
+// --------------------------------------------------------------------
 
 
 function renderBureauCallBadge(d) {
-  if(!d.date_filed && !d.dateFiled) return '—';
+  if(!d.date_filed && !d.dateFiled) return '--';
   var filed = new Date(d.date_filed||d.dateFiled);
   var now = new Date();
   var daysSince = Math.floor((now - filed) / (1000*60*60*24));
@@ -1299,7 +1299,7 @@ function buildClientDropdown() {
   var clients = [];
   try { clients = JSON.parse(localStorage.getItem('cp_clients_v2') || '[]'); } catch(e) {}
   dl.innerHTML = clients.map(function(c) {
-    return '<option value="' + (c.id||'') + '">' + (c.name||'') + ' — ' + (c.package||'') + '</option>';
+    return '<option value="' + (c.id||'') + '">' + (c.name||'') + ' -- ' + (c.package||'') + '</option>';
   }).join('');
 }
 
@@ -1314,7 +1314,7 @@ function toggleBureau(code) {
   const pill = document.getElementById('pill-'+code);
   pill.style.opacity = selectedBureaus[code] ? '1' : '0.4';
   const count = Object.values(selectedBureaus).filter(Boolean).length;
-  document.getElementById('bureau-selection').textContent = count + ' bureau' + (count!==1?'s':'') + ' selected — ' + count + ' unique letter' + (count!==1?'s':'') + ' will be generated.';
+  document.getElementById('bureau-selection').textContent = count + ' bureau' + (count!==1?'s':'') + ' selected -- ' + count + ' unique letter' + (count!==1?'s':'') + ' will be generated.';
 }
 
 // ============================================================
@@ -1372,7 +1372,7 @@ function addInquiryItem() {
     <div class="field"><label>Date of Inquiry</label><input type="date" id="${id}-date"></div>
     <div class="field"><label>Dispute Reason</label>
       <select id="${id}-reason">
-        <option>Unauthorized inquiry — did not apply for credit</option>
+        <option>Unauthorized inquiry -- did not apply for credit</option>
         <option>Inquiry over 2 years old</option>
         <option>Identity theft / fraud</option>
         <option>Duplicate inquiry</option>
@@ -1501,7 +1501,7 @@ function buildTemplateLetter(name, clientId, addr, dob, bureauCode, items, today
   const baseDocList = Object.keys(docs).length > 0 ? Object.values(docs).join('\n  - ') : 'Government-issued photo ID\n  - Social Security card\n  - Proof of current address';
   const docList = baseDocList + '\n  - FTC Identity Theft Report';
   const itemsText = items.map((item, i) =>
-    `${i+1}. ${item.name}${item.acct ? ' — Account No. ending in '+item.acct : ''}\n   Dispute Reason: ${item.reason}\n   This item is disputed as inaccurate and/or unverifiable under 15 U.S.C. § 1681i.`
+    `${i+1}. ${item.name}${item.acct ? ' -- Account No. ending in '+item.acct : ''}\n   Dispute Reason: ${item.reason}\n   This item is disputed as inaccurate and/or unverifiable under 15 U.S.C. § 1681i.`
   ).join('\n\n');
 
   return '${today}
@@ -1515,7 +1515,7 @@ ${bureau}
 ${bureauAddr}
 
 
-RE: FORMAL NOTICE OF DISPUTE — REQUEST FOR INVESTIGATION AND CORRECTION
+RE: FORMAL NOTICE OF DISPUTE -- REQUEST FOR INVESTIGATION AND CORRECTION
     Pursuant to the Fair Credit Reporting Act, 15 U.S.C. § 1681 et seq.
 
 
@@ -1772,9 +1772,9 @@ async function sendNotifications(dispute) {
   const smsTemplate = document.getElementById('sms-dispute-filed')?.value ||
     'Hi [CLIENT_NAME], your credit dispute has been filed with [BUREAUS] by CP Restoration Services. We will update you on progress. Call 1-855-327-5847 with questions.';
   const emailSubj = document.getElementById('email-dispute-subject')?.value ||
-    'Your Credit Dispute Has Been Filed — CP Restoration Services';
+    'Your Credit Dispute Has Been Filed -- CP Restoration Services';
   const emailBody = document.getElementById('email-dispute-body')?.value ||
-    'Dear [CLIENT_NAME],\n\nYour credit dispute has been officially filed with [BUREAUS] as of [DATE].\n\nItems disputed: [ITEMS_COUNT]\n[ITEMS_LIST]\n\nYou will receive written responses from the bureaus within 30 business days. We will notify you of any updates.\n\nIf you have any questions please contact us at cprestorationsvcs@gmail.com or call 1-855-327-5847.\n\nCP Restoration Services\ncprestorationsvcs@gmail.com\n1-855-327-5847\nMonday — Friday | 9:00 AM – 5:00 PM EST\n35daycreditrepair.com';
+    'Dear [CLIENT_NAME],\n\nYour credit dispute has been officially filed with [BUREAUS] as of [DATE].\n\nItems disputed: [ITEMS_COUNT]\n[ITEMS_LIST]\n\nYou will receive written responses from the bureaus within 30 business days. We will notify you of any updates.\n\nIf you have any questions please contact us at cprestorationsvcs@gmail.com or call 1-855-327-5847.\n\nCP Restoration Services\ncprestorationsvcs@gmail.com\n1-855-327-5847\nMonday -- Friday | 9:00 AM - 5:00 PM EST\n35daycreditrepair.com';
 
   const replacements = {
     CLIENT_NAME:  dispute.clientName  || 'Valued Client',
@@ -1796,7 +1796,7 @@ async function sendNotifications(dispute) {
     notificationLog.unshift(entry);
   };
 
-  // ── SMS via SignalWire proxy ──
+  // -- SMS via SignalWire proxy --
   if (autoSMS && dispute.clientPhone) {
     try {
       const resp = await fetch('/.netlify/functions/sms-proxy', {
@@ -1812,7 +1812,7 @@ async function sendNotifications(dispute) {
     }
   }
 
-  // ── Email via email-proxy (SendGrid) ──
+  // -- Email via email-proxy (SendGrid) --
   if (autoEmail && dispute.clientEmail) {
     try {
       const resp = await fetch('/.netlify/functions/email-proxy', {
@@ -1824,7 +1824,7 @@ async function sendNotifications(dispute) {
           subject: emailSubjFinal,
           content: [
             {type:'text/plain', value: emailMsg},
-            {type:'text/html',  value: '<div style="font-family:Inter,system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+emailMsg.replace(/\n/g,'<br>')+'<br><br><hr style="border:none;border-top:1px solid #eee;margin:24px 0;"><p style="font-size:12px;color:#888;">CP Restoration Services<br>cprestorationsvcs@gmail.com<br>1-855-327-5847<br>Monday — Friday | 9:00 AM – 5:00 PM EST<br>35daycreditrepair.com</p></div>'}
+            {type:'text/html',  value: '<div style="font-family:Inter,system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.7;">'+emailMsg.replace(/\n/g,'<br>')+'<br><br><hr style="border:none;border-top:1px solid #eee;margin:24px 0;"><p style="font-size:12px;color:#888;">CP Restoration Services<br>cprestorationsvcs@gmail.com<br>1-855-327-5847<br>Monday -- Friday | 9:00 AM - 5:00 PM EST<br>35daycreditrepair.com</p></div>'}
           ]
         })
       });
@@ -1940,10 +1940,10 @@ function renderLog() {
     <td>${(d.bureaus||[]).map(b=>`<span class="badge badge-gray" style="margin-right:2px;">${b.substring(0,2)}</span>`).join('')}</td>
     <td>${(d.items||[]).length} item${(d.items||[]).length!==1?'s':''}</td>
     <td style="line-height:1.6;">${refNums}</td>
-    <td>${d.specialist||'—'}</td>
+    <td>${d.specialist||'--'}</td>
     <td><span class="badge ${statusBadge[d.status]||'badge-gray'}">${d.status}</span></td>
     <td>${bureauCallBadge}</td>
-    <td style="font-size:12px;color:var(--gray);">${d.nextAction||'—'}</td>
+    <td style="font-size:12px;color:var(--gray);">${d.nextAction||'--'}</td>
     <td style="display:flex;gap:4px;">
       <button class="btn btn-outline btn-sm" onclick="openDisputeDetail(${disputes.indexOf(d)})">📂 Open</button>
       <button class="btn btn-blue btn-sm" onclick="viewTimeline('${d.clientId}')">Timeline</button>
@@ -2008,7 +2008,7 @@ function renderTimeline() {
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">ITEMS DISPUTED</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${totalItems} items</div></div>
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">BUREAUS</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${bureaus.join(', ')}</div></div>
     </div>
-    <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:16px;">📅 Case Timeline — What the client sees</div>
+    <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:16px;">📅 Case Timeline -- What the client sees</div>
     <div class="timeline">
       ${allEvents.map(e=>'
         <div class="tl-item">
@@ -2020,7 +2020,7 @@ function renderTimeline() {
       ').join('')}
       <div class="tl-item">
         <div class="tl-dot gold"></div>
-        <div class="tl-date">${clientDisputes[0]?.filedDate || '—'}</div>
+        <div class="tl-date">${clientDisputes[0]?.filedDate || '--'}</div>
         <div class="tl-title">Case Opened</div>
         <div class="tl-desc">CP Restoration Services enrolled client and began credit restoration process.</div>
       </div>
@@ -2165,7 +2165,7 @@ function renderByEmployee(filteredDisputes, filteredCalls) {
     <td>${r.disputes}</td>
     <td>${r.calls}</td>
     <td><strong>${r.total}</strong></td>
-    <td>${r.resolved > 0 ? '<span style="color:var(--green);font-weight:700;">'+r.resolved+'</span>' : '—'}</td>
+    <td>${r.resolved > 0 ? '<span style="color:var(--green);font-weight:700;">'+r.resolved+'</span>' : '--'}</td>
     <td>${r.clients}</td>
   </tr>').join('');
 }
@@ -2277,7 +2277,7 @@ function startNextRound() {
 }
 
 function startNewDispute() {
-  // ── Clear all d- inputs and textareas ──
+  // -- Clear all d- inputs and textareas --
   document.querySelectorAll('input, select, textarea').forEach(function(el) {
     if (!el.id) return;
     if (el.type === 'checkbox') { el.checked = false; return; }
@@ -2285,17 +2285,17 @@ function startNewDispute() {
     el.value = '';
   });
 
-  // ── Clear dispute item rows (Accounts) ──
+  // -- Clear dispute item rows (Accounts) --
   var dlist = document.getElementById('dispute-items-list');
   if (dlist) dlist.innerHTML = '';
   disputeItems = [];
 
-  // ── Clear inquiry item rows ──
+  // -- Clear inquiry item rows --
   var ilist = document.getElementById('inquiry-items-list');
   if (ilist) ilist.innerHTML = '';
   if (typeof inquiryItems !== 'undefined') inquiryItems = [];
 
-  // ── Reset bureau checkboxes and selectedBureaus state ──
+  // -- Reset bureau checkboxes and selectedBureaus state --
   ['eq','ex','tu'].forEach(function(b) {
     var el = document.getElementById('bureau-' + b);
     if (el) el.checked = false;
@@ -2304,7 +2304,7 @@ function startNewDispute() {
     Object.keys(selectedBureaus).forEach(function(k) { selectedBureaus[k] = false; });
   }
 
-  // ── Clear generated letters display ──
+  // -- Clear generated letters display --
   var lc = document.getElementById('letters-container');
   if (lc) lc.innerHTML = '';
   var ld = document.getElementById('letter-display');
@@ -2314,27 +2314,27 @@ function startNewDispute() {
   if (typeof generatedLetters !== 'undefined') generatedLetters = {};
   if (typeof generatedFTC     !== 'undefined') generatedFTC = '';
 
-  // ── Hide file dispute card ──
+  // -- Hide file dispute card --
   var fc = document.getElementById('file-dispute-card');
   if (fc) fc.style.display = 'none';
 
-  // ── Reset generate button ──
+  // -- Reset generate button --
   var gb = document.getElementById('gen-btn');
   if (gb) { gb.disabled = false; gb.innerHTML = '✨ Generate Dispute Letters'; }
   var gs = document.getElementById('gen-status');
   if (gs) gs.textContent = '';
 
-  // ── Reset file button ──
+  // -- Reset file button --
   var fb = document.getElementById('file-btn');
   if (fb) { fb.disabled = false; fb.innerHTML = '✅ File Dispute + Notify Client'; }
 
-  // ── Clear uploaded docs ──
+  // -- Clear uploaded docs --
   if (typeof uploadedDocs !== 'undefined') uploadedDocs = {};
   document.querySelectorAll('.upload-preview, .doc-preview, .uploaded-files').forEach(function(el) {
     el.innerHTML = '';
   });
 
-  // ── Clear draft from all storages ──
+  // -- Clear draft from all storages --
   try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
   try { sessionStorage.removeItem(DRAFT_KEY); } catch(e) {}
   try {
@@ -2347,11 +2347,11 @@ function startNewDispute() {
     };
   } catch(e) {}
 
-  // ── Clear draft status ──
+  // -- Clear draft status --
   var st = document.getElementById('draft-status');
   if (st) { st.textContent = ''; st.style.color = ''; }
 
-  // ── Scroll to top ──
+  // -- Scroll to top --
   window.scrollTo({ top: 0, behavior: 'smooth' });
   showToastDraft('✅ Ready for new dispute!', 'success');
 }
@@ -2377,12 +2377,12 @@ function saveScores() {
   if(dispute) {
     if(!dispute.timelineEvents) dispute.timelineEvents=[];
     const scores = [eq?'EQ: '+eq:'',ex?'EX: '+ex:'',tu?'TU: '+tu:''].filter(Boolean).join(' | ');
-    dispute.timelineEvents.unshift({date:entry.date,type:'gold',title:'Credit Scores Recorded — '+stage,desc:scores});
+    dispute.timelineEvents.unshift({date:entry.date,type:'gold',title:'Credit Scores Recorded -- '+stage,desc:scores});
     if(db && dispute.id) db.doc('disputes/'+dispute.id).update({timelineEvents:dispute.timelineEvents,scoreHistory:scoreHistory[clientId]}).catch(()=>{});
   }
 
   renderScoreHistory(clientId);
-  alert('✅ Scores saved for ' + clientId + ' — ' + stage);
+  alert('✅ Scores saved for ' + clientId + ' -- ' + stage);
 }
 
 function renderScoreHistory(clientId) {
@@ -2397,9 +2397,9 @@ function renderScoreHistory(clientId) {
     '<thead><tr><th style="background:var(--blue);color:white;padding:8px 10px;text-align:left;">Stage</th><th style="background:var(--blue);color:white;padding:8px 10px;">🔵 Equifax</th><th style="background:var(--blue);color:white;padding:8px 10px;">🔴 Experian</th><th style="background:var(--blue);color:white;padding:8px 10px;">🟢 TransUnion</th><th style="background:var(--blue);color:white;padding:8px 10px;">Date</th></tr></thead>' +
     '<tbody>' + history.map(h=>`<tr style="border-bottom:1px solid var(--border);">
       <td style="padding:8px 10px;font-weight:700;">${h.stage}</td>
-      <td style="padding:8px 10px;text-align:center;font-weight:800;color:${h.eq?scoreColor(h.eq):'var(--gray)'};">${h.eq||'—'}</td>
-      <td style="padding:8px 10px;text-align:center;font-weight:800;color:${h.ex?scoreColor(h.ex):'var(--gray)'};">${h.ex||'—'}</td>
-      <td style="padding:8px 10px;text-align:center;font-weight:800;color:${h.tu?scoreColor(h.tu):'var(--gray)'};">${h.tu||'—'}</td>
+      <td style="padding:8px 10px;text-align:center;font-weight:800;color:${h.eq?scoreColor(h.eq):'var(--gray)'};">${h.eq||'--'}</td>
+      <td style="padding:8px 10px;text-align:center;font-weight:800;color:${h.ex?scoreColor(h.ex):'var(--gray)'};">${h.ex||'--'}</td>
+      <td style="padding:8px 10px;text-align:center;font-weight:800;color:${h.tu?scoreColor(h.tu):'var(--gray)'};">${h.tu||'--'}</td>
       <td style="padding:8px 10px;color:var(--gray);">${h.date}</td>
     </tr>`).join('') + '</tbody></table></div>' +
     renderScoreProgress(history);
@@ -2412,7 +2412,7 @@ function renderScoreProgress(history) {
   const diffEq = (last.eq&&first.eq) ? last.eq-first.eq : null;
   const diffEx = (last.ex&&first.ex) ? last.ex-first.ex : null;
   const diffTu = (last.tu&&first.tu) ? last.tu-first.tu : null;
-  const arrow = d => d===null?'—':d>0?'<span style="color:var(--green);">▲+'+d+'</span>':d<0?'<span style="color:var(--red);">▼'+d+'</span>':'<span style="color:var(--gray);">No change</span>';
+  const arrow = d => d===null?'--':d>0?'<span style="color:var(--green);">▲+'+d+'</span>':d<0?'<span style="color:var(--red);">▼'+d+'</span>':'<span style="color:var(--gray);">No change</span>';
   return '<div style="margin-top:10px;padding:10px 14px;background:var(--lgo);border-radius:8px;font-size:12px;"><strong style="color:#92710A;">📈 Score Progress:</strong> Equifax '+arrow(diffEq)+' &nbsp; Experian '+arrow(diffEx)+' &nbsp; TransUnion '+arrow(diffTu)+'</div>';
 }
 
@@ -2429,7 +2429,7 @@ function openDisputeDetail(idx) {
   const scores = scoreHistory[d.clientId] || [];
   const scoreTable = scores.length > 0 ?
     '<div style="overflow-x:auto;margin-top:8px;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr><th style="background:var(--blue);color:white;padding:7px 10px;">Stage</th><th style="background:var(--blue);color:white;padding:7px 10px;">Equifax</th><th style="background:var(--blue);color:white;padding:7px 10px;">Experian</th><th style="background:var(--blue);color:white;padding:7px 10px;">TransUnion</th><th style="background:var(--blue);color:white;padding:7px 10px;">Date</th></tr></thead><tbody>'+
-    scores.map(s=>`<tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 10px;font-weight:700;">${s.stage}</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:${s.eq?(s.eq>=700?'var(--green)':s.eq>=650?'var(--gold)':'var(--red)'):'var(--gray)'};">${s.eq||'—'}</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:${s.ex?(s.ex>=700?'var(--green)':s.ex>=650?'var(--gold)':'var(--red)'):'var(--gray)'};">${s.ex||'—'}</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:${s.tu?(s.tu>=700?'var(--green)':s.tu>=650?'var(--gold)':'var(--red)'):'var(--gray)'};">${s.tu||'—'}</td><td style="padding:7px 10px;color:var(--gray);">${s.date}</td></tr>`).join('')+
+    scores.map(s=>`<tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 10px;font-weight:700;">${s.stage}</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:${s.eq?(s.eq>=700?'var(--green)':s.eq>=650?'var(--gold)':'var(--red)'):'var(--gray)'};">${s.eq||'--'}</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:${s.ex?(s.ex>=700?'var(--green)':s.ex>=650?'var(--gold)':'var(--red)'):'var(--gray)'};">${s.ex||'--'}</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:${s.tu?(s.tu>=700?'var(--green)':s.tu>=650?'var(--gold)':'var(--red)'):'var(--gray)'};">${s.tu||'--'}</td><td style="padding:7px 10px;color:var(--gray);">${s.date}</td></tr>`).join('')+
     '</tbody></table></div>' : '<div style="color:var(--gray);font-size:12px;">No scores recorded yet.</div>';
 
   const timeline = (d.timelineEvents||[]).map(e=>`
@@ -2446,7 +2446,7 @@ function openDisputeDetail(idx) {
     <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--border);">
       <div style="flex:1;">
         <div style="font-size:20px;font-weight:800;color:var(--blue);">${d.clientName}</div>
-        <div style="font-size:13px;color:var(--gray);">${d.clientId} · Filed ${d.filedDate} · Specialist: ${d.specialist||'—'}</div>
+        <div style="font-size:13px;color:var(--gray);">${d.clientId} · Filed ${d.filedDate} · Specialist: ${d.specialist||'--'}</div>
         <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
           ${(d.bureaus||[]).map(b=>`<span class="badge badge-blue">${b}</span>`).join('')}
           <span class="badge ${statusBadge[d.status]||'badge-gray'}">${d.status}</span>
@@ -2463,7 +2463,7 @@ function openDisputeDetail(idx) {
         <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:10px;">📋 Disputed Items</div>
         ${(d.items||[]).map(item=>`
           <div style="padding:8px 12px;background:#F9FAFB;border-radius:6px;margin-bottom:6px;font-size:12px;border-left:3px solid var(--blue);">
-            <strong>${item.name||item}</strong>${item.acct?' — ···'+item.acct:''}<br>
+            <strong>${item.name||item}</strong>${item.acct?' -- ···'+item.acct:''}<br>
             <span style="color:var(--gray);">${item.reason||''}</span>
           </div>`).join('') || '<div style="color:var(--gray);font-size:12px;">No items recorded.</div>'}
 
@@ -2476,7 +2476,7 @@ function openDisputeDetail(idx) {
           <select id="detail-item-result" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:12px;margin-bottom:8px;">
             <option>Item Removed ✅</option>
             <option>Item Updated / Corrected</option>
-            <option>Bureau Verified — Remains</option>
+            <option>Bureau Verified -- Remains</option>
             <option>Investigation Pending</option>
             <option>Escalating to Next Round</option>
             <option>Legal Referral</option>
@@ -2493,7 +2493,7 @@ function openDisputeDetail(idx) {
           <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;">Add Score Update</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
             <select id="detail-score-stage" style="padding:8px;border:1px solid var(--border);border-radius:6px;font-size:12px;grid-column:1/-1;">
-              <option>Mid-Dispute</option><option>Mid-Dispute 2</option><option>Mid-Dispute 3</option><option>End of Service — Final</option>
+              <option>Mid-Dispute</option><option>Mid-Dispute 2</option><option>Mid-Dispute 3</option><option>End of Service -- Final</option>
             </select>
             <input type="number" id="detail-score-eq" placeholder="🔵 Equifax" min="300" max="850" style="padding:8px;border:1px solid var(--border);border-radius:6px;font-size:12px;">
             <input type="number" id="detail-score-ex" placeholder="🔴 Experian" min="300" max="850" style="padding:8px;border:1px solid var(--border);border-radius:6px;font-size:12px;">
@@ -2545,7 +2545,7 @@ function addItemUpdate(idx) {
   const event = {
     date: today,
     type: isRemoved ? 'green' : result.includes('Remains') ? 'red' : 'gold',
-    title: (isRemoved ? '✅ ' : '') + result + (item && item!=='All Items' ? ' — ' + item : ''),
+    title: (isRemoved ? '✅ ' : '') + result + (item && item!=='All Items' ? ' -- ' + item : ''),
     desc: notes || result
   };
 
@@ -2558,14 +2558,14 @@ function addItemUpdate(idx) {
   if(d.clientEmail || d.clientPhone) {
     const msg = isRemoved
       ? 'Great news ' + d.clientName + '! ' + item + ' has been ' + result + ' from your credit report. CP Restoration Services'
-      : 'Update on your credit dispute: ' + item + ' — ' + result + '. We will keep working on this. CP Restoration Services';
+      : 'Update on your credit dispute: ' + item + ' -- ' + result + '. We will keep working on this. CP Restoration Services';
     const logEntry = {date:new Date().toLocaleString(),client:d.clientName,clientId:d.clientId,type:result,channel:'SMS+Email',preview:msg.substring(0,80),status:'Queued'};
     notificationLog.unshift(logEntry);
   }
 
   openDisputeDetail(idx);
   updateStats();
-  alert('✅ Update saved' + (isRemoved ? ' — item marked as REMOVED!' : '') + '\nClient notification queued.');
+  alert('✅ Update saved' + (isRemoved ? ' -- item marked as REMOVED!' : '') + '\nClient notification queued.');
 }
 
 function addScoreFromDetail(clientId, idx) {
@@ -2582,7 +2582,7 @@ function addScoreFromDetail(clientId, idx) {
   if(d) {
     if(!d.timelineEvents) d.timelineEvents=[];
     const scores = [eq?'EQ: '+eq:'',ex?'EX: '+ex:'',tu?'TU: '+tu:''].filter(Boolean).join(' | ');
-    d.timelineEvents.unshift({date:entry.date,type:'gold',title:'Credit Scores Updated — '+stage,desc:scores});
+    d.timelineEvents.unshift({date:entry.date,type:'gold',title:'Credit Scores Updated -- '+stage,desc:scores});
     if(db && d.id) db.doc('disputes/'+d.id).update({timelineEvents:d.timelineEvents,scoreHistory:scoreHistory[clientId]}).catch(()=>{});
   }
   openDisputeDetail(idx);
@@ -2616,7 +2616,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ============================================================
-// FOLLOW-UP SYSTEM — 10 BUSINESS DAYS
+// FOLLOW-UP SYSTEM -- 10 BUSINESS DAYS
 // ============================================================
 
 function addBusinessDays(date, days) {
@@ -2767,7 +2767,7 @@ function renderFollowUps(data) {
       <td><strong>${r.nextDue}</strong></td>
       <td>${daysText}</td>
       <td>${(d.bureaus||[]).map(b=>'<span class="badge badge-gray" style="margin-right:2px;">'+(b.substring(0,2))+'</span>').join('')}</td>
-      <td style="font-size:12px;">${d.specialist||'—'}</td>
+      <td style="font-size:12px;">${d.specialist||'--'}</td>
       <td><strong style="color:${statusColor[r.status]||'var(--gray)'};">${statusLabel[r.status]||r.status}</strong></td>
       <td style="display:flex;gap:4px;flex-wrap:wrap;">
         <button class="btn btn-blue btn-sm" onclick="closeDisputeDetail();prepareNextRoundFromLog('${d.clientId}')">📝 File Action</button>
@@ -2818,16 +2818,16 @@ async function notifyEmployee(specialistName) {
   if(myClients.length === 0) { alert(specialistName + ' has no active dispute clients assigned.'); return; }
 
   const today = new Date().toLocaleDateString();
-  let msg = 'CP RESTORATION — ' + specialistName.split(' ')[0].toUpperCase() + ' DAILY DISPUTE UPDATE (' + today + ')\n\n';
+  let msg = 'CP RESTORATION -- ' + specialistName.split(' ')[0].toUpperCase() + ' DAILY DISPUTE UPDATE (' + today + ')\n\n';
 
   if(urgent.length > 0) {
     msg += '🔴 ACTION REQUIRED NOW (' + urgent.length + ' clients):\n';
-    urgent.forEach(r => { msg += '• ' + r.dispute.clientName + ' (' + r.dispute.clientId + ') — ' + (r.status==='overdue'?Math.abs(r.bizDaysLeft)+' days overdue':'Due today') + '\n'; });
+    urgent.forEach(r => { msg += '* ' + r.dispute.clientName + ' (' + r.dispute.clientId + ') -- ' + (r.status==='overdue'?Math.abs(r.bizDaysLeft)+' days overdue':'Due today') + '\n'; });
     msg += '\n';
   }
   if(dueSoon.length > 0) {
     msg += '🟠 DUE THIS WEEK (' + dueSoon.length + ' clients):\n';
-    dueSoon.forEach(r => { msg += '• ' + r.dispute.clientName + ' — Due ' + r.nextDue + '\n'; });
+    dueSoon.forEach(r => { msg += '* ' + r.dispute.clientName + ' -- Due ' + r.nextDue + '\n'; });
     msg += '\n';
   }
   msg += 'Log in to the Dispute Center to take action: https://portal-cprestorationsvcs.com/dispute-center.html';
@@ -3094,7 +3094,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // updateStats -- no auto hooks
 
 
-// ── DRAFT SAVE / LOAD (AUTO-SAVE) ──────────────────────────────
+// -- DRAFT SAVE / LOAD (AUTO-SAVE) ------------------------------
 var DRAFT_KEY = 'cp_dispute_draft';
 var _autoSaveTimer = null;
 var _lastSaved = null;
@@ -3154,7 +3154,7 @@ function getAllFormData() {
     });
   } catch(e) {}
 
-  // Save uploaded documents (names only — not base64 data, too large)
+  // Save uploaded documents (names only -- not base64 data, too large)
   try {
     if (typeof uploadedDocs !== 'undefined') {
       Object.keys(uploadedDocs).forEach(function(k) {
@@ -3162,7 +3162,7 @@ function getAllFormData() {
         var items = Array.isArray(d) ? d : [d];
         data.docs[k] = items.map(function(item) {
           return { name: item.name, size: item.size, type: item.type };
-          // Note: we save doc metadata only — base64 data too large for localStorage
+          // Note: we save doc metadata only -- base64 data too large for localStorage
           // Full doc data saved separately in cp_dispute_docs key
         });
       });
@@ -3315,7 +3315,7 @@ function showToastDraft(msg, type) {
   setTimeout(function() { t.parentNode && t.parentNode.removeChild(t); }, 3000);
 }
 
-// ── AUTO-SAVE SETUP ──────────────────────────────────────────────
+// -- AUTO-SAVE SETUP ----------------------------------------------
 function initAutoSave() {
   // Auto-save on any input change (debounced 2 seconds)
   document.addEventListener('input', function() {
@@ -3344,7 +3344,7 @@ function initAutoSave() {
       var savedTime = data.savedAt ? new Date(data.savedAt).toLocaleString() : '';
       var st = document.getElementById('draft-status');
       if (st && savedTime) {
-        st.textContent = '&#128190; Draft available from ' + savedTime + ' — click Load Draft to restore';
+        st.textContent = '&#128190; Draft available from ' + savedTime + ' -- click Load Draft to restore';
         st.style.color = '#1A5C38';
         st.style.fontWeight = '700';
       }
@@ -3386,11 +3386,11 @@ fetch('https://cloudflare.com/cdn-cgi/trace').then(function(r){return r.json();}
   var bn=document.getElementById('vpn-banner');
   if(!el) return;
   if(d.country_code==='US'){
-    el.innerHTML='&#9989; US IP — VPN Active';
+    el.innerHTML='&#9989; US IP -- VPN Active';
     el.style.color='#166534'; el.style.fontWeight='700';
     if(bn) bn.style.background='#DCFCE7';
   } else {
-    el.innerHTML='&#10060; '+(d.loc||'Non-US')+' IP — Connect VPN Now';
+    el.innerHTML='&#10060; '+(d.loc||'Non-US')+' IP -- Connect VPN Now';
     el.style.color='#8B1A1A'; el.style.fontWeight='700';
   }
 }).catch(function(){});
