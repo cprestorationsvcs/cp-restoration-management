@@ -948,19 +948,7 @@ async function ttPauseSession() {
   ttUpdateBadge();
 }
 
-async function ttResumeSession() {
-  if (_ttActive || !_ttCurrentName) return;
-  _ttActive = true;
-  try {
-    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions', {
-      method:'POST', headers:_TT_HDR,
-      body:JSON.stringify({employee_name:_ttCurrentName, date:new Date().toISOString().split('T')[0], clock_in:new Date().toISOString(), status:'active', last_seen:new Date().toISOString()})
-    });
-    var data = await r.json();
-    if (Array.isArray(data) && data[0]) _ttSessionId = data[0].id;
-  } catch(e){}
-  ttUpdateBadge();
-}
+async 
 
 async function ttClockOut() {
   if (_ttSessionId) {
@@ -977,18 +965,9 @@ async function ttClockOut() {
   ttUpdateBadge();
 }
 
-function ttResetIdle() {
-  clearTimeout(_ttIdleTimer);
-  if (!_ttActive && _ttCurrentName) { ttResumeSession(); return; }
-  _ttIdleTimer = setTimeout(function(){ if(_ttActive) ttPauseSession(); }, _ttIdleLimit);
-}
 
-function ttUpdateBadge() {
-  var badge = document.getElementById('tt-badge');
-  if (!badge) return;
-  badge.textContent = _ttActive ? '🟢 Clocked In' : '🔴 Paused';
-  badge.style.background = _ttActive ? '#166534' : '#8B1A1A';
-}
+
+
 
 ['mousemove','keypress','click','scroll','touchstart'].forEach(function(ev){
   document.addEventListener(ev, ttResetIdle, {passive:true});
