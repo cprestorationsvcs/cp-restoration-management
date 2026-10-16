@@ -75,7 +75,7 @@ function doLogin() {
   var role = emp.role;
   if(returnUrl && returnUrl.startsWith('/') && !returnUrl.includes('//')) { window.location.href = returnUrl; return; }
   if      (role === 'admin')      window.location.href = '/dashboard.html';
-  else if (role === 'compliance') window.location.href = '/cs-dashboard.html';
+  else if (role === 'compliance') window.location.href = '/kpi-dashboard.html';
   else if (role === 'cs')         window.location.href = '/cs-dashboard.html';
   else if (role === 'dispute')    window.location.href = '/dispute-center.html';
   else if (role === 'bureau')     window.location.href = '/bureau-caller-dashboard.html';
