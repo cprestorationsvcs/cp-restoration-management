@@ -1862,7 +1862,7 @@ async function sendTestNotification() {
     const status = ok ? '✅ Sent' : '❌ Failed: '+(result.result?.message||JSON.stringify(result.result||{}));
     notificationLog.unshift({date:new Date().toLocaleString(),client:'TEST',clientId:'CPR-TEST',type:'Test SMS',channel:'SMS',preview:'Test notification sent to '+phone,status:status});
     renderNotificationLog();
-    alert(ok ? '✅ Test SMS sent to '+phone : '❌ Failed: '+encodeURIComponent(JSON.stringify(result.result||{}));
+    alert(ok ? '✅ Test SMS sent to '+phone : '❌ Failed: '+encodeURIComponent(JSON.stringify(result.result||{})));
   } catch(e) {
     alert('❌ Error: '+e.message);
   }
