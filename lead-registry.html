@@ -299,7 +299,7 @@ function renderLeads() {
     }
     makeBtn('&#128222; Call Script', 'btn-call', function(){ openScript(l.id, l.name||'', l.phone||'', l.email||''); });
     if (l.phone) { var d=document.createElement('a'); d.href='tel:'+l.phone; d.className='btn btn-call'; d.style.textDecoration='none'; d.innerHTML='&#128222; Dial'; actions.appendChild(d); }
-    if (l.email) { var e=document.createElement('a'); e.href='mailto:'+l.email; e.className='btn btn-sms'; e.style.textDecoration='none'; e.innerHTML='&#9993; Email'; actions.appendChild(e); }
+    if (l.email) { var e=document.createElement('button'); e.className='btn btn-sms'; e.innerHTML='&#9993; Send Email'; e.onclick=function(){ openEmailModal(l); }; actionDiv.appendChild(e); }
     [{s:'called',cls:'btn-call',lbl:'&#128222; Mark Called'},{s:'interested',cls:'btn-interested',lbl:'&#9989; Interested'},{s:'sold',cls:'btn-sold',lbl:'&#127881; Sold'},{s:'not_interested',cls:'btn-notint',lbl:'&#10060; Not Interested'}].forEach(function(item){
       makeBtn(item.lbl, item.cls, function(){ updateStatus(l.id, item.s); });
     });
@@ -373,6 +373,92 @@ function setSource(src, btn) {
 
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+
+<!-- Email Modal -->
+<div id="email-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:16px;padding:32px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;">
+    <h3 style="font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:4px;">&#9993; Send Onboarding Email</h3>
+    <p style="font-size:13px;color:#64748B;margin-bottom:20px;">Sending to: <strong id="em-to-name"></strong> &lt;<span id="em-to-email"></span>&gt;</p>
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:12px;font-weight:700;color:#1B3A6B;text-transform:uppercase;margin-bottom:5px;">Subject</label>
+      <input id="em-subject" type="text" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:12px;font-weight:700;color:#1B3A6B;text-transform:uppercase;margin-bottom:5px;">Message</label>
+      <textarea id="em-body" rows="14" style="width:100%;padding:10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="sendOnboardingEmail()" style="flex:1;padding:12px;background:#1B3A6B;color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;" id="em-send-btn">Send Email</button>
+      <button onclick="document.getElementById('email-modal').style.display='none'" style="padding:12px 20px;background:#F1F5F9;color:#475569;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Cancel</button>
+    </div>
+    <div id="em-status" style="margin-top:12px;font-size:13px;text-align:center;"></div>
+  </div>
+</div>
+
+<script>
+var _emailLead = null;
+
+function openEmailModal(lead) {
+  _emailLead = lead;
+  var name = lead.name || lead.first_name || 'there';
+  var firstName = name.split(' ')[0];
+  document.getElementById('em-to-name').textContent = name;
+  document.getElementById('em-to-email').textContent = lead.email || '';
+  document.getElementById('em-subject').value = 'Welcome to CP Restoration Services — Next Steps';
+  document.getElementById('em-body').value = 'Hi ' + firstName + ',\n\nThank you for your interest in CP Restoration Services! We are excited to help you on your credit repair journey.\n\nHere is how to get started:\n\n1. Complete your onboarding form at the link below:\n   https://portal-cprestorationsvcs.com/client-onboarding.html\n\n2. Once your onboarding is complete, our team will review your file and assign you a dedicated dispute specialist within 24-48 hours.\n\n3. You will receive your Client ID and portal login details by email once your account is set up.\n\nIf you have any questions in the meantime, please do not hesitate to reach out:\n\n?? Phone: 1-855-327-5847 (Sales: 24/7 | Customer Service: Mon–Fri 9AM–5PM ET)\n?? Email: cprestorationsvcs@gmail.com\n?? Portal: portal-cprestorationsvcs.com\n\nWe look forward to working with you!\n\nWarm regards,\nCP Restoration Services Team\n1-855-327-5847\ncprestorationsvcs@gmail.com';
+  document.getElementById('em-status').textContent = '';
+  document.getElementById('em-send-btn').disabled = false;
+  document.getElementById('em-send-btn').textContent = 'Send Email';
+  document.getElementById('email-modal').style.display = 'flex';
+}
+
+async function sendOnboardingEmail() {
+  var lead = _emailLead;
+  if (!lead || !lead.email) { alert('No email address for this lead.'); return; }
+  var subject = document.getElementById('em-subject').value.trim();
+  var body = document.getElementById('em-body').value.trim();
+  var btn = document.getElementById('em-send-btn');
+  var status = document.getElementById('em-status');
+  btn.disabled = true; btn.textContent = 'Sending...';
+
+  try {
+    var r = await fetch('/.netlify/functions/email-proxy', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        to: lead.email,
+        toName: lead.name || lead.first_name || '',
+        subject: subject,
+        text: body,
+        html: body.replace(/\n/g, '<br>')
+      })
+    });
+    var result = await r.json();
+    if (r.ok && !result.error) {
+      status.style.color = '#166534';
+      status.textContent = '✅ Email sent successfully to ' + lead.email;
+      btn.textContent = '✅ Sent';
+      // Log to team chat
+      await fetch(SUPA_BASE + '/team_chat', {
+        method: 'POST',
+        headers: PORTAL_HDR,
+        body: JSON.stringify({
+          channel: 'general', sender_name: 'Lead Registry', sender_role: 'system',
+          message: '📧 Onboarding email sent to ' + (lead.name||lead.email) + ' (' + lead.email + ')',
+          created_at: new Date().toISOString()
+        })
+      });
+      setTimeout(function(){ document.getElementById('email-modal').style.display='none'; }, 2000);
+    } else {
+      throw new Error(result.error || 'Send failed');
+    }
+  } catch(e) {
+    status.style.color = '#991B1B';
+    status.textContent = '❌ Error: ' + e.message + '. Check email-proxy function.';
+    btn.disabled = false; btn.textContent = 'Retry';
+  }
+}
 </script>
 </body>
 </html>
