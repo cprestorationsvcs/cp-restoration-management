@@ -1357,7 +1357,8 @@ function addDisputeItem() {
         <option>Experian + TransUnion</option>
       </select>
     </div>
-    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeItem(`${id}')">✕</button>';
+    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeDisputeItem('${id}')">🗑 Remove</button>
+  `;
   list.appendChild(row);
 }
 
@@ -1369,15 +1370,14 @@ function addInquiryItem() {
   row.className = 'dispute-item-row';
   row.id = id;
   row.innerHTML = `
-    <div class="field"><label>Creditor / Company Name</label><input type="text" placeholder="Capital One Auto Finance" id="${id}-name"></div>
+    <div class="field"><label>Creditor / Company Name</label><input type="text" placeholder="Capital One" id="${id}-name"></div>
     <div class="field"><label>Date of Inquiry</label><input type="date" id="${id}-date"></div>
     <div class="field"><label>Dispute Reason</label>
       <select id="${id}-reason">
-        <option>Unauthorized inquiry -- did not apply for credit</option>
-        <option>Inquiry over 2 years old</option>
-        <option>Identity theft / fraud</option>
+        <option>Unauthorized inquiry</option>
+        <option>Did not apply for credit</option>
+        <option>Inquiry too old (over 2 years)</option>
         <option>Duplicate inquiry</option>
-        <option>Permissible purpose not established</option>
         <option>Other</option>
       </select>
     </div>
@@ -1392,7 +1392,8 @@ function addInquiryItem() {
         <option>Experian + TransUnion</option>
       </select>
     </div>
-    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeInquiry(`${id}')">&#x2715;</button>';
+    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeInquiryItem('${id}')">🗑 Remove</button>
+  `;
   list.appendChild(row);
 }
 
