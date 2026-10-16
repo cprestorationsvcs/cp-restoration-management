@@ -977,7 +977,7 @@ async function submitStatusRequest(){
     });
   } catch(e){ console.log('Supabase request save error:', e.message); }
   // Email dispute dept
-  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+  await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       personalizations:[{to:[{email:'cprestorationsvcs@gmail.com',name:'Dispute Department'}]}],
       from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services — CS'},
@@ -1016,7 +1016,7 @@ async function submitRefundRequest(){
     });
   } catch(e){ console.log('Supabase request save error:', e.message); }
   // Email Queen in compliance
-  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+  await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       personalizations:[{to:[{email:'queen@mycprteam.com',name:'Queen — Compliance'}]}],
       from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services — CS'},
@@ -1428,7 +1428,7 @@ function parseNotes(notes){
 /* duplicate removed */
 
 async function notifyCompliance(type){
-  await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+  await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       personalizations:[{to:[{email:'queen@mycprteam.com',name:'Queen — Compliance'}]}],
       from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
@@ -1539,7 +1539,7 @@ async function sendPortalLink(){
   if(!currentClient||!currentClient.email){toast('No email on file','err');return;}
   var c=currentClient;
   try{
-    var r=await fetch('/.netlify/functions/email-proxy',{method:'POST',headers:{'Content-Type':'application/json'},
+    var r=await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         personalizations:[{to:[{email:c.email,name:c.name}]}],
         from:{email:'cprestorationsvcs@gmail.com',name:'CP Restoration Services'},
