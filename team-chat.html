@@ -221,7 +221,7 @@ function appendMsg(m) {
   var c = document.getElementById('messages');
   var myName = localStorage.getItem('cp_logged_in_name') || '';
   var isMine = myName && m.sender_name === myName;
-  var canDelete = myName === 'Jason Crown' || myName === 'Queen Jearel Cruz';
+  var canDelete = myName === 'Jason Crown'; // Admin only
 
   if (m.type === 'system') {
     var sys = document.createElement('div');
@@ -232,7 +232,13 @@ function appendMsg(m) {
   var color = m.sender_color || '#1B3A6B';
   var initials = m.sender_initials || (m.sender_name || '?').substring(0,2).toUpperCase();
   var time = '';
-  try { time = new Date(m.created_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); } catch(e){}
+  try { var msgDate = new Date(m.created_at);
+    var now = new Date();
+    var isToday = msgDate.toDateString() === now.toDateString();
+    var isYesterday = msgDate.toDateString() === new Date(now-86400000).toDateString();
+    var dateStr = isToday ? 'Today' : isYesterday ? 'Yesterday' : msgDate.toLocaleDateString([], {month:'short', day:'numeric', year:'numeric'});
+    var timeStr = msgDate.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    time = dateStr + ' ' + timeStr; } catch(e){}
 
   var wrap = document.createElement('div');
   wrap.className = 'msg-wrap' + (isMine ? ' mine' : '');
