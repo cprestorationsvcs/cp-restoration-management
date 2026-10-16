@@ -1367,7 +1367,7 @@ function addInquiryItem() {
   const row = document.createElement('div');
   row.className = 'dispute-item-row';
   row.id = id;
-  row.innerHTML = '
+  row.innerHTML = `
     <div class="field"><label>Creditor / Company Name</label><input type="text" placeholder="Capital One Auto Finance" id="${id}-name"></div>
     <div class="field"><label>Date of Inquiry</label><input type="date" id="${id}-date"></div>
     <div class="field"><label>Dispute Reason</label>
@@ -1391,7 +1391,7 @@ function addInquiryItem() {
         <option>Experian + TransUnion</option>
       </select>
     </div>
-    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeInquiry('${id}')">&#x2715;</button>';
+    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeInquiry(`${id}')">&#x2715;</button>';
   list.appendChild(row);
 }
 
@@ -2001,12 +2001,12 @@ function renderTimeline() {
   const totalItems = clientDisputes.reduce((a,d)=>a+(d.items||[]).length,0);
   const bureaus = [...new Set(clientDisputes.flatMap(d=>d.bureaus||[]))];
 
-  container.innerHTML = '
+  container.innerHTML = `
     <div style="padding:16px;background:var(--lb);border-radius:10px;margin-bottom:20px;display:flex;gap:24px;flex-wrap:wrap;">
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">CLIENT</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${clientName}</div><div style="font-size:12px;color:var(--gray);">${clientId}</div></div>
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">TOTAL DISPUTES</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${clientDisputes.length} rounds</div></div>
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">ITEMS DISPUTED</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${totalItems} items</div></div>
-      <div><div style="font-size:11px;color:var(--gray);font-weight:700;">BUREAUS</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${bureaus.join(', ')}</div></div>
+      <div><div style="font-size:11px;color:var(--gray);font-weight:700;">BUREAUS</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${bureaus.join(`, ')}</div></div>
     </div>
     <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:16px;">📅 Case Timeline -- What the client sees</div>
     <div class="timeline">
