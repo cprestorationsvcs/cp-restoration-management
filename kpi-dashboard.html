@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KPI Dashboard | CP Restoration</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;}
+:root{--navy:#1B3A6B;--gold:#C9A84C;--green:#166534;--red:#991B1B;--bg:#F8FAFC;}
+body{background:var(--bg);min-height:100vh;}
+.hdr{background:var(--navy);color:white;padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.hdr h1{font-size:15px;font-weight:900;flex:1;}
+.hdr-right{display:flex;gap:10px;align-items:center;}
+.period-select{padding:6px 12px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:white;font-size:12px;font-family:inherit;}
+.refresh-btn{padding:6px 14px;border-radius:7px;border:none;background:var(--gold);color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.tabs{background:white;border-bottom:2px solid #E2E8F0;padding:0 20px;display:flex;gap:4px;overflow-x:auto;}
+.tab{padding:12px 18px;font-size:13px;font-weight:700;color:#64748B;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy);}
+.wrap{padding:20px;max-width:1200px;margin:0 auto;}
+.section-title{font-size:18px;font-weight:900;color:var(--navy);margin-bottom:16px;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+.stat{background:white;border:1.5px solid #E2E8F0;border-radius:12px;padding:18px;text-align:center;}
+.stat-num{font-size:32px;font-weight:900;color:var(--navy);}
+.stat-label{font-size:11px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;}
+.stat-sub{font-size:11px;color:#94A3B8;margin-top:2px;}
+.kpi-table{background:white;border:1.5px solid #E2E8F0;border-radius:14px;overflow:hidden;margin-bottom:24px;}
+.kpi-table table{width:100%;border-collapse:collapse;font-size:13px;}
+.kpi-table th{background:var(--navy);color:white;padding:11px 14px;text-align:left;font-weight:700;font-size:12px;}
+.kpi-table td{padding:11px 14px;border-bottom:1px solid #F1F5F9;color:#475569;vertical-align:middle;}
+.kpi-table tr:last-child td{border:none;}
+.kpi-table tr:hover td{background:#F8FAFC;}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-green{background:#DCFCE7;color:#166534;}
+.badge-red{background:#FEE2E2;color:#991B1B;}
+.badge-yellow{background:#FEF3C7;color:#92400E;}
+.badge-blue{background:#DBEAFE;color:#1D4ED8;}
+.progress-bar{background:#E2E8F0;border-radius:20px;height:8px;overflow:hidden;min-width:100px;}
+.progress-fill{height:8px;border-radius:20px;transition:width 0.3s;}
+.progress-green{background:#22C55E;}
+.progress-yellow{background:#F59E0B;}
+.progress-red{background:#EF4444;}
+.incentive-card{background:white;border:1.5px solid #E2E8F0;border-radius:14px;padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;}
+.incentive-card.earned{border-color:#22C55E;background:#F0FDF4;}
+.incentive-card.not-earned{border-color:#EF4444;background:#FFF5F5;}
+.incentive-card.pending{border-color:#F59E0B;background:#FFFBEB;}
+.incentive-ico{font-size:32px;}
+.incentive-name{font-size:16px;font-weight:800;color:var(--navy);}
+.incentive-status{font-size:13px;margin-top:4px;}
+.incentive-detail{font-size:12px;color:#64748B;margin-top:4px;}
+.incentive-amount{margin-left:auto;text-align:right;}
+.incentive-amount .amount{font-size:24px;font-weight:900;color:var(--gold);}
+.incentive-amount .label{font-size:11px;color:#94A3B8;}
+.dept-tab{display:none;}
+.dept-tab.active{display:block;}
+.empty{text-align:center;padding:40px;color:#94A3B8;font-size:13px;}
+.week-label{font-size:12px;color:#64748B;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>📊 KPI Dashboard — CP Restoration Services</h1>
+  <div class="hdr-right">
+    <select class="period-select" id="period-select" onchange="loadAll()">
+      <option value="week">This Week</option>
+      <option value="month">This Month</option>
+      <option value="last_week">Last Week</option>
+    </select>
+    <button class="refresh-btn" onclick="loadAll()">⟳ Refresh</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview',this)">📈 Overview</div>
+  <div class="tab" onclick="showTab('cs',this)">👥 Customer Service</div>
+  <div class="tab" onclick="showTab('dispute',this)">⚖️ Dispute</div>
+  <div class="tab" onclick="showTab('bureau',this)">📞 Bureau Calling</div>
+  <div class="tab" onclick="showTab('sales',this)">💰 Sales</div>
+  <div class="tab" onclick="showTab('incentives',this)">🏆 Incentives</div>
+</div>
+
+<div class="wrap">
+
+  <!-- OVERVIEW -->
+  <div class="dept-tab active" id="tab-overview">
+    <div class="section-title">Company Overview — <span id="ov-period-label">This Week</span></div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="ov-active-clients">—</div><div class="stat-label">Active Clients</div></div>
+      <div class="stat"><div class="stat-num" id="ov-total-leads">—</div><div class="stat-label">Total Leads</div><div class="stat-sub" id="ov-sold-leads">— sold</div></div>
+      <div class="stat"><div class="stat-num" id="ov-disputes">—</div><div class="stat-label">Disputes Filed</div></div>
+      <div class="stat"><div class="stat-num" id="ov-status-updates">—</div><div class="stat-label">Status Updates</div></div>
+      <div class="stat"><div class="stat-num" id="ov-incentives-earned">—</div><div class="stat-label">Incentives Earned</div><div class="stat-sub">this period</div></div>
+    </div>
+    <div class="kpi-table">
+      <table>
+        <thead><tr><th>Department</th><th>Team</th><th>Target</th><th>Progress</th><th>Incentive</th></tr></thead>
+        <tbody id="ov-dept-rows"><tr><td colspan="5" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CUSTOMER SERVICE -->
+  <div class="dept-tab" id="tab-cs">
+    <div class="section-title">Customer Service KPIs</div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="cs-interactions">—</div><div class="stat-label">Client Interactions</div><div class="stat-sub">Target: 50/week</div></div>
+      <div class="stat"><div class="stat-num" id="cs-portal-emails">—</div><div class="stat-label">Portal Emails Sent</div><div class="stat-sub">unique clients</div></div>
+      <div class="stat"><div class="stat-num" id="cs-callbacks">—</div><div class="stat-label">Callbacks Completed</div></div>
+      <div class="stat"><div class="stat-num" id="cs-status-updates">—</div><div class="stat-label">Status Updates Posted</div></div>
+    </div>
+    <div class="kpi-table">
+      <table>
+        <thead><tr><th>Agent</th><th>Interactions</th><th>Portal Emails</th><th>Callbacks</th><th>Progress to 50</th><th>Incentive Status</th></tr></thead>
+        <tbody id="cs-rows"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 18px;font-size:12px;color:#1B3A6B;">
+      <strong>Qualifying interactions:</strong> Live inbound/outbound calls + completed callbacks + confirmed email exchanges. Voicemails alone do not count. Each unique client email counts once per week for portal access.
+    </div>
+  </div>
+
+  <!-- DISPUTE -->
+  <div class="dept-tab" id="tab-dispute">
+    <div class="section-title">Dispute Department KPIs</div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="dp-letters">—</div><div class="stat-label">Letters Filed</div><div class="stat-sub">Target: 20/day</div></div>
+      <div class="stat"><div class="stat-num" id="dp-files">—</div><div class="stat-label">Client Files Worked</div><div class="stat-sub">Target: 10/day</div></div>
+      <div class="stat"><div class="stat-num" id="dp-followups">—%</div><div class="stat-label">Follow-up Rate</div><div class="stat-sub">Target: 100%</div></div>
+      <div class="stat"><div class="stat-num" id="dp-updates">—</div><div class="stat-label">Status Updates</div></div>
+    </div>
+    <div class="kpi-table">
+      <table>
+        <thead><tr><th>Specialist</th><th>Letters</th><th>Files Worked</th><th>Follow-ups</th><th>Daily Avg</th><th>Status</th></tr></thead>
+        <tbody id="dp-rows"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BUREAU CALLING -->
+  <div class="dept-tab" id="tab-bureau">
+    <div class="section-title">Bureau Calling KPIs</div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="bc-calls">—</div><div class="stat-label">Qualified Bureau Calls</div><div class="stat-sub">Target: 50/week</div></div>
+      <div class="stat"><div class="stat-num" id="bc-unique">—</div><div class="stat-label">Unique Bureaus Reached</div></div>
+      <div class="stat"><div class="stat-num" id="bc-avg-duration">—</div><div class="stat-label">Avg Call Duration</div><div class="stat-sub">min 60 sec to qualify</div></div>
+    </div>
+    <div class="kpi-table">
+      <table>
+        <thead><tr><th>Caller</th><th>Connected Calls</th><th>Qualified (60s+)</th><th>Unique Bureaus</th><th>Progress to 50</th><th>Incentive Status</th></tr></thead>
+        <tbody id="bc-rows"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 18px;font-size:12px;color:#1B3A6B;">
+      <strong>Qualifying calls:</strong> Connected outbound calls to bureaus with 60+ seconds talk time. Missed calls, unanswered calls, and voicemails are excluded.
+    </div>
+  </div>
+
+  <!-- SALES -->
+  <div class="dept-tab" id="tab-sales">
+    <div class="section-title">Sales Department KPIs</div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="sl-leads">—</div><div class="stat-label">Total Leads</div></div>
+      <div class="stat"><div class="stat-num" id="sl-sold">—</div><div class="stat-label">Sold Leads (🎉)</div></div>
+      <div class="stat"><div class="stat-num" id="sl-validated">—</div><div class="stat-label">Validated Sales</div><div class="stat-sub">w/ Client ID match</div></div>
+      <div class="stat"><div class="stat-num" id="sl-conversion">—%</div><div class="stat-label">Conversion Rate</div></div>
+      <div class="stat"><div class="stat-num" id="sl-pending">—</div><div class="stat-label">Pending Validation</div></div>
+    </div>
+    <div class="kpi-table">
+      <table>
+        <thead><tr><th>Lead Name</th><th>Sales Rep</th><th>Lead Status</th><th>Client ID Match</th><th>Validation Status</th></tr></thead>
+        <tbody id="sl-rows"><tr><td colspan="5" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 18px;font-size:12px;color:#1B3A6B;">
+      <strong>Validation criteria:</strong> Lead marked 🎉 Sold + Client ID created in Client Manager + Name, Email, or Phone matches. All 3 conditions required for ✅ Commission Qualified status.
+    </div>
+  </div>
+
+  <!-- INCENTIVES -->
+  <div class="dept-tab" id="tab-incentives">
+    <div class="section-title">Incentive Tracker — <span id="inc-period-label">This Week</span></div>
+    <div id="incentive-cards"><div class="empty">Loading incentive status...</div></div>
+  </div>
+
+</div>
+
+<script>
+var SUPA = 'https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1';
+var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
+var HDR  = {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+
+var CS_AGENTS    = ['Elna Palabrica','Alec Sarrosa','Queen Jearel Cruz','Raymon Guevarra'];
+var DISPUTE_TEAM = ['Marcelo Torres','Annabel Curada'];
+var BUREAU_TEAM  = ['Rosemarie De Guzman'];
+var SALES_TEAM   = ['Raymon Guevarra','Bukunmi Aina'];
+
+function showTab(id, el) {
+  document.querySelectorAll('.dept-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+function getPeriodDates() {
+  var period = document.getElementById('period-select').value;
+  var now = new Date();
+  var start, end;
+  if(period === 'week') {
+    var day = now.getDay();
+    start = new Date(now); start.setDate(now.getDate() - day + (day===0?-6:1)); start.setHours(0,0,0,0);
+    end = new Date();
+  } else if(period === 'last_week') {
+    var day = now.getDay();
+    end = new Date(now); end.setDate(now.getDate() - day + (day===0?-6:1)); end.setHours(0,0,0,0);
+    start = new Date(end); start.setDate(end.getDate()-7);
+  } else { // month
+    start = new Date(now.getFullYear(), now.getMonth(), 1);
+    end = new Date();
+  }
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
+function pct(val, target){ return Math.min(100, Math.round((val/target)*100)); }
+function progressBar(val, target){
+  var p = pct(val, target);
+  var cls = p>=100 ? 'progress-green' : p>=60 ? 'progress-yellow' : 'progress-red';
+  return '<div class="progress-bar"><div class="progress-fill '+cls+'" style="width:'+p+'%"></div></div><span style="font-size:11px;color:#64748B;margin-left:6px;">'+p+'%</span>';
+}
+function incentiveBadge(val, target){
+  if(val >= target) return '<span class="badge badge-green">✅ Earned</span>';
+  if(val >= target*0.7) return '<span class="badge badge-yellow">⚠️ In Progress</span>';
+  return '<span class="badge badge-red">❌ Not Earned</span>';
+}
+
+async function sf(url) {
+  try {
+    var r = await fetch(url, {headers:HDR});
+    if(!r.ok) return [];
+    return r.json();
+  } catch(e) { return []; }
+}
+
+async function loadAll() {
+  var {start, end} = getPeriodDates();
+  var period = document.getElementById('period-select').value;
+  var label = period==='week'?'This Week':period==='last_week'?'Last Week':'This Month';
+  document.getElementById('ov-period-label').textContent = label;
+  document.getElementById('inc-period-label').textContent = label;
+
+  // ── OVERVIEW ───────────────────────────────────────────
+  var [clients, leads, disputes, updates] = await Promise.all([
+    sf(SUPA+'/clients?status=eq.Active&select=id'),
+    sf(SUPA+'/leads?created_at=gte.'+encodeURIComponent(start)+'&select=id,status,pipeline_stage'),
+    sf(SUPA+'/client_status_updates?created_at=gte.'+encodeURIComponent(start)+'&select=id,posted_by_name'),
+    sf(SUPA+'/status_updates?created_at=gte.'+encodeURIComponent(start)+'&select=id,posted_by_name,action')
+  ]);
+  var soldLeads = leads.filter(function(l){ return l.status==='sold'||l.pipeline_stage==='sold'||(l.status||'').includes('Sold'); });
+  document.getElementById('ov-active-clients').textContent = clients.length;
+  document.getElementById('ov-total-leads').textContent = leads.length;
+  document.getElementById('ov-sold-leads').textContent = soldLeads.length+' sold';
+  document.getElementById('ov-disputes').textContent = disputes.length;
+  document.getElementById('ov-status-updates').textContent = updates.length + disputes.length;
+
+  // CS updates per agent
+  var csUpdatesByAgent = {};
+  CS_AGENTS.forEach(function(a){ csUpdatesByAgent[a]=0; });
+  updates.concat(disputes).forEach(function(u){
+    var n = u.posted_by_name||'';
+    CS_AGENTS.forEach(function(a){ if(n.includes(a.split(' ')[0])) csUpdatesByAgent[a]++; });
+  });
+
+  // Dispute letters by specialist
+  var dpBySpec = {};
+  DISPUTE_TEAM.forEach(function(a){ dpBySpec[a]=0; });
+  disputes.forEach(function(u){
+    var n = u.posted_by_name||'';
+    DISPUTE_TEAM.forEach(function(a){ if(n.includes(a.split(' ')[0])) dpBySpec[a]++; });
+  });
+
+  // Overview dept rows
+  var deptRows = [
+    { dept:'Customer Service', team:CS_AGENTS.join(', '), val:Object.values(csUpdatesByAgent).reduce(function(a,b){return a+b;},0), target:CS_AGENTS.length*50, incentive:'$25 per agent at 50/wk' },
+    { dept:'Dispute', team:DISPUTE_TEAM.join(', '), val:disputes.length, target:DISPUTE_TEAM.length*20*5, incentive:'Daily targets' },
+    { dept:'Bureau Calling', team:BUREAU_TEAM.join(', '), val:0, target:50, incentive:'$25 at 50/wk' },
+    { dept:'Sales', team:SALES_TEAM.join(', '), val:soldLeads.length, target:5, incentive:'Commission per sale' }
+  ];
+  document.getElementById('ov-dept-rows').innerHTML = deptRows.map(function(d){
+    return '<tr><td><strong>'+d.dept+'</strong></td><td style="color:#64748B;font-size:12px;">'+d.team+'</td><td>'+d.target+'</td><td>'+progressBar(d.val,d.target)+'</td><td style="font-size:12px;color:#64748B;">'+d.incentive+'</td></tr>';
+  }).join('');
+
+  // ── CUSTOMER SERVICE ───────────────────────────────────
+  document.getElementById('cs-interactions').textContent = Object.values(csUpdatesByAgent).reduce(function(a,b){return a+b;},0);
+  document.getElementById('cs-status-updates').textContent = updates.length;
+  document.getElementById('cs-callbacks').textContent = '—'; // RingCentral data needed
+  document.getElementById('cs-portal-emails').textContent = '—'; // email log needed
+
+  document.getElementById('cs-rows').innerHTML = CS_AGENTS.map(function(agent){
+    var interactions = csUpdatesByAgent[agent]||0;
+    return '<tr>'+
+      '<td><strong>'+agent+'</strong></td>'+
+      '<td>'+interactions+'</td>'+
+      '<td>—</td>'+
+      '<td>—</td>'+
+      '<td>'+progressBar(interactions,50)+'</td>'+
+      '<td>'+incentiveBadge(interactions,50)+'</td>'+
+    '</tr>';
+  }).join('');
+
+  // ── DISPUTE ────────────────────────────────────────────
+  document.getElementById('dp-letters').textContent = disputes.length;
+  document.getElementById('dp-files').textContent = disputes.length;
+  document.getElementById('dp-followups').textContent = '—';
+  document.getElementById('dp-updates').textContent = disputes.length;
+  var workingDays = Math.max(1, Math.floor((new Date()-new Date(start))/(1000*60*60*24*1.4)));
+
+  document.getElementById('dp-rows').innerHTML = DISPUTE_TEAM.map(function(spec){
+    var count = dpBySpec[spec]||0;
+    var dailyAvg = (count/workingDays).toFixed(1);
+    var onTrack = count >= workingDays*20;
+    return '<tr>'+
+      '<td><strong>'+spec+'</strong></td>'+
+      '<td>'+count+' / '+(workingDays*20)+' target</td>'+
+      '<td>'+count+' / '+(workingDays*10)+' target</td>'+
+      '<td>—</td>'+
+      '<td>'+dailyAvg+'/day</td>'+
+      '<td>'+(onTrack?'<span class="badge badge-green">✅ On Track</span>':'<span class="badge badge-yellow">⚠️ Below Target</span>')+'</td>'+
+    '</tr>';
+  }).join('');
+
+  // ── BUREAU CALLING ─────────────────────────────────────
+  document.getElementById('bc-calls').textContent = '—';
+  document.getElementById('bc-unique').textContent = '—';
+  document.getElementById('bc-avg-duration').textContent = '—';
+  document.getElementById('bc-rows').innerHTML = BUREAU_TEAM.map(function(caller){
+    return '<tr>'+
+      '<td><strong>'+caller+'</strong></td>'+
+      '<td>—</td><td>—</td><td>—</td>'+
+      '<td>'+progressBar(0,50)+'</td>'+
+      '<td><span class="badge badge-blue">⏳ RingCentral data needed</span></td>'+
+    '</tr>';
+  }).join('');
+
+  // ── SALES ──────────────────────────────────────────────
+  document.getElementById('sl-leads').textContent = leads.length;
+  document.getElementById('sl-sold').textContent = soldLeads.length;
+  document.getElementById('sl-conversion').textContent = leads.length ? Math.round((soldLeads.length/leads.length)*100) : 0;
+
+  // For each sold lead, check if a matching client exists
+  var allClients = await sf(SUPA+'/clients?select=id,name,email,phone');
+  var validated=0, pending=0;
+  var salesRows = await Promise.all(soldLeads.map(async function(lead){
+    var fullLead = await sf(SUPA+'/leads?id=eq.'+lead.id+'&select=*');
+    var l = fullLead[0]||lead;
+    // Check for matching client
+    var nameMatch = allClients.filter(function(c){ return c.name && l.name && c.name.toLowerCase().includes((l.name||'').toLowerCase().split(' ')[0]); });
+    var emailMatch = allClients.filter(function(c){ return l.email && c.email && c.email.toLowerCase()===l.email.toLowerCase(); });
+    var phoneMatch = allClients.filter(function(c){ return l.phone && c.phone && c.phone.replace(/\D/g,'')===((l.phone||'').replace(/\D/g,'')); });
+    var matched = nameMatch.length||emailMatch.length||phoneMatch.length;
+    var clientId = matched ? (nameMatch[0]||emailMatch[0]||phoneMatch[0]).id : null;
+    if(matched){ validated++; } else { pending++; }
+    return '<tr>'+
+      '<td><strong>'+(l.name||'Unknown')+'</strong><br><span style="font-size:11px;color:#94A3B8;">'+(l.phone||'')+'</span></td>'+
+      '<td>'+(l.assigned_to||l.source||'—')+'</td>'+
+      '<td><span class="badge badge-green">🎉 Sold</span></td>'+
+      '<td>'+(clientId?'<span class="badge badge-green">✅ '+clientId+'</span>':'<span class="badge badge-red">❌ No match</span>')+'</td>'+
+      '<td>'+(matched?'<span class="badge badge-green">✅ Commission Qualified</span>':'<span class="badge badge-yellow">⚠️ Pending Validation</span>')+'</td>'+
+    '</tr>';
+  }));
+  document.getElementById('sl-validated').textContent = validated;
+  document.getElementById('sl-pending').textContent = pending;
+  document.getElementById('sl-rows').innerHTML = salesRows.length ? salesRows.join('') : '<tr><td colspan="5" class="empty">No sold leads this period</td></tr>';
+
+  // Incentives earned count
+  var csIncentives = CS_AGENTS.filter(function(a){ return (csUpdatesByAgent[a]||0)>=50; }).length;
+  document.getElementById('ov-incentives-earned').textContent = csIncentives;
+
+  // ── INCENTIVES ─────────────────────────────────────────
+  var incCards = [];
+  CS_AGENTS.forEach(function(agent){
+    var count = csUpdatesByAgent[agent]||0;
+    var earned = count >= 50;
+    incCards.push({
+      name: agent, dept:'Customer Service',
+      earned: earned ? 'earned' : count>=35 ? 'pending' : 'not-earned',
+      status: earned ? '✅ Incentive Earned — $25' : count>=35 ? '⚠️ In Progress ('+count+'/50)' : '❌ Not Yet Qualified ('+count+'/50)',
+      detail: count+' qualifying interactions this period. Target: 50.',
+      amount: earned ? '$25' : '$0'
+    });
+  });
+  DISPUTE_TEAM.forEach(function(spec){
+    var count = dpBySpec[spec]||0;
+    var onTrack = count >= workingDays * 15;
+    incCards.push({
+      name: spec, dept:'Dispute Department',
+      earned: onTrack ? 'pending' : 'not-earned',
+      status: '📊 Daily tracking: '+count+' letters/files this period',
+      detail: 'Target: 20 letters + 10 files per day. Connect dispute logging for full tracking.',
+      amount: '—'
+    });
+  });
+  BUREAU_TEAM.forEach(function(caller){
+    incCards.push({
+      name: caller, dept:'Bureau Calling',
+      earned: 'pending',
+      status: '⏳ Awaiting RingCentral integration for call count',
+      detail: 'Target: 50 qualified bureau calls/week = $25 incentive. Connect RingCentral to automate.',
+      amount: '?'
+    });
+  });
+  // Sales incentive
+  incCards.push({
+    name: 'Sales Team', dept:'Sales',
+    earned: validated > 0 ? 'earned' : pending > 0 ? 'pending' : 'not-earned',
+    status: validated+' validated sales | '+pending+' pending validation',
+    detail: 'Commission calculated per validated sale. Each sale must match a Client ID in Client Manager.',
+    amount: validated > 0 ? validated+'× sales' : '$0'
+  });
+
+  document.getElementById('incentive-cards').innerHTML = incCards.map(function(c){
+    return '<div class="incentive-card '+c.earned+'">'+
+      '<div class="incentive-ico">'+(c.earned==='earned'?'🏆':c.earned==='pending'?'⏳':'❌')+'</div>'+
+      '<div>'+
+        '<div class="incentive-name">'+c.name+'</div>'+
+        '<div class="incentive-status">'+c.status+'</div>'+
+        '<div class="incentive-detail">'+c.dept+' · '+c.detail+'</div>'+
+      '</div>'+
+      '<div class="incentive-amount"><div class="amount">'+c.amount+'</div><div class="label">incentive</div></div>'+
+    '</div>';
+  }).join('');
+}
+
+loadAll();
+setInterval(loadAll, 60000);
+</script>
+</body>
+</html>
