@@ -442,7 +442,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
   try {
     var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/clients?id=eq.'+encodeURIComponent(clientId)+'&limit=1', {
-      headers: {'apikey': + FULL_KEY + ,'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50','Content-Type':'application/json'}
+      headers: {'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'','Content-Type':'application/json'}
     });
     var rows = await r.json();
     if (Array.isArray(rows) && rows[0]) {
