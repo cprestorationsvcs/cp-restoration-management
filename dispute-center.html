@@ -1762,7 +1762,7 @@ async function fileDispute() {
   fileBtn.innerHTML = '✅ Filed!';
 
   alert('Dispute filed! Client: ' + clientName + ' | Bureaus: ' + bureaus.join(', ') + ' | Items: ' + items.length + ' | Client notified.');
-  logWork('Dispute Filed', 'Bureaus: '+bureaus.join(','))+' | Items: '+items.length, clientId, clientName, items.length);
+  logWork('Dispute Filed', 'Bureaus: '+bureaus.join(',')+'| Items: '+items.length, clientId, clientName, items.length);
 
   // Show post-filing action panel
   const panel = document.getElementById('post-filing-card');
@@ -3409,7 +3409,7 @@ fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(functio
     el.style.color='#166534'; el.style.fontWeight='700';
     if(bn) bn.style.background='#DCFCE7';
   } else {
-    el.innerHTML='&#10060; '+( d.country_name||'Non-US'))+' IP — Connect VPN Now';
+    el.innerHTML='&#10060; '+(d.country_name||'Non-US')+' IP — Connect VPN Now';
     el.style.color='#8B1A1A'; el.style.fontWeight='700';
   }
 }).catch(function(){});
