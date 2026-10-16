@@ -173,7 +173,7 @@ function openDataUrl(url, name) {
 // ── LOAD MESSAGES ─────────────────────────────────────
 async function loadMessages(initial) {
   try {
-    var url = SUPA + '/team_chat?channel=eq.general&order=id.desc&limit=200';
+    var url = SUPA + '/team_chat?channel=eq.general&order=id.asc&limit=500';
     if (!initial && lastId > 0) url += '&id=gt.' + lastId;
     var r = await fetch(url, { headers: HDR });
     if (!r.ok) {
