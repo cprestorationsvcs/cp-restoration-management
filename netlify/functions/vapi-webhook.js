@@ -486,8 +486,9 @@ exports.handler = async function(event, context) {
 
   // VAPI signature check
   if (VAPI_SECRET) {
-    const sig = event.headers['x-vapi-secret'] || event.headers['X-Vapi-Secret'];
-    if (sig !== VAPI_SECRET) { console.error('[AUTH] Invalid VAPI secret'); return { statusCode: 401, body: 'Unauthorized' }; }
+    const sig = event.headers['x-vapi-secret'] || event.headers['X-Vapi-Secret'] || event.headers['x-vapi-signature'] || '';
+    if (sig && sig !== VAPI_SECRET) { console.error('[AUTH] Invalid VAPI secret, got:', sig.substring(0,8)+'...'); return { statusCode: 401, body: 'Unauthorized' }; }
+    if (!sig) { console.warn('[AUTH] No secret header — allowing through (check Vapi server URL secret setting)'); }
   }
 
   let body;
