@@ -908,23 +908,7 @@ var _ttHeartbeat = null;
 var _TT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6a2ZlbWJhZ3BpdXVvZXhtcG95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NzYwNjEsImV4cCI6MjEwNjM1MjA2MX0.8euoI8CGkr3GBFiTrlaEmO8DtVyCF9jVaWPGORScg50';
 var _TT_HDR = {'apikey':_TT_KEY,'Authorization':'Bearer '+_TT_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
 
-async function ttStartSession(name) {
-  if (_ttActive) return;
-  _ttCurrentName = name;
-  _ttActive = true;
-  try {
-    var r = await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions', {
-      method:'POST', headers:_TT_HDR,
-      body:JSON.stringify({employee_name:name, date:new Date().toISOString().split('T')[0], clock_in:new Date().toISOString(), status:'active', last_seen:new Date().toISOString()})
-    });
-    var data = await r.json();
-    if (Array.isArray(data) && data[0]) _ttSessionId = data[0].id;
-  } catch(e) { console.log('TT start:', e); }
-  ttResetIdle();
-  ttUpdateBadge();
-  clearInterval(_ttHeartbeat);
-  _ttHeartbeat = setInterval(function(){ if(_ttActive && _ttSessionId) ttHeartbeat(); }, 60000);
-}
+async 
 
 async function ttHeartbeat() {
   try {
@@ -935,35 +919,11 @@ async function ttHeartbeat() {
   } catch(e){}
 }
 
-async function ttPauseSession() {
-  if (!_ttActive || !_ttSessionId) return;
-  _ttActive = false;
-  try {
-    await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?id=eq.'+_ttSessionId, {
-      method:'PATCH', headers:_TT_HDR,
-      body:JSON.stringify({clock_out:new Date().toISOString(), status:'paused'})
-    });
-  } catch(e){}
-  _ttSessionId = null;
-  ttUpdateBadge();
-}
+async 
 
 async 
 
-async function ttClockOut() {
-  if (_ttSessionId) {
-    try {
-      await fetch('https://jzkfembagpiuuoexmpoy.supabase.co/rest/v1/time_sessions?id=eq.'+_ttSessionId, {
-        method:'PATCH', headers:_TT_HDR,
-        body:JSON.stringify({clock_out:new Date().toISOString(), status:'completed'})
-      });
-    } catch(e){}
-  }
-  clearInterval(_ttHeartbeat);
-  clearTimeout(_ttIdleTimer);
-  _ttActive = false; _ttSessionId = null;
-  ttUpdateBadge();
-}
+async 
 
 
 
