@@ -1181,20 +1181,8 @@ async function loadFromDb() {
 }
 
 // ============================================================
-// TABS
+// TABS — showTab defined at top of script
 // ============================================================
-);
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
-  var panel = document.getElementById('tab-'+id);
-  if(panel) panel.classList.add('active');
-  document.querySelectorAll('.tab-btn').forEach(function(b){
-    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes(id)) b.classList.add('active');
-  });
-  if(id==='dispute-log') { try{renderLog();}catch(e){} }
-  if(id==='client-timeline') { try{renderTimeline();}catch(e){} }
-  if(id==='notifications') { try{renderNotificationLog();}catch(e){} }
-  if(id==='log-call') { try{loadRecentCalls();}catch(e){} }
-}
 
 // ============================================================
 // CLIENT LOOKUP
