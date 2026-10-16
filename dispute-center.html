@@ -1327,7 +1327,7 @@ function addDisputeItem() {
   const row = document.createElement('div');
   row.className = 'dispute-item-row';
   row.id = id;
-  row.innerHTML = `
+  row.innerHTML = '
     <div class="field"><label>Account / Item Name</label><input type="text" placeholder="Capital One Credit Card" id="${id}-name"></div>
     <div class="field"><label>Account Number (last 4)</label><input type="text" placeholder="xxxx-1234" id="${id}-acct"></div>
     <div class="field"><label>Dispute Reason</label>
@@ -1356,7 +1356,7 @@ function addDisputeItem() {
         <option>Experian + TransUnion</option>
       </select>
     </div>
-    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeItem('${id}')">✕</button>`;
+    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeItem('${id}')">✕</button>';
   list.appendChild(row);
 }
 
@@ -1367,7 +1367,7 @@ function addInquiryItem() {
   const row = document.createElement('div');
   row.className = 'dispute-item-row';
   row.id = id;
-  row.innerHTML = `
+  row.innerHTML = '
     <div class="field"><label>Creditor / Company Name</label><input type="text" placeholder="Capital One Auto Finance" id="${id}-name"></div>
     <div class="field"><label>Date of Inquiry</label><input type="date" id="${id}-date"></div>
     <div class="field"><label>Dispute Reason</label>
@@ -1391,7 +1391,7 @@ function addInquiryItem() {
         <option>Experian + TransUnion</option>
       </select>
     </div>
-    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeInquiry('${id}')">&#x2715;</button>`;
+    <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red);height:36px;margin-top:20px;" onclick="removeInquiry('${id}')">&#x2715;</button>';
   list.appendChild(row);
 }
 
@@ -1504,7 +1504,7 @@ function buildTemplateLetter(name, clientId, addr, dob, bureauCode, items, today
     `${i+1}. ${item.name}${item.acct ? ' — Account No. ending in '+item.acct : ''}\n   Dispute Reason: ${item.reason}\n   This item is disputed as inaccurate and/or unverifiable under 15 U.S.C. § 1681i.`
   ).join('\n\n');
 
-  return `${today}
+  return '${today}
 
 ${name}
 ${addr || 'Address on file'}
@@ -1553,11 +1553,11 @@ Sincerely,
 
 
 _________________________________
-${name}`;
+${name}';
 }
 
 function buildTemplateFTC(name, clientId, addr, items, today) {
-  return `FTC IDENTITY THEFT REPORT
+  return 'FTC IDENTITY THEFT REPORT
 Prepared pursuant to 15 U.S.C. § 1681c-2
 
 
@@ -1596,7 +1596,7 @@ ${name}
 This Identity Theft Report was prepared in connection with a formal dispute filed with the major credit reporting agencies (Equifax, Experian, and TransUnion) as part of a credit restoration process conducted through CP Restoration Services.
 
 For FTC Identity Theft resources, visit: IdentityTheft.gov
-To file an FTC complaint: reportfraud.ftc.gov`;
+To file an FTC complaint: reportfraud.ftc.gov';
 }
 
 function displayLetters(style, bureaus, today) {
@@ -1845,14 +1845,14 @@ function renderNotificationLog() {
     return;
   }
   const statusBadge = s => s==='Sent'?'badge-green':s.includes('Queued')?'badge-gold':'badge-red';
-  tbody.innerHTML = notificationLog.map(n=>`<tr>
+  tbody.innerHTML = notificationLog.map(n=>'<tr>
     <td>${n.date}</td>
     <td><strong>${n.client}</strong><br><span style="font-size:11px;color:var(--gray);">${n.clientId||''}</span></td>
     <td>${n.type}</td>
     <td>${n.channel==='SMS'?'📱 SMS':'📧 Email'}</td>
     <td><span class="badge ${statusBadge(n.status)}">${n.status}</span></td>
     <td style="font-size:11px;color:var(--gray);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${n.preview}</td>
-  </tr>`).join('');
+  </tr>').join('');
 }
 
 async function sendTestNotification() {
@@ -1934,7 +1934,7 @@ function renderLog() {
     d.ex_conf_num ? '<div style="font-size:10px;"><span style="color:#C62828;font-weight:700;">EX:</span> '+d.ex_conf_num+'</div>' : '',
     d.tu_conf_num ? '<div style="font-size:10px;"><span style="color:#1B5E20;font-weight:700;">TU:</span> '+d.tu_conf_num+'</div>' : ''
   ].filter(Boolean).join('') || '<span style="color:#94A3B8;font-size:11px;">Not logged</span>';
-  return `<tr>
+  return '<tr>
     <td>${d.filedDate}</td>
     <td><strong>${d.clientName}</strong><br><span class="badge badge-blue">${d.clientId}</span></td>
     <td>${(d.bureaus||[]).map(b=>`<span class="badge badge-gray" style="margin-right:2px;">${b.substring(0,2)}</span>`).join('')}</td>
@@ -1948,7 +1948,7 @@ function renderLog() {
       <button class="btn btn-outline btn-sm" onclick="openDisputeDetail(${disputes.indexOf(d)})">📂 Open</button>
       <button class="btn btn-blue btn-sm" onclick="viewTimeline('${d.clientId}')">Timeline</button>
     </td>
-  </tr>`;
+  </tr>';
 }).join('');
 }
 
@@ -2001,7 +2001,7 @@ function renderTimeline() {
   const totalItems = clientDisputes.reduce((a,d)=>a+(d.items||[]).length,0);
   const bureaus = [...new Set(clientDisputes.flatMap(d=>d.bureaus||[]))];
 
-  container.innerHTML = `
+  container.innerHTML = '
     <div style="padding:16px;background:var(--lb);border-radius:10px;margin-bottom:20px;display:flex;gap:24px;flex-wrap:wrap;">
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">CLIENT</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${clientName}</div><div style="font-size:12px;color:var(--gray);">${clientId}</div></div>
       <div><div style="font-size:11px;color:var(--gray);font-weight:700;">TOTAL DISPUTES</div><div style="font-size:15px;font-weight:800;color:var(--blue);">${clientDisputes.length} rounds</div></div>
@@ -2010,14 +2010,14 @@ function renderTimeline() {
     </div>
     <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:16px;">📅 Case Timeline — What the client sees</div>
     <div class="timeline">
-      ${allEvents.map(e=>`
+      ${allEvents.map(e=>'
         <div class="tl-item">
           <div class="tl-dot ${e.type||'blue'}"></div>
           <div class="tl-date">${e.date}</div>
           <div class="tl-title">${e.title}</div>
           <div class="tl-desc">${e.desc}</div>
         </div>
-      `).join('')}
+      ').join('')}
       <div class="tl-item">
         <div class="tl-dot gold"></div>
         <div class="tl-date">${clientDisputes[0]?.filedDate || '—'}</div>
@@ -2026,7 +2026,7 @@ function renderTimeline() {
       </div>
     </div>
     <button class="btn btn-blue btn-sm" onclick="addTimelineEvent('${clientId}')" style="margin-top:16px;">+ Add Timeline Event</button>
-  `;
+  ';
 }
 
 function addTimelineEvent(clientId) {
@@ -2160,14 +2160,14 @@ function renderByEmployee(filteredDisputes, filteredCalls) {
     return;
   }
 
-  tbody.innerHTML = rows.map((r,i) => `<tr>
+  tbody.innerHTML = rows.map((r,i) => '<tr>
     <td><strong>${r.name}</strong>${i===0?'<span class="badge badge-gold" style="margin-left:6px;">Top</span>':''}</td>
     <td>${r.disputes}</td>
     <td>${r.calls}</td>
     <td><strong>${r.total}</strong></td>
     <td>${r.resolved > 0 ? '<span style="color:var(--green);font-weight:700;">'+r.resolved+'</span>' : '—'}</td>
     <td>${r.clients}</td>
-  </tr>`).join('');
+  </tr>').join('');
 }
 
 // Portal status updater
@@ -2231,13 +2231,13 @@ function renderMailLog() {
   const el = document.getElementById('mail-log-list');
   if(!el || mailLogs.length===0) return;
   el.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px;">Mailing History</div>' +
-    mailLogs.map(m=>`<div style="display:flex;gap:12px;align-items:center;padding:8px 12px;background:#F9FAFB;border-radius:6px;margin-bottom:6px;font-size:12px;">
+    mailLogs.map(m=>'<div style="display:flex;gap:12px;align-items:center;padding:8px 12px;background:#F9FAFB;border-radius:6px;margin-bottom:6px;font-size:12px;">
       <span>📬</span>
       <strong>${m.bureau}</strong>
       <span style="color:var(--gray);">Mailed: ${m.date}</span>
       <span style="color:var(--gray);">Tracking: <code style="background:#F3F4F6;padding:2px 6px;border-radius:4px;">${m.tracking}</code></span>
       ${m.delivered?'<span class="badge badge-green">Delivered ✅</span>':'<span class="badge badge-gold">In Transit</span>'}
-    </div>`).join('');
+    </div>').join('');
 }
 
 function startNextRound() {
