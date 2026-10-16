@@ -1595,9 +1595,9 @@ function displayLetters(style, bureaus, today) {
 
   // Bureau letter tabs
   const tabsEl = document.getElementById('letter-bureau-tabs');
-  tabsEl.innerHTML = bureaus.map((code,i) =>
-    `<button class="bureau-pill bureau-${code}${i===0?' selected':''}" onclick="showLetter(`${code}`)" id="ltab-${code}">${BUREAU_NAMES[code]}</button>`
-  ).join('');
+  tabsEl.innerHTML = bureaus.map(function(code, i) {
+    return '<button class="bureau-pill bureau-' + code + (i===0?' selected':'') + '" onclick="showLetter(\'' + code + '\')">' + code + '</button>';
+  }).join('');;
 
   // Meta
   document.getElementById('letters-meta').textContent =
