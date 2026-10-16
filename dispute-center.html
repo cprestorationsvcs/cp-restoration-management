@@ -1835,7 +1835,7 @@ function renderNotificationLog() {
     return;
   }
   const statusBadge = s => s==='Sent'?'badge-green':s.includes('Queued')?'badge-gold':'badge-red';
-  tbody.innerHTML = notificationLog.map(n=>'`tr>
+  tbody.innerHTML = notificationLog.map(n=>`<tr>
     <td>${n.date}</td>
     <td><strong>${n.client}</strong><br><span style="font-size:11px;color:var(--gray);">${n.clientId||''}</span></td>
     <td>${n.type}</td>
