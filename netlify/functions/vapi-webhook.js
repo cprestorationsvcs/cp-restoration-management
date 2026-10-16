@@ -502,7 +502,7 @@ exports.handler = async function(event, context) {
     // Do NOT do any DB lookups here — must respond within 2-3 seconds
     const assistantId = ASSISTANT_ID || process.env.VAPI_ASSISTANT_ID || '';
     const callerPhone = body?.message?.call?.customer?.number || '';
-    const isBusinessHours = isBusinessHoursNow();
+    const isBusinessHours = isBusinessHours();
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
