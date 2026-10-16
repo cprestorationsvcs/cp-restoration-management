@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff Login | CP Restoration</title>
+<script src="/app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;}
+body{background:#F8FAFC;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+</style>
+</head>
+<body>
+<div id="login-screen" style="width:100%;max-width:400px;padding:20px;"></div>
+<div id="app" style="display:none;"></div>
+<script>
+// Render login form — matches app.js login logic
+document.getElementById('login-screen').innerHTML = \`
+<div style="background:white;border-radius:20px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <div style="text-align:center;margin-bottom:28px;">
+    <div style="font-size:36px;margin-bottom:8px;">🛡️</div>
+    <h1 style="font-size:22px;font-weight:900;color:#1B3A6B;">CP Restoration</h1>
+    <p style="font-size:13px;color:#64748B;margin-top:4px;">Staff Portal Login</p>
+  </div>
+  <div style="margin-bottom:14px;">
+    <label style="display:block;font-size:12px;font-weight:700;color:#1B3A6B;text-transform:uppercase;margin-bottom:5px;">Email</label>
+    <input id="login-email" type="email" placeholder="your@mycprteam.com" style="width:100%;padding:12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:14px;font-family:inherit;">
+  </div>
+  <div style="margin-bottom:20px;">
+    <label style="display:block;font-size:12px;font-weight:700;color:#1B3A6B;text-transform:uppercase;margin-bottom:5px;">Password</label>
+    <input id="login-pw" type="password" placeholder="Your password" style="width:100%;padding:12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:14px;font-family:inherit;" onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+  <div id="login-err" style="display:none;background:#FEE2E2;color:#991B1B;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px;"></div>
+  <button onclick="doLogin()" style="width:100%;padding:14px;background:#1B3A6B;color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;">Login</button>
+  <div style="text-align:center;margin-top:16px;">
+    <a href="/" style="font-size:12px;color:#64748B;text-decoration:none;">← Back to website</a>
+  </div>
+</div>\`;
+
+function doLogin(){
+  var email = document.getElementById('login-email').value.trim().toLowerCase();
+  var pass  = document.getElementById('login-pw').value;
+  var errEl = document.getElementById('login-err');
+  if(!email||!pass){ errEl.textContent='Please enter your email and password.'; errEl.style.display='block'; return; }
+  if(typeof EMPLOYEES === 'undefined'){ errEl.textContent='Loading... please try again.'; errEl.style.display='block'; return; }
+  var emp = EMPLOYEES[email];
+  if(!emp || emp.password !== pass){
+    errEl.textContent='Invalid email or password. Contact Jason if you need help.'; errEl.style.display='block'; return;
+  }
+  localStorage.setItem('currentUser', email);
+  localStorage.setItem('currentName', emp.name);
+  localStorage.setItem('currentRole', emp.role);
+  localStorage.setItem('currentLabel', emp.label||'');
+  // Redirect based on role
+  var role = emp.role;
+  if(role==='admin' || role==='compliance') window.location.href='/cs-dashboard.html';
+  else if(role==='cs') window.location.href='/cs-dashboard.html';
+  else if(role==='dispute') window.location.href='/dispute-center.html';
+  else if(role==='bureau') window.location.href='/bureau-caller-dashboard.html';
+  else if(role==='partner') window.location.href='/partner-dashboard.html';
+  else if(role==='sales') window.location.href='/sales-dashboard.html';
+  else window.location.href='/cs-dashboard.html';
+}
+</script>
+</body>
+</html>
