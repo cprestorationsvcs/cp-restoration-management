@@ -3418,19 +3418,7 @@ fetch('https://ipapi.co/json/').then(function(r){return r.json();}).then(functio
 </script>
 <script>
 // Ensure showTab is globally available
-function showTab(id) {
-  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
-  var panel = document.getElementById('tab-'+id);
-  if(panel) panel.classList.add('active');
-  document.querySelectorAll('.tab-btn').forEach(function(b){
-    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'")) b.classList.add('active');
-  });
-  if(id==='dispute-log') { try{loadDisputes();}catch(e){try{renderLog();}catch(e2){console.warn(e2);}} }
-  if(id==='client-timeline') { try{renderTimeline();}catch(e){console.warn(e);} }
-  if(id==='notifications') { try{renderNotificationLog();}catch(e){console.warn(e);} }
-  if(id==='log-call') { try{loadRecentCalls();}catch(e){console.warn(e);} }
-}
+
 </script>
 </body>
 </html>
