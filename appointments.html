@@ -204,12 +204,14 @@ function setTab(t, el) {
 }
 
 async function loadAppts() {
+  try {
   var r = await safeFetch(SUPA_BASE + (SUPA.replace ? SUPA.replace(SUPA_BASE,'') : '') + '/appointments?order=appointment_date.asc&limit=200&select=*', { headers: HDR });
   var data = await r.json();
   if (Array.isArray(data)) allAppts = data;
   checkOverdue();
   render();
-}
+
+  } catch(e){ console.error("[Appts] loadAppts error:",e.message); document.getElementById("appt-grid").innerHTML="<div class='empty'><div>⚠️ Error loading appointments. Please refresh.</div></div>"; }}
 
 function checkOverdue() {
   var now = new Date();
