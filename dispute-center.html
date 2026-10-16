@@ -1828,23 +1828,26 @@ async function sendNotifications(dispute) {
 }
 
 function renderNotificationLog() {
-  const tbody = document.getElementById('notification-log-table');
-  if(!tbody) return;
-  if(notificationLog.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px;">No notifications sent yet.</td></tr>';
+  var tbody = document.getElementById('notif-log-tbody');
+  if (!tbody) return;
+  if (!notificationLog.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);">No notifications sent yet.</td></tr>';
     return;
   }
-  const statusBadge = s => s==='Sent'?'badge-green':s.includes('Queued')?'badge-gold':'badge-red';
-  tbody.innerHTML = notificationLog.map(n=>`<tr>
-    <td>${n.date}</td>
-    <td><strong>${n.client}</strong><br><span style="font-size:11px;color:var(--gray);">${n.clientId||''}</span></td>
-    <td>${n.type}</td>
-    <td>${n.channel==='SMS'?'📱 SMS':'📧 Email'}</td>
-    <td><span class="badge ${statusBadge(n.status)}">${n.status}</span></td>
-    <td style="font-size:11px;color:var(--gray);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${n.preview}</td>
-  </tr>`).join('');
+  var statusBadge = function(s) { return s==='Sent'?'badge-green':s.includes('Queued')?'badge-gold':'badge-red'; };
+  tbody.innerHTML = notificationLog.map(function(n) {
+    var bureaus = (n.bureaus||[]).map(function(b){ return '<span class="badge badge-gray" style="margin-right:2px;">'+b.substring(0,2)+'</span>'; }).join('');
+    return '<tr>' +
+      '<td>' + escHtml(n.date||'') + '</td>' +
+      '<td><strong>' + escHtml(n.client||'') + '</strong><br><span style="font-size:11px;color:var(--gray);">' + escHtml(n.clientId||'') + '</span></td>' +
+      '<td>' + escHtml(n.type||'') + '</td>' +
+      '<td>' + (n.channel==='SMS' ? '📱 SMS' : '📧 Email') + '</td>' +
+      '<td><span class="badge ' + statusBadge(n.status||'') + '">' + escHtml(n.status||'') + '</span></td>' +
+      '<td>' + bureaus + '</td>' +
+      '<td style="font-size:11px;color:var(--gray);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(n.preview||'') + '</td>' +
+    '</tr>';
+  }).join('');
 }
-
 async function sendTestNotification() {
   const phone = prompt('Enter a phone number to send a test SMS:','+1');
   if(!phone || phone==='+1') return;
