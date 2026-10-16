@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+(function(){
+  var user=localStorage.getItem('cp_logged_in_user')||localStorage.getItem('currentUser');
+  var role=localStorage.getItem('cp_logged_in_role');
+  if(!user){window.location.href='/staff-portal.html';return;}
+  if(role && role!=='partner' && role!=='admin'){window.location.href='/cs-dashboard.html';}
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Partner Dashboard | CP Restoration</title>
