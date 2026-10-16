@@ -145,9 +145,7 @@ function initUser() {
 }
 
 // ── HELPERS ───────────────────────────────────────────
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+
 function isImage(name) { return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(name); }
 function formatSize(b) {
   if (b < 1024) return b + ' B';
