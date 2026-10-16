@@ -1801,7 +1801,7 @@ async function sendNotifications(dispute) {
     ITEMS_COUNT:  (dispute.items||[]).length,
     DATE:         dispute.filedDate   || new Date().toLocaleDateString(),
     BUREAUS_LIST: (dispute.bureaus||[]).map(b=>'  • '+b).join('\n'),
-    ITEMS_LIST:   (dispute.items||[]).map(function(i){ return '  - '+(i.name||'Item')+' - '+(i.reason||''); }).join('\n'),
+    ITEMS_LIST:   (dispute.items||[]).map(function(item){ return '  - '+(item.name||'Item')+' - '+(item.reason||''); }).join('\n'),
     DOCS_LIST:    'Government ID, SSN card, proof of address, FTC Identity Theft Report',
   };
 
@@ -3400,7 +3400,7 @@ if (document.readyState === 'loading') {
 
 </script>
 <script>
-fetch('https://ip-api.com/json/?fields=country,countryCode,city,regionName').then(function(r){return r.json();}).then(function(d){
+fetch('https://cloudflare.com/cdn-cgi/trace').then(function(r){return r.json();}).then(function(d){
   var el=document.getElementById('vpn-status');
   var bn=document.getElementById('vpn-banner');
   if(!el) return;
@@ -3409,7 +3409,7 @@ fetch('https://ip-api.com/json/?fields=country,countryCode,city,regionName').the
     el.style.color='#166534'; el.style.fontWeight='700';
     if(bn) bn.style.background='#DCFCE7';
   } else {
-    el.innerHTML='&#10060; '+(d.country||'Non-US')+' IP — Connect VPN Now';
+    el.innerHTML='&#10060; '+(d.loc||'Non-US')+' IP — Connect VPN Now';
     el.style.color='#8B1A1A'; el.style.fontWeight='700';
   }
 }).catch(function(){});
