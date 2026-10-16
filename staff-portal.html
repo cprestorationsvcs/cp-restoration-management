@@ -4,63 +4,80 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Staff Login | CP Restoration</title>
-<script src="/app.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;}
-body{background:#F8FAFC;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+body{background:#F8FAFC;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.card{background:white;border-radius:20px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,0.08);width:100%;max-width:380px;}
+.logo{text-align:center;margin-bottom:28px;}
+.logo-ico{font-size:36px;margin-bottom:8px;}
+.logo h1{font-size:22px;font-weight:900;color:#1B3A6B;}
+.logo p{font-size:13px;color:#64748B;margin-top:4px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.field input{width:100%;padding:12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;}
+.field input:focus{border-color:#1B3A6B;}
+.err{display:none;background:#FEE2E2;color:#991B1B;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px;}
+.btn{width:100%;padding:14px;background:#1B3A6B;color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;}
+.btn:hover{background:#162f58;}
+.back{text-align:center;margin-top:16px;}
+.back a{font-size:12px;color:#64748B;text-decoration:none;}
 </style>
 </head>
 <body>
-<div id="login-screen" style="width:100%;max-width:400px;padding:20px;"></div>
-<div id="app" style="display:none;"></div>
-<script>
-// Render login form — matches app.js login logic
-document.getElementById('login-screen').innerHTML = \`
-<div style="background:white;border-radius:20px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-  <div style="text-align:center;margin-bottom:28px;">
-    <div style="font-size:36px;margin-bottom:8px;">🛡️</div>
-    <h1 style="font-size:22px;font-weight:900;color:#1B3A6B;">CP Restoration</h1>
-    <p style="font-size:13px;color:#64748B;margin-top:4px;">Staff Portal Login</p>
+<div class="card">
+  <div class="logo">
+    <div class="logo-ico">&#128737;</div>
+    <h1>CP Restoration</h1>
+    <p>Staff Portal Login</p>
   </div>
-  <div style="margin-bottom:14px;">
-    <label style="display:block;font-size:12px;font-weight:700;color:#1B3A6B;text-transform:uppercase;margin-bottom:5px;">Email</label>
-    <input id="login-email" type="email" placeholder="your@mycprteam.com" style="width:100%;padding:12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:14px;font-family:inherit;">
+  <div class="field">
+    <label>Email</label>
+    <input type="email" id="login-email" placeholder="your@mycprteam.com">
   </div>
-  <div style="margin-bottom:20px;">
-    <label style="display:block;font-size:12px;font-weight:700;color:#1B3A6B;text-transform:uppercase;margin-bottom:5px;">Password</label>
-    <input id="login-pw" type="password" placeholder="Your password" style="width:100%;padding:12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:14px;font-family:inherit;" onkeydown="if(event.key==='Enter')doLogin()">
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="login-pw" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()">
   </div>
-  <div id="login-err" style="display:none;background:#FEE2E2;color:#991B1B;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px;"></div>
-  <button onclick="doLogin()" style="width:100%;padding:14px;background:#1B3A6B;color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;">Login</button>
-  <div style="text-align:center;margin-top:16px;">
-    <a href="/" style="font-size:12px;color:#64748B;text-decoration:none;">← Back to website</a>
-  </div>
-</div>\`;
+  <div class="err" id="login-err"></div>
+  <button class="btn" onclick="doLogin()">Login</button>
+  <div class="back"><a href="/">&#8592; Back to website</a></div>
+</div>
 
-function doLogin(){
+<script>
+var EMPLOYEES = {
+  'jason@mycprteam.com':               { password:'CPRAdmin2026',     name:'Jason Crown',         role:'admin',      label:'Admin' },
+  'queen@mycprteam.com':               { password:'CPR2026',          name:'Queen Jearel Cruz',   role:'compliance', label:'Compliance' },
+  'elna@mycprteam.com':                { password:'CPR2026',          name:'Elna Palabrica',      role:'cs',         label:'CS Agent' },
+  'alec@mycprteam.com':                { password:'CPR2026',          name:'Alec Sarrosa',        role:'cs',         label:'CS Agent' },
+  'marcelo@mycprteam.com':             { password:'CPR2026',          name:'Marcelo Torres',      role:'dispute',    label:'Dispute Specialist' },
+  'annabel@mycprteam.com':             { password:'CPR2026',          name:'Annabel Curada',      role:'dispute',    label:'Dispute Specialist' },
+  'bukunmi@mycprteam.com':             { password:'CPR2026',          name:'Bukunmi Aina',        role:'sales',      label:'Lead Generation' },
+  'rosemarie@mycprteam.com':           { password:'CPR2026',          name:'Rosemarie De Guzman', role:'bureau',     label:'Bureau Caller' },
+  'rosemarie.deguzman@mycprteam.com':  { password:'CPR2026',          name:'Rosemarie De Guzman', role:'bureau',     label:'Bureau Caller' },
+  'raymon.guevarra@mycprteam.com':     { password:'CPRRaymon2026',    name:'Raymon Guevarra',     role:'cs',         label:'Sales Rep / CS' },
+  'info@alleneconomics.com':           { password:'CPRPartner2026',   name:'Antuanne Allen',      role:'partner',    label:'Partner' }
+};
+
+function doLogin() {
   var email = document.getElementById('login-email').value.trim().toLowerCase();
   var pass  = document.getElementById('login-pw').value;
-  var errEl = document.getElementById('login-err');
-  if(!email||!pass){ errEl.textContent='Please enter your email and password.'; errEl.style.display='block'; return; }
-  if(typeof EMPLOYEES === 'undefined'){ errEl.textContent='Loading... please try again.'; errEl.style.display='block'; return; }
+  var err   = document.getElementById('login-err');
+  err.style.display = 'none';
+  if (!email || !pass) { err.textContent = 'Please enter your email and password.'; err.style.display = 'block'; return; }
   var emp = EMPLOYEES[email];
-  if(!emp || emp.password !== pass){
-    errEl.textContent='Invalid email or password. Contact Jason if you need help.'; errEl.style.display='block'; return;
-  }
-  localStorage.setItem('currentUser', email);
-  localStorage.setItem('currentName', emp.name);
-  localStorage.setItem('currentRole', emp.role);
-  localStorage.setItem('currentLabel', emp.label||'');
-  // Redirect based on role
+  if (!emp || emp.password !== pass) { err.textContent = 'Invalid email or password. Contact Jason if you need help.'; err.style.display = 'block'; return; }
+  localStorage.setItem('currentUser',  email);
+  localStorage.setItem('currentName',  emp.name);
+  localStorage.setItem('currentRole',  emp.role);
+  localStorage.setItem('currentLabel', emp.label || '');
   var role = emp.role;
-  if(role==='admin' || role==='compliance') window.location.href='/cs-dashboard.html';
-  else if(role==='cs') window.location.href='/cs-dashboard.html';
-  else if(role==='dispute') window.location.href='/dispute-center.html';
-  else if(role==='bureau') window.location.href='/bureau-caller-dashboard.html';
-  else if(role==='partner') window.location.href='/partner-dashboard.html';
-  else if(role==='sales') window.location.href='/sales-dashboard.html';
-  else window.location.href='/cs-dashboard.html';
+  if (role === 'admin' || role === 'compliance' || role === 'cs') window.location.href = '/cs-dashboard.html';
+  else if (role === 'dispute')  window.location.href = '/dispute-center.html';
+  else if (role === 'bureau')   window.location.href = '/bureau-caller-dashboard.html';
+  else if (role === 'partner')  window.location.href = '/partner-dashboard.html';
+  else if (role === 'sales')    window.location.href = '/sales-dashboard.html';
+  else window.location.href = '/cs-dashboard.html';
 }
 </script>
 </body>
