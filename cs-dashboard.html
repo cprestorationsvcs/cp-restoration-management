@@ -12,9 +12,10 @@ function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt
 function safeFetch(url,opts){return fetch(url,opts).catch(function(e){console.error('[Portal]',url,e.message);return {ok:false,status:0,json:function(){return Promise.resolve([]);}};}); }
 (function(){
   var page=location.pathname.split('/').pop()||'index.html';
-  var open=['index.html','staff-portal.html','client-portal.html','client-onboarding.html','partner-guide.html','free-guide.html','lead-capture.html','thank-you-guide.html','thank-you-funded.html','get-funded.html','onboard.html',''];
+  var open=['index.html','staff-portal.html','client-portal.html','client-onboarding.html','partner-guide.html','free-guide.html','lead-capture.html','thank-you-guide.html','thank-you-funded.html','get-funded.html','onboard.html','dashboard.html',''];
   if(open.indexOf(page)>=0)return;
-  var user=localStorage.getItem('currentUser');
+  // Check both key formats for compatibility
+  var user=localStorage.getItem('cp_logged_in_user')||localStorage.getItem('currentUser');
   if(!user){window.location.href='/staff-portal.html';return;}
 })();
 </script>
