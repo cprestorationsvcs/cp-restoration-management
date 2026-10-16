@@ -77,6 +77,7 @@ body{background:var(--bg);min-height:100vh;}
   <div class="tab" onclick="showTab('dispute',this)">⚖️ Dispute</div>
   <div class="tab" onclick="showTab('bureau',this)">📞 Bureau Calling</div>
   <div class="tab" onclick="showTab('sales',this)">💰 Sales</div>
+  <div class="tab" onclick="showTab('sales-calls',this)">📱 Sales Calls</div>
   <div class="tab" onclick="showTab('incentives',this)">🏆 Incentives</div>
 </div>
 
@@ -174,6 +175,62 @@ body{background:var(--bg);min-height:100vh;}
     </div>
     <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 18px;font-size:12px;color:#1B3A6B;">
       <strong>Validation criteria:</strong> Lead marked 🎉 Sold + Client ID created in Client Manager + Name, Email, or Phone matches. All 3 conditions required for ✅ Commission Qualified status.
+    </div>
+  </div>
+
+  <!-- SALES CALLS -->
+  <div class="dept-tab" id="tab-sales-calls">
+    <div class="section-title">Sales Call Activity</div>
+    <div style="background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:10px;padding:14px 18px;font-size:12px;color:#92400E;margin-bottom:20px;">
+      <strong>⏳ RingCentral API connection required</strong> for full automation. Data below reflects what is currently available from the portal. Connect RingCentral to unlock dial counts, call recordings, and talk scripts.
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="sc-total-dials">—</div><div class="stat-label">Total Dials</div><div class="stat-sub">this period</div></div>
+      <div class="stat"><div class="stat-num" id="sc-connected">—</div><div class="stat-label">Connected Calls</div><div class="stat-sub">60s+ qualifying</div></div>
+      <div class="stat"><div class="stat-num" id="sc-recordings">—</div><div class="stat-label">Recordings Available</div></div>
+      <div class="stat"><div class="stat-num" id="sc-conversion">—%</div><div class="stat-label">Dial-to-Sale Rate</div></div>
+    </div>
+    <div class="kpi-table" style="margin-bottom:24px;">
+      <table>
+        <thead><tr><th>Sales Rep</th><th>Total Dials</th><th>Connected (60s+)</th><th>Voicemails</th><th>Avg Talk Time</th><th>Recordings</th><th>Sales Closed</th></tr></thead>
+        <tbody id="sc-rows">
+          <tr>
+            <td><strong>Raymon Guevarra</strong></td>
+            <td><span class="badge badge-blue">⏳ RC needed</span></td>
+            <td><span class="badge badge-blue">⏳ RC needed</span></td>
+            <td>—</td><td>—</td>
+            <td><span class="badge badge-blue">⏳ RC needed</span></td>
+            <td id="sc-raymon-sales">—</td>
+          </tr>
+          <tr>
+            <td><strong>Bukunmi Aina</strong></td>
+            <td><span class="badge badge-blue">⏳ RC needed</span></td>
+            <td><span class="badge badge-blue">⏳ RC needed</span></td>
+            <td>—</td><td>—</td>
+            <td><span class="badge badge-blue">⏳ RC needed</span></td>
+            <td id="sc-bukunmi-sales">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="kpi-table">
+      <table>
+        <thead><tr><th>Call Recording</th><th>Sales Rep</th><th>Lead Name</th><th>Date & Time</th><th>Duration</th><th>Outcome</th><th>Listen</th></tr></thead>
+        <tbody id="sc-recordings-list">
+          <tr><td colspan="7" class="empty">⏳ RingCentral connection required to display recordings</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:16px 18px;font-size:13px;color:#1B3A6B;margin-top:16px;">
+      <strong>📋 What will be tracked once RingCentral is connected:</strong><br><br>
+      • <strong>Total dials per rep per day/week</strong> — every outbound call attempt<br>
+      • <strong>Connected calls</strong> — calls with 60+ seconds talk time<br>
+      • <strong>Voicemails left</strong> — calls under 60 seconds to new leads<br>
+      • <strong>Call recordings</strong> — playback directly in the dashboard with lead name attached<br>
+      • <strong>Talk script compliance</strong> — flag calls where key phrases were used (opener, pricing, close)<br>
+      • <strong>Dial-to-appointment rate</strong> — dials that resulted in a booked appointment<br>
+      • <strong>Dial-to-sale rate</strong> — dials that resulted in a closed deal<br>
+      • <strong>Average talk time per rep</strong> — benchmark for quality conversations
     </div>
   </div>
 
@@ -340,6 +397,17 @@ async function loadAll() {
       '<td><span class="badge badge-blue">⏳ RingCentral data needed</span></td>'+
     '</tr>';
   }).join('');
+
+  // ── SALES CALLS ──────────────────────────────────────
+  // Populate what we have from portal (sales closed per rep)
+  var raymonSales = soldLeads.filter(function(l){ return (l.assigned_to||'').includes('raymon')||(l.source||'').includes('raymon'); }).length;
+  var bukunmiSales = soldLeads.filter(function(l){ return (l.assigned_to||'').includes('bukunmi')||(l.source||'').includes('bukunmi'); }).length;
+  document.getElementById('sc-raymon-sales').textContent = raymonSales + ' sales';
+  document.getElementById('sc-bukunmi-sales').textContent = bukunmiSales + ' sales';
+  document.getElementById('sc-total-dials').textContent = '—';
+  document.getElementById('sc-connected').textContent = '—';
+  document.getElementById('sc-recordings').textContent = '—';
+  document.getElementById('sc-conversion').textContent = soldLeads.length && leads.length ? Math.round((soldLeads.length/leads.length)*100)+'%' : '—';
 
   // ── SALES ──────────────────────────────────────────────
   document.getElementById('sl-leads').textContent = leads.length;
