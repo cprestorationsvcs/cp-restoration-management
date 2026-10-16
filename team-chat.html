@@ -297,6 +297,9 @@ function appendMsg(m) {
 
 // ── SEND MESSAGE ──────────────────────────────────────
 async function sendMsg() {
+  if (window._sendingMsg) return;
+  window._sendingMsg = true;
+  setTimeout(function(){ window._sendingMsg = false; }, 2000);
   if (sending) return;
   var input = document.getElementById('msg-input');
   var text = (input.value || '').trim();
