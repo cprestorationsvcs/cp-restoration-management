@@ -213,7 +213,8 @@ async function loadEmailMessagesPortal() {
       el.innerHTML='<div style="color:var(--gray);font-size:13px;text-align:center;padding:24px;">No emails yet from CP Restoration Services.</div>';
       return;
     }
-    el.innerHTML = data.map(function(e){
+    window._portalEmails = data;
+    el.innerHTML = data.map(function(e, idx){
       var ts = e.sent_at ? new Date(e.sent_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
       return '<div onclick="viewEmail('+JSON.stringify(e)+')" style="padding:14px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background=''">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;">' +
