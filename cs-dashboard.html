@@ -851,10 +851,14 @@ async function sendClientEmail(mode) {
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         to: currentClient.email,
-        clientName: currentClient.name,
+        client_id: currentClient.id,
+        client_name: currentClient.name,
         subject: subject,
-        body: bodyHtml,
-        from: 'CP Restoration Services <info@35daycreditrepair.com>'
+        html: bodyHtml,
+        text: bodyText,
+        post_to_portal: postPortal,
+        sent_by: localStorage.getItem('currentUser')||'',
+        sent_by_name: localStorage.getItem('cp_logged_in_name')||''
       })
     });
     // Log in email_log table
