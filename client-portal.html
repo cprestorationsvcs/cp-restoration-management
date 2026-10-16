@@ -234,7 +234,7 @@ async function loadEmailMessagesPortal() {
     window._portalEmails = data;
     el.innerHTML = data.map(function(e, idx){
       var ts = e.sent_at ? new Date(e.sent_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
-      return '<div onclick="viewEmail(window._portalEmails['+idx+'])" style="padding:14px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background=''">' +
+      return '<div onclick="viewEmail(window._portalEmails['+idx+'])" style="padding:14px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;">' +
           '<div style="font-size:13px;font-weight:700;color:var(--navy);">📧 '+e.subject+'</div>' +
           '<div style="font-size:11px;color:var(--gray);">'+ts+'</div>' +
