@@ -113,6 +113,16 @@ var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6
 var HDR = { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json' };
 
 var currentUser = null;
+// Load from localStorage on init
+(function(){
+  var name = localStorage.getItem('cp_logged_in_name');
+  var email = localStorage.getItem('cp_logged_in_user') || localStorage.getItem('currentUser');
+  var role = localStorage.getItem('cp_logged_in_role');
+  var initials = localStorage.getItem('cp_logged_in_initials') || (name ? name.split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase() : '?');
+  if (name && email) {
+    currentUser = { name: name, email: email, role: role, initials: initials };
+  }
+})();
 var lastId = 0;
 var pollTimer = null;
 var sending = false;
