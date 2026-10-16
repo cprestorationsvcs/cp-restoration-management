@@ -173,7 +173,7 @@ function openDataUrl(url, name) {
 // ── LOAD MESSAGES ─────────────────────────────────────
 async function loadMessages(initial) {
   try {
-    var url = SUPA + '/team_chat?channel=eq.general&order=id.asc&limit=500';
+    var url = SUPA + '/team_chat?channel=eq.general&order=id.desc&limit=200';
     if (!initial && lastId > 0) url += '&id=gt.' + lastId;
     var r = await fetch(url, { headers: HDR });
     if (!r.ok) {
@@ -181,12 +181,15 @@ async function loadMessages(initial) {
         document.getElementById('db-outage-banner').style.display = 'block';
         // Back off — slow poll to 30s on server errors to stop hammering
         if (pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(function(){ loadMessages(false); }, 30000); }
+        lastId = 0; // Reset so next successful load fetches full history
       }
       showStatus('Connection error: ' + r.status, 'error');
       document.getElementById('conn-status').textContent = 'Reconnecting...';
       return;
     }
     document.getElementById('db-outage-banner').style.display = 'none';
+    // Resume normal 10s poll if we were backed off
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(function(){ loadMessages(false); }, 10000); }
     // Resume normal 10s poll if we were backed off
     if (pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(function(){ loadMessages(false); }, 10000); }
     var msgs = await r.json();
